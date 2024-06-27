@@ -1,0 +1,14 @@
+.missing-publications-toggle {
+    position: relative;
+    margin-right: 5px;
+  }
+  
+  .missing-publications-toggle::after {
+    content: "\f107";
+    right: 0px;
+    font-family: "FontAwesome"
+  }
+  
+  .missing-publications-toggle[aria-expanded="true"]::after {
+    content: "\f106";
+  }

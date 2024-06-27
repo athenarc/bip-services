@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /site/get-citations
+Disallow: /site/get-references
+
+User-agent: DataForSeoBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10

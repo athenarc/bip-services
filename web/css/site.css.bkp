@@ -1,0 +1,352 @@
+html,
+body {
+    height: 100%;
+}
+
+#overwrap
+{
+    min-height: 100%;
+    position: relative;
+}
+
+.wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto 0px;
+    padding: 0 0 60px;
+}
+
+.wrap > .container {
+    padding: 70px 15px 20px;
+}
+
+.footer {
+    height: 60px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    padding: 0px;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+}
+
+.left-footer {
+	margin: 10px;
+}
+
+.right-footer {
+	margin: 20px;
+}
+
+.logo-footer {
+	margin: 0px;
+	padding: 0px;
+	height: 40px;
+}
+
+.jumbotron {
+    text-align: center;
+    background-color: transparent;
+}
+
+.jumbotron h1{
+    margin-bottom: 10px;
+    margin-top   : 10px;
+}
+
+.jumbotron .btn {
+    /*font-size: 21px;
+    padding: 14px 24px;*/
+    vertical-align: top;
+}
+
+.jumbotron .btn.btn-warning
+{
+    font-size: 21px;
+    padding: 14px 24px;
+}
+
+.not-set {
+    color: #c55;
+    font-style: italic;
+}
+
+
+/* add sorting icons to gridview sort links */
+a.asc:after, a.desc:after {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    padding-left: 5px;
+}
+
+a.asc:after {
+    content: /*"\e113"*/ "\e151";
+}
+
+a.desc:after {
+    content: /*"\e114"*/ "\e152";
+}
+
+.sort-numerical a.asc:after {
+    content: "\e153";
+}
+
+.sort-numerical a.desc:after {
+    content: "\e154";
+}
+
+.sort-ordinal a.asc:after {
+    content: "\e155";
+}
+
+.sort-ordinal a.desc:after {
+    content: "\e156";
+}
+
+.grid-view th {
+    white-space: nowrap;
+}
+
+.hint-block {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+}
+
+.error-summary {
+    color: #a94442;
+    background: #fdf7f7;
+    border-left: 3px solid #eed3d7;
+    padding: 10px 20px;
+    margin: 0 0 15px 0;
+}
+
+div#ordering label
+{
+    font-weight: normal;
+}
+
+div#location label
+{
+    font-weight: normal;
+}
+
+div.field-location,
+div.field-ordering,
+div.field-relevance
+{
+    color: #aaa;
+}
+
+#floating-heart
+{  
+    display: inline-block;
+    //margin-right: 20px;
+    //vertical-align: middle;
+}
+
+#floating-title
+{
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#flex-parent
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#graphviz_test
+{
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+    border: 1px solid #eee;
+    float: left;
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+}
+
+#graphviz_parent
+{
+    width: 100%;
+    height: 500px;
+    display: flex;
+    //align-items: stretch;
+    justify-content: center;
+    //μin-height: 315px;
+    
+    //background-color: #ddd;
+}
+
+.radio-2
+{
+    text-align: left;
+}
+
+.ui-dialog-titlebar-close .ui-icon-closethick 
+{
+    position: relative !important;
+    margin-top: -1px  !important; 
+    margin-left: -1px  !important;
+} 
+
+#dialog
+{
+    text-align: center;
+}
+
+.details-header
+{
+    font-weight: bold;
+}
+
+#graphviz_options
+{
+    padding: 10px;
+    padding-top: 10px;
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: grey;
+    background-color: #eee;
+    overflow-y: auto;
+}
+
+#graphviz_options_radiobuttons
+{
+    text-align: left;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    //display: inline-block;
+    //vertical-align: top;
+    align-self: flex-start;
+    font-size: small;
+}
+
+#graphviz_info
+{
+    width: 100%;
+    //vertical-align: bottom;
+    //display: inline-block;
+    align-self: flex-end;
+}
+
+#loading_graph_div
+{
+    width: 100%;
+    text-align: center;
+    height: 500px;
+    border: 1px solid #eee;
+    padding: 0px;
+    float: left;
+}
+
+#loading_graph_div i
+{
+    position: absolute;
+    top: 40%; left: 50%;
+    //transform: translate(-100%,-50%);
+}
+
+.ui-dialog-content
+{
+    font-size: small;
+    color: grey
+}
+
+.ui-dialog-titlebar-close
+{
+    background-color: #5eba5e;
+    padding: 0px;
+    border: none !important;
+    outline-width: 0px !important;
+}
+
+.ui-button-icon-primary.ui-icon.ui-icon-closethick
+{
+    border: none !important;
+    outline-width: 0px !important;
+}
+
+.ui-widget-header .ui-icon
+{
+    background-image: url(../img/ui-icons_ffffff_256x240.png) !important;
+}
+
+#graphviz_title
+{
+    text-align: center;
+    //background-color: #eee;
+    color: grey;
+    font-size: medium;
+    font-weight: bold;
+    margin: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#details_container
+{
+    margin-top: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0px;
+}
+#details_container div.row
+{
+    margin: 0px;
+    padding: 0px;
+}
+
+#graphviz_info_citing p, 
+#graphviz_info_cited p
+{
+    padding: 10px;
+}
+
+/*
+#radio_buttons_layout_toggle,*/
+#radio_buttons_restore
+{
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+#graphviz_sub_parent
+{
+    width: 100%;
+    height: 500px;
+    overflow: auto;
+    padding: 0px;
+}
+
+
+#radio_buttons_refresh
+{
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    //width: 100%;
+    //height: 100%;
+    visibility: hidden;
+}
+
+#radio_buttons_refresh
+{
+    z-index: 100;
+}

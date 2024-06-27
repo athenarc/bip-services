@@ -1,0 +1,8 @@
+#swagger-ui {
+	border: solid 2px; 
+	border-color: var(--main-color);
+}
+
+.swagger-ui .info {
+    display: none;;
+}

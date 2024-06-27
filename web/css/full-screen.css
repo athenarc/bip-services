@@ -1,0 +1,15 @@
+.flex-container-fav{
+  /* add webkit display */
+  display: flex;
+  /* justify-content: space-between; */
+  /* align-items: strech; */
+}
+
+div.wrap > div.container{
+  width: 100%;
+  padding: 0;
+}
+
+div#overwrap > div.wrap{
+  padding: 0;
+}

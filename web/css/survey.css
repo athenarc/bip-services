@@ -1,0 +1,7 @@
+.keywords-input {
+	width: 100%;
+}
+
+#no_results_msg{
+	color: red; font-style: italic;
+}

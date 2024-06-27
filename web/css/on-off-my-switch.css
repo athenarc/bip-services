@@ -1,0 +1,43 @@
+.my-switch-input {
+    display: none;
+    }
+
+.my-switch {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    }
+
+.my-switch-slider {
+    display: block;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color .3s;
+    margin-bottom: 0px;
+    }
+
+.my-switch-slider::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: left .3s, background-color .3s;
+    }
+
+.my-switch-input:checked + .my-switch-slider {
+    background-color: #5CB85C;
+    }
+
+.my-switch-input:checked + .my-switch-slider::after {
+    left: 22px;
+    background-color: #fff;
+    }

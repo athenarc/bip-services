@@ -1,0 +1,70 @@
+a.noclick {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.sidebar-fav{
+  flex: 0 0 230px;
+  overflow-y: auto;
+  min-height: calc(100vh - (51px + 61px));
+  max-height: calc(100vh - (51px + 61px));
+  /* margin-left: -230px; */
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-right: 1px solid #e3e3e3;
+}
+.sidebar-fav-header{
+  text-align: center;
+}
+
+ul.sidebar-fav-components div.create-folder a{
+  color: #000000ba;
+  padding-left: 1px;
+  padding-right: 0px;
+  font-size: 13px
+}
+ul.sidebar-fav-components div.folders-icon{
+  padding: 10px 15px;
+  margin-top: 2px;
+  font-size: 17px;
+}
+
+/* ---------------- Bootstrap new values: nav nav-pills */
+
+ul.sidebar-fav-components li a{
+  color: #000000d9;
+  padding: 9px 15px;
+}
+
+ul.sidebar-fav-components li a.main-menu{
+  font-size: 15.5px;
+}
+
+ul.sidebar-fav-components li.bookmarks-menu{
+  padding-left: 10px;
+}
+
+ul.sidebar-fav-components > li.active > a, ul.sidebar-fav-components > li.active > a:hover, ul.sidebar-fav-components > li.active > a:focus {
+  background-color: #449D44;
+}
+
+ul.sidebar-fav-components > li > a:hover, .ul.sidebar-fav-components > li > a:focus {
+  background-color: #e7e7e7c4;;
+}
+
+/* ---------------- Sidebar Collapse for Mobile */
+
+@media (max-width: 900px){
+  .sidebar-fav {
+    margin-left: -230px;
+  }
+  .sidebar-appear{
+    margin-left: 0px;
+  }
+}
+
+@media (min-width: 900px){
+  #sidebarCollapse {
+    display: none;
+  }
+}

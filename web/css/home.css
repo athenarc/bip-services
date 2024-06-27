@@ -1,0 +1,14 @@
+.service-card.btn {
+    margin-bottom: 1em;
+    white-space: normal;
+    display: block;
+}
+
+.service-header {
+    font-size: 1.2em;
+    margin-bottom: 0.2em;
+}
+
+.service-description {
+    margin-bottom: 0.2em;
+}

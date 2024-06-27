@@ -1,0 +1,27 @@
+.modal{
+  overflow: auto !important;
+}
+
+.primary-impact-icon {
+  font-size: 3em;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: grey;
+}
+
+.secondary-impact-icon {
+  font-size: 2em;
+}
+
+.details-scores.well {
+  height: 90px;
+  background-color: white;
+}
+
+.details-scores .legend {
+  position: absolute;
+  top: -10px;
+  left: 30px;
+  background-color: white;
+  padding-left: 5px;
+  padding-right: 5px;
+}

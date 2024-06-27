@@ -1,0 +1,40 @@
+
+.folder-content{
+  flex: 1 1;
+  padding-top: 47px;
+  overflow-y: auto;
+  /* min-height: calc(100vh - (51px + 61px)); */
+  max-height: calc(100vh - (51px + 61px));
+  margin: 0px 5px;
+  position: relative;
+}
+
+.folder-content-width{
+  width:70%;
+  margin: 0 auto;
+  max-width: 1250px;
+}
+
+@media (max-width: 1400px){
+  .folder-content-width {
+    width:90%;
+  }
+}
+.btn.bookmark-edit-button, .btn.bookmark-delete-button{
+    background: none;
+    padding: 0 2px;
+    margin: 10px 0;
+    border: none;
+  }
+
+.year-venue-bookmarks{
+  font-size: 12px;
+  font-style: italic;
+  color: grey;
+}
+
+.folder-articles {
+  display: inline-block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

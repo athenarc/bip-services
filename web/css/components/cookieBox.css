@@ -1,0 +1,23 @@
+.cookie-container{
+	position:fixed;
+	bottom: 7%;
+	right: 0%;
+	text-align:justify;
+	z-index:1000;
+	float:right;
+	margin-right:25px;
+	width:325px;
+	height:150px;
+	background-color: white;
+	border-radius: 15px;
+	border-style: solid;
+	border-color: var(--main-color);
+}
+
+
+.cookie-text
+{
+	padding: 10px 10px 5px 10px; /*top right bottom left*/
+	margin:0 auto;
+	height: 100px;
+}

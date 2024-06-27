@@ -1,0 +1,45 @@
+/**
+ * Css file for everything concering the magic search box widget!
+ *
+ * @author Thanasis Vergoulis
+ * @author Ilias kanellos
+ * @author Serafeim Chatzopoulos
+ */
+
+/*
+ * This is the class of the close buttons on selected elements
+ */
+.fa.fa-times
+{
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.non-display
+{
+    display:none;
+}
+
+.hidden_element_box
+{
+	color: var(--main-color);
+}
+
+.magic_search_box_reveal
+{
+	color: var(--main-color);
+	cursor: pointer;
+}
+
+.magic_search_box_hide
+{
+	color: var(--main-color);
+	cursor: pointer;
+}
+
+.magic_search_box_clear_all
+{
+	display: block;
+	color: var(--main-color);
+	cursor: pointer;
+}

@@ -1,0 +1,73 @@
+.reading-status-color[data-color='0']{
+  color: grey
+}
+
+.reading-status-color[data-color='1']{
+  color: #a1a116
+}
+
+.reading-status-color[data-color='2']{
+  color: green
+}
+
+.reading-status-color[data-color='3']{
+  color: black
+}
+
+select.reading-status{
+  background-color:rgb(255, 255, 255);
+  border-radius: 10px;
+  border: 1px solid grey;
+  cursor:pointer;
+  font-size: 12px;
+  font-weight: bold;
+  width: 84px;
+  height: 21px;
+
+}
+
+select.reading-status:focus{
+  /* boostrap default form-control color
+  border-color: #66afe9;;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(102 175 233 / 60%); */
+  border-color: #00A644;
+  box-shadow: 0 1px 1px #00A644 inset, 0 0 4px #00A644;
+  outline: 0 none;
+}
+
+select.reading-status option {
+  color : black;
+  background-color:white;
+}
+
+.rd_status-region > i {
+  vertical-align: middle;
+}
+
+/* notes modal */
+div.reading-status-notes-div {
+  display: inline-block;
+  /* width: 70px; */
+  width: auto;
+  font-size: 90%;
+  font-size: 80%;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid rgb(204, 204, 204);
+  padding: 4px;
+}
+
+/* details view */
+div.reading-status-details-div{
+  display:inline-block;
+  font-size: 14px;
+  position: relative;
+  bottom: 5px;
+}
+
+.reading-status-details-div select.reading-status{
+  font-size: 100%;
+  width: 90px;
+  height: 22px
+}
+

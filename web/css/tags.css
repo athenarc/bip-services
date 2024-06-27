@@ -1,0 +1,98 @@
+/* Merged with bootstrap-tagsinput-v0_8_0.css */
+
+
+.tag-region .tag-options {
+  display: none;
+}
+
+.tag-region .bootstrap-tagsinput {
+  border: none;
+  box-shadow:none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  cursor: default;
+  vertical-align: middle;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+
+.tag-region .bootstrap-tagsinput input {
+  width: 14px;
+  cursor:pointer;
+  border: 1px solid transparent;
+  outline:none;
+  border-radius: 4px;
+  margin-left: 2px;
+
+  box-shadow: none;
+  background-color: transparent;
+  max-width: inherit;
+  line-height: 1;
+}
+
+.tag-region .bootstrap-tagsinput input:focus {
+  width: 80px;
+  cursor:text;
+
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+  background-color: white;
+
+}
+.tag-region .bootstrap-tagsinput input:hover {
+  background-color: white;
+}
+
+.tag-region .bootstrap-tagsinput input::-moz-placeholder {
+  color: #777;
+  opacity: 1;
+}
+.tag-region .bootstrap-tagsinput input:-ms-input-placeholder {
+  color: #777;
+}
+.tag-region .bootstrap-tagsinput input::-webkit-input-placeholder {
+  color: #777;
+}
+
+.tag-region .bootstrap-tagsinput .tag{
+  background-color: white;
+  border: 1px solid grey;
+  color: grey;
+  margin: 2px;
+  font-size: 10px;
+  padding: 0.3em 0.6em 0.3em;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.tag-region .bootstrap-tagsinput .tag [data-role="remove"] {
+  margin-left: 5px;
+  padding: 0px 2px;
+  cursor: pointer;
+
+}
+.tag-region .bootstrap-tagsinput .tag [data-role="remove"]:after {
+  /* content: "x"; */
+  font-family: FontAwesome;
+  content: "\f00d";
+}
+
+.concept-confidence {
+  margin-left: 5px;
+  padding: 0px 2px;
+}
+
+.fa-concept-confidence {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+#top_topics_in_results .topic-item {
+  cursor:pointer;
+  background-color: #ddd;
+  border: 1px solid var(--main-color);
+}

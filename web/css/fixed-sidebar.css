@@ -1,0 +1,98 @@
+/* Style for the sidebar */
+#indicators .sidebar {
+    position: fixed;
+    top: 50px;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    overflow-y: auto;
+    padding-top: 20px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+#indicators .sidebar-body ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#indicators .sidebar-body ul li {
+    padding-left: 20px;
+}
+
+#indicators .sidebar a {
+    text-decoration: none;
+}
+
+#indicators .toc-link {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 1px 0px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#indicators .toc-item {
+    cursor: pointer;
+}
+
+#indicators .toc-item:hover {
+    color: #007bff;
+    background-color: #f0f0f0;
+}
+
+#indicators .caret {
+    margin-left: auto;
+    transition: transform 0.3s;
+    transform: rotate(-90deg);
+}
+
+#indicators .caret.collapsed {
+    transform: rotate(0deg);
+}
+
+#indicators .toc-heading {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Style for the main content */
+#indicators .main-content {
+    margin-left: 270px;
+    padding-top: 50px;
+}
+
+#indicators .main-content h4{
+    color: var(--main-color);
+}
+
+#indicators .indicator-heading {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+#indicators .indicator-section {
+    margin-bottom: 20px;
+}
+
+#indicators .indicator-label {
+    font-weight: bold;
+}
+
+#indicators a {
+    color: var(--main-color);
+}
+
+/* Responsiveness */
+@media (max-width: 992px) {
+    #indicators .sidebar {
+        display: none;
+    }
+    #indicators .main-content {
+        margin-left: unset;
+    }
+    
+}

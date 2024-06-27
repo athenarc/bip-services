@@ -1,0 +1,136 @@
+<?php
+
+return [
+    'adminEmail' => 'admin@example.com',
+    'orcid_client_id' => 'orcid_client_id',
+    'orcid_client_secret' => 'orcid_client_secret',
+    'annotation_dbs' => [
+        'db1' => [
+            'name' => 'db_name',
+            'host' => 'hostname',
+            'port' => 'port_number',
+            'name' => 'login_name',
+            'pass' => 'password',
+        ], 
+        'db2' => [
+            'name' => 'db_name',
+            'host' => 'hostname',
+            'port' => 'port_number',
+            'name' => 'login_name',
+            'pass' => 'password',
+        ]
+        // add here more dbs if needed
+    ],
+    'impact_fields' => [
+        'popularity' => 'attrank',
+        'influence' => 'pagerank',
+        'impulse' => '3y_cc',
+        'citation_count' => 'citation_count',
+        'year' => 'year',
+    ],
+    'impact_classes' => [
+        'A' => ['name' => 'top 0.01%'],
+        'B' => ['name' => 'top 0.1%'],
+        'C' => ['name' => 'top 1%'],
+        'D' => ['name' => 'top 10%'],
+        'E' => ['name' => 'bottom 90%', 'impact_icon_name' => 'Average'],
+    ],
+    'impact_classes_mapping' => [
+        'C1' => 'A',
+        'C2' => 'B',
+        'C3' => 'C',
+        'C4' => 'D',
+        'C5' => 'E',
+    ],
+    'impact_classes_to_chart_scores' => [
+        'A' => 5,
+        'B' => 4,
+        'C' => 3,
+        'D' => 2,
+        'E' => 1,
+    ],
+    'reading_fields' => [
+        '0' => 'Undefined', //default value always with key : '0'
+        '3' => 'To Read',
+        '1' => 'Reading',
+        '2' => 'Read',
+    ],
+    'involvement_fields' => [
+        '0' => 'Conceptualization',
+        '1' => 'Data curation',
+        '2' => 'Formal Analysis',
+        '3' => 'Funding acquisition',
+        '4' => 'Investigation',
+        '5' => 'Methodology',
+        '6' => 'Project administration',
+        '7' => 'Resources',
+        '8' => 'Software',
+        '9' => 'Supervision',
+        '10' => 'Validation',
+        '11' => 'Visualization',
+        '12' => 'Writing - original draft',
+        '13' => 'Writing - review and editing',
+    ],
+    'openness' => [
+        '1' => [
+            'name' => 'Open Access',
+            'icon_class' => 'fa-lock-open',
+            'badge_class' => 'badge-success'
+        ],
+        '0' => [
+            'name' => 'Restricted/Closed access',
+            'icon_class' => 'fa-lock',
+            'badge_class' => 'badge-warning'
+        ],
+        '' =>  [
+            'name' => 'Unknown Access',
+            'icon_class' => 'fa-question',
+            'badge_class' => 'badge-light'
+        ]
+    ],
+    'work_types' => [
+        '0' => [
+            'name' => 'Publication',
+            'icon_class' => 'fa-newspaper',
+            'title' => 'Publication resource',
+        ],
+        '1' => [
+            'name' => 'Dataset',
+            'icon_class' => 'fa-database',
+            'title' => 'Dataset resource',
+        ],
+        '2' => [
+            'name' => 'Software',
+            'icon_class' => 'fa-code',
+            'title' => 'Software resource',
+        ],
+        '3' => [
+            'name' => 'Other',
+            'icon_class' => 'fa-question',
+            'title' => 'Other Research Product',
+        ],
+    ],
+    // Data Sources
+    'data_sources' => [
+        'mag' => [
+            'url' => '',
+            'version' => 'Dec-2021',
+        ],
+        'crossref' => [
+            'url' => '',
+            'version' => 'Dec-2022',
+        ],
+        'opencitations' => [
+            'url' => '',
+            'version' => 'Dec-2022',
+        ],
+    ],
+    'services' => [
+        ['label' => 'Finder', 'url' => [ 'site/index' ], 'description' => 'Explore scientific literature by exploiting impact-based ranking'],
+        ['label' => 'Readings', 'url' => [ 'readings/index' ], 'description' => 'Manage your personal reading lists'],
+        ['label' => 'Scholar', 'url' => [ 'scholar/index' ], 'description' => 'Create and share your scholar profile'],
+        ['label' => 'Spaces', 'url' => [ 'spaces/index' ], 'description' => 'Get access to a customized version of BIP! Finder'],
+    ],
+    'openaireGraphVersion' => 'v6.0.0',
+    'defaultTemplateUrlName' => 'Inclusive_Profile',
+];

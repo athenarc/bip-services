@@ -1,0 +1,285 @@
+.profile
+{
+    min-height: 355px;
+    display: inline-block;
+    width: 100%;
+}
+
+figcaption.ratings
+{
+    margin-top:20px;
+}
+figcaption.ratings a
+{
+    color:#f1c40f;
+    font-size:11px;
+}
+figcaption.ratings a:hover
+{
+    color:#f39c12;
+    text-decoration:none;
+}
+.divider
+{
+    border-top:1px solid rgba(0,0,0,0.1);
+}
+/* .emphasis
+{
+    border-bottom: 4px solid transparent;
+}
+.emphasis:hover
+{
+    border-bottom: 4px solid #449D44;
+} */
+.emphasis h2
+{
+    margin-bottom:0;
+}
+span.tags
+{
+    background: #449D44;
+    border-radius: 2px;
+    color: #f5f5f5;
+    font-weight: bold;
+    padding: 2px 4px;
+}
+/* .dropdown-menu
+{
+    background-color: #34495e;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    width: 250px;
+    margin-left: -125px;
+    left: 50%;
+}
+.dropdown-menu .divider
+{
+    background:none;
+}
+.dropdown-menu>li>a
+{
+    color:#f5f5f5;
+}
+.dropup .dropdown-menu
+{
+    margin-bottom:10px;
+}
+.dropup .dropdown-menu:before
+{
+    content: "";
+    border-top: 10px solid #34495e;
+    border-right: 10px solid transparent;
+    border-left: 10px solid transparent;
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    margin-left: -10px;
+    z-index: 10;
+} */
+
+
+select#templates-dropdown,
+select#assessment-framework-dropdown,
+select#assessment-protocol-dropdown,
+select#presets-dropdown,
+select#sort-dropdown {
+  padding: 1px 3px;
+  height: 2em;
+  background-color:rgb(255, 255, 255);
+  border-radius: 4px;
+  border: 1px solid rgb(204, 204, 204);
+  cursor:pointer;
+}
+
+#profile-impact-panel {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.year-venue-bookmarks {
+    font-size: 12px;
+    font-style: italic;
+    color: grey;
+}
+
+.involvement-region {
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+.involvement-region > i {
+    vertical-align: middle;
+}
+
+.involvement-region button {
+    background-color: inherit;
+    padding-left: 0px;
+    box-shadow: none !important;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-width: 0px;
+    line-height: 1;
+}
+
+.involvement-region button.dropdown-toggle:focus {
+    outline: none !important;
+}
+
+.involvement-region button .filter-option {
+    overflow: inherit !important;
+    margin-right: -4px;
+}
+
+.involvement-region .involvement {
+    background-color: white;
+    border: 1px solid grey;
+    color: grey;
+    font-size: 10px;
+    font-size: 12px;
+    padding: 0.3em 0.6em 0.3em;
+    border-radius:10px;
+}
+
+.involvement-region button .label.involvement {
+    top: 0px;
+}
+
+.involvement-region button .caret{
+    color: grey;
+}
+
+.involvement-region button .add-involvement {
+    color: grey;
+    font-size: 14px;
+    /* position: relative;
+    bottom: 1px;
+    right: 1px; */
+}
+
+.involvement-region div.dropdown-menu {
+    margin-top: 3px;
+}
+
+.facet-row {
+    padding-bottom: 10px;
+}
+
+/* .facet-header {
+    padding-bottom: 5px;
+} */
+
+button.facet-item {
+    color: #777;
+    /* color: #4a4a4a; */
+    margin-top: 5px;
+    border-radius: 10px;
+}
+
+button.btn-success.facet-item {
+    color: #fff;
+}
+
+.facet-row .btn-default span.badge-primary {
+    background-color: #777;
+}
+
+/* profile indicators */
+.inner-well {
+    height:90px;
+}
+
+.tall {
+    height:200px;
+}
+
+#impact-indicators {
+    border-color: #5cb85c;
+}
+
+@media (max-width: 992px) {
+    #impact-indicators {
+        height: 370px;
+    }
+}
+
+#productivity-indicators {
+    border-color: #d9534f;
+    padding: 12px;
+}
+
+@media (max-width: 992px) {
+    #productivity-indicators {
+        height: 235px;
+    }
+}
+
+@media (max-width: 992px) {
+    #openess-indicators {
+        height: 245px;
+    }
+}
+
+@media (max-width: 992px) {
+    #career-stage {
+        height: 132px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .indicators-container-1200-height {
+        height: 105px;
+    }
+}
+
+#career-stage {
+    border-color: #5bc0de;
+}
+
+#openess-indicators {
+    border-color: #f0ad4e;
+    padding: 12px;
+}
+
+.indicator {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.indicators-panel .legend {
+    position: absolute;
+    top: -10px;
+    left: 30px;
+    background-color: #f5f5f5;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+#reading-list-nav {
+    height: 12em;
+    /* line-height: 2em; */
+    /* border: 1px solid #ccc; */
+    /* padding: 0; */
+    /* margin: 0; */
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+#reading-list-nav li {
+    border-top: 1px solid #ccc;
+}
+
+#reading-list-public-btn {
+    margin-top: 20px;
+}
+
+button.my-btn-dropdown {
+    background-color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 1px solid rgb(204, 204, 204);
+}
+
+.tiny-mce-body-cv-narrative {
+    font-size: 12pt;
+    line-height: 1.1;
+}

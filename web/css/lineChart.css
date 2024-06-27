@@ -1,0 +1,22 @@
+
+/* 
+    Created on : Oct 17, 2017, 1:24:53 PM
+    Author     : hlias
+    CSS required for line Charts
+*/
+
+.citation-line-chart
+{
+    text-align: center;
+}
+
+.line {
+  //fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.citation-history-container
+{
+    margin-top: 10px;
+}
