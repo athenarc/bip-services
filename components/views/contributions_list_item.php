@@ -108,8 +108,8 @@ use app\components\ResultItem;
                         <td class="col-xs-8">
 
                             <!-- title -->
-                            <div <?php if (strlen($paper["title"]) > 90) { ?> title="<?= $paper['title'] ?>" <?php } ?>>
-                                <?= Yii::$app->bipstring->shortenString($paper["title"], 90) ?>
+                            <div <?php if (isset($paper["title"]) && strlen($paper["title"]) > 90) { ?> title="<?= $paper['title'] ?>" <?php } ?>>
+                                <?= (!isset($paper["title"])) ? 'N/A' : Yii::$app->bipstring->shortenString($paper["title"], 90) ?>
                             </div>
 
                             <div class="year-venue-bookmarks">
