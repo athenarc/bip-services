@@ -20,8 +20,6 @@ use yii\helpers\ArrayHelper;
  * @property string|null $code
  * @property string|null $references
  *
- * @property ProtocolIndicators[] $protocolIndicators
- * @property AssessmentProtocols[] $protocols
  */
 class Indicators extends \yii\db\ActiveRecord
 {
@@ -66,23 +64,13 @@ class Indicators extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[ProtocolIndicators]].
+     * Gets query for [[ElementIndicators]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getProtocolIndicators()
+    public function getElementIndicators()
     {
-        return $this->hasMany(ProtocolIndicators::class, ['indicator_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Protocols]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProtocols()
-    {
-        return $this->hasMany(AssessmentProtocols::class, ['id' => 'protocol_id'])->viaTable('protocol_indicators', ['indicator_id' => 'id']);
+        return $this->hasMany(ElementIndicators::class, ['indicator_id' => 'id']);
     }
 
     public static function getImpactIndicatorsAsArray($level)

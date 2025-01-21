@@ -13,7 +13,7 @@ $(document).ready(function()
    //alert("Request tp: " + window.location.origin + '/bip/web/index.php/site/getgraph');
    $.ajax(
     {
-        url:   window.location.origin + '/bip/web/index.php/site/getgraph',
+        url:   `${appBaseUrl}/site/getgraph`,
         type: 'POST',
         data: 
         {

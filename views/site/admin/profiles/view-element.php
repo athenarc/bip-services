@@ -6,14 +6,14 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use app\models\ElementNarratives;
+use yii\widgets\ListView;
 
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $indicatorDataProvider */
 /** @var app\models\Elements $elementModel */
 
 $this->title = $elementModel->name;
-// $this->params['breadcrumbs'][] = ['label' => 'Elements', 'url' => ['index']];
-// $this->params['breadcrumbs'][] = $this->title;
+
 \yii\web\YiiAsset::register($this);
 
 $section_overview = ($section === "overview");
@@ -21,6 +21,14 @@ $section_spaces = ($section === "spaces");
 $section_scholar = ($section === "scholar");
 $section_indicators = ($section === "indicators");
 $section_profiles = ($section === "profiles");
+
+$heading_type_view = [
+    'attribute' => 'heading_type',
+    'value' => function($model) {
+        return !empty($model->heading_type) ? $model->heading_type : Yii::$app->params['defaultElementHeadingType'] . ' (default)';
+    }
+];
+
 ?>
 <div class="elements-view">
 
@@ -31,29 +39,34 @@ $section_profiles = ($section === "profiles");
         <li class="<?= $section_spaces ? 'active' : ''?>">
         <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
         </li>
-        <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-        </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
         <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
         </li>
     </ul>
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-admin">
+            <li class="breadcrumb-item">...</li>
+            <li class="breadcrumb-item">...</li>
+            <li class="breadcrumb-item">Element</li>
+            <li class="breadcrumb-item"><?= Html::encode($this->title) ?></li>
+            <li class="breadcrumb-item active">view</li>
+        </ol>
+    </nav>
 
     <p>
-        <?= Html::a('Update', ['update-element', 'id' => $elementModel->id, 'template_id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete-element', 'id' => $elementModel->id, 'template_id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], [
-            'class' => 'btn btn-danger',
+        <?= Html::a('<i class="fa-solid fa-arrow-left"></i> Back', ['view-template', 'id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-default']) ?>
+        <?= Html::a('<i class="fa-solid fa-pen-to-square"></i> Update', ['update-element', 'id' => $elementModel->id, 'template_id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('<i class="fa-solid fa-trash-can"></i> Delete', ['delete-element', 'id' => $elementModel->id, 'template_id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], [
+            'class' => 'btn btn-danger pull-right',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',
                 'method' => 'post',
             ],
         ]) ?>
-        <?= Html::a('Back', ['view-template', 'id' => $elementModel->template_id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-default']) ?>
     </p>
 
     <?= DetailView::widget([
@@ -123,8 +136,9 @@ $section_profiles = ($section === "profiles");
                         </ul>
                         <?php $i++; ?>
                     <?php endforeach ?>
-                </div>
-            <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php elseif ($elementModel->type == "Indicators"): ?>
         <div id="element-type-Indicators" class="indicators-list">
@@ -149,13 +163,20 @@ $section_profiles = ($section === "profiles");
                                 $indicatorName = $indicator->name;
                                 $indicatorSemantics = $indicator->semantics;
                                 $indicatorLevel = $indicator->level;
-                                $isChecked = false;
+                                $isCheckedGreen = false;
+                                $isCheckedGray = false;
 
                                 if (!empty($selected_indicators)) {
                                     foreach ($selected_indicators as $selected_indicator) {
                                         if ($selected_indicator['id'] == $indicatorId) {
-                                            $isChecked = true;
-                                            break;
+                                            if ($selected_indicator['status'] == 'Enabled') {
+                                                $isCheckedGreen = true;
+                                                break;
+                                            }
+                                            else if ($selected_indicator['status'] == 'Hidden') {
+                                                $isCheckedGray = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -169,7 +190,7 @@ $section_profiles = ($section === "profiles");
 
                         <li style="list-style-type: none; padding: 0; margin: 0;">
                             <label style="font-weight: normal;">
-                                <input type="checkbox" class="green-checkbox view-only-checkbox disabled-checkbox" name="selectedIndicators[]" value="<?= $indicatorId ?>" <?= $isChecked ? 'checked' : '' ?> onclick="return false;">
+                                <input type="checkbox" class="green-checkbox view-only-checkbox disabled-checkbox" name="selectedIndicators[]" value="<?= $indicatorId ?>" <?= $isCheckedGreen ? 'checked' : '' ?> onclick="return false;">
                                 <?= $indicatorName ?>
                             </label>
                         </li>
@@ -189,9 +210,79 @@ $section_profiles = ($section === "profiles");
             'model' => $elementNarrativesModel,
             'attributes' => [
                 'title',
+                $heading_type_view,
                 'description:html',
+                [
+                    'attribute' => 'limit_type',
+                    'value' => function ($model) {
+                        return ElementNarratives::getLimitTypeList()[$model->limit_type];
+                    }
+                ],
+                'limit_value:integer',
                 'hide_when_empty:boolean'
             ],
         ]) ?>
+    <?php elseif ($elementModel->type == "Section Divider"): ?>
+        <h1><?= Html::encode('Section Divider') ?></h1>
+
+        <?= DetailView::widget([
+            'model' => $elementDividerModel,
+            'attributes' => [
+                'title',
+                $heading_type_view,
+                'top_padding:integer',
+                'bottom_padding:integer',
+                'show_top_hr:boolean',
+                'show_bottom_hr:boolean',
+            ],
+        ]) ?>
+    <?php elseif ($elementModel->type == "Contributions List"): ?>
+        <h1><?= Html::encode('Contributions List') ?></h1>
+
+        <?= DetailView::widget([
+            'model' => $elementContributionsModel,
+            'attributes' => [
+                'show_header:boolean',
+                $heading_type_view,
+                'sort',
+                'top_k:integer',
+                'show_pagination:boolean',
+                'page_size:integer',
+            ],
+        ]) ?>
+    <?php elseif ($elementModel->type == "Bulleted List"): ?>
+        <h1><?= Html::encode('Bulleted List') ?></h1>
+
+        <?= DetailView::widget([
+            'model' => $elementBulletedListModel,
+            'attributes' => [
+                'title',
+                $heading_type_view,
+                'description:html',
+                'elements_number:integer',
+            ],
+        ]) ?>
+    <?php elseif ($elementModel->type == "Dropdown"): ?>
+        <h1><?= Html::encode('Dropdown') ?></h1>
+        <?php 
+            echo DetailView::widget([
+                'model' => $elementDropdownModel, // Use the main model for the widget
+                'attributes' => [
+                    'title',
+                    $heading_type_view,
+                    'description:html',
+                    'hide_when_empty:boolean',
+                    [
+                        'label' => 'Dropdown Options',
+                        'value' => function ($model) use ($elementDropdownModel) {
+                            return implode('<br>', array_map(function ($optionModel) {
+                                return $optionModel->option_name;
+                            }, $elementDropdownModel->elementDropdownOptions));
+                        },
+                        'format' => 'html', // Enables HTML rendering
+                    ],
+                ],
+            ]);
+        ?>
     <?php endif; ?>
 </div>

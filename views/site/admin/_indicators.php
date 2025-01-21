@@ -1,6 +1,5 @@
 <?php
 
-use app\models\AssessmentFrameworks;
 use app\models\Indicators;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -11,22 +10,26 @@ use yii\grid\GridView;
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Indicators';
-// $this->params['breadcrumbs'][] = $this->title;
+
 ?>
 <div class="indicators-index">
 
-    <h1><?= Html::encode("Indicators") ?></h1>
+    <nav aria-label="breadcrumb" style="position: relative;">
+        <ol class="breadcrumb breadcrumb-admin mb-0">
+            <li class="breadcrumb-item"><?= Html::a('Indicators', Url::to(['site/admin-indicators'])) ?></li>
+        </ol>
+
+        <?= Html::a('<i class="fa-solid fa-plus"></i> New', ['create-indicator'], ['class' => 'btn btn-success', 'style' => 'position: absolute; right: 0; top: 50%; transform: translateY(-50%);']) ?>
+    </nav>
 
     <p>
-        <?= Html::a('New Indicator', ['create-indicator'], ['class' => 'btn btn-success']) ?>
+        
     </p>
 
     <?= GridView::widget([
         'dataProvider' => $indicatorDataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            // 'id',
             'name',
             'level',
             'semantics',

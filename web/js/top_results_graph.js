@@ -14,7 +14,7 @@ $(document).ready(function()
 
    $.ajax(
     {
-        url:   window.location.origin + '/bip/web/index.php/site/get-top-results-graph',
+        url:   `${appBaseUrl}/site/get-top-results-graph`,
         type: 'GET',
         data: 
         {

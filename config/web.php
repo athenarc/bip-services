@@ -2,6 +2,7 @@
 
 $params = require(__DIR__ . '/params.php');
 $params['teamMembers'] = require(__DIR__ . '/team.php');
+$params['languages'] = require(__DIR__ . '/languages.php');
 
 $config = [
     'id' => 'basic',

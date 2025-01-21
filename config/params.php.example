@@ -133,4 +133,5 @@ return [
     ],
     'openaireGraphVersion' => 'v6.0.0',
     'defaultTemplateUrlName' => 'Inclusive_Profile',
+    'defaultElementHeadingType' => 'h3',
 ];

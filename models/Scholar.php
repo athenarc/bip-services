@@ -25,7 +25,7 @@ class Scholar extends Model
         $this->researcher = $researcher;
     }
 
-    public function fetchWorks() {
+    public function fetchWorks($sort_field, $top_k_config) {
 
         // get scholar's works from ORCiD
         $orcid_works = Orcid::get_works($this->researcher->orcid, $this->researcher->access_token);
@@ -36,6 +36,25 @@ class Scholar extends Model
         // get dois in db
         $this->found_ids_dois = (new \yii\db\Query())->select("internal_id, doi")->from('pmc_paper')->where(['doi' => $this->dois])->all();
         $found_dois = array_map(function ($r) { return ['doi' => $r['doi']]; }, $this->found_ids_dois);
+
+        
+        // Apply ordering and limit if $top_k_config is set
+        if (isset($top_k_config)) {
+        
+            $orderByClause = [
+                Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC
+            ];
+                
+            $this->dois = (new \yii\db\Query())
+                ->select("internal_id, doi")
+                ->from('pmc_paper')
+                ->where(['doi' => $this->dois])
+                ->orderBy($orderByClause)
+                ->limit($top_k_config)
+                ->all();
+        }
+
+
 
         // find missing papers, comparing $works received from orcid with papers found in our database
         $this->missing_papers = array_udiff($orcid_works, $found_dois, function($a, $b) {
@@ -76,13 +95,12 @@ class Scholar extends Model
         return $papers;
     }
 
-    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field) {
+    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config) {
 
-        $orderByClause = [];
         $impact_fields = Yii::$app->params['impact_fields'];
-
-        $field = $impact_fields[$sort_field];
-        $orderByClause[$field] = SORT_DESC;
+        $orderByClause = [
+            $impact_fields[$sort_field] => SORT_DESC
+        ];
 
         // build base query, filter user and dois
         $base_query = (new \yii\db\Query())
@@ -146,8 +164,9 @@ class Scholar extends Model
         );
 
         // paginated query to retrieve all paper details
+        // if page_size_config is not set, default to one page
         $pagination = new Pagination([
-            'pageSize' => 30,
+            'pageSize' => (isset($show_pagination_config) && $show_pagination_config == 0) ? $papers_num : ($page_size_config ?? $papers_num),
             'totalCount' => $papers_num,
         ]);
 
@@ -173,6 +192,8 @@ class Scholar extends Model
         $papers = Concepts::getConcepts($papers, 'internal_id');
         // get impact scores per concept
         $papers = SearchForm::get_concepts_impact_class($papers);
+        // get relations
+        $papers = Relations::getRelations($papers);
 
         return [
             'pagination' => $pagination,

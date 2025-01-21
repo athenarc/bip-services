@@ -87,6 +87,10 @@ a.green-bip:hover{
     text-decoration: none;
 }
 
+a.main-green {
+    color: var(--main-color);
+}
+
 .main-green, .main-green-text {
     color: var(--main-color);
 }
@@ -138,6 +142,7 @@ a.my-btn-discreet, a.my-btn-discreet:visited
 .results-header{
     color: grey;
     margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 #comparison{
@@ -424,6 +429,14 @@ h3{
     width: 0%;
 }
 
+.navbar-brand {
+    font-family: "Courgette", cursive;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.8em;
+
+    padding-right: 0px;
+}
 
 .bip-top-navbar .dropdown-menu{
     background-color: #000;
@@ -486,12 +499,10 @@ h3{
 /* highlight selected paper for comparison */
 .panel-success {
     border-color: var(--main-color);
-    box-shadow: 0 2px 4px 0 var(--main-color), 0 3px 10px 0 var(--main-color);
 }
 
-.panel-default {
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
-}
+/* .panel-default {
+} */
 
 /* Scholar Landing */
 #scholar-landing .jumbotron {
@@ -520,3 +531,31 @@ h3{
 .popover-content > div > p > a {
     color: var(--main-color);
 }
+
+.status-bar {
+    padding: 5px; /* Padding for the div */
+    overflow: hidden; /* Clear floats */
+    border-radius: 5px; /* Optional: rounded corners */
+    cursor: default;
+}
+
+.status-message {
+    float: left;
+    color: #222f3eb3; /* Grey color for the text */
+    font-size: 14px;
+}
+
+.status-count {
+    float: right;
+    color: #222f3eb3; /* Grey color for the text */
+    font-size: 14px;
+}
+
+.breadcrumb-admin {
+    font-size: 1.3em;
+}
+
+.breadcrumb-admin .breadcrumb-item a {
+    color: var(--main-color);
+}
+

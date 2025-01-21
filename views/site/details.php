@@ -127,10 +127,6 @@ if ($in_space) {
                         <a href="https://www.ncbi.nlm.nih.gov/pubmed/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php endif; ?>
             <?php } ?>
-            <?php if(!empty($article->dois_num) && $article->dois_num > 1): ?>
-                <span class ="grey-text ">(Found <?= $article->dois_num?> versions)</span>
-            <?php endif; ?>
-                </span>
         </div>
         <div class='row'>
             <div class='col-xs-12'>
@@ -166,8 +162,33 @@ if ($in_space) {
                     <?php } ?>
                 </div>
             </div>
+            <?php if (!empty($article->relations)): ?>
+                <div class='col-xs-12'>
+                    <!-- relations -->
+                    <div class='article-info tag-region'>
+                        <div class="bootstrap-tagsinput">
+                        <b>Related works:&nbsp</b>
+
+                        <?php foreach ($article->relations as $relation) { ?>
+                            <span class="tag label">
+                                <span role="button" href="<?= Url::to(['site/get-relations-data', 'target_dois' => $relation['target_dois'], 'source_openaire_id' => $article->openaire_id]) ?>" data-toggle="modal" data-remote="false" modal-title="Related works" data-target="#relations-modal"><?= $relation['type'] ?> <span class="badge badge-primary" style ="top: -1px;padding: 1px 5px; position: relative;"><?= count($relation['target_dois'])?></span></span>
+                                
+                            </span>
+                        <?php } ?>
+
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
             <div class='col-xs-12'>
                 <div class='article-buttons'>
+                    
+                    <?php if(!empty($article->dois_num) && $article->dois_num > 1): ?>
+                        <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $article->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="btn btn-sm btn-custom-color">
+                            <i class="fas fa-clone"></i> Found <?= $article->dois_num ?> versions
+                        </a>
+                    <?php endif; ?>
+
                     <!-- <a href="<?= Url::to(['site/get-references', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fas fa-up-right-and-down-left-from-center&quot; aria-hidden=&quot;true&quot;></i> References" data-remote="false" data-toggle="modal" data-target="#references-modal" class="btn btn-sm btn-custom-color <?= ($article->references_count == 0) ? "disabled" : "" ?>">
                             <i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i> References (<?= $article->references_count ?>)
                     </a>
@@ -201,9 +222,11 @@ if ($in_space) {
             <div class="col-xs-12">
                 <!-- <?= CustomBootstrapModal::widget(['id' => 'references-modal']); ?> -->
                 <!-- <?= CustomBootstrapModal::widget(['id' => 'citations-modal']); ?> -->
+                <?= CustomBootstrapModal::widget(['id' => 'relations-modal']); ?>
                 <?= CustomBootstrapModal::widget(['id' => 'similar-modal']); ?>
                 <?= CustomBootstrapModal::widget(['id' => 'bibtex-modal']); ?>
-                </div>
+                <?= CustomBootstrapModal::widget(['id' => 'versions-modal']); ?>
+            </div>
         </div>
     </div>
 

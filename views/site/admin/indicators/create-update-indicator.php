@@ -17,6 +17,9 @@ $section_spaces = ($section === "spaces");
 $section_scholar = ($section === "scholar");
 $section_indicators = ($section === "indicators");
 $section_profiles = ($section === "profiles");
+
+$back_url = ($indicatorModel->isNewRecord) ? ['site/admin-indicators'] : ['view-indicator', 'id' => $indicatorModel->id];
+
 ?>
 <div class="indicators-create-update">
 
@@ -27,26 +30,34 @@ $section_profiles = ($section === "profiles");
         <li class="<?= $section_spaces ? 'active' : ''?>">
         <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
         </li>
-        <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-        </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
         <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
         </li>
     </ul>
 
-    <?php if ($indicatorModel->isNewRecord): ?>
-        <h1>Create Indicator</h1>
-    <?php else: ?>
-        <h1>Update Indicator: <?= $indicatorModel->name ?></h1>
-    <?php endif ?>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-admin">
+            <li class="breadcrumb-item">Indicators</li>
+            <?php if ($indicatorModel->isNewRecord): ?>
+                <li class="breadcrumb-item">new</li> 
+            <?php else: ?>
+                <li class="breadcrumb-item"><?= Html::encode($indicatorModel->name) ?></li>
+                <li class="breadcrumb-item active">update</li>
+            <?php endif; ?>
+        </ol>
+    </nav>
 
     <div class="indicators-form">
 
         <?php $form = ActiveForm::begin(); ?>
+
+        <div style="margin-bottom:10px;">
+            <?= Html::a('<i class="fa fa-arrow-left"></i> Back', $back_url, ['class' => 'btn btn-default']) ?>
+            <?= Html::resetButton('<i class="fa-solid fa-rotate-left"></i> Reset', ['class' => 'btn btn-default pull-right']) ?>
+        </div>
 
         <?= $form->field($indicatorModel, 'name')->textInput(['maxlength' => true]) ?>
         <?= $form->field($indicatorModel, 'level')->dropDownList([ 'Work' => 'Work', 'Researcher' => 'Researcher', ], ['prompt' => '']) ?>
@@ -60,9 +71,8 @@ $section_profiles = ($section === "profiles");
         <?= $form->field($indicatorModel, 'references')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']) ?>
 
         <div class="form-group">
-            <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-            <?= Html::resetButton('Reset', ['class' => 'btn btn-danger']) ?>
-            <?= Html::a('Back', ['view-indicator', 'id' => $indicatorModel->id], ['class' => 'btn btn-default']) ?>
+            <?= Html::submitButton('<i class="fa-solid fa-floppy-disk"></i> Save', ['class' => 'btn btn-success']) ?>
+            <?= Html::a('<i class="fa-solid fa-xmark"></i> Cancel', $back_url, ['class' => 'btn btn-danger']) ?>
         </div>
 
         <?php ActiveForm::end(); ?>

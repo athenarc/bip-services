@@ -3,6 +3,8 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+
 
 class ElementNarrativeInstances extends ActiveRecord
 {
@@ -26,6 +28,20 @@ class ElementNarrativeInstances extends ActiveRecord
             [['template_id'], 'integer'],
             [['element_id'], 'integer'],
             [['value'], 'string'],
+        ];
+    }
+    
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['last_updated'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['last_updated'],
+                ],
+                'value' => date('Y-m-d H:i:s'),
+            ],
         ];
     }
 }

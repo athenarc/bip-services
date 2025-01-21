@@ -16,9 +16,11 @@ use app\components\FacetsItem;
 use app\components\IndicatorsItem;
 use app\components\ContributionsListItem;
 use app\components\NarrativeElement;
+use app\components\DropdownElement;
+use app\components\SectionDivider;
+use app\components\BulletedList;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
-use app\models\AssessmentFrameworks;
 
 $this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -28,15 +30,12 @@ $this->registerJsFile('@web/js/animateIndicators.js',  ['position' => View::POS_
 $this->registerJsFile('@web/js/third-party/bootstrap-tagsinput/bootstrap-tagsinput.min.js', ['position' => View::POS_END]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-// $this->registerJsFile('@web/js/favoriteTags.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholar-readings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/responsibleAcadAge.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/scholarAssessment.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-
+$this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/narrativeElement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -44,6 +43,7 @@ $this->registerCssFile('@web/css/scholar-profile.css');
 $this->registerCssFile('@web/css/missing-works.css');
 
 $this->title = 'BIP! Services - Scholar';
+
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
@@ -55,7 +55,6 @@ $this->title = 'BIP! Services - Scholar';
 <!-- Latest compiled and minified JavaScript -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script> -->
 
-
 <?php if (!isset($researcher->orcid)): ?>
 
     <div class="container-fluid">
@@ -65,12 +64,20 @@ $this->title = 'BIP! Services - Scholar';
                 Welcome to your BIP! Scholar Profile
                 </h1>
             </div>
-            <div class="well profile">
+            <?php if (isset($researcher_exists)): ?>
                 <div class="col-xs-12">
+                    <div class="alert alert-danger">
+                        <div><b>Orcid Authorization Issue</b></div>
+                        It seems that the ORCID (<?= $researcher_exists->orcid?>) you're trying to authorize with, is already linked to another account in our system. If you believe this is a mistake, please contact our support team. Alternatively, you can try authorizing with a different ORCID.
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="col-xs-12">
+                <div class="well profile">
                     Link BIP! Scholar with your ORCiD account to allow us access your public ORCID records, your name and ORCiD ID.<br/>
                     Please, also ensure that your ORCiD profile has 'Visibility: Everyone' in your Account Settings, since we rely on the public records of you ORCiD profile to create the contents of your BIP! Scholar profile.
-                    <div class="col-xs-12 text-center" style="padding-top: 10px;">
-                        <?= Html::a('<i class="fa fa-link" aria-hidden="true"></i> Link with your ORCiD', 'https://orcid.org/oauth/authorize?client_id=' . Yii::$app->params['orcid_client_id'] . '&response_type=code&scope=/authenticate&redirect_uri=' . Url::to(['scholar/profile'], true), ['class'=>'btn btn-success']); ?>
+                    <div class="text-center" style="padding-top: 10px;">
+                        <?= Html::a('<i class="fa fa-link" aria-hidden="true"></i> Link with your ORCiD', 'https://orcid.org/oauth/authorize?client_id=' . Yii::$app->params['orcid_client_id'] . '&response_type=code&scope=/authenticate&redirect_uri=' . Url::to(['scholar/profile'], true), ['class'=>'btn btn-success', 'style' => 'white-space: break-spaces']); ?>
                     </div>
                 </div>
             </div>
@@ -89,53 +96,89 @@ $this->title = 'BIP! Services - Scholar';
         if (true): ?>
 
         <div class="container-fluid">
+
+                <!-- show note when template is hidden -->
+                <?php if (Yii::$app->session->hasFlash('hiddenTemplate')): ?>
+                    <div class="alert alert-warning" style="margin-bottom: 0" role="alert">
+                        <?= Yii::$app->session->getFlash('hiddenTemplate') ?>
+                    </div>
+                <?php endif; ?>
+
             <?php ActiveForm::begin(['id' => 'scholar-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'GET', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])]); ?>
             <?php ActiveForm::end(); ?>
             <div class="row">
                 <div class="col-xs-12">
                     <h1>
-                        <div class="flex-no-wrap wrap-anywhere" style="justify-content:space-between;align-items:start;">
-                            <div class="flex-wrap" style = "margin-right:5px;">
-                                <span style="margin-right: 10px;">
-                                    <?php if ($researcher->is_public): ?>
-                                        <i class="fas fa-lock-open grey-text" title="This profile is publicly visible (you can change this from the settings)." style="font-size: 20px;  bottom: 2px; position:relative;"></i>
-                                    <?php else: ?>
-                                        <i class="fas fa-lock grey-text" title="This profile is only visible to you (you can change this from the settings)." style="font-size: 20px;  bottom: 2px; position:relative;"></i>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-7">
+                                <div class="d-flex" style="align-items: center; flex-wrap: wrap;">
+                                    <?php if ($edit_perm): ?>
+                                        <span class="mr-10">
+                                            <?php if ($researcher->is_public): ?>
+                                                <i
+                                                    id="profile-visibility-toggle"
+                                                    class="fas fa-lock-open grey-text"
+                                                    title="This profile is publicly visible (Switch to Private Profile)."
+                                                    data-toggle="tooltip"
+                                                    style="font-size: 20px; cursor: pointer;">
+                                                </i>
+                                            <?php else: ?>
+                                                <i
+                                                    id="profile-visibility-toggle"
+                                                    class="fas fa-lock grey-text"
+                                                    title="This profile is only visible to you (Switch to Public Profile)."
+                                                    data-toggle="tooltip"
+                                                    style="font-size: 20px; cursor: pointer;">
+                                                </i>
+                                            <?php endif; ?>
+                                        </span>
                                     <?php endif; ?>
-                                </span>
-                                <span style="margin-right: 5px;">
-                                    <?= $researcher->name ?>
-                                </span>
-                                <span>
-                                    <small>
-                                        <a class="grey-link" href = "<?= "https://orcid.org/" . $researcher->orcid ?>" target="_blank">
-                                            <i class="fa-brands fa-orcid" title="ORCiD"></i> <?= $researcher->orcid ?>
-                                        </a>
-                                    </small>
-                                </span>
+                                    
+                                    <span class="mr-5">
+                                        <?= $researcher->name ?>
+                                    </span>
+                                    
+                                    <span>
+                                        <small>
+                                            <a class="grey-link" href="<?= "https://orcid.org/" . $researcher->orcid ?>" target="_blank">
+                                                <i class="fa-brands fa-orcid" title="Show profile on ORCiD"></i>
+                                            </a>
+                                        </small>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <?php ActiveForm::begin(['id' => 'templates-dropdown-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'POST', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid])]); ?>
-
-                                <span><small>Template:</small></span>
-                                <?= Html::dropDownList('template_url_name', $template->url_name, $templateDropdownData, [
-                                    'prompt' => 'Select template',
-                                    'class' => 'form-control templates-dropdown',
-                                    'id' => 'templates-dropdown',
-                                    'style' => 'display: inline-block; width: auto;'
-
-                                ]); ?>
-
-                                <?php ActiveForm::end(); ?>
+                            
+                            <div class="col-xs-12 col-sm-5 text-right">
+                                <?php 
+                                    if (!empty($templateDropdownData)):
+                                        ActiveForm::begin(['id' => 'templates-dropdown-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'POST', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid])]);
+                                ?>
+                                        <span><small>Template:</small></span>
+                                        <?= Html::dropDownList('template_url_name', $template->url_name, $templateDropdownData, [
+                                            'prompt' => 'Select template',
+                                            'class' => 'form-control templates-dropdown',
+                                            'id' => 'templates-dropdown',
+                                            'style' => 'display: inline-block; width: auto;'
+                                        ]); ?>
+                                
+                                <?php 
+                                        ActiveForm::end(); 
+                                    endif;
+                                ?>
                             </div>
                         </div>
+                        
                         <?php if ($edit_perm): ?>
-                        <div class="text-right">
-                            <a href="<?= Url::to(['site/settings']) ?>"><small><i class="fa fa-gears light-grey-link" aria-hidden="true" title="Settings"></i></small></a>
-                            <a href="#"><small><i class="fa fa-file-export light-grey-link" aria-hidden="true" title="Export"></i></small></a>
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <small>Template language: <?= Yii::$app->params['languages'][$template->language] ?? 'Unknown' ?></small>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <a href="<?= Url::to(['site/settings']) ?>"><small><i class="fa fa-gears light-grey-link" aria-hidden="true" title="Settings"></i></small></a>
+                                <a href="#"><small><i class="fa fa-file-export light-grey-link" aria-hidden="true" title="Export"></i></small></a>
+                            </div>
                         </div>
                         <?php endif; ?>
-
                     </h1>
                 </div>
                 <?php /*
@@ -178,16 +221,6 @@ $this->title = 'BIP! Services - Scholar';
                                 </li>
                         <?php endif; ?>
 
-                            <!-- <div style="margin-top: 5px; float:right" id="scholar-assessment-dropdowns">
-                                <span class="facet-header grey-text">Perspectives:</span>
-                                <?php Html::dropDownList('select-presets', null, $presets,
-                                    // ArrayHelper::map(AssessmentFrameworks::find()->all(), 'id', 'name'),
-                                    [
-                                        'class' => 'scholar-assessment-dropdown facet-row',
-                                        'id' => 'presets-dropdown',
-                                        'prompt' => 'Select Perspective',
-                                    ]);  ?>
-                            </div>   -->
                     </ul>
                 </div>
                 */ ?>
@@ -195,7 +228,6 @@ $this->title = 'BIP! Services - Scholar';
 
             <?php
                 echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
-
                 foreach ($template_elements as $index => $element) {
 
                     switch ($element["type"]) {
@@ -224,6 +256,8 @@ $this->title = 'BIP! Services - Scholar';
                                 'popular_works_count' => $popular_works_count,
                                 'influential_works_count' => $influential_works_count,
                                 'citations' => $citations,
+                                'popularity' => $popularity,
+                                'influence' => $influence,
                                 'impulse' => $impulse,
                                 'h_index' => $h_index,
                                 'i10_index' => $i10_index,
@@ -237,7 +271,7 @@ $this->title = 'BIP! Services - Scholar';
                                 'other_num' => $other_num,
                                 'openness' => $openness,
                                 'current_cv_narrative' => null,
-                                'element_config' => $element["config"]
+                                'element_config' => $element["config"],
                             ]);
 
                             break;
@@ -256,6 +290,7 @@ $this->title = 'BIP! Services - Scholar';
                                 'orderings' => $orderings,
                                 'formId' => 'scholar-form',
                                 'current_cv_narrative' => null,
+                                'element_config' => $element["config"]
                             ]);
 
                             break;
@@ -265,13 +300,57 @@ $this->title = 'BIP! Services - Scholar';
                                 'index' => $index,
                                 'element_id' => $element["element_id"],
                                 'title' => $element["config"]->title,
+                                'heading_type' => $element["config"]->heading_type,
                                 'description' => $element["config"]->description,    
                                 'hide_when_empty' => $element["config"]->hide_when_empty,
                                 'edit_perm' => $edit_perm,
-                                'value' => $element["config"]->value
+                                'value' => $element["config"]->value,
+                                'limit_value' => $element["config"]->limit_value,
+                                'limit_type' => $element["config"]->limit_type,
+                                'last_updated' => $element["config"]->last_updated,
+                                'limit_status' => isset($element["limit_status"]) ? $element["limit_status"] : '',
                             ]);
                             break;
 
+                        case "Dropdown":
+                            echo DropdownElement::widget([
+                                'index' => $index,
+                                'edit_perm' => $edit_perm,
+                                'element_id' => $element["element_id"],
+                                'title' => $element["config"]->title,
+                                'heading_type' => $element["config"]->heading_type,
+                                'description' => $element["config"]->description,    
+                                'hide_when_empty' => $element["config"]->hide_when_empty,
+                                'elementDropdownOptionsArray' => ArrayHelper::map($element["config"]->elementDropdownOptions, 'id', 'option_name'),
+                                'option_id' => $element["config"]->option_id,
+                                'last_updated' => $element["config"]->last_updated,
+                            ]);
+                            break;
+                        
+                        case "Section Divider":
+                            echo SectionDivider::widget([
+                                'index' => $index,
+                                'element_id' => $element["element_id"],
+                                'title' => $element["config"]->title,
+                                'heading_type' => $element["config"]->heading_type,
+                                'top_padding' => $element["config"]->top_padding,
+                                'bottom_padding' => $element["config"]->bottom_padding,
+                                'show_top_hr' => $element["config"]->show_top_hr,
+                                'show_bottom_hr' => $element["config"]->show_bottom_hr,
+                            ]);
+                            break;
+                        case "Bulleted List":
+                            echo BulletedList::widget([
+                                'element_id' => $element["element_id"],
+                                'title' => $element["config"]->title,
+                                'heading_type' => $element["config"]->heading_type,
+                                'description' => $element["config"]->description,
+                                'elements_number' => $element["config"]->elements_number,
+                                'items' => $element["config"]->items,
+                                'edit_perm' => $edit_perm,
+                            ]);
+                            break;
+                            
                         default:
                             break;
                     }

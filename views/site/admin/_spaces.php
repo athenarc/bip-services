@@ -223,30 +223,36 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
     <h3>Annotations</h3>
 
     <?php
-    $annotation_db_options = array_map(function($db) {
-        return $db['name'];
-    }, Yii::$app->params['annotation_dbs']);
 
-    echo $form->field($model, 'annotation_db')->dropdownList($annotation_db_options, ['prompt' => '--Select a database for annotations--']);
+        $annotation_db_options = array_map(function($db) {
+            return $db['name'];
+        }, Yii::$app->params['annotation_dbs']);
+
+        echo $form->field($model, 'annotation_db')->dropdownList($annotation_db_options, ['prompt' => '-- Select a database for annotations --']);
+
+        echo $form->field($model, 'graph_db_system')->dropdownList(Yii::$app->params['graph_db_systems'], ['prompt' => '-- Select a database system --']);
+
     ?>
 
-        <?php DynamicFormWidget::begin([
-        'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
-        'widgetBody' => '.container-items', // required: css class selector
-        'widgetItem' => '.item', // required: css class
-        'limit' => 4, // the maximum times, an element can be cloned (default 999)
-        'min' => 0, // 0 or 1 (default 1)
-        'insertButton' => '.add-item', // css class
-        'deleteButton' => '.remove-item', // css class
-        'model' => $modelsSpacesAnnotations[0],
-        'formId' => 'space-form',
-        'formFields' => [
-            'name',
-            'description',
-            'color',
-            'query',
-        ],
-    ]); ?>
+    <?php 
+        DynamicFormWidget::begin([
+            'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+            'widgetBody' => '.container-items', // required: css class selector
+            'widgetItem' => '.item', // required: css class
+            'limit' => 4, // the maximum times, an element can be cloned (default 999)
+            'min' => 0, // 0 or 1 (default 1)
+            'insertButton' => '.add-item', // css class
+            'deleteButton' => '.remove-item', // css class
+            'model' => $modelsSpacesAnnotations[0],
+            'formId' => 'space-form',
+            'formFields' => [
+                'name',
+                'description',
+                'color',
+                'query',
+            ],
+        ]); 
+    ?>
     <div style = "margin-bottom:10px">
         <label class="pull-left" style="font-size: inherit;" >Annotation Data</label>
         <div class="pull-right">
@@ -295,7 +301,22 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
                     <div class="col-xs-12">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
-                </div><!-- .row -->
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_count")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_info")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>

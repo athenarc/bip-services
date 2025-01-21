@@ -38,7 +38,7 @@ $(document).ready(function () {
         //Do the required action
         $.ajax(
         {
-            url:   window.location.origin + '/bip/web/index.php/readings/ajax-reading',
+            url:   `${appBaseUrl}/readings/ajax-reading`,
             type: 'POST',
             data:
             {

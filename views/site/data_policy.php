@@ -17,7 +17,7 @@ $this->title = 'BIP! Finder - Privacy and Cookie Policy';
 
     <p>Like most organisations, when you visit or interact with the Service, we and our service providers may use cookies and other tracking technologies for storing information, to help provide, protect and improve the Service. For example, to record user traffic, to assist in the authentication of registered uses, to save your preferences, personalize content, combat fraud and abuse, and streamline the functioning of and your access to the Service.</p>
     <p>We allow certain service providers to place cookies and similar technologies on the Service for the same purposes listed above, including collecting information about your online activities over time and across different websites and devices in order to provide you with more relevant advertising.</p>
-    <p>For instance, to help us better understand how people engage with the Service, we work with third party analytics partners, including Google Analytics. To opt out of Google Analytics, you may install the Google Analytics Opt-Out Browser <a href="http://tools.google.com/dlpage/gaoptout" target="_blank">here.</a></p>
+    <p>For instance, to help us better understand how people engage with the Service, we work with third party analytics partners, including Google Analytics. To opt out of Google Analytics, you may install the Google Analytics Opt-Out Browser <a href="http://tools.google.com/dlpage/gaoptout" target="_blank" class="main-green">here.</a></p>
 
 
     <h3>Other Information we collect, store and record</h3>
@@ -26,7 +26,7 @@ $this->title = 'BIP! Finder - Privacy and Cookie Policy';
         <li><b>User-input data:</b> these we use to record search sessions and other visits, as well as for supporting readings functionality (including reading levels, tags, and notes). 
         This is information we store in our own servers for the duration of the provision of the service to a registered user.</li>
         <li><b>Scholar ORCiD data:</b> we store ORCiD data (such name and ORCiD ID) in our own servers as long as a user's BIP! Scholar profile is linked with their ORCiD account.
-        Furthermore, we collect, process on-the-fly, and display privately in our UI the user’s public information in their ORCiD account to support the functionality of BIP! Scholar (albeit without storing anything). Moreover, we publish the same information through our UI and API in case the user has selected to make their BIP! Scholar profile public.</li>
+        Furthermore, we collect, process on-the-fly, and display privately in our UI the user's public information in their ORCiD account to support the functionality of BIP! Scholar (albeit without storing anything). Moreover, we publish the same information through our UI and API, under the terms of the <a href="https://creativecommons.org/public-domain/cc0/" target="blank" class="main-green">Creative Commons Zero License (CC0)</a>, in case the user has selected to make their BIP! Scholar profile public.</li>
     </ul></p>
 
     <h3>Data Storage and Retention</h3>

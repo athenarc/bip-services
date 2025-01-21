@@ -61,7 +61,7 @@
 /* Style for the main content */
 #indicators .main-content {
     margin-left: 270px;
-    padding-top: 50px;
+    /* padding-top: 50px; */
 }
 
 #indicators .main-content h4{

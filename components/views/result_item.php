@@ -51,8 +51,10 @@ $item = $this->context;
 
             <div class="col-md-4 col-lg-3 text-right">
                 <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                    <span class ="grey-text" style = "font-size:75%">Found <?= $item->dois_num?> versions</span>
+                        <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
+                            Found <?= $item->dois_num ?> versions</a>
                 <?php endif; ?>
+
                 <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
                                     'influence_class' => $item->inf_class,
                                     'impulse_class' => $item->imp_class,
@@ -116,6 +118,24 @@ $item = $this->context;
                 </div>
             </div>
         <?php endif; ?>
+        <?php if (isset($item->show["relations"]) && $item->show['relations']): ?>
+            <!-- relations -->
+            <?php if (!empty($item->relations)): ?>
+                <div id="res_<?= $item->internal_id ?>_rel" class="tag-region grey-text">
+                    <div class="bootstrap-tagsinput">
+                    <i class="fa-solid fa-paperclip fa-fw" aria-hidden="true" title="Relations"></i>
+
+                    <?php foreach ($item->relations as $relation) { ?>
+                        <span class="tag label">
+                            <span role="button" href="<?= Url::to(['site/get-relations-data', 'target_dois' => $relation['target_dois'], 'source_openaire_id' => $item->openaire_id]) ?>" data-toggle="modal" data-remote="false" modal-title="Related works" data-target="#relations-modal"><?= $relation['type'] ?> <span class="badge badge-primary" style ="top: -1px;padding: 1px 5px; position: relative;"><?= count($relation['target_dois'])?></span></span>
+                            
+                        </span>
+                    <?php } ?>
+
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
         <?php if (isset($item->show["annotations"]) && $item->show['annotations']): ?>
         <!-- annotations -->
             <?php if (!empty($item->annotations)): ?>
@@ -125,7 +145,7 @@ $item = $this->context;
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $item->space_annotation_db ]); ?>
+                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $item->space_annotation_db, 'space_url_suffix' => $item->space_url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query'] ]); ?>
                             <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
                             <?php if (!empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
@@ -293,7 +313,8 @@ $item = $this->context;
             <?php if (isset($item->show["copy_link"]) && $item->show['copy_link']): ?>
                 <!-- copy_link -->
                 <div class="flex-b-18 no-white-space text-center">
-                    <a class="copy-link btn btn-default btn-xs fs-inherit grey-link" role = "button" target="_blank" href="<?=Url::to(['site/details', 'id' => $item->doi], true)?>" data-toggle="tooltip">
+                    <!-- <a class="copy-link btn btn-default btn-xs fs-inherit grey-link" role = "button" target="_blank" href="<?=Url::to(['site/details', 'id' => $item->doi], true)?>" data-toggle="tooltip"> -->
+                    <a class="copy-link btn btn-default btn-xs fs-inherit grey-link" role = "button" target="_blank" href="<?=Url::to(array_merge(['site/details'], $params), true)?>" data-toggle="tooltip">
                         <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy Link
                     </a>
                 </div>

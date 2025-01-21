@@ -18,7 +18,7 @@ class TemplatesSearch extends Templates
     {
         return [
             [['id', 'profile_template_category_id'], 'integer'],
-            [['name', 'scope'], 'safe'],
+            [['name', 'description'], 'safe'],
         ];
     }
 
@@ -63,7 +63,7 @@ class TemplatesSearch extends Templates
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'scope', $this->scope]);
+            ->andFilterWhere(['like', 'description', $this->description]);
 
         return $dataProvider;
     }

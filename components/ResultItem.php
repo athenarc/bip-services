@@ -23,6 +23,7 @@ class ResultItem extends Widget
     public $edit_perm;
     public $doi;
     public $dois_num;
+    public $openaire_id;
     public $title;
     public $authors;
     public $journal;
@@ -50,6 +51,7 @@ class ResultItem extends Widget
     public $search_context;
     public $concepts;
     public $annotations;
+    public $relations;
     public $space_url_suffix;
     public $space_annotation_db;
 

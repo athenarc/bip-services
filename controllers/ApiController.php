@@ -82,9 +82,9 @@ class ApiController extends Controller
         $scholar = new Scholar($researcher);
 
         // fetch scholar's works for ORCiD
-        $scholar->fetchWorks();
+        $scholar->fetchWorks(null, null);
 
-        $result = $scholar->getArticlesInPage([], [], [], [], [], 'year');
+        $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
         // calculate and return scholar indicators
         $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);

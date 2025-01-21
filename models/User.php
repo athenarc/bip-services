@@ -156,4 +156,14 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             ->where(['auth_token' => $auth_token])
             ->exists();
     }
+    /**
+     * Check if the user has a scholar profile.
+     *
+     * @return bool
+     */
+    public function getHasScholarProfile()
+    {
+        // Replace 'scholars' with your actual table name if different
+        return Scholar::find()->where(['user_id' => $this->id])->exists();
+    }
 }

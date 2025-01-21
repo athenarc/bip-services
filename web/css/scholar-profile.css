@@ -23,14 +23,7 @@ figcaption.ratings a:hover
 {
     border-top:1px solid rgba(0,0,0,0.1);
 }
-/* .emphasis
-{
-    border-bottom: 4px solid transparent;
-}
-.emphasis:hover
-{
-    border-bottom: 4px solid #449D44;
-} */
+
 .emphasis h2
 {
     margin-bottom:0;
@@ -79,9 +72,6 @@ span.tags
 
 
 select#templates-dropdown,
-select#assessment-framework-dropdown,
-select#assessment-protocol-dropdown,
-select#presets-dropdown,
 select#sort-dropdown {
   padding: 1px 3px;
   height: 2em;
@@ -161,12 +151,8 @@ select#sort-dropdown {
 }
 
 .facet-row {
-    padding-bottom: 10px;
+    padding-bottom: 15px;
 }
-
-/* .facet-header {
-    padding-bottom: 5px;
-} */
 
 button.facet-item {
     color: #777;
@@ -185,59 +171,36 @@ button.btn-success.facet-item {
 
 /* profile indicators */
 .inner-well {
-    height:90px;
+    min-height: 90px;
+    overflow: hidden;
 }
 
 .tall {
     height:200px;
 }
 
+.indicator-div {
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+
 #impact-indicators {
     border-color: #5cb85c;
 }
 
-@media (max-width: 992px) {
-    #impact-indicators {
-        height: 370px;
-    }
-}
 
 #productivity-indicators {
     border-color: #d9534f;
-    padding: 12px;
 }
 
-@media (max-width: 992px) {
-    #productivity-indicators {
-        height: 235px;
-    }
-}
 
-@media (max-width: 992px) {
-    #openess-indicators {
-        height: 245px;
-    }
-}
-
-@media (max-width: 992px) {
-    #career-stage {
-        height: 132px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .indicators-container-1200-height {
-        height: 105px;
-    }
-}
-
-#career-stage {
+#career-stage-indicators {
     border-color: #5bc0de;
 }
 
-#openess-indicators {
+#open-science-indicators {
     border-color: #f0ad4e;
-    padding: 12px;
 }
 
 .indicator {
@@ -252,6 +215,14 @@ button.btn-success.facet-item {
     background-color: #f5f5f5;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.well.indicators-panel {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 5px;
 }
 
 

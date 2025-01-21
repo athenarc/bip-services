@@ -25,29 +25,32 @@ $section_profiles = ($section === "profiles");
         <li class="<?= $section_spaces ? 'active' : ''?>">
         <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
         </li>
-        <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-        </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
         <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
         </li>
     </ul>
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-admin">
+            <li class="breadcrumb-item">Indicators</li>
+            <li class="breadcrumb-item"><?= Html::encode($this->title) ?></li>
+            <li class="breadcrumb-item active">view</li>
+        </ol>
+    </nav>
 
     <p>
-        <?= Html::a('Update', ['update-indicator', 'id' => $indicatorModel->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete-indicator', 'id' => $indicatorModel->id], [
-            'class' => 'btn btn-danger',
+        <?= Html::a('<i class="fa fa-arrow-left"></i> Back', ['admin-indicators'], ['class' => 'btn btn-default']) ?>
+        <?= Html::a('<i class="fa-solid fa-pen-to-square"></i> Update', ['update-indicator', 'id' => $indicatorModel->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('<i class="fa-solid fa-trash-can"></i> Delete', ['delete-indicator', 'id' => $indicatorModel->id], [
+            'class' => 'btn btn-danger pull-right',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',
                 'method' => 'post',
             ],
         ]) ?>
-        <?= Html::a('Back', ['admin-indicators'], ['class' => 'btn btn-default']) ?>
     </p>
 
     <?= DetailView::widget([

@@ -9,6 +9,10 @@ use Yii;
  *
  * @property int $indicator_id
  * @property int $element_id
+ *  @property string $heading_type
+ * @property string|null $status 
+ * @property int|null $semantics_order
+ * @property int|null $indicator_order
  *
  * @property Elements $element
  * @property Indicators $indicator
@@ -30,7 +34,9 @@ class ElementIndicators extends \yii\db\ActiveRecord
     {
         return [
             [['indicator_id', 'element_id'], 'required'],
-            [['indicator_id', 'element_id'], 'integer'],
+            [['indicator_id', 'element_id', 'semantics_order', 'indicator_order'], 'integer'],
+            [['status'], 'string'], 
+            [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['indicator_id', 'element_id'], 'unique', 'targetAttribute' => ['indicator_id', 'element_id']],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
             [['indicator_id'], 'exist', 'skipOnError' => true, 'targetClass' => Indicators::class, 'targetAttribute' => ['indicator_id' => 'id']],
@@ -45,6 +51,9 @@ class ElementIndicators extends \yii\db\ActiveRecord
         return [
             'indicator_id' => 'Indicator ID',
             'element_id' => 'Element ID',
+            'status' => 'Status', 
+            'semantics_order' => 'Semantics Order',
+            'indicator_order' => 'Indicator Order'
         ];
     }
 
@@ -73,9 +82,15 @@ class ElementIndicators extends \yii\db\ActiveRecord
 
         $indicators_config = ElementIndicators::find()->where([ 'element_id' => $element_id ])->with('indicator')->all();
         foreach ($indicators_config as $i_config) {
-            $config[$i_config->indicator->name] = $i_config->indicator;
+
+            $config[$i_config->indicator->name] = [
+                'indicator' => $i_config->indicator,
+                'status' => $i_config->status,
+                'semantics_order' => $i_config->semantics_order,
+                'indicator_order' => $i_config->indicator_order
+            ];
         }
+
         return $config;
-  
     }
 }

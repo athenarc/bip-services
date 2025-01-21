@@ -18,7 +18,7 @@ class ProfileTemplateCategoriesSearch extends ProfileTemplateCategories
     {
         return [
             [['id'], 'integer'],
-            [['name', 'description'], 'safe'],
+            [['name', 'description', 'visible'], 'safe'],
         ];
     }
 

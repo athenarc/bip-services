@@ -34,7 +34,7 @@ $(document).ready(function()
          
         $.ajax(
          {
-             url:   window.location.origin + '/bip/web/index.php/site/getgraph',
+             url:   `${appBaseUrl}/site/getgraph`,
              type: 'POST',
              data: 
              {
@@ -105,7 +105,7 @@ $(document).ready(function()
          
         $.ajax(
          {
-             url:   window.location.origin + '/bip/web/index.php/site/getgraph',
+             url:   `${appBaseUrl}/site/getgraph`,
              type: 'POST',
              data: 
              {

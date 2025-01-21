@@ -13,6 +13,7 @@ use app\components\CustomFiltersRadioList;
 use app\components\CustomFiltersCheckboxList;
 use app\components\ResultItem;
 use app\components\TopTopicsItem;
+use app\components\CustomBootstrapModal;
 use yii\helpers\ArrayHelper;
 use app\models\Indicators;
 
@@ -203,12 +204,14 @@ if ($in_space) {
                                     "internal_id" => $result["internal_id"],
                                     "doi" => $result["doi"],
                                     "dois_num" => $result["dois_num"],
+                                    "openaire_id" => $result["openaire_id"],
                                     "title" => $result["title"],
                                     "authors" => $result["authors"],
                                     "journal" => $result["journal"],
                                     "year" => $result["year"],
                                     "concepts" => $result["concepts"],
                                     "annotations" => $result["annotations"] ?? null,
+                                    "relations" => $result["relations"],
                                     "user_id" => $result["user_id"],
                                     "pop_score" => $result["attrank"],
                                     "inf_score" => $result["pagerank"],
@@ -224,6 +227,7 @@ if ($in_space) {
                                     "show" => [
                                         "concepts" => true,
                                         "annotations" => true,
+                                        "relations" => true,
                                         "open_access" => true,
                                         "search_context" => true,
                                         "copy_link" => true,
@@ -253,7 +257,7 @@ if ($in_space) {
                         <p>More details about BIP! Finder can be found in our publication:</p>
                         <div class="panel panel-default text-left">
                             <div class="panel-body">
-                                T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> <i>In Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, Beijing, China, November 2019 <small><?= Html::a("(BibTeX)", "@web/files/bip.bib", ["class" => "grey-link"] ) ?></small>
+                                T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> <i>In Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, Beijing, China, November 2019 <small><?= Html::a("(BibTeX)", "@web/files/bip-finder.bib", ["class" => "grey-link"] ) ?></small>
                             </div>
                         </div>
                         <p><small>We kindly ask that any published research that makes use of BIP! Finder or its data cites the paper above.</small></p>
@@ -273,5 +277,9 @@ if ($in_space) {
                     ]);
         echo "<div id='modalContent' class='grey-text'></div>";
         Modal::end();
+
+        echo CustomBootstrapModal::widget(['id' => 'versions-modal']);
+        echo CustomBootstrapModal::widget(['id' => 'relations-modal']);
+
     ?>
 

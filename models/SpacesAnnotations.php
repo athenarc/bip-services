@@ -14,6 +14,9 @@ use yii\helpers\ArrayHelper;
  * @property string|null $description
  * @property string|null $color
  * @property string|null $query
+ * @property string|null $reverse_query
+ * @property string|null $reverse_query_count
+ * @property string|null $reverse_query_info
  *
  * @property Spaces $spaces
  */
@@ -37,10 +40,13 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
             // [['spaces_id'], 'integer'],
             // [['spaces_id'], 'exist', 'skipOnError' => true, 'targetClass' => Spaces::class, 'targetAttribute' => ['spaces_id' => 'id']],
             [['query'], 'required'],
-            [['query'], 'string'],
+            [['query', 'reverse_query', 'reverse_query_count', 'reverse_query_info'], 'string'],
             [['name', 'description'], 'string', 'max' => 255],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
+
+            [['reverse_query', 'reverse_query_count', 'reverse_query_info'], 'validateReverseFields'],
+
         ];
     }
 
@@ -56,7 +62,28 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
             'description' => 'Description',
             'color' => 'Color',
             'query' => 'Query',
+            'reverse_query' => 'Reverse Query',
+            'reverse_query_count' => 'Reverse Query Count',
+            'reverse_query_info' => 'Reverse Query Info',
         ];
+    }
+
+
+    /**
+     * Custom validation function to check that if one reverse_query field is filled, all are required.
+     */
+    public function validateReverseFields($attribute, $params, $validator)
+    {
+        // If any one of these fields is filled, ensure that all are filled
+        $filledFields = array_filter([
+            $this->reverse_query,
+            $this->reverse_query_count,
+            $this->reverse_query_info,
+        ]);
+
+        if (count($filledFields) > 0 && count($filledFields) < 3) {
+            $this->addError($attribute, 'If one of "Reverse Query", "Reverse Query Count", or "Reverse Query Info" is provided, all three fields are required.');
+        }
     }
 
     /**

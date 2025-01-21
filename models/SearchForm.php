@@ -685,7 +685,7 @@ class SearchForm extends Model
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         $rows = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->select(['internal_id', 'dois_num', 'doi', 'openaire_id', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
             ->from('pmc_paper')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['in', 'internal_id', $paper_ids])
@@ -771,30 +771,53 @@ class SearchForm extends Model
             ->setField('year')
             ->setMinCount(1);
 
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
         // Execute the query
         $resultset =Yii::$app->solr->select($query);
 
         // Get the top 5 topics from the facet results
-        $facet_values = $resultset->getFacetSet()->getFacet('years_facet')->getValues();   
-      
-        // Determine the range of years
-        $minYear = min(array_keys($facet_values));
-        $maxYear = max(array_keys($facet_values));
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();   
 
-        // Fill missing years with zero
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year = isset($stats['year']) ? $stats['year'] : [];  
+
+        // Determine the range of years
+        $minYear = min(array_keys($count_per_year));
+        $maxYear = max(array_keys($count_per_year));
+
+        
         for ($year = $minYear; $year <= $maxYear; $year++) {
-            if (!isset($facet_values[$year])) {
-                $facet_values[$year] = 0;
+
+            // Fill missing years with zero for research works and citation counts
+            if (!isset($count_per_year[$year])) {
+                $count_per_year[$year] = 0;
             }
+
+            // Fill missing years with zero for citation counts or get their sum
+            if (!isset($citation_per_year[$year])) {
+                $citation_per_year[$year] = 0;
+            } else {
+                $citation_per_year[$year] = $citation_per_year[$year]->getSum();
+            }
+
         }
 
         // Sort the array by keys (years)
-        ksort($facet_values);
+        ksort($count_per_year);
+        ksort($citation_per_year);
 
         // Keep only the latest 20 values
-        $facet_values = array_slice($facet_values, -20, 20, true);
+        $count_per_year = array_slice($count_per_year, -20, 20, true);
+        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
 
-        return $facet_values;
+        return [
+            $count_per_year,
+            $citation_per_year
+        ];
     }
 
     public function addMetadata($rows) {
@@ -807,6 +830,8 @@ class SearchForm extends Model
         $rows = SearchForm::get_concepts_impact_class($rows);
         // get annotations
         $rows = Spaces::fetchAnnotations($rows, $this->space_model);
+        // get relations
+        $rows = Relations::getRelations($rows);
 
         return $rows;
     }
@@ -915,7 +940,7 @@ class SearchForm extends Model
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
         //Build the search query.
         $query = (new \yii\db\Query())
-        ->select(['internal_id', 'doi', 'title', 'journal','year', 'pagerank', 'pagerank_normalized','attrank', 'attrank_normalized', '3y_cc', '3y_cc_normalized', 'citation_count', 'citation_count_normalized', 'user_id'])
+        ->select(['internal_id', 'doi', 'openaire_id', 'title', 'journal','year', 'pagerank', 'pagerank_normalized','attrank', 'attrank_normalized', '3y_cc', '3y_cc_normalized', 'citation_count', 'citation_count_normalized', 'user_id'])
         ->from('pmc_paper')
         ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
         ->where("internal_id=".$id);

@@ -14,7 +14,7 @@ $(document).ready(function()
 
    $.ajax(
     {
-        url:   window.location.origin + '/bip/web/index.php/site/get-comparison-graph',
+        url:   `${appBaseUrl}/site/get-comparison-graph`,
         type: 'GET',
         data: 
         {

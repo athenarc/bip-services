@@ -43,7 +43,7 @@ $(document).ready(function () {
         //Do the required ajax action
         $.ajax(
         {
-            url:   window.location.origin + '/bip/web/index.php/scholar/add-rag',
+            url:   `${appBaseUrl}/scholar/add-rag`,
             type: 'POST',
             data:
             {
@@ -94,7 +94,7 @@ $(document).ready(function () {
         //Do the required ajax action
         $.ajax(
         {
-            url:   window.location.origin + '/bip/web/index.php/scholar/remove-rag',
+            url:   `${appBaseUrl}/scholar/remove-rag`,
             type: 'POST',
             data:
             {
@@ -131,7 +131,7 @@ $(document).ready(function () {
         //Do the required ajax action
         $.ajax(
         {
-            url:   window.location.origin + '/bip/web/index.php/scholar/update-rag',
+            url:   `${appBaseUrl}/scholar/update-rag`,
             type: 'POST',
             data:
             {

@@ -12,6 +12,7 @@ use Yii;
  * @property int $id
  * @property string $name
  * @property string|null $description
+ * @property boolean $hide
  */
 class ProfileTemplateCategories extends \yii\db\ActiveRecord
 {
@@ -32,6 +33,7 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
             [['name'], 'required'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
+            [['visible'], 'boolean']
         ];
     }
 
@@ -44,6 +46,7 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'description' => 'Description',
+            'visible' => 'Visible'
         ];
     }
 
@@ -53,7 +56,12 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
 
 
     public function getTemplateDropdownData() {
-        $template_categories = ProfileTemplateCategories::find()->with('templates')->all();
+        
+        $template_categories = ProfileTemplateCategories::find()
+            ->where([ 'visible' => true ])
+            ->with(['templates' => function ($query) {
+                $query->andWhere(['visible' => true]);
+            }])->all();
 
         $dropdownData = [];
 

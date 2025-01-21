@@ -75,22 +75,8 @@ function first_call(container) {
                 }         
 		$( "#dialog" ).dialog("open");
                 //Ajax call to fill dialog contents!
-                if(window.location.origin == 'http://bip.imis.athena-innovation.gr')
-                {
-                    extension = '/site/papersummary?paper_id=' + id;
-                }
-                else
-                {
-                    extension = '/bip/web/index.php/site/papersummary?paper_id=' + id;
-                }
-                $.ajax(
-                {
-                   //url:  window.location.origin + '/bip/web/index.php/site/papersummary?paper_id=' + id,
-                   url: window.location.origin + extension,
-                   /*data: 
-                   {
-                      format: 'json'
-                   },*/
+                $.ajax({
+                   url: `${appBaseUrl}/site/papersummary?paper_id=${id}`,
                 error: function() 
                    {
                       $('#dialog').html('<p>An error has occurred - please reload details!</p>');

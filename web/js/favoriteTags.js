@@ -28,7 +28,7 @@ $(document).ready(function () {
         const action_name = (e.type === 'beforeItemAdd') ? 'add-tag' : 'remove-tag';
 
         $.ajax({
-            url: `${window.location.origin}/bip/web/index.php/site/${action_name}`,
+            url: `${appBaseUrl}/site/${action_name}`,
             type: 'POST',
             data: {
                 tag_name,

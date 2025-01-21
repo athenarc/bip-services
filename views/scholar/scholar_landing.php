@@ -14,7 +14,7 @@ $this->title = 'BIP! Services - Scholar';
 <div id="scholar-landing">
   <div class="jumbotron text-center">
     <h2 class="display-4">BIP! Scholar Profiles</h2>
-    <p class="lead">Hightlight key points of your research and frame them into context</p>
+    <p class="lead">Highlight key points of your research and frame them into context</p>
   </div>
   <div class="text-center" style="margin: 10px 0px">
       <a href="<?= Url::to(['scholar/profile']) ?>" class="btn btn-custom-color btn-lg">
@@ -24,7 +24,7 @@ $this->title = 'BIP! Services - Scholar';
       } elseif ( !isset($researcher->orcid ) ) {
           echo "Create Profile";
       } else {
-          echo "<i class='fa-regular fa-user'></i> My profile";
+          echo "<i class='fa-solid fa-id-card'></i> My profile";
       }
       ?>
       </a>

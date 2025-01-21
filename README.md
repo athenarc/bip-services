@@ -1,30 +1,18 @@
-<p align="center">
-  <img src="https://github.com/athenarc/bip-services/blob/main/web/img/bip-minimal.png?raw=true" width="200px"/>
-  <h1 align="center">BIP! Services</h1>
-  <br />
-</p>
+Yii 2 Basic Project Template
+============================
 
-BIP! Services is a suite of tools for exploring scientific literature and assessing research impact through advanced citation-based indicators applied on top of scholarly knowledge graphs. 
-BIP! aggregates citation data from the OpenAIRE Graph, constructing a citation network encompassing over 190 million research works, including articles, datasets, software, and more. 
-This network is analyzed to compute a variety of citation-based indicators using scalable technologies like Apache Spark. 
-The aforementioned indicators capture different dimensions of scientific impact, such as popularity (current impact), influence (overall impact), and impulse (initial momentum).
+Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
+rapidly creating small projects.
 
-## How to cite
-```
-@inproceedings {Vergoulis2019,
- author = {Vergoulis, Thanasis and Chatzopoulos, Serafeim and Kanellos, Ilias and Deligiannis, Panagiotis and Tryfonopoulos, Christos and Dalamagas, Theodore},
- title = {BIP! Finder: Facilitating Scientific Literature Search by Exploiting Impact-Based Ranking},
- booktitle = {Proceedings of the 28th ACM International Conference on Information and Knowledge Management},
- series = {CIKM '19},
- year = {2019},
- pages = {2937--2940},
- url = {http://doi.acm.org/10.1145/3357384.3357850},
- doi = {10.1145/3357384.3357850},
- publisher = {ACM}
-} 
-```
+The template contains the basic features including user login/logout and a contact page.
+It includes all commonly used configurations that would allow you to focus on adding new
+features to your application.
 
-Directory structure
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
+[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
+[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
+
+DIRECTORY STRUCTURE
 -------------------
 
       assets/             contains assets definition
@@ -41,12 +29,12 @@ Directory structure
 
 
 
-Requirements
+REQUIREMENTS
 ------------
 
 The minimum requirement by this project template that your Web server supports PHP 5.4.0.
 
-<!---
+
 INSTALLATION
 ------------
 
@@ -112,5 +100,3 @@ return [
 - Yii won't create the database for you, this has to be done manually before you can access it.
 - Check and edit the other files in the `config/` directory to customize your application as required.
 - Refer to the README in the `tests` directory for information specific to basic application tests.
-
--->

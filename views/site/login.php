@@ -33,7 +33,7 @@ $this->title = 'Login';
     <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'maxlength' => 30, 'class' => 'search-box  form-control']) ?>
 
     <?= $form->field($model, 'password')->passwordInput(['maxlength' => 50, 'class' => 'search-box  form-control']) ?>
-    <div class="col-lg-offset-1"><a href="<?= Url::to(['site/requestreset']) ?>">Forgot Password?</a></div> 
+    <div class="col-lg-offset-1"><a href="<?= Url::to(['site/requestreset']) ?>" class="main-green">Forgot Password?</a></div> 
 
     <?=  CustomBootstrapCheckboxList::widget(['name' => 'rememberMe', 'model' => $model, 'form' => $form, 'item_class' => 'checkbox checkbox-custom checkbox-inline']); ?>
  
@@ -44,7 +44,7 @@ $this->title = 'Login';
     </div>
 
     <div class="col-lg-offset-1 col-lg-11">
-        Don't have an account? <a href="<?= Url::to(['site/signup']) ?>">Sign up</a>
+        Don't have an account? <a href="<?= Url::to(['site/signup']) ?>" class="main-green">Sign up</a>
     </div>
 
 

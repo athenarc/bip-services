@@ -101,7 +101,7 @@ $(document).ready(function () {
 
         //Do the required action
         $.ajax({
-            url:   window.location.origin + '/bip/web/index.php/readings/save-notes',
+            url:   `${appBaseUrl}/readings/save-notes`,
             type: 'POST',
             data:{
                 'notes' : ed_content,

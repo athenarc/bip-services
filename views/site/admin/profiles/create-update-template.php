@@ -1,5 +1,6 @@
 <?php
 
+use Yii;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\web\View;
@@ -10,6 +11,7 @@ use app\models\Elements;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use kartik\select2\Select2;
 
 /** @var yii\web\View $this */
 /** @var app\models\Templates $model */
@@ -20,18 +22,16 @@ $this->registerJsFile('@web/js/tinymceAdminPanel.js', ['position' => View::POS_E
 // Include jQuery UI for draggable functionality
 $this->registerJsFile('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js', ['depends' => ['yii\web\JqueryAsset']]);
 
-$this->title = 'Update Template: ' . $templateModel->name;
-
-if ($templateModel->isNewRecord)
-    $this->title = 'Create Template';
-else
-    $this->title = 'Update Template: ' . $templateModel->name;
-
 $section_overview = ($section === "overview");
 $section_spaces = ($section === "spaces");
 $section_scholar = ($section === "scholar");
 $section_indicators = ($section === "indicators");
 $section_profiles = ($section === "profiles");
+
+$back_url = ($templateModel->isNewRecord) 
+    ? ['view-template-category', 'id' => $profile_template_category_id] 
+    : ['view-template', 'id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id];
+
 ?>
 
 <script>
@@ -51,11 +51,13 @@ $section_profiles = ($section === "profiles");
         }).disableSelection();
     });
 </script>
+
 <style>
     .dragging {
         cursor: move;
     }
 </style>
+
 <div class="templates-create-update">
 
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
@@ -65,42 +67,64 @@ $section_profiles = ($section === "profiles");
         <li class="<?= $section_spaces ? 'active' : ''?>">
         <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
         </li>
-        <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-        </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
         <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
         </li>
     </ul>
 
-    <!-- <div class="title-header" style="display: flex; align-items: center"> -->
-    <h1><?= Html::encode($this->title) ?></h1>
-    <!-- </div> -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-admin">
+            <li class="breadcrumb-item">...</li>
+            <li class="breadcrumb-item">Template</li>
+            <?php if ($templateModel->isNewRecord): ?>
+                <li class="breadcrumb-item active">new</li>
+            <?php else: ?>
+                <li class="breadcrumb-item"><?= Html::encode($templateModel->name) ?></li>
+                <li class="breadcrumb-item active">update</li>
+            <?php endif; ?>
+        </ol>
+    </nav>
 
     <div class="templates-form">
 
         <?php $templateForm = ActiveForm::begin(); ?>
 
+            <div style="margin-bottom:10px;">
+                <?= Html::a('<i class="fa-solid fa-arrow-left"></i> Back', $back_url, ['class' => 'btn btn-default']) ?>
+                <?= Html::resetButton('<i class="fa-solid fa-rotate-left"></i> Reset', ['class' => 'btn btn-default pull-right']) ?>
+            </div>
+
             <?= $templateForm->field($templateModel, 'profile_template_category_id')->hiddenInput(['value' => $profile_template_category_id])->label(false)?>
             <?= $templateForm->field($templateModel, 'name')->textInput(['maxlength' => true]) ?>
             <?= $templateForm->field($templateModel, 'url_name')->textInput(['maxlength' => true]) ?>
-            <?= $templateForm->field($templateModel, 'scope')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']) ?>
-            
+            <?= $templateForm->field($templateModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']) ?>
+
+            <?= $templateForm->field($templateModel, 'language')->widget(Select2::classname(), [
+                'data' => Yii::$app->params['languages'],
+                'language' => 'en', // Set Select2 interface language
+                'options' => ['placeholder' => 'Select Language...'],
+                'pluginOptions' => [
+                    'allowClear' => false, // Hide clear selection
+                ],
+            ]); ?>
+                     
+            <?= $templateForm->field($templateModel, 'visible')->checkbox() ?>
+
             <!-- Hidden field to store elements data -->
             <?= Html::hiddenInput('elementsData', '', ['id' => 'elementsData']) ?>
 
             <?php if (!$templateModel->isNewRecord): ?>
                 
-                <h2><?= Html::encode('Elements') ?></h2>
-
-                <p>
-                    <?php if (!$templateModel->isNewRecord): ?>
-                        <?= Html::a('Add Element', ['create-element', 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-success']) ?>
-                    <?php endif ?>
-                </p>
+                <h2><?= Html::encode('Elements') ?>
+               
+                <?php if (!$templateModel->isNewRecord): ?>
+                    <?= Html::a('<i class="fa-solid fa-plus"></i> Add Element', ['create-element', 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-success pull-right']) ?>
+                <?php endif ?>
+            
+            </h2>
 
                 <?= $elementsDataProvider->setSort([
                     'defaultOrder' => ['order' => SORT_ASC]
@@ -112,15 +136,39 @@ $section_profiles = ($section === "profiles");
                     'dataProvider' => $elementsDataProvider,
                     'columns' => [
                         ['class' => 'yii\grid\SerialColumn'],
-
-                        // 'id',
-                        // 'template_id',
                         'name',
                         'type',
-                        // 'order',
                         [
                             'class' => ActionColumn::className(),
                             'header' => 'Actions',
+                            'buttons' => [
+                                'view' => function ($url, $model, $key) {
+                                    return Html::a(
+                                        '<i class="fas fa-eye"></i> View', 
+                                        $url, 
+                                        ['title' => 'View', 'class' => 'btn btn-sm btn-default']
+                                    );
+                                },
+                                'update' => function ($url, $model, $key) {
+                                    return Html::a(
+                                        '<i class="fas fa-edit"></i> Edit', 
+                                        $url, 
+                                        ['title' => 'Edit', 'class' => 'btn btn-sm btn-primary']
+                                    );
+                                },
+                                'delete' => function ($url, $model, $key) {
+                                    return Html::a(
+                                        '<i class="fas fa-trash"></i> Delete', 
+                                        $url, 
+                                        [
+                                            'title' => 'Delete', 
+                                            'class' => 'btn btn-sm btn-danger', 
+                                            'data-confirm' => 'Are you sure you want to delete this item?',
+                                            'data-method' => 'post'
+                                        ]
+                                    );
+                                },
+                            ],
                             'urlCreator' => function ($action, Elements $model, $key, $index, $column) use ($profile_template_category_id) {
                                 $action .= "-element";
                                 return Url::toRoute([$action, 'id' => $model->id, 'template_id' => $model->template_id, 'profile_template_category_id' => $profile_template_category_id]);
@@ -135,13 +183,8 @@ $section_profiles = ($section === "profiles");
             <?php endif ?>
 
             <div class="form-group">
-                <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-                <?= Html::resetButton('Reset', ['class' => 'btn btn-danger']) ?>
-                <?php if ($templateModel->isNewRecord): ?>
-                    <?= Html::a('Back', ['view-template-category', 'id' => $profile_template_category_id], ['class' => 'btn btn-default']) ?>
-                <?php else: ?>
-                    <?= Html::a('Back', ['view-template', 'id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-default']) ?>
-                <?php endif ?>
+                <?= Html::submitButton('<i class="fa-solid fa-floppy-disk"></i> Save', ['class' => 'btn btn-success']) ?>
+                <?= Html::a('<i class="fa-solid fa-xmark"></i> Cancel', $back_url, ['class' => 'btn btn-danger']) ?>
             </div>
 
         <?php ActiveForm::end(); ?>

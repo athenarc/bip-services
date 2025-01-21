@@ -10,7 +10,8 @@ use Yii;
  * @property int $id
  * @property int $profile_template_category_id
  * @property string $name
- * @property string|null $scope
+ * @property string|null $description
+ *  @property string $language
  *
  * @property Elements[] $elements
  * @property ProfileTemplateCategories $profileTemplateCategory
@@ -32,10 +33,14 @@ class Templates extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['profile_template_category_id', 'name', 'url_name'], 'required'],
+            [['profile_template_category_id', 'name', 'url_name','language'], 'required'],
             [['profile_template_category_id'], 'integer'],
-            [['scope'], 'string'],
+            [['description'], 'string'],            
+            [['visible'], 'boolean'],
             [['name'], 'string', 'max' => 255],
+            [['language'], 'string', 'max' => 10], // Limit the language string length to 10 characters
+            [['language'], 'default', 'value' => 'en'], // Default to 'en'
+            [['language'], 'in', 'range' => array_keys(Yii::$app->params['languages'])],
             [['url_name'], 'string', 'max' => 100],
             ['url_name', 'unique', 'message' => 'This url name already exists.'],
             [['profile_template_category_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProfileTemplateCategories::class, 'targetAttribute' => ['profile_template_category_id' => 'id']],
@@ -52,7 +57,9 @@ class Templates extends \yii\db\ActiveRecord
             'profile_template_category_id' => 'Profile Template Category ID',
             'name' => 'Name',
             'url_name' => 'Url Name',
-            'scope' => 'Scope',
+            'description' => 'Description',
+            'language' => 'Language', 
+            'visible' => 'Visible',
         ];
     }
 
@@ -74,6 +81,10 @@ class Templates extends \yii\db\ActiveRecord
     public function getProfileTemplateCategory()
     {
         return $this->hasOne(ProfileTemplateCategories::class, ['id' => 'profile_template_category_id']);
+    }
+
+    public function isHidden() {
+        return !$this->visible || !$this->profileTemplateCategory->visible;
     }
 
 }

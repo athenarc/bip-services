@@ -153,7 +153,6 @@ a.desc:after {
 .list-group-shadow {
     margin-top: 20px;
     border: none;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 }
 
@@ -793,6 +792,10 @@ input[type="checkbox"].checkbox_filter:checked+label {
     float: none;
 }
 
-.field-protocolindicatorsform-selectedindicators {
-    margin-bottom: 0px;
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
+.admin-table a {
+    color: var(--main-color)
 }

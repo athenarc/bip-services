@@ -43,13 +43,11 @@ use yii\bootstrap\Modal;
                                 <strong>
                                     <span role="button" data-toggle="popover" data-placement="auto" title="<b>Topics</b>" data-content="<div><span class='green-bip'></span> Topics are abstract concepts that works are about. In particular, we use the (L2) topics from OpenAlex. <a target='_blank' class='green-bip' href='https://docs.openalex.org/api-entities/concepts'><br/>see more <i class='fa fa-external-link-square' aria-hidden='true'></i></a></div>"> Topics <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></span>
                                     <?php if($element_config['Topics']['visualize_opt'] === 1): ?>
-                                        <button id='viz-topics' type='button' data-toggle="modal" data-target="#topics-stats-modal" class='btn btn-xs btn-default main-green'>
-                                            <span>Visualize <i class="fa-solid fa-chart-pie"></i></span>
-                                        </button>
+                                        <i id="viz-topics" class="fa-solid fa-chart-pie main-green" title="Show topics chart" data-toggle="modal" data-target="#topics-stats-modal"></i>
                                     <?php endif; ?>
 
                                 </strong>
-                                <?= (!empty($selected_topics) && $edit_perm) ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(\'topics[]\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' : ''?><br/>
+                                <?= (!empty($selected_topics)) ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(\'topics[]\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' : ''?><br/>
                             </div>
                             <input id='fct_field' name='fct_field' value='' type='hidden'/ form=<?=$formId?>>
 
@@ -77,34 +75,6 @@ use yii\bootstrap\Modal;
                         </div>
                     <?php endif; ?>
 
-                    <?php /*
-                        <div class="facet-row">
-                            <div class="facet-header">
-                                <i class="fa fa-tags" aria-hidden="true" title="User-provided tags"></i> <strong>Tags</strong><?= (!empty($selected_tags)) ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(\'tags[]\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' : ''?><br/>
-                            </div>
-
-                            <?php if (count($result["facets"]["tags"]["counts"]) == 0) { ?>
-                                    <span id="tag-facet-items">-</span>
-                            <?php } else {
-                                    $counts = $result["facets"]["tags"]["counts"];
-
-                                    echo Html::checkboxList('tags', $selected_tags, $result["facets"]["tags"]['options'], [
-                                        'id' => 'tag-facet-items',
-                                        'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId) {
-                                            $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled = ($checked) ? '' : 'disabled=disabled';
-
-                                            return "<button id='tag-$value' type='button' class='btn btn-xs $btn_class facet-item'>
-                                                <input id='tag-$value-i' name='tags[]' value='$value' form=$formId type='hidden' $disabled/>
-                                                $label <span class='badge badge-primary'>$counts[$value]</span>
-                                            </button>";
-                                        }
-                                    ]);
-                                }
-                            ?>
-                        </div>
-                    */ ?>
                     <?php if(isset($element_config['Roles'])): ?>
                         <div class="facet-row">
                             <div class="facet-header grey-text">
@@ -112,9 +82,7 @@ use yii\bootstrap\Modal;
                                 <strong>
                                     <span role="button" data-toggle="popover" data-placement="auto" title="<b>CRediT roles</b>" data-content="<div><span class='green-bip'></span> Contribution Roles based on the CRediT taxonomy. These roles describe each contributor's specific contribution to the scholarly work. <a target='_blank' class='green-bip' href='https://credit.niso.org'><br/> see more <i class='fa fa-external-link-square' aria-hidden='true'></i></a></div>"> CRediT roles <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></span>
                                     <?php if($element_config['Roles']['visualize_opt'] === 1): ?>
-                                        <button id='viz-topics' type='button' data-toggle="modal" data-target="#credit-stats-modal" class='btn btn-xs btn-default main-green'>
-                                            <span>Visualize <i class="fa-solid fa-chart-pie"></i></span>
-                                        </button>
+                                        <i id="viz-roles" class="fa-solid fa-chart-pie main-green" title="Show CRediT roles chart" data-toggle="modal" data-target="#credit-stats-modal"></i>
                                     <?php endif; ?>
                                 </strong>
                                 <?= (!empty($selected_roles)) ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(\'roles[]\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' : ''?><br/>
@@ -215,9 +183,6 @@ use yii\bootstrap\Modal;
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'topics-stats-modal'],
                             'header' => '<h4>Topics Radar Chart</h4>',
                             'size' => 'modal-md',
-                            'closeButton' => [
-                                'class' => 'fa-solid pull-right',
-                            ],
                         ]);
         ?>
             <div>
@@ -246,9 +211,6 @@ use yii\bootstrap\Modal;
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'credit-stats-modal'],
                         'header' => '<h4>CRediT Roles Radar Chart</h4>',
                         'size' => 'modal-md',
-                        'closeButton' => [
-                            'class' => 'fa-solid pull-right',
-                        ],
                     ]);
         ?>
             <div>

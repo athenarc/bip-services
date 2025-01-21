@@ -21,12 +21,14 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/site.css',
         'css/radarChart.css',
-        'css/third-party/fontawesome-free-6.0.0-web/css/all.min.css',
+        'css/third-party/fontawesome-free-6.7.1-web/css/all.min.css',
         'css/template/green-black.css',
         'https://fonts.googleapis.com/css?family=Open+Sans:400,300', //required by radarChart
         'https://fonts.googleapis.com/css?family=Raleway', //required by radarChart
-        'css/progress-circle-normalize.css',
-        'css/progress-circle.css',
+        'https://fonts.googleapis.com/css2?family=Nunito:wght@350;700',
+        'https://fonts.googleapis.com/css2?family=Courgette&family=Montserrat:wght@300;400',
+        // 'css/progress-circle-normalize.css',
+        // 'css/progress-circle.css',
         'css/bootsnippCheck.css',
         'css/lineChart.css'
     ];
@@ -34,7 +36,7 @@ class AppAsset extends AssetBundle
     public $js = [
         ['js/radarChart.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"], //at the body begining
         ['js/third-party/d3/d3.min.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
-        ['js/progress-circle.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
+        // ['js/progress-circle.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
         ['js/like_unlike.js', "position" => View::POS_BEGIN, "charset"=>"utf-8"], //For like/unlike action on hearts
         // ['js/warnMobile.js', "position" => View::POS_BEGIN, "charset"=>"utf-8"], 
         ['js/popover.js', "position" => View::POS_END, "charset"=>"utf-8"],

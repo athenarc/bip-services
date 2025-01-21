@@ -7,7 +7,7 @@ use yii\helpers\Url;
 use yii\web\View;
 
 $this->title = 'BIP! Services - Settings';
-
+$this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/settings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/on-off-my-switch.css');
 ?>
@@ -54,61 +54,6 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                                     </div>
                                 </div>
                             </div>
-
-                            <?php if ($cv_narratives): ?>
-                                <div class="list-group-item">
-                                    <div class="flex-wrap items-center justify-between">
-                                        <div>
-                                            <span class="grey-text"><b>Narrative visibility</b></span>
-                                            <div class="text-muted-settings">
-                                                <span class = "cv-narrative-settings-toggle" style="<?= ($user->researcher->is_public) ? "display:none" : "" ?>">Make your profile public to toggle the visibility of your Scholar profile narratives.</span>
-                                                <span class = "cv-narrative-settings-toggle" style="<?= (!$user->researcher->is_public) ? "display:none" : "" ?>">Toggle the visibility of your Scholar profile narratives.</span>
-                                            </div>
-                                        </div>
-                                        <?php
-                                        // check if all cv narratives are public, to turn on the switch
-                                        $all_cv_narratives_are_public = true;
-                                        foreach ($cv_narratives as $cv_narrative) {
-                                            if ($cv_narrative['is_public'] !== 1) {
-                                                $all_cv_narratives_are_public = false;
-                                                break;
-                                            }
-                                        }
-                                        ?>
-                                        <a href="#narratives_list" data-toggle="collapse" class="cv-narrative-settings-toggle grey-link small text-decoration-none" style="<?= (!$user->researcher->is_public) ? "display:none" : "" ?>">
-                                            <i id="narratives_expand_icon" class="fa fa-lg fa-chevron-down"></i>
-                                        </a>
-                                    </div>
-                                    <div class = "cv-narrative-settings-toggle" style="<?= (!$user->researcher->is_public) ? "display:none" : "" ?>">
-                                        <div id="narratives_list" class="panel-collapse collapse" role="tabpanel">
-                                            <div class="panel-body">
-                                                <table class="table">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Narrative heading</th>
-                                                        <th class="text-right">
-                                                            <input type="checkbox" id="settings-narrative-public-switch" class="green-checkbox" <?= ($all_cv_narratives_are_public) ? "checked" : "" ?> >
-                                                        </th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                <?php foreach ($cv_narratives as $cv_narrative): ?>
-                                                    <tr>
-                                                        <td width = 80%>
-                                                            <?= Html::a($cv_narrative->title, Url::to(['scholar/profile/' . $user->researcher->orcid . '/' . $cv_narrative->id]), ['class' => 'grey-link', 'target'=>'_blank']) ?>
-                                                        </td>
-                                                        <td class = "text-right"><input type="checkbox" class="cv-narrative-settings-checkbox green-checkbox" name="cv-narrative-settings-selection[]" <?=($cv_narrative->is_public) ? "checked" : "" ?> data-cv-narrative-id = "<?= $cv_narrative->id ?>"></td>
-
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            <?php endif; ?>
 
                             <div class="list-group-item">
                                 <div class="flex-wrap items-center justify-between">

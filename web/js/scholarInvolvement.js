@@ -16,7 +16,7 @@ $(window).on('load',function () {
 
         //Do the required action
         $.ajax({
-            url:   window.location.origin + '/bip/web/index.php/scholar/ajaxinvolvement',
+            url:   `${appBaseUrl}/scholar/ajaxinvolvement`,
             type: 'POST',
             data:
             {

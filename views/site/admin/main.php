@@ -22,14 +22,11 @@ $section_profiles = ($section === "profiles");
     <li class="<?= $section_spaces ? 'active' : ''?>">
     <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
     </li>
-    <li class="<?= $section_scholar ? 'active' : ''?>">
-    <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-    </li>
     <li class="<?= $section_indicators ? 'active' : ''?>">
     <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
     </li>
     <li class="<?= $section_profiles ? 'active' : ''?>">
-    <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+    <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
     </li>
 </ul>
 
@@ -40,9 +37,6 @@ $section_profiles = ($section === "profiles");
 <?php elseif ($section_spaces) : ?>
     <?= $this->render('_spaces', $spaces_data) ?>
 
-<?php elseif ($section_scholar) : ?>
-    <?= $this->render('_scholar', $scholar_data) ?>
-    
 <?php elseif ($section_indicators) : ?>
     <?= $this->render('_indicators', $indicators_data) ?>
 

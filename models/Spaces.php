@@ -6,10 +6,10 @@ use Yii;
 use yii\helpers\Url;
 
 class Spaces extends \yii\db\ActiveRecord
-
 {
 
     public $logo_upload;
+
     // use the default logo
     public $logo_default = 1;
 
@@ -48,7 +48,13 @@ class Spaces extends \yii\db\ActiveRecord
             ['logo_default', 'boolean'],
 
             ['annotation_db', 'string'],
+            ['annotation_db', 'default', 'value' => null],
 
+            ['graph_db_system', 'string'],
+            ['graph_db_system', 'default', 'value' => null],
+            
+            [['annotation_db', 'graph_db_system'], 'safe'],
+            [['annotation_db', 'graph_db_system'], 'validateBothOrNone', 'skipOnEmpty' => false],   
 
             [['theme_color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['theme_color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
@@ -76,6 +82,7 @@ class Spaces extends \yii\db\ActiveRecord
             'logo_upload' => 'Logo',
             'logo_default' => '',
             'annotation_db' => 'Annotation Database',
+            'graph_db_system' => 'Graph Database System'
         ];
     }
 
@@ -278,24 +285,32 @@ class Spaces extends \yii\db\ActiveRecord
         $this->start_year = ($this->start_year === null) ? '' : strval($this->start_year);
         $this->end_year = ($this->end_year === null) ? '' : strval($this->end_year);
 
-
         return $this;
     }
 
+    private static function enrichAnnotations($rows, $space_annotation) {
+        
+        // add annotation color, description
+        foreach ($rows as $row => $row_data){
+            $doi = $row_data[0];
+            $annotations = $row_data[1];
+            foreach ($annotations as $annotation_row => $annotation_data) {
+                $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
+                $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
+                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
+                $rows[$row][1][$annotation_row]['has_reverse_query'] = !empty($space_annotation['reverse_query']);
+            }
+        }
+        
+        return $rows;
+    }
 
-    public static function runAnnotationsQuery($dois = [], $annotation_db_name, $space_annotations) {
+    public static function runAnnotationsQuery($dois = [], $annotation_db_name, $graph_db_system, $space_annotations) {
 
         $annotation_db = Yii::$app->params['annotation_dbs'][$annotation_db_name];
 
-        // Create connection class and specify target host and port
-        $conn = new \Bolt\connection\Socket($annotation_db['host'], $annotation_db['port']);
-        // Create new Bolt instance and provide connection object
-        $bolt = new \Bolt\Bolt($conn);
-        // Build and get protocol version instance which creates connection and executes handshake
-        $protocol = $bolt->build();
-        // Login to database with credentials
-        $protocol->hello(\Bolt\helpers\Auth::basic($annotation_db['username'], $annotation_db['password']));
-
+        $conn = GraphConnectionFactory::createConnection($graph_db_system, $annotation_db);
+       
         // Test queries
         // $query = "MATCH (n) RETURN n";
         // $query = "MATCH (ee:Person) WHERE ee.name = 'Emil' RETURN ee.from";
@@ -309,27 +324,9 @@ class Spaces extends \yii\db\ActiveRecord
         $data = [];
         foreach($space_annotations as $space_annotation) {
 
-            // Execute query with parameters
-            $stats = $protocol->run($space_annotation->query, ['dois' => $dois]);
+            [ $stats, $rows ] = $conn->run($space_annotation->query, ['dois' => $dois]);
+            $data[] = self::enrichAnnotations($rows, $space_annotation);
 
-
-            // Pull records from last executed query
-            $rows = $protocol->pull();
-
-            // remove last row (neo4j miscellaneous data)
-            $rows = array_slice($rows, 0, -1);
-
-            // add annotation color, description
-            foreach ($rows as $row => $row_data){
-                $doi = $row_data[0];
-                $annotations = $row_data[1];
-                foreach ($annotations as $annotation_row => $annotation_data) {
-                    $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
-                    $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
-                }
-            }
-
-            $data[] = $rows;
         }
 
         return $data;
@@ -347,7 +344,7 @@ class Spaces extends \yii\db\ActiveRecord
 
         // give dois as query param
         // one array per annotation query
-        $dois_to_annotations_db_multiple = self::runAnnotationsQuery($dois, $space_model->annotation_db, $space_annotations);
+        $dois_to_annotations_db_multiple = self::runAnnotationsQuery($dois, $space_model->annotation_db, $space_model->graph_db_system, $space_annotations);
 
         // Group by doi per annotation
         $dois_to_annotations_multiple = [];
@@ -418,5 +415,15 @@ class Spaces extends \yii\db\ActiveRecord
     public function getAnnotations()
     {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
+    }
+
+    /**
+     * Custom validator to check that either both fields are empty or both are filled.
+     */
+    public function validateBothOrNone($attribute, $params, $validator)
+    {
+        if (($this->annotation_db && !$this->graph_db_system) || (!$this->annotation_db && $this->graph_db_system)) {
+            $this->addError($attribute, 'Both "Annotation Database" and "Graph Database System" fields must be set.');
+        }
     }
 }

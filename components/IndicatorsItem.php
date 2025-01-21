@@ -29,6 +29,8 @@ class IndicatorsItem extends Widget
     public $popular_works_count;
     public $influential_works_count;
     public $citations;
+    public $popularity;
+    public $influence;
     public $impulse;
     public $h_index;
     public $i10_index;
@@ -79,6 +81,8 @@ class IndicatorsItem extends Widget
             'popular_works_count' => $this->popular_works_count,
             'influential_works_count' => $this->influential_works_count,
             'citations' => $this->citations,
+            'popularity' => $this->popularity,
+            'influence' => $this->influence,
             'impulse' => $this->impulse,
             'h_index' => $this->h_index,
             'i10_index' => $this->i10_index,

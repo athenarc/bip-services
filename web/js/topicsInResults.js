@@ -25,7 +25,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: window.location.origin + "/bip/web/index.php/site/get-top-topics" + queryString,
+            url: `${appBaseUrl}/site/get-top-topics${queryString}`,
             type: 'GET',
             success: function(data) {
                 $('#top_topics_in_results').html(data);
@@ -53,7 +53,7 @@ $(document).ready(function() {
         
         // Perform AJAX request
         $.ajax({
-            url: window.location.origin + "/bip/web/index.php/site/get-topic-evolution" + queryString,
+            url: `${appBaseUrl}/site/get-topic-evolution${queryString}`,
             type: 'GET',
             data: { selectedTopTopic: topicName },
             success: function(data) {

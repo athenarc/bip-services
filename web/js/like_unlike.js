@@ -57,7 +57,7 @@ function likeUnlike(currentWindow, currentElement, id, action) {
     //Do the required like/unlike action
     $.ajax(
     {
-        url:   currentWindow.origin + '/bip/web/index.php/site/' + action,
+        url:   `${appBaseUrl}/site/${action}`,
         type: 'POST',
         data:
         {
@@ -110,7 +110,7 @@ function updateFavorites(currentElement, csrfToken){
 
         $.ajax(
         {
-            url:   window.location.origin + '/bip/web/index.php/readings/ajaxupdatefavorites',
+            url:   `${appBaseUrl}/readings/ajaxupdatefavorites`,
             type: 'POST',
             data:
             {

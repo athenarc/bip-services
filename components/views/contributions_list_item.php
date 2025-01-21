@@ -5,21 +5,19 @@ use yii\helpers\Url;
 use yii\bootstrap\Modal;
 use yii\widgets\LinkPager;
 use app\components\ResultItem;
+use app\components\CustomBootstrapModal;
 
+$headingType = !empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
 
 ?>
 
-
 <div class="row">
     <div class="col-md-12">
-        <h3 style="display: inline-block;">
+        <?php if (!empty($element_config["show_header"])): ?>
+        <<?= $headingType ?> style="display: inline-block;">
             List of works
-        </h3>
-        <?php if ($works_num > 0): ?>
-            <div class="text-right" style="float: right; margin-top: 20px; margin-bottom: 10px;">
-                <i class="fa-solid fa-arrow-down-wide-short"></i> <?= Html::dropDownList('sort', $sort_field, $orderings, ['id' => 'sort-dropdown', 'form' => $formId , 'onchange' => 'submit_scholar_form();']) ?>
-            </div>
-        <?php endif; ?>
+        </<?= $headingType ?>>
+        <?php endif;?>
     </div>
 </div>
 
@@ -34,16 +32,24 @@ use app\components\ResultItem;
     <div id="publications">
         <div class='row'>
             <div class='col-md-4 text-left results-header'>
-                <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
+                <?= !empty($element_config['top_k']) ? "Top" : "" ?>
+                    <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
                 <?php if ($result['pagination']->pageCount > 1): ?>
                     (<?=  Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
                 <?php endif; ?>
+                <?= !empty($element_config['top_k']) ? "sorted by " . Html::tag('i', $orderings[$sort_field]) : "" ?>
             </div>
             <div class='col-md-4 text-center'><?= LinkPager::widget([
                 'pagination' => $result['pagination'],
                 'maxButtonCount' => 5,
                 'options' => ['class' => 'pagination bip-link-pager']
             ]); ?></div>
+
+            <?php if (empty($element_config['top_k'])): ?>
+                <div class="col-md-4 text-right" style="margin-top:5px">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i> <?= Html::dropDownList('sort', $sort_field, $orderings, ['id' => 'sort-dropdown', 'form' => $formId , 'onchange' => 'submit_scholar_form();']) ?>
+            </div>
+            <?php endif; ?>
         </div>
         <div id='results_tbl' class='row'>
             <div class="col-xs-12">
@@ -53,11 +59,14 @@ use app\components\ResultItem;
                         "internal_id" => $paper["internal_id"],
                         "edit_perm" => $edit_perm,
                         "doi" => $paper["doi"],
+                        "dois_num" => $paper["dois_num"],
+                        "openaire_id" => $paper["openaire_id"],
                         "title" => $paper["title"],
                         "authors" => $paper["authors"],
                         "journal" => $paper["journal"],
                         "year" => $paper["year"],
                         "concepts" => $paper["concepts"],
+                        "relations" => $paper["relations"],
                         "tags" => $paper["tags"],
                         "involvements" => Yii::$app->params['involvement_fields'],
                         "involved" => $paper["involvement"],
@@ -73,6 +82,7 @@ use app\components\ResultItem;
                         "type" => $paper["type"],
                         "show" => [
                             "concepts" => true,
+                            "relations" => true,
                             "tags" => false,
                             "involvement" => true,
                         ]
@@ -81,9 +91,12 @@ use app\components\ResultItem;
             </div>
         </div>
     </div>
+    <?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
+    <?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
 <?php else: ?>
     <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
 <?php endif; ?>
+
 
 
 <?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>

@@ -5,7 +5,7 @@ return [
         [
             'name' => 'Thanasis Vergoulis',
             'imgUrl' => '@web/img/team/vergoulis.png',
-            'link' => 'http://thanasis-vergoulis.com/',
+            'link' => 'https://thanasis-vergoulis.com/',
             'email' => 'vergoulis@athenarc.gr'
         ],
         [
@@ -25,20 +25,26 @@ return [
             'imgUrl' => '@web/img/team/koloveas.jpg',
             'link' => 'https://www.linkedin.com/in/pkoloveas/',
             'email' => 'pkoloveas@athenarc.gr'
+        ],
+        [
+            'name' => 'Maria Makaronidou',
+            'imgUrl' => '@web/img/team/makaronidou.jpg',
+            'link' => 'https://www.linkedin.com/in/maria-makaronidou/',
+            'email' => 'm.makaronidou@athenarc.gr'
         ]
     ],
     'former' => [
         [
             'name' => 'Ilias Kanellos',
             'imgUrl' => '@web/img/team/kanellos.jpeg',
-            'link' => 'http://www.imis.athena-innovation.gr/en/people/member/78',
-            'email' => 'ilias.kanellos@athenarc.gr'
+            'link' => 'https://www.linkedin.com/in/ilias-kanellos-100bb888/',
+            'email' => ''
         ],
         [
             'name' => 'Theodore Dalamagas',
             'imgUrl' => '@web/img/team/dalamagas.jpg',
             'link' => 'http://www.imis.athena-innovation.gr/en/people/member/4',
-            'email' => 'dalamag@athenarc.gr'
+            'email' => ''
         ]
     ]
 ];

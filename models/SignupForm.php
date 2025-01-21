@@ -83,37 +83,22 @@ class SignupForm extends Model
     }
     
     /*
-     * @Hlias
      * Sign up the user
      */
     public function signup()
     {
-        if (!$this->validate()) 
-        {
+        if (!$this->validate()) {
             return null;
         }
-        /*
-         * Create new user record and insert it
-         */
+
+        // Create new user record and insert it        
         $user = new User();
         $user->username = $this->username;
         $user->email = $this->email;
         $user->setPassword($this->password);
-        //Save the user
-        $user->save();
-        //Return user
-        return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
-        //Return the user
-        //return $user;        
-    }
 
-    /**
-     * Signs up a user using the provided username and password.
-     * @return boolean whether the user is logged in successfully
-     */
-    public function login()
-    {
-        return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+        //Save the user
+        return $user->save();     
     }
 
     /**

@@ -23,13 +23,15 @@ use app\components\ImpactIcons;
             <td style="width:83%">
               <div>
                 <b>
-                  <a href="<?= yii\helpers\Url::to(['site/details', 'id'=> $paper['doi']]) ?>" target="_blank" class='grey-link' title = 'Show details'>
+                  <a href="<?= yii\helpers\Url::to(['site/details', 'id'=> $paper['doi']]) ?>" target="_blank" class='main-green' title = 'Show details'>
                   <?= empty(trim($paper['title'])) ? "N/A" : trim($paper['title']) ?> <i class="fa fa-info-circle" aria-hidden="true"></i></a>
                 </b>
               </div>
               <div>
                 <i><?= empty(trim($paper['journal'])) ? "N/A" : trim($paper['journal']) ?></i> &middot;
-                <i><?= (empty($paper['year']) || $paper['year'] == 0) ? "N/A" : $paper['year'] ?></i>
+                <i><?= (empty($paper['year']) || $paper['year'] == 0) ? "N/A" : $paper['year'] ?></i> &middot;
+                <a href="https://doi.org/<?= $paper['doi'] ?>" target='_blank' class="grey-link"><?= $paper['doi'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a> 
+                <i><?= !empty($paper['relation_name']) ? "&middot; " . $paper['relation_name'] : "" ?></i>
               </div>
             </td>
 
@@ -37,7 +39,7 @@ use app\components\ImpactIcons;
 
               <!-- impact -->
               <?= ImpactIcons::widget([
-                                      'impact_indicators' => $item->impact_indicators,
+                                      'impact_indicators' => $impact_indicators,
                                       'popularity_class' => $paper['pop_class'],
                                       'influence_class' => $paper['inf_class'],
                                       'impulse_class' => $paper['imp_class'],
@@ -55,9 +57,6 @@ use app\components\ImpactIcons;
                                         'user_logged' => Yii::$app->user->id,
                                         'id_bookmark' => $paper['internal_id']]);?>
             </td>
-
-
-            <!-- <a href="https://doi.org/<?= $paper['doi'] ?>" target="_blank" class="text-success"><i class="fa fa-external-link-square" aria-hidden="true"></i></a>  -->
         </tr>
     <?php } ?>
   </tbody>

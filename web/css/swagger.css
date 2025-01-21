@@ -1,8 +1,16 @@
-#swagger-ui {
-	border: solid 2px; 
-	border-color: var(--main-color);
-}
-
 .swagger-ui .info {
     display: none;;
+}
+
+.swagger-ui .opblock.opblock-get {
+    background-color: var(--main-color);
+    background-color: var(--lighter-color);
+}
+
+.swagger-ui .opblock.opblock-get {
+    border-color: var(--main-color);
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+    background: var(--main-color);
 }

@@ -1,18 +1,5 @@
 $(document).ready(function () {
 
-    // Function to debounce the user typing
-    function debounce(fn, delay) {
-        let timeoutID;
-        return function() {
-            clearTimeout(timeoutID);
-            let args = arguments;
-            let that = this;
-            timeoutID = setTimeout(function() {
-                fn.apply(that, args);
-            }, delay);
-        };
-    }
-
     // AJAX call function
     function saveContent(url, element_id, template_id, value) {
         $.ajax({
@@ -25,11 +12,13 @@ $(document).ready(function () {
             },
             success: function(response) {
                 console.log('Data saved successfully:', response);
-                $('#status_message_' + element_id).text('Saved');
+                $('#status_message_' + element_id + ' .status-message').text(response.message).attr('title', response.date);
+                $('#status_message_' + element_id + ' .status-count').text(response.count);
+                $('#status_message_' + element_id + ' .limit-status').text(response.limit_status);
             },
             error: function(xhr, status, error) {
                 console.error('Error saving data:', error);
-                $('#status_message_' + element_id).text('Error saving data');
+                $('#status_message_' + element_id + ' .status-message').text('Error saving data');
             }
         });
     }
@@ -49,7 +38,7 @@ $(document).ready(function () {
   
         plugins: [
             "advlist lists autolink link ",
-            "code table paste wordcount ",
+            "code table paste ",
             "charmap hr print searchreplace"
         ],
 
@@ -76,8 +65,8 @@ $(document).ready(function () {
             ['input', 'change', 'paste'].forEach( event => {
                 editor.on(event, function() {
                     let element_id = editor.getElement().getAttribute('element_id');
-                    $('#status_message_' + element_id).text('Typing...');
-
+                    $('#status_message_' + element_id + ' .status-message').text('Typing...');
+    
                     debouncedSaveContent();
                 });
             });

@@ -6,7 +6,7 @@ use yii\helpers\Html;
 $this->registerJsFile('@web/js/fixed-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 $this->registerCssFile('@web/css/fixed-sidebar.css');
 
-$this->title = 'List of BIP! Indicators';
+$this->title = 'BIP! impact indicators';
 
 ?>
 
@@ -42,6 +42,7 @@ $this->title = 'List of BIP! Indicators';
         <div class="col-md-9 main-content">
         <div class="help-text">
                 <h1><?= Html::encode($this->title) ?></h1>
+                <hr/>
 
                 The vision behind the BIP! Services is the creation of an ecosystem of added-value services and resources, which are based on advanced, transparently calculated, explainable, and well-documented indicators that reflect a variety of aspects of the impact and merit of scientific works and researchers. They are built upon the data of popular scientific knowledge bases (mainly the <a href="https://graph.openaire.eu/" target="_blank">OpenAIRE Graph</a>) and they aim to facilitate tasks like scientific discovery and research assessment, adopting various suggestions made by relevant initiatives (e.g., <a href="https://sfdora.org/read/" target="_blank">DORA</a>, <a href="https://coara.eu/" target="_blank">CoARA</a>). This page summarizes all indicators which are available by various BIP! Services, along with explanations about their main intuition, the way they are calculated, and their most important limitations, in an attempt to educate the BIP! Services users and help them avoid common pitfalls and misuses.
 

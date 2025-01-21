@@ -15,7 +15,6 @@ use Yii;
  *
  * @property Templates $template
  * @property Indicators[] $indicators
- * @property ElementIndicators[] $protocolIndicators
  */
 class Elements extends \yii\db\ActiveRecord
 {
@@ -113,5 +112,45 @@ class Elements extends \yii\db\ActiveRecord
     public function getElementNarratives()
     {
         return $this->hasOne(ElementNarratives::class, ['element_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ElementDividers]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElementDividers()
+    {
+        return $this->hasOne(ElementDividers::class, ['element_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ElementContributions]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElementContributions()
+    {
+        return $this->hasOne(ElementContributions::class, ['element_id' => 'id']);
+    }
+    
+    /**
+     * Gets query for [[ElementDropdown]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElementDropdown()
+    {
+        return $this->hasOne(ElementDropdown::class, ['element_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ElementDividers]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElementBulletedList()
+    {
+        return $this->hasOne(ElementBulletedList::class, ['element_id' => 'id']);
     }
 }

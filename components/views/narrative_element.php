@@ -2,21 +2,32 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\View;
+use app\components\common\CommonUtils;
+
+$this->registerJsFile('@web/js/utils.js', ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]); // needed for { debounce }
+$this->registerJsFile('@web/js/narrativeElement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 ?>
 
-<?php $elem = $this->context; ?>
+<?php $elem = $this->context; 
+$headingText = isset($elem->title) ? $elem->title : '';
+$headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];
+
+?>
 
 <div>
 
     <?php if (!$elem->edit_perm): ?>
         <h3>    
             <?php if (!$elem->hide_when_empty): ?>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this narrative." ?></div>"> <?= $elem->title ?> <small><i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></small></span>
+                <<?= $headingType ?>>
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"><?= $elem->title ?> <small><i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></small></span>
+                </<?= $headingType ?>>
             <?php endif ?>
         </h3>
     <?php else: ?>
-        <h3><?= $elem->title ?></h3>
+        <<?= $headingType ?>><?= $elem->title ?> </<?= $headingType ?>>
     <?php endif; ?>
 
     <?php if (!$elem->edit_perm): ?>
@@ -28,8 +39,8 @@ use yii\helpers\Url;
                 </div>
             <?php else: ?>
                 <?php if (!$elem->hide_when_empty): ?>
-                    <div class="alert alert-warning" role="alert">
-                        <strong>Holy BIP!</strong> Information for this narrative is not currently provided by the user.
+                    <div class="alert alert-warning text-center" role="alert">
+                        Information for this element is not currently provided by the researcher.
                     </div>
                 <?php endif ?>
             <?php endif; ?>
@@ -40,8 +51,28 @@ use yii\helpers\Url;
             <?= $elem->description ?>
         </div>
 
-        <?= Html::textarea("narrative_instances[$elem->index][value]", $elem->value, ['class' => 'form-control narrative-element-textarea', 'rows' => 6, 'placeholder' => "Please provide your input here", "ajax_link" => Url::to(['scholar/save-narrative-instance']), "element_id" => $elem->element_id]) ?>
-        <div id="status_message_<?= $elem->element_id ?>" class="status-message">&nbsp;</div>
+        <?= Html::textarea("narrative_instances[$elem->index][value]", $elem->value, [
+            'class' => 'form-control narrative-element-textarea',
+            'rows' => 6,
+            'placeholder' => "Please provide your input here",
+            "ajax_link" => Url::to(['scholar/save-narrative-instance']),
+            "element_id" => $elem->element_id,
+            "limit_type" => $elem->limit_type,
+            "limit_value" => $elem->limit_value,
+        ]) ?>
+
+        <div id="status_message_<?= $elem->element_id ?>">
+            <div class="status-bar">
+            <span class="status-message" 
+                data-toggle="tooltip" 
+                <?php if ($elem->last_updated && strtotime($elem->last_updated) !== false): ?>
+                    title="<?= Yii::$app->formatter->asDatetime($elem->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get() ?>"
+                <?php endif; ?>
+                ><?= CommonUtils::timeSinceUpdate($elem->last_updated) ?></span>
+                <span class="status-count"></span>
+            </div>
+            <div class="limit-status" style="color: red"><?= $elem->limit_status ?></div>
+        </div>
     <?php endif; ?>
 
 </div>

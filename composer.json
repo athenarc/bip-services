@@ -30,7 +30,8 @@
         "kartik-v/yii2-field-range": "dev-master",
         "schatzopoulos/yii2-scholar-indicators": "^1.0",
         "stefanak-michal/bolt": "==v3.1.4",
-        "wbraganca/yii2-dynamicform": "*"
+        "wbraganca/yii2-dynamicform": "*",
+        "kartik-v/yii2-widget-select2": "^2.2"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

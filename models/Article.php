@@ -38,6 +38,7 @@
         public $imp_class;
         public $cc_class;
         public $concepts;
+        public $relations;
         public $chart_data = [];
 
         /**
@@ -260,6 +261,34 @@
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['internal_id' => $cited])
+            ->all();
+     }
+
+     public static function getVersions($openaire_id) {
+        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+
+        return (new \yii\db\Query())
+            ->select('internal_id, doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count')
+            ->from('pmc_paper')
+            // needed to show if already bookmarked
+            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->where(['openaire_id' => $openaire_id])
+            ->orderBy([ 'internal_id' => SORT_ASC ])
+            ->all();
+     }
+
+     public static function getRelationsData($target_dois, $source_openaire_id) {
+        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+
+        return (new \yii\db\Query())
+            ->select('internal_id, doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count, relations.relation_name')
+            ->from('pmc_paper')
+            // needed to show if already bookmarked
+            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->innerJoin('relations', 'relations.target = pmc_paper.openaire_id')
+            ->where(['doi' => $target_dois])
+            ->andWhere(['relations.source' => $source_openaire_id])
+            ->orderBy([ 'internal_id' => SORT_ASC ])
             ->all();
      }
 

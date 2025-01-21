@@ -14,19 +14,14 @@ use yii\bootstrap\Modal;
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tinymceAdminPanel.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
-if ($templateCategoryModel->isNewRecord)
-    $this->title = 'Create Template Category';
-else
-    $this->title = 'Update Template Category: ' . $templateCategoryModel->name;
-
-// $this->params['breadcrumbs'][] = ['label' => 'Profile Template Categories', 'url' => ['index']];
-// $this->params['breadcrumbs'][] = $this->title;
-
 $section_overview = ($section === "overview");
 $section_spaces = ($section === "spaces");
 $section_scholar = ($section === "scholar");
 $section_indicators = ($section === "indicators");
 $section_profiles = ($section === "profiles");
+
+$back_url = ($templateCategoryModel->isNewRecord) ? ['admin-profiles'] : ['view-template-category', 'id' => $templateCategoryModel->id];
+
 ?>
 
 <div class="profile-template-categories-create-update">
@@ -38,35 +33,44 @@ $section_profiles = ($section === "profiles");
         <li class="<?= $section_spaces ? 'active' : ''?>">
         <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
         </li>
-        <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
-        </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
         <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
         </li>
     </ul>
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-admin">
+            <li class="breadcrumb-item"><?= Html::a('Template categories', Url::to(['site/admin-profiles'])) ?></li>
+            <?php if ($templateCategoryModel->isNewRecord): ?>
+                <li class="breadcrumb-item active">new</li>
+            <?php else: ?>
+                <li class="breadcrumb-item"><?= Html::encode($templateCategoryModel->name) ?></li>
+                <li class="breadcrumb-item active">update</li>
+            <?php endif; ?>
+        </ol>
+    </nav>
+    
     <div class="profile-template-categories-form">
 
         <?php $form = ActiveForm::begin(); ?>
+
+        <div style="margin-bottom:10px;">
+            <?= Html::a('<i class="fa-solid fa-arrow-left"></i> Back', $back_url, ['class' => 'btn btn-default']) ?>
+            <?= Html::resetButton('<i class="fa-solid fa-rotate-left"></i> Reset', ['class' => 'btn btn-default pull-right']) ?>
+        </div>
 
         <?= $form->field($templateCategoryModel, 'name')->textInput(['maxlength' => true]) ?>
 
         <?= $form->field($templateCategoryModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']) ?>
 
+        <?= $form->field($templateCategoryModel, 'visible')->checkbox() ?>
+
         <div class="form-group">
-            <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-            <?= Html::resetButton('Reset', ['class' => 'btn btn-danger']) ?>
-            <?php if ($templateCategoryModel->isNewRecord): ?>
-                <?= Html::a('Back', ['admin-profiles'], ['class' => 'btn btn-default']) ?>
-            <?php else: ?>
-                <?= Html::a('Back', ['view-template-category', 'id' => $templateCategoryModel->id], ['class' => 'btn btn-default']) ?>
-            <?php endif ?>
+            <?= Html::submitButton('<i class="fa-solid fa-floppy-disk"></i> Save', ['class' => 'btn btn-success']) ?>
+            <?= Html::a('<i class="fa-solid fa-xmark"></i> Cancel', $back_url, ['class' => 'btn btn-danger']) ?>
         </div>
 
         <?php ActiveForm::end(); ?>

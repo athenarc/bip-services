@@ -24,6 +24,7 @@ class ContributionsListItem extends Widget
     public $facets_selected;
     public $result;
     public $papers;
+    public $heading_type;
     public $works_num;
     public $missing_papers;
     public $missing_papers_num;
@@ -31,6 +32,7 @@ class ContributionsListItem extends Widget
     public $orderings;
     public $formId;
     public $impact_indicators;
+    public $element_config;
 
     public $current_cv_narrative;
 
@@ -62,7 +64,9 @@ class ContributionsListItem extends Widget
             'sort_field' => $this->sort_field,
             'orderings' => $this->orderings,
             'formId' => $this->formId,
+            'element_config' => $this->element_config,
             'current_cv_narrative' => $this->current_cv_narrative,
+            'heading_type' => $this->heading_type
         ]);
     }
 

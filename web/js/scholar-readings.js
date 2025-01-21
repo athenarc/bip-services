@@ -80,7 +80,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url:   websiteRoot + '/bip/web/index.php/readings/ajax-update-public-reading-list',
+            url:   `${appBaseUrl}/readings/ajax-update-public-reading-list`,
             type: 'POST',
             data: {
                 'is_public' : is_public,

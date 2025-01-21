@@ -2,17 +2,16 @@
 
 namespace app\controllers;
 
+use Yii;
 use yii\base\Model;
 use app\models\Spaces;
 use app\models\SpacesAnnotations;
 use app\models\Indicators;
 use app\models\IndicatorsSearch;
-use app\models\ProtocolIndicators;
-use app\models\ProtocolIndicatorsForm;
 use yii\web\NotFoundHttpException;
-use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use app\models\Researcher;
 use yii\web\UploadedFile;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
@@ -40,19 +39,22 @@ use app\models\SurveyPaperKeywords;
 use app\models\SurveyCreditsForm;
 use app\models\TagsToPapers;
 use app\models\Concepts;
+use app\models\Relations;
 use app\models\CvNarrative;
 use app\models\OpenaireArticle;
 use app\models\AdminStats;
-use app\models\AssessmentFrameworks;
-use app\models\AssessmentFrameworksSearch;
-use app\models\AssessmentProtocols;
-use app\models\AssessmentProtocolsSearch;
 use app\models\ElementFacets;
 use app\models\ElementIndicators;
 use app\models\ElementIndicatorsForm;
 use app\models\ElementNarratives;
 use app\models\ElementNarrativesForm;
+use app\models\ElementContributions;
+use app\models\ElementDropdown;
+use app\models\ElementDropdownOptions;
+use app\models\ElementDividers;
+use app\models\ElementDividersForm;
 use app\models\ElementFacetsForm;
+use app\models\ElementBulletedList;
 use app\models\ProfileTemplateCategories;
 use app\models\ProfileTemplateCategoriesSearch;
 use app\models\Templates;
@@ -61,6 +63,7 @@ use app\models\Elements;
 use app\models\ElementsSearch;
 use app\models\ElementNarrativesSearch;
 use app\models\Facets;
+use app\models\GraphConnectionFactory;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 
@@ -273,10 +276,11 @@ class SiteController extends Controller
 
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
-        $topic_evolution_data = $search_model->getTopicEvolution($selected_topic);
+        [ $count_per_year, $citation_per_year ] = $search_model->getTopicEvolution($selected_topic);
 
         return $this->renderPartial('topic_evolution', [
-            'data' => $topic_evolution_data,
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
         ]); 
     }
 
@@ -371,6 +375,8 @@ class SiteController extends Controller
         [ $article ] = SearchForm::get_impact_class([ $article ]);
         // calculate concepts classes
         [ $article ] = SearchForm::get_concepts_impact_class([ $article ]);
+        // get relations
+        [ $article ] = Relations::getRelations([ $article ]);
 
         // // Do not calculate pyramidStatistics for articles with NULL scores
         // if(isset($article['pagerank'])){
@@ -431,6 +437,71 @@ class SiteController extends Controller
             'space_model' => $space_model,
         ]);
     }
+    /**
+     * Displays the articles of a particular annotation.
+     */
+    public function actionAnnotation()
+    {
+        $annotation_id = Yii::$app->request->get('annotation_id');
+        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
+        $space_annotation_id = Yii::$app->request->get('space_annotation_id');
+        $space_annotation = SpacesAnnotations::findOne(['id'=> $space_annotation_id]);
+
+        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
+        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+
+        try {
+
+            $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+
+            // Annotation Info
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $annotation_id]);
+            $annotation_info = $rows[0][0];
+
+            // Annotation Dois Count
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $annotation_id]);
+            $dois_count = $rows[0][0];
+
+            $pagination = new Pagination([
+                'pageSize' => 10, 
+                'totalCount' => $dois_count,
+            ]);
+
+            // Annotation Dois
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $annotation_id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
+            $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
+            
+        } catch (\Exception $e) {
+            throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
+        }
+
+        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+
+        $works = (new \yii\db\Query())
+            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->from('pmc_paper')
+            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->where(['in', 'doi', $dois])
+            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function($element) { return "\"$element\""; }, $dois)) . ')')])
+            ->all();
+
+        // add the impact class of each row
+        $works = SearchForm::get_impact_class($works);
+        // get concepts and scores
+        $works = Concepts::getConcepts($works, 'internal_id');
+        // get impact scores per concept
+        $works = SearchForm::get_concepts_impact_class($works);
+
+        $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+
+        return $this->render('annotation_details', [
+            'space_model' => $space_model,
+            'annotation_info' => $annotation_info,
+            'works' => $works,
+            'pagination' => $pagination,
+            'impact_indicators' => $impact_indicators,
+        ]);
+    }
 
     /**
      * Login action.
@@ -474,12 +545,21 @@ class SiteController extends Controller
 
         if($model->load(Yii::$app->request->post()) && $model->signup())
         {
-            /*
-             * After signup is completed, log user in and go back
-             */
-            $model->login();
-            return $this->redirect(['site/index']);
+            // After signup is completed, log user in and go back
+            $loginModel = new LoginForm();
+            $loginModel->username = $model->username;
+            $loginModel->password = $model->password;
+            $loginModel->rememberMe = $model->rememberMe;
+
+            // Attempt to log the user in
+            if ($loginModel->login()) {
+                return $this->redirect(['site/index']);
+            } else {
+                // handle the case where login fails after signup
+                Yii::$app->session->setFlash('error', 'Login failed after signup. Please contact the administrators.');
+            }
         }
+
         //Render signup view
         return $this->render('signup', ['model' => $model]);
     }
@@ -866,6 +946,33 @@ class SiteController extends Controller
         ]);
     }
 
+    public function actionGetVersions() {
+        $openaire_id = Yii::$app->request->get('openaire_id');
+        $versions = Article::getVersions($openaire_id);
+        $versions = SearchForm::get_impact_class($versions); 
+        $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+
+        return $this->renderPartial('papers_list', [
+            'warning' => 'This list contains duplicate records, as identified by the <a href="https://graph.openaire.eu/docs/graph-production-workflow/deduplication" class="main-green" target="_blank">OpenAIRE deduplication algorithm</a> based on metadata analysis.',
+            'papers' => $versions,
+            'impact_indicators' => $impact_indicators
+        ]);
+    }
+
+    public function actionGetRelationsData() {
+        $source_openaire_id = Yii::$app->request->get('source_openaire_id');
+        $target_dois = Yii::$app->request->get('target_dois');
+        $relations = Article::getRelationsData($target_dois, $source_openaire_id);
+        $relations = SearchForm::get_impact_class($relations); 
+        $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+
+        return $this->renderPartial('papers_list', [
+            'warning' => 'This section provides a list of relationships associated with the selected work.',
+            'papers' => $relations,
+            'impact_indicators' => $impact_indicators
+        ]);
+    }
+
     public function actionSaveSurveyCredits()
     {
         $model = new SurveyCreditsForm();
@@ -1128,7 +1235,7 @@ class SiteController extends Controller
                 'model' => $model,
                 'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations] : $modelsSpacesAnnotations,
                 'spacesArray' => $spacesArray
-                   ],
+            ],
         ]);
     }
 
@@ -1145,10 +1252,8 @@ class SiteController extends Controller
 
         $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations] : $model->annotations ;
 
-
         # create new or update existing
         if ($model->load(Yii::$app->request->post())) {
-
 
             # before model validation
             $model->logo_upload = UploadedFile::getInstance($model, 'logo_upload');
@@ -1158,7 +1263,6 @@ class SiteController extends Controller
                 $modelsSpacesAnnotations = SpacesAnnotations::createMultipleModels(SpacesAnnotations::classname());
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
 
-
             // Case: update
             } else {
                 $oldIDs = ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id');
@@ -1166,7 +1270,6 @@ class SiteController extends Controller
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id')));
             }
-
 
             // validate all models
             $valid1 = $model->validate();
@@ -1263,33 +1366,11 @@ class SiteController extends Controller
             $has_profile = isset($user->researcher);
         }
 
-        // find all cv narratives of the user
-        $cv_narratives = ($has_profile) ? CvNarrative::find()->where([ 'user_id' => $user_id ])->all() : [];
 
         return $this->render('settings', [
             'user' => $user,
             'has_profile' => $has_profile,
             'unlink_profile' => $unlink_profile,
-            'cv_narratives' => $cv_narratives,
-        ]);
-    }
-
-    public function actionAdminScholar() {
-
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $searchFrameworkModel = new AssessmentFrameworksSearch();
-        $frameworkDataProvider = $searchFrameworkModel->search($this->request->queryParams);
-
-        return $this->render('admin/main', [
-            'section' => $section,
-            'scholar_data' => [
-                'frameworkDataProvider' => $frameworkDataProvider
-            ]
         ]);
     }
 
@@ -1325,298 +1406,6 @@ class SiteController extends Controller
                 'indicatorDataProvider' => $indicatorDataProvider
             ]
         ]);
-    }
-
-    /**
-     * Displays a single AssessmentFrameworks model and its related AssessmentProtocols.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionViewFramework($id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $searchProtocolModel = new AssessmentProtocolsSearch();
-        $protocolDataProvider = $searchProtocolModel->search($this->request->queryParams);
-        $protocolDataProvider->query->andFilterWhere(['assessment_framework_id' => $this->findFrameworkModel($id)]);
-
-        return $this->render('admin/scholar-assessment/view-framework', [
-            'section' => $section,
-            'frameworkModel' => $this->findFrameworkModel($id),
-            'protocolDataProvider' => $protocolDataProvider
-        ]);
-    }
-
-    /**
-     * Creates a new AssessmentFrameworks model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreateFramework()
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $frameworkModel = new AssessmentFrameworks();
-
-        if ($this->request->isPost) {
-            if ($frameworkModel->load($this->request->post()) && $frameworkModel->save()) {
-                return $this->redirect(['view-framework', 'id' => $frameworkModel->id]);
-            }
-        } else {
-            $frameworkModel->loadDefaultValues();
-        }
-
-        return $this->render('admin/scholar-assessment/create-update-framework', [
-            'section' => $section,
-            'frameworkModel' => $frameworkModel,
-        ]);
-    }
-
-    /**
-     * Updates an existing AssessmentFrameworks model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdateFramework($id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $frameworkModel = $this->findFrameworkModel($id);
-
-        if ($this->request->isPost && $frameworkModel->load($this->request->post()) && $frameworkModel->save()) {
-            return $this->redirect(['view-framework', 'id' => $frameworkModel->id]);
-        }
-
-        return $this->render('admin/scholar-assessment/create-update-framework', [
-            'section' => $section,
-            'frameworkModel' => $frameworkModel,
-        ]);
-    }
-
-    /**
-     * Deletes an existing AssessmentFrameworks model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDeleteFramework($id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $this->findFrameworkModel($id)->delete();
-
-        return $this->redirect(['admin-scholar']);
-    }
-
-    /**
-     * Finds the AssessmentFrameworks model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return AssessmentFrameworks the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findFrameworkModel($id)
-    {
-        if (($frameworkModel = AssessmentFrameworks::findOne(['id' => $id])) !== null) {
-            return $frameworkModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * Displays a single AssessmentProtocols model.
-     * @param int $id ID
-     * @param int $assessment_framework_id Assessment Framework ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionViewProtocol($id, $assessment_framework_id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $all_indicators = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
-
-        return $this->render('admin/scholar-assessment/view-protocol', [
-            'section' => $section,
-            'protocolModel' => $this->findProtocolModel($id, $assessment_framework_id),
-            'all_indicators' => $all_indicators
-        ]);
-    }
-
-    /**
-     * Creates a new AssessmentProtocols model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreateProtocol($id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $protocolModel = new AssessmentProtocols();
-        $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
-        $protocolIndicatorsModel = new ProtocolIndicators();
-        $protocolIndicatorsFormModel = new ProtocolIndicatorsForm();
-        $existing_indicators = [];
-
-        if ($this->request->isPost) {
-            if ($protocolModel->load($this->request->post()) && $protocolIndicatorsFormModel->load($this->request->post()) && $protocolModel->save()) {
-
-                $selectedIndicators = $protocolIndicatorsFormModel->selectedIndicators;
-
-                foreach ($selectedIndicators as $indicatorId) {
-                    $protocolIndicators = new ProtocolIndicators();
-                    $protocolIndicators->protocol_id = $protocolModel->id;
-                    $protocolIndicators->indicator_id = $indicatorId;
-                    $protocolIndicators->save();
-                }
-
-                return $this->redirect(['view-protocol', 'id' => $protocolModel->id, 'assessment_framework_id' => $protocolModel->assessment_framework_id]);
-            }
-        } else {
-            $protocolModel->loadDefaultValues();
-        }
-
-        return $this->render('admin/scholar-assessment/create-update-protocol', [
-            'assessment_framework_id' => $id,
-            'section' => $section,
-            'protocolModel' => $protocolModel,
-            'protocolIndicatorsModel' => $protocolIndicatorsModel,
-            'protocolIndicatorsFormModel' => $protocolIndicatorsFormModel,
-            'indicatorList' => $indicatorList,
-            'existing_indicators' => $existing_indicators
-        ]);
-    }
-
-    /**
-     * Updates an existing AssessmentProtocols model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @param int $assessment_framework_id Assessment Framework ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdateProtocol($id, $assessment_framework_id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $protocolModel = $this->findProtocolModel($id, $assessment_framework_id);
-        $protocolIndicatorsModel = $this->findProtocolModel($id, $assessment_framework_id)->protocolIndicators;
-        $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
-        $protocolIndicatorsFormModel = new ProtocolIndicatorsForm();
-
-        if ($protocolIndicatorsModel) {
-            foreach ($protocolIndicatorsModel as $protocol_indicator) {
-                $existing_indicators[] = [
-                    'id' => $protocol_indicator->indicator->id
-                ];
-            }
-        }
-        else {
-            $existing_indicators = [];
-        }
-
-        if ($this->request->isPost && $protocolModel->load($this->request->post()) && $protocolIndicatorsFormModel->load($this->request->post()) && $protocolModel->save()) {
-
-            $selectedIndicators = $protocolIndicatorsFormModel->selectedIndicators;
-
-            ProtocolIndicators::deleteAll(['protocol_id' => $id]);
-
-            if (!empty($selectedIndicators)) {
-                foreach ($selectedIndicators as $indicatorId) {
-                    $protocolIndicators = new ProtocolIndicators();
-                    $protocolIndicators->protocol_id = $id;
-                    $protocolIndicators->indicator_id = $indicatorId;
-                    $protocolIndicators->save();
-                }
-            }
-
-            return $this->redirect(['view-protocol', 'id' => $protocolModel->id, 'assessment_framework_id' => $protocolModel->assessment_framework_id]);
-        }
-        elseif ($this->request->isPost && $protocolModel->load($this->request->post()) && !$protocolIndicatorsFormModel->load($this->request->post()) && $protocolModel->save()) {
-            ProtocolIndicators::deleteAll(['protocol_id' => $id]);
-
-            return $this->redirect(['view-protocol', 'id' => $protocolModel->id, 'assessment_framework_id' => $protocolModel->assessment_framework_id]);
-        }
-
-        return $this->render('admin/scholar-assessment/create-update-protocol', [
-            'section' => $section,
-            'protocolModel' => $protocolModel,
-            'protocolIndicatorsModel' => $protocolIndicatorsModel,
-            'protocolIndicatorsFormModel' => $protocolIndicatorsFormModel,
-            'indicatorList' => $indicatorList,
-            'existing_indicators' => $existing_indicators
-        ]);
-    }
-
-    /**
-     * Deletes an existing AssessmentProtocols model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @param int $assessment_framework_id Assessment Framework ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDeleteProtocol($id, $assessment_framework_id)
-    {
-        $section = "scholar";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        $this->findProtocolModel($id, $assessment_framework_id)->delete();
-
-        return $this->redirect(['view-framework', 'id' => $assessment_framework_id]);
-    }
-
-    /**
-     * Finds the AssessmentProtocols model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @param int $assessment_framework_id Assessment Framework ID
-     * @return AssessmentProtocols the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findProtocolModel($id, $assessment_framework_id)
-    {
-        if (($protocolModel = AssessmentProtocols::findOne(['id' => $id, 'assessment_framework_id' => $assessment_framework_id])) !== null) {
-            return $protocolModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     /**
@@ -1726,23 +1515,6 @@ class SiteController extends Controller
     {
         if (($indicatorModel = Indicators::findOne(['id' => $id])) !== null) {
             return $indicatorModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * Finds the ProtocolIndicators model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $indicator_id Indicator ID
-     * @param int $protocol_id Protocol ID
-     * @return ProtocolIndicators the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findProtocolIndicatorsModel($indicator_id, $protocol_id)
-    {
-        if (($model = ProtocolIndicators::findOne(['indicator_id' => $indicator_id, 'protocol_id' => $protocol_id])) !== null) {
-            return $model;
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
@@ -1882,11 +1654,24 @@ class SiteController extends Controller
         $searchElementsModel = new ElementsSearch();
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
+        $user_id = Yii::$app->user->id;
+        $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
+        $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
+
+        // Generate the template URL if a researcher record is found
+        $templateUrl = null;
+        if ($researcher && $researcher->orcid && $templateModel) {
+            $templateUrl = Yii::$app->urlManager->createAbsoluteUrl([
+                'scholar/profile/' . $researcher->orcid . '/' . $templateModel->url_name,
+            ]);
+        }
+       
         return $this->render('admin/profiles/view-template', [
             'section' => $section,
             'profile_template_category_id' => $profile_template_category_id,
-            'templateModel' => $this->findTemplateModel($id, $profile_template_category_id),
-            'elementsDataProvider' => $elementsDataProvider
+            'templateModel' => $templateModel,
+            'elementsDataProvider' => $elementsDataProvider,
+            'templateUrl' => $templateUrl,
         ]);
     }
 
@@ -2010,15 +1795,20 @@ class SiteController extends Controller
 
         $elementModel = $this->findElementModel($id, $template_id);
         $elementNarrativesModel = $elementModel->elementNarratives;
+        $elementDividersModel = $elementModel->elementDividers;
+        $elementContributionsModel = $elementModel->elementContributions;
+        $elementDropdownModel = $elementModel->elementDropdown;
         $elementIndicatorsModel = $elementModel->elementIndicators;
         $elementFacetsModel = $elementModel->elementFacets;
+        $elementBulletedListModel = $elementModel->elementBulletedList;
 
         $all_indicators = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
 
         if ($elementIndicatorsModel) {
             foreach ($elementIndicatorsModel as $element_indicator) {
                 $selected_indicators[] = [
-                    'id' => $element_indicator->indicator->id
+                    'id' => $element_indicator->indicator->id,
+                    'status' => $element_indicator->status
                 ];
             }
         }
@@ -2044,11 +1834,15 @@ class SiteController extends Controller
         return $this->render('admin/profiles/view-element', [
             'section' => $section,
             'profile_template_category_id' => $profile_template_category_id,
-            'elementModel' => $this->findElementModel($id, $template_id),
+            'elementModel' => $elementModel,
             'all_indicators' => $all_indicators,
             'elementNarrativesModel' => $elementNarrativesModel,
+            'elementDividerModel' => $elementDividersModel,
+            'elementContributionsModel' => $elementContributionsModel,
+            'elementDropdownModel' => $elementDropdownModel,
+            'elementBulletedListModel' => $elementBulletedListModel,
             'selected_indicators' => $selected_indicators,
-            'selected_facets' => $selected_facets
+            'selected_facets' => $selected_facets,
         ]);
     }
 
@@ -2067,9 +1861,18 @@ class SiteController extends Controller
 
         $elementModel = new Elements();
         $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
+        
         $elementIndicatorsFormModel = new ElementIndicatorsForm();
         $elementNarrativesFormModel = new ElementNarrativesForm();
+        $elementDividersFormModel = new ElementDividersForm();
+        $elementContributionsModel = new ElementContributions();
+        $elementDropdownModel = new ElementDropdown();
+        $elementDropdownOptionsModels = [new ElementDropdownOptions];
         $elementFacetsFormModel = new ElementFacetsForm();
+        $elementBulletedListModel = new ElementBulletedList();
+
+        $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
+        $indicatorOrder = [];
 
         if ($this->request->isPost) {
             if ($elementModel->load($this->request->post()) && $elementModel->save()) {
@@ -2084,14 +1887,35 @@ class SiteController extends Controller
                 switch ($elementModel->type) {
                     case 'Indicators':
                         if ($elementIndicatorsFormModel->load($this->request->post())) {
+
+                            $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
+                            if (is_string($semanticsOrder)) {
+                                $semanticsOrder = json_decode($semanticsOrder, true);
+                            }
+                            $semanticsOrder = is_array($semanticsOrder) ? array_map('strtolower', $semanticsOrder) : [];
+                            $semanticsOrderIndex = array_flip($semanticsOrder);
+
+                            $indicatorOrder = $elementIndicatorsFormModel->indicatorOrder;
+                            if (is_string($indicatorOrder)) {
+                                $indicatorOrder = json_decode($indicatorOrder, true);
+                            }
+                            $indicatorOrder = is_array($indicatorOrder) ? array_map('strtolower', $indicatorOrder) : [];
+                            $indicatorOrderIndex = array_flip($indicatorOrder);
+
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             if (!empty($selectedIndicators)) {
-                                foreach ($selectedIndicators as $indicatorId) {
-                                    $elementIndicators = new ElementIndicators();
-                                    $elementIndicators->element_id = $elementModel->id;
-                                    $elementIndicators->indicator_id = $indicatorId;
-                                    $elementIndicators->save();
+                                foreach ($selectedIndicators as $indicatorId => $status) {
+                                        $elementIndicators = new ElementIndicators();
+                                        $elementIndicators->element_id = $elementModel->id;
+                                        $elementIndicators->indicator_id = $indicatorId;
+                                        $elementIndicators->status = $status;
+                                        
+                                        $semantics = strtolower($elementIndicators->indicator->semantics);
+                                        $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
+                                        $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
+        
+                                        $elementIndicators->save();
                                 }
                             }
                         }
@@ -2101,9 +1925,68 @@ class SiteController extends Controller
                             $elementNarrativesModel = new ElementNarratives();
                             $elementNarrativesModel->element_id = $elementModel->id;
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
+                            $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
+                            $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
+                            $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;
                             $elementNarrativesModel->save();
+                        }
+                        break;
+                    case 'Contributions List':
+                        if ($elementContributionsModel->load($this->request->post())) {
+                            $elementContributionsModel->element_id = $elementModel->id;
+                            $elementContributionsModel->save();
+                        }
+                        break;
+                    case 'Dropdown':
+                        if ($elementDropdownModel->load($this->request->post())) {
+
+                            $elementDropdownModel->element_id = $elementModel->id;
+
+                            $elementDropdownOptionsModels = SpacesAnnotations::createMultipleModels(ElementDropdownOptions::classname());
+                            Model::loadMultiple($elementDropdownOptionsModels, $this->request->post());
+                
+                            // validate all models
+                            $valid1 = $elementDropdownModel->validate();
+                            $valid2 = Model::validateMultiple($elementDropdownOptionsModels);
+                            
+                            if ($valid1 && $valid2) {
+
+                                $transaction = \Yii::$app->db->beginTransaction();
+                
+                                try {
+                                    if ($dropdownFlag = $elementDropdownModel->save(false)) {
+                                        foreach ($elementDropdownOptionsModels as $elementDropdownOptionsModel) {
+                                            $elementDropdownOptionsModel->element_dropdown_id = $elementDropdownModel->id;
+                                            if (! ($dropdownFlag = $elementDropdownOptionsModel->save(false))) {
+                                                $transaction->rollBack();
+                                                break;
+                                            }
+                                        }
+                                    }
+                
+                                    if ($dropdownFlag) {
+                                        $transaction->commit();
+                                    }
+                                } catch (Exception $e) {
+                                    $transaction->rollBack();
+                                    $dropdownFlag = false;
+                                }
+                            }
+                        }
+                        break;
+                    case 'Section Divider':
+                        if ($elementDividersFormModel->load($this->request->post())) {
+                            $elementDividersModel = new ElementDividers();
+                            $elementDividersModel->element_id = $elementModel->id;
+                            $elementDividersModel->title = $elementDividersFormModel->title;
+                            $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
+                            $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
+                            $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
+                            $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
+                            $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->save();
                         }
                         break;
                     case 'Facets':
@@ -2155,8 +2038,15 @@ class SiteController extends Controller
                             }
                         }
                         break;
+                    case 'Bulleted List':
+                        if ($elementBulletedListModel->load($this->request->post())) {
+                            $elementBulletedListModel->element_id = $elementModel->id;
+                            $elementBulletedListModel->save();
+                        }
+                        break;
                 }
 
+                // update elementModel->order
                 if ($elementModel->save()) {
                     return $this->redirect(['update-template', 'id' => $elementModel->template_id,
                                             'profile_template_category_id' => $profile_template_category_id]);
@@ -2164,6 +2054,9 @@ class SiteController extends Controller
             }
         } else {
             $elementModel->loadDefaultValues();
+            // load the default values from table schema, instead of default null initialization 
+            $elementContributionsModel->loadDefaultValues();
+            $elementBulletedListModel->loadDefaultValues();
         }
 
         return $this->render('admin/profiles/create-update-element', [
@@ -2174,7 +2067,14 @@ class SiteController extends Controller
             'elementFacetsFormModel' => $elementFacetsFormModel,
             'elementIndicatorsFormModel' => $elementIndicatorsFormModel,
             'elementNarrativesFormModel' => $elementNarrativesFormModel,
+            'elementDividersFormModel' => $elementDividersFormModel,
+            'elementContributionsModel' => $elementContributionsModel,
+            'elementDropdownModel' => $elementDropdownModel,
+            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
+            'elementBulletedListModel' => $elementBulletedListModel,
             'elementModel' => $elementModel,
+            'semanticsOrder' => $semanticsOrder,
+            'indicatorOrder' => $indicatorOrder,
         ]);
     }
 
@@ -2198,11 +2098,22 @@ class SiteController extends Controller
         $elementFacetsModel = $elementModel->elementFacets;
         $elementIndicatorsModel = $elementModel->elementIndicators;
         $elementNarrativesModel = $elementModel->elementNarratives;
+        $elementDividersModel = $elementModel->elementDividers;
+        $elementContributionsModel = $elementModel->elementContributions;
+        $elementDropdownModel = $elementModel->elementDropdown;
+        $elementDropdownOptionsModels = $elementDropdownModel->elementDropdownOptions ?? null;
+        $elementBulletedListModel = $elementModel->elementBulletedList;
         $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
+
         $elementIndicatorsFormModel = new ElementIndicatorsForm();
         $elementNarrativesFormModel = new ElementNarrativesForm();
+        $elementDividersFormModel = new ElementDividersForm();
         $elementFacetsFormModel = new ElementFacetsForm();
 
+        $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
+        $indicatorOrder = [];
+
+        $existing_facets = [];
         if ($elementFacetsModel) {
             foreach ($elementFacetsModel as $element_facet) {
                 $existing_facets[] = [
@@ -2214,24 +2125,19 @@ class SiteController extends Controller
                 ];
             }
         }
-        else {
-            $existing_facets = [];
-        }
 
+        $existing_indicators = [];
         if ($elementIndicatorsModel) {
             foreach ($elementIndicatorsModel as $element_indicator) {
                 $existing_indicators[] = [
-                    'id' => $element_indicator->indicator->id
+                    'id' => $element_indicator->indicator->id,
+                    'status' => $element_indicator->status,
+                    'semantics_order' => $element_indicator->semantics_order,
+                    'semantics' => $element_indicator->indicator->semantics,
+                    'indicator_order' => $element_indicator->indicator_order
                 ];
             }
         }
-        else {
-            $existing_indicators = [];
-        }
-
-        // header('Content-type: text/plain');
-        // print_r($existing_facets);
-        // exit;
 
         if ($this->request->isPost) {
             if ($elementModel->load($this->request->post()) && $elementModel->save()) {
@@ -2239,16 +2145,34 @@ class SiteController extends Controller
                 switch ($elementModel->type) {
                     case 'Indicators':
                         if ($elementIndicatorsFormModel->load($this->request->post())) {
-
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
-                            ElementIndicators::deleteAll(['element_id' => $id]);
+                            $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
+                            if (is_string($semanticsOrder)) {
+                                $semanticsOrder = json_decode($semanticsOrder, true);
+                            }
+                            $semanticsOrder = is_array($semanticsOrder) ? array_map('strtolower', $semanticsOrder) : [];
+                            $semanticsOrderIndex = array_flip($semanticsOrder);
+    
+                            $indicatorOrder = $elementIndicatorsFormModel->indicatorOrder;
+                            if (is_string($indicatorOrder)) {
+                                $indicatorOrder = json_decode($indicatorOrder, true);
+                            }
+                            $indicatorOrder = is_array($indicatorOrder) ? array_map('strtolower', $indicatorOrder) : [];
+                            $indicatorOrderIndex = array_flip($indicatorOrder);
 
+                            ElementIndicators::deleteAll(['element_id' => $id]);
                             if (!empty($selectedIndicators)) {
-                                foreach ($selectedIndicators as $indicatorId) {
+                                foreach ($selectedIndicators as $indicatorId => $status) {
                                     $elementIndicators = new ElementIndicators();
                                     $elementIndicators->element_id = $id;
                                     $elementIndicators->indicator_id = $indicatorId;
+                                    $elementIndicators->status = $status;
+
+                                    $semantics = strtolower($elementIndicators->indicator->semantics);
+                                    $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
+                                    $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
+
                                     $elementIndicators->save();
                                 }
                             }
@@ -2257,9 +2181,70 @@ class SiteController extends Controller
                     case 'Narrative':
                         if ($elementNarrativesFormModel->load($this->request->post())) {
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
+                            $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
+                            $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
+                            $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;
                             $elementNarrativesModel->save();
+                        }
+                        break;
+                    case 'Section Divider':
+                        if ($elementDividersFormModel->load($this->request->post())) {
+                            $elementDividersModel->title = $elementDividersFormModel->title;
+                            $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
+                            $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
+                            $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
+                            $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
+                            $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->save();
+                        }
+                        break;
+                    case 'Contributions List':
+                        if ($elementContributionsModel->load($this->request->post())) {
+                            $elementContributionsModel->save();
+                        }
+                        break;
+                    case 'Dropdown':
+                        if ($elementDropdownModel->load($this->request->post())) {
+
+                            $oldIDs = ArrayHelper::map($elementDropdownOptionsModels, 'id', 'id');
+                            $elementDropdownOptionsModels = SpacesAnnotations::createMultipleModels(ElementDropdownOptions::classname(), $elementDropdownOptionsModels);
+                            Model::loadMultiple($elementDropdownOptionsModels, Yii::$app->request->post());
+                            $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($elementDropdownOptionsModels, 'id', 'id')));
+
+                            // validate all models
+                            $valid1 = $elementDropdownModel->validate();
+                            $valid2 = Model::validateMultiple($elementDropdownOptionsModels);
+
+                            if ($valid1 && $valid2) {
+
+                                $transaction = \Yii::$app->db->beginTransaction();
+                
+                                try {
+                                    if ($dropdownFlag = $elementDropdownModel->save(false)) {
+
+                                        if (isset($deletedIDs) && !empty($deletedIDs)) {
+                                            ElementDropdownOptions::deleteAll(['id' => $deletedIDs]);
+                                        }
+                                        foreach ($elementDropdownOptionsModels as $elementDropdownOptionsModel) {
+                                            // give id, after elementDropdownModel is updated
+                                            $elementDropdownOptionsModel->element_dropdown_id = $elementDropdownModel->id;
+                                            if (! ($dropdownFlag = $elementDropdownOptionsModel->save(false))) {
+                                                $transaction->rollBack();
+                                                break;
+                                            }
+                                        }
+                                    }
+                
+                                    if ($dropdownFlag) {
+                                        $transaction->commit();
+                                    }
+                                } catch (Exception $e) {
+                                    $transaction->rollBack();
+                                    $dropdownFlag = false;
+                                }
+                            }
                         }
                         break;
                     case 'Facets':
@@ -2317,10 +2302,15 @@ class SiteController extends Controller
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->save();
                             }
+                       }
+                        break;
+                    case 'Bulleted List':
+                        if ($elementBulletedListModel->load($this->request->post())) {
+                            $elementBulletedListModel->save();
                         }
                         break;
-                    }
-                }
+                }  
+            }
 
             return $this->redirect(['update-template', 'id' => $template_id,
             'profile_template_category_id' => $profile_template_category_id]);
@@ -2335,10 +2325,18 @@ class SiteController extends Controller
             'elementIndicatorsFormModel' => $elementIndicatorsFormModel,
             'elementNarrativesModel' => $elementNarrativesModel,
             'elementNarrativesFormModel' => $elementNarrativesFormModel,
+            'elementDividersFormModel' => $elementDividersFormModel,
+            'elementDividersModel' => $elementDividersModel,
+            'elementContributionsModel' => $elementContributionsModel,
+            'elementDropdownModel' => $elementDropdownModel,
+            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
             'elementFacetsFormModel' => $elementFacetsFormModel,
+            'elementBulletedListModel' => $elementBulletedListModel,
             'indicatorList' => $indicatorList,
             'existing_indicators' => $existing_indicators,
-            'existing_facets' => $existing_facets
+            'existing_facets' => $existing_facets,
+            'semanticsOrder' => $semanticsOrder,
+            'indicatorOrder' => $indicatorOrder,
         ]);
     }
 
@@ -2363,11 +2361,23 @@ class SiteController extends Controller
 
             foreach ($elementFacetsModel as $element_facet) {
                 $facet = $element_facet->facet;
-
                 $facet->delete();
             }
         }
+        elseif ($elementModel->type == "Section Divider") {
+            $elementDividersModel = $elementModel->elementDividers;
+            $elementDividersModel->delete();
+        }
+        elseif ($elementModel->type == "Contributions List") {                    
+            $elementContributionsModel = $elementModel->elementContributions;
+            $elementContributionsModel->delete();
+        }
+        elseif ($elementModel->type == "Bulleted List") {                    
+            $elementBulletedListModel = $elementModel->elementBulletedList;
+            $elementBulletedListModel->delete();
+        }
 
+        // Relevant Element options (e.g., Contributions etc.) will be automatically deleted if the corresponding table has a foreign key with ON DELETE CASCADE set.
         $elementModel->delete();
 
         return $this->redirect(['update-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);

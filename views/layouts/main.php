@@ -37,6 +37,8 @@ AppAsset::register($this);
     <?= Matomo::checkAndAdd() ?>
     <?= Matomo::checkAndAddNonScript() ?>
 
+    <?php $this->registerJs("var appBaseUrl = '" . Url::base() . "';", \yii\web\View::POS_HEAD); ?>
+
     <?php $this->head() ?>
 </head>
 <body>
@@ -46,25 +48,34 @@ AppAsset::register($this);
     <div class="wrap">
         <?php
         NavBar::begin([
-            'brandLabel' => 'BIP!',
+            'brandLabel' => 'BiP!',
             'brandUrl' => ['site/home'],
             'options' => [
                 'class' => 'navbar-inverse navbar-fixed-top',
             ],
         ]);
 
-        $items = [
-            [
-                'label' => 'Services',
-                'items' => Yii::$app->params['services'],
+        echo Nav::widget([
+            'options' => ['class' => 'navbar-nav navbar-left bip-top-navbar'],
+            'items' => [
+                [
+                    'label' => Yii::$app->session->get('selectedServiceName', 'Services'),
+                    'items' => Yii::$app->params['services'],
+                ]
             ],
-            ['label' => 'Data, API & Code', 'url' => ['site/data']],
-            ['label' => 'Indicators', 'url' => ['site/indicators']],
+            'encodeLabels' => false,
+            'activateItems' => true,
+        ]);
+
+        $items = [
             ['label' => 'About', 'url' => ['/site/about']],
+            ['label' => 'Open data', 'url' => ['site/data']],
+            ['label' => 'Indicators', 'url' => ['site/indicators']],
             // ['label' => 'Help', 'url' => ['/site/help']],
-            ['label' => 'Admin', 'url' => ['/site/admin-overview'], 
-            'active' => in_array(Yii::$app->controller->action->getUniqueId() , ["site/admin-overview", "site/admin-spaces", "site/admin-scholar"]),
-            'visible' => Yii::$app->user->isGuest ? False : Yii::$app->user->identity->is_admin
+            [
+                'label' => 'Admin', 'url' => ['/site/admin-overview'], 
+                'active' => in_array(Yii::$app->controller->action->getUniqueId() , ["site/admin-overview", "site/admin-spaces"]),
+                'visible' => Yii::$app->user->isGuest ? False : Yii::$app->user->identity->is_admin
             ]
         ];
 
@@ -77,10 +88,10 @@ AppAsset::register($this);
         else
         {
             $item = [
-                'label' => Yii::$app->user->identity->username,
+                'label' => '<i class="fa-solid fa-user"></i> ' . Yii::$app->user->identity->username,
                 'items' => [
-                    ['label' => 'Settings', 'url' => [ 'site/settings' ]],
-                    ['label' => 'Logout', 'url' => ['site/logout'], 'linkOptions' => ['data-method' => 'post']]
+                    ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => [ 'site/settings' ]],
+                    ['label' => '<i class="fa-solid fa-right-from-bracket"></i> ' . 'Logout', 'url' => ['site/logout'], 'linkOptions' => ['data-method' => 'post']]
                 ]
             ];
             array_push($items, $item);
@@ -129,8 +140,8 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEP
             </div>
             <div>
                 Follow us:
-                <a href="https://twitter.com/BipFinder" target="_blank"><i class="fa-brands fa-twitter"></i></a>
-                <a rel="me" href="https://mastodon.social/@BipServices" target="_blank"><i class="fa-brands fa-mastodon"></i></a>
+                <a href="https://twitter.com/BipFinder" target="_blank"><i class="fa-brands fa-twitter main-green"></i></a>
+                <a rel="me" href="https://mastodon.social/@BipServices" target="_blank"><i class="fa-brands fa-mastodon main-green"></i></a>
             </div>
             <div>
                 <a href="https://graph.openaire.eu/" target="_blank">
@@ -139,9 +150,9 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEP
             </div>
             <div class="text-center">
                 Copyright © <?= date("Y") ?>
-                <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr') ?>
+                <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr', [ 'class' => 'main-green' ]) ?>
                 |
-                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings')) ?>
+                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings'), [ 'class' => 'main-green' ]) ?>
             </div>
         </div>
     </div>

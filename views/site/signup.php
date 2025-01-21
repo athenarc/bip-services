@@ -10,7 +10,7 @@ use yii\helpers\Url;
 use yii\captcha\Captcha;
 
 $this->title = 'Sign Up';
-//$this->params['breadcrumbs'][] = $this->title;
+
 ?>
 <div class="container site-login">
     <h1><?= Html::encode($this->title) ?></h1>
@@ -40,7 +40,13 @@ $this->title = 'Sign Up';
                 <?= Html::submitButton('Sign Up', ['class' => 'btn btn-success col-lg-3', 'name' => 'signup-button']) ?>
             </div>
         </div>
-        You can review our Privacy and Personal Data Settings  <a href="<?= Url::toRoute(['site/data-policy#personal_data_settings']) ?>">here</a>.
+        You can review our Privacy and Personal Data Settings  <a href="<?= Url::toRoute(['site/data-policy#personal_data_settings']) ?>" class="main-green">here</a>.
 
     <?php ActiveForm::end(); ?>
+    
+    <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <div class="alert alert-danger">
+            <?= Yii::$app->session->getFlash('error') ?>
+        </div>
+    <?php endif; ?>
 </div>

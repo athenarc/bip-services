@@ -24,7 +24,7 @@ namespace app\components;
 use yii\base\Widget;
 use Yii;
 use yii\helpers\Url;
-use yii\helpers\HTML;
+use yii\helpers\Html;
 
 /*
  * The widget class

@@ -2,8 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\AssessmentFrameworks;
-use app\models\AssessmentProtocols;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -36,7 +34,13 @@ use app\models\ElementNarrativeInstances;
 use app\models\ProfileTemplateCategories;
 use app\models\ElementIndicators;
 use app\models\ElementFacets;
-
+use app\models\ElementDividers;
+use app\models\ElementContributions;
+use app\models\ElementDropdown;
+use app\models\ElementDropdownInstances;
+use app\models\ElementBulletedList;
+use app\models\ElementBulletedListItem;
+use app\components\common\CommonUtils;
 
 class ScholarController extends Controller
 {
@@ -195,6 +199,10 @@ class ScholarController extends Controller
 
         $current_cv_narrative = null;
 
+        $template_url_name = isset($template_url_name) ? $template_url_name : Yii::$app->params['defaultTemplateUrlName'];
+
+        $template = null;
+        
         if (isset($orcid)) {
             $researcher = Researcher::findOne([ 'orcid' => $orcid ]);
 
@@ -211,14 +219,19 @@ class ScholarController extends Controller
             //     }
             // }
             
-            // if specified template is not found, throw not found exception
-            if (isset($template_url_name)) {
-                $template = Templates::findOne([ 'url_name' => $template_url_name ]);
-                
-                if (!$template) {
-                    throw new \yii\web\NotFoundHttpException("BIP! Scholar Template Not Found");
-                }
+            // check if template is found and its visibility
+            $template = Templates::findOne([ 'url_name' => $template_url_name ]);
+
+            if(!$template){
+                throw new \yii\web\NotFoundHttpException("BIP! Scholar Template Not Found");
             }
+
+            if ($template->isHidden()) {
+            
+                // Set a flash message for the hidden template
+                Yii::$app->session->setFlash('hiddenTemplate', "Note: You are viewing a draft template that is still under development.");
+            }
+            
             
         } else {
 
@@ -242,7 +255,6 @@ class ScholarController extends Controller
 
         $edit_perm = isset($researcher) && ($researcher->user_id === Yii::$app->user->id);
 
-        $sort_field = (isset($_GET['sort'])) ? Yii::$app->request->get('sort') : "year";
         $auth_code = Yii::$app->request->get('code');
 
         $topics = Yii::$app->request->get('topics');
@@ -260,8 +272,13 @@ class ScholarController extends Controller
         // if auth_code is present, user has requested to link account with orcid profile
         if (isset($auth_code) && !isset($researcher->access_token)) {
             $response = Orcid::authorize($auth_code);
-            $researcher = Researcher::add($user_id, $response->orcid, $response->access_token, $response->name);
-            $this->redirect(['scholar/profile/' . $researcher->orcid]);
+
+            // researcher already exists (e.g. different users try to authorise with  the same ORCID account)
+            $researcher_exists = Researcher::findOne([ 'orcid' => $response->orcid ]);
+            if (!isset($researcher_exists)) {
+                $researcher = Researcher::add($user_id, $response->orcid, $response->access_token, $response->name);
+                $this->redirect(['scholar/profile/' . $researcher->orcid]);
+            }
         }
 
         $papers = [];
@@ -297,28 +314,113 @@ class ScholarController extends Controller
         // $cv_narratives = [];
         // $public_cv_narratives_count = '';
 
-        $assessment_frameworks = AssessmentFrameworks::find()->all();
-        $assessment_protocols = AssessmentProtocols::find()->all();
+        //populate profile template categories dropdown
+        $templateDropdownData = [];
 
-        $presets = [];
+        if ($template->isHidden()) {
+            // Only include the current template in the dropdown if it's hidden
+            $templateDropdownData[$template->url_name] = $template->name . ' (Hidden)';
+        } else {
+            // Otherwise, fetch all visible templates
+            $templateDropdownData = ProfileTemplateCategories::getTemplateDropdownData();
+        }
 
-        foreach ($assessment_frameworks as $model1) {
-            $group = $model1['name'];
-            $presets[$group][$model1['id']] = $model1['name'];
+        $template_elements = [];
 
-            foreach ($assessment_protocols as $model2) {
-                if ($model2['assessment_framework_id'] == $model1['id']) {
-                    $presets[$group][$model2['id']] = $model2['name'];
-                }
+        foreach($template->elements as $element) {
+
+            $config = [];
+
+            switch($element->type) {
+                case "Facets":
+                    $config = ElementFacets::getConfigFacet($element->id);
+                    break;
+
+                case "Indicators":
+                    $config = ElementIndicators::getConfigIndicator($element->id);
+                    break;
+
+                case "Contributions List":
+                    $config = ElementContributions::getConfigContributions($element->id);
+                    // sort parameter from Contributions List config
+                    $sort_config = $config["sort"] ?? null;
+                    $show_pagination_config = $config["show_pagination"] ?? null;
+                    $top_k_config = $config["top_k"] ?? null;
+                    $page_size_config = $config["page_size"] ?? null;
+                    break;
+
+                case "Section Divider":
+                    $config = ElementDividers::getConfigDivider($element->id);
+                    break;
+
+                case "Dropdown":
+                    $config = ElementDropdown::getConfigDropdown($element->id, $template->id, $researcher->user_id);
+                    break;
+
+                case "Narrative":
+                    $config = ElementNarratives::getConfigNarrative($element->id, $template->id, $researcher->user_id);
+                    $clean_text = CommonUtils::cleanText($config->value);
+                    $text_value = 0;
+                    $limit_status = null;
+                    if ($config->limit_value) {
+                        if ($config->limit_type == ElementNarratives::TYPE_WORDS) {
+                            $text_value = str_word_count($clean_text);
+                        } elseif ($config->limit_type == ElementNarratives::TYPE_CHARACTERS) {
+                            $text_value = mb_strlen($clean_text);
+                        }
+                    }
+                    if ($config->limit_value && $text_value > $config->limit_value) {
+                        $limit_status = "Your text is over the limit of {$config->limit_value} {$config->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
+                    }
+                    if (!$edit_perm) {
+                        if ($text_value > $config->limit_value) {
+                            if  ($config->hide_when_empty) {
+                                unset($config);
+                            }
+                            else {
+                                $config->value = '<div class="alert alert-warning" role="alert">This narrative is not displayed since it exceeds the limit set by the template.</div>';
+                            }
+                        }
+                    }
+                    break;
+                case 'Bulleted List':
+                    $config = ElementBulletedList::getConfig($element->id, $template->id, $researcher->user_id);
+                    break;
+                default:
+                    throw new \yii\base\Exception("Unknown element type: " . $element->type);                    
+            }
+
+            // add config for new element
+            if (isset($config)) {
+                $template_elements[] = [
+                    'element_id' => $element->id,
+                    'type' => $element->type,
+                    'name' => $element->name,
+                    'config' => $config,
+                    'limit_status' => isset($limit_status) ? $limit_status : ''
+                ];
             }
         }
+
+        // Determine the sort field:
+        // - If $top_k is set, ignore the 'sort' GET parameter and default to $sort_config or 'year'.
+        // - If $top_k is not set, check the 'sort' GET parameter first, falling back to $sort_config or 'year' if not provided.
+        $sort_field = isset($top_k_config) 
+            ? ($sort_config ?? 'year') 
+            : Yii::$app->request->get('sort', $sort_config ?? 'year');
+
+        // Initialize configs to avoid php notice, when Contribution Element not present in current template
+        $top_k_config = $top_k_config ?? null;
+        $show_pagination_config = $show_pagination_config ?? null;
+        $page_size_config = $page_size_config ?? null;
+
 
         if(isset($researcher->access_token)) {
 
             $scholar = new Scholar($researcher);
 
             // fetch scholar's works for ORCiD
-            $scholar->fetchWorks();
+            $scholar->fetchWorks($sort_field, $top_k_config);
 
             // avoid calculation of redundant information, when the request is not coming from cv-narratives modal.
             // proper modifications were made in the profile view also.
@@ -333,7 +435,7 @@ class ScholarController extends Controller
             //     }
 
             // fetch papers in current page
-            $result = $scholar->getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field);
+            $result = $scholar->getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config);
 
             // true if at least a facet is selected
             $facets_selected = !empty($tags) || !empty($accesses) || !empty($rd_status) || !empty($types) || !empty($topics);
@@ -379,52 +481,12 @@ class ScholarController extends Controller
             // }
         }
 
-        //populate profile template categories dropdown
-        $templateDropdownData = ProfileTemplateCategories::getTemplateDropdownData();
-
-        $template_url_name = isset($template_url_name) ? $template_url_name : Yii::$app->params['defaultTemplateUrlName'];
-        
-        // get info of the used template
-        $template = Templates::find()->where(['url_name' => $template_url_name])->one();
-        $template_elements = [];
-
-        foreach($template->elements as $element) {
-            // print_r($element);
-            $config = [];
-
-            switch($element->type) {
-                case "Facets":
-                    $config = ElementFacets::getConfigFacet($element->id);
-                    break;
-
-                case "Indicators":
-                    $config = ElementIndicators::getConfigIndicator($element->id);
-                    break;
-
-                case "Contributions List":
-                    $config = [];
-                    break;
-
-                case "Narrative":
-                    $config = ElementNarratives::getConfigNarrative($element->id, $template->id, $researcher->user_id);
-                    break;
-                default:
-                    throw new \yii\base\Exception("Unknown element type: " . $element->type);                    
-            }
-
-            // add config for new element
-            $template_elements[] = [
-                'element_id' => $element->id,
-                'type' => $element->type,
-                'name' => $element->name,
-                'config' => $config
-            ];
-        }
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->render('profile', [
             'impact_indicators' => $impact_indicators,
             'researcher' => $researcher,
+            'researcher_exists' => $researcher_exists ?? null,
             'edit_perm' => $edit_perm,
             'result' => $result,
             'papers_num' => $indicators['work_types_num']['papers'],
@@ -436,6 +498,8 @@ class ScholarController extends Controller
             'i10_index' => $indicators['i10_index'],
             'popular_works_count' => $indicators['popular_works_count'],
             'influential_works_count' => $indicators['influential_works_count'],
+            'popularity' => $indicators['popularity'],
+            'influence' => $indicators['influence'],
             'impulse' => $indicators['impulse'],
             'openness' => $indicators['openness'],
             'academic_age' => $indicators['academic_age'],
@@ -463,11 +527,11 @@ class ScholarController extends Controller
             // 'cv_narratives' => $cv_narratives,
             // 'current_cv_narrative' => $current_cv_narrative,
             // 'public_cv_narratives_count' => $public_cv_narratives_count,
-            'presets' => $presets,
 
             'template_elements' => $template_elements,
             'template' => $template,
             'templateDropdownData' => $templateDropdownData,
+            'template_url_name' => $template_url_name,
         ]);
     }
 
@@ -490,9 +554,9 @@ class ScholarController extends Controller
         $scholar = new Scholar($researcher);
 
         // fetch scholar's works for ORCiD
-        $scholar->fetchWorks();
+        $scholar->fetchWorks(null, null);
 
-        $result = $scholar->getArticlesInPage([], [], [], [], [], 'year');
+        $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
         // calculate and return scholar indicators
         $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
@@ -511,23 +575,6 @@ class ScholarController extends Controller
         return [
             'orcid' => $researcher->orcid,
         ];
-    }
-
-    public function actionAjaxUpdatePublicCvNarrative() {
-
-        $is_public = Yii::$app->request->post('is_public');
-        $cv_narrative_id = Yii::$app->request->post('cv_narrative_id');
-        $user_id = Yii::$app->user->id;
-
-        // redirect to login page, if not already logged in
-        if (!isset($user_id)) {
-            Url::remember();
-            return $this->redirect(['site/login']);
-        }
-
-        $user = CvNarrative::updateCvNarrative($user_id, $is_public, $cv_narrative_id);
-
-        return;
     }
 
     public function actionSaveCvNarrative() {
@@ -586,48 +633,6 @@ class ScholarController extends Controller
         return $this->redirect(['scholar/profile']);
     }
 
-    public function actionProtocolsDropdown() {
-        $data = [];
-        $framework_id = Yii::$app->request->post('framework_id');
-        if (!empty($framework_id)) {
-            $framework = AssessmentFrameworks::find()->where(['id' => $framework_id])->one();
-            $protocols = $framework->assessmentProtocols;
-
-            if(!empty($protocols)) {
-                foreach($protocols as $protocol) {
-                    $data[] = ['id' => $protocol->id, 'name' => $protocol->name];
-                }
-            } else {
-                $data = '';
-            }
-        }
-        else {
-            $data = '';
-        }
-
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
-        return $this->asJson($data);
-    }
-
-    public function actionGetSelectedProtocolIndicators() {
-
-        $selectedProtocolId = Yii::$app->request->get('protocolId');
-        $indicators = [];
-
-        $protocol = AssessmentProtocols::findOne($selectedProtocolId);
-
-        if (isset($protocol)) {
-            $selectedProtocolIndicators = $protocol->protocolIndicators;
-            foreach($selectedProtocolIndicators as $protocolIndicator) {
-                $indicators[] = Indicators::findOne($protocolIndicator->indicator_id)->name;
-            }
-        }
-
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return $this->asJson($indicators);
-    }
-
     public function actionSearch($keywords = null, $ordering = null) {
 
         $search_model = new ScholarSearchForm($keywords, $ordering);
@@ -667,27 +672,183 @@ class ScholarController extends Controller
             $instance->user_id = $user_id;
         }
 
-        if (empty($element_text)) {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
+        if (empty($element_text)) {
             // Delete the instance
             if (!$instance->delete()) {
                 // Error occurred while deleting
                 throw new \yii\base\Exception("Error deleting record: " . implode(", ", $instance->getFirstErrors()));
             }
-            return "Record deleted successfully.";
-
+            return [
+                "message" => null,
+                "count" => null,
+                "limit_status" => null
+            ];
+        
         } else {
-
+            $clean_text = CommonUtils::cleanText($element_text);
             $instance->value = $element_text;
             
+            // Calculate word/character limit
+            $element_narrative = ElementNarratives::findOne(['element_id' => $element_id]);
+            $text_value = 0;
+            $limit_status = null;
+            $limit_type = $element_narrative->limit_type ?? null;
+            $limit_value = $element_narrative->limit_value ?? null;
+    
+
+            if ($limit_type == ElementNarratives::TYPE_WORDS) {
+                $text_value = str_word_count($clean_text);
+            } elseif ($limit_type == ElementNarratives::TYPE_CHARACTERS) {
+                $text_value = mb_strlen($clean_text);
+            }
+    
+            if ($limit_value && $text_value > $limit_value) {
+                $limit_status = "Your text is over the limit of {$limit_value} {$element_narrative->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
+            }
+
+    
             // Save the instance
             if (!$instance->save()) {
                 // Error occurred while saving
                 throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
             }
 
-            return "Record saved successfully.";
+            $message = CommonUtils::timeSinceUpdate($instance->last_updated);
+
+            return [
+                "message" => $message,
+                "date" => Yii::$app->formatter->asDatetime($instance->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
+                "count" => "{$text_value} {$element_narrative->getLimitTypeName()}",
+                "limit_status" => $limit_status
+            ];
+        }
+    }
+
+    public function actionSaveDropdownInstance()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $user_id  = Yii::$app->user->id;
+
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            $data = $request->post();
+
+            $instance = ElementDropdownInstances::findOne([
+                'user_id' => $user_id,
+                'template_id' => $data['template_id'],
+                'element_id' => $data['element_id'],
+            ]);
+
+            if ($data['option_id'] === null || $data['option_id'] === '') {
+                // User selected "Select an Option", delete the record
+                if ($instance && $instance->delete()) {
+                    return ['status' => 'deleted', 'message' => 'Instance deleted successfully.'];
+                }
+                return ['status' => 'error', 'message' => 'Couldn\'t delete the record'];
+            }
+
+            if (!$instance) {
+                $instance = new ElementDropdownInstances();
+                $instance->user_id = $user_id;
+                $instance->template_id = $data['template_id'];
+                $instance->element_id = $data['element_id'];
+            }
+
+            $instance->option_id = $data['option_id'];
+
+            if ($instance->save()) {
+                return ['status' => 'success', 'message' => 'Instance updated successfully.'];
+            } else {
+                return ['status' => 'error', 'errors' => $instance->getErrors()];
+            }
         }
 
+
+        throw new \yii\web\BadRequestHttpException('Invalid request.');
     }
+
+    public function actionCreateBulletedListItem() {
+        
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $model = new ElementBulletedListItem();
+        $model->attributes = Yii::$app->request->post();
+        $model->user_id = Yii::$app->user->id;
+        $model->last_updated = date('Y-m-d H:i:s');
+
+        if ($model->save()) {
+            return [
+                'id' => $model->id,
+            ];
+        }
+        
+        throw new \yii\base\Exception("List item not saved");
+    }
+
+    public function actionUpdateBulletedListItem() {
+        
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $post = Yii::$app->request->post();
+
+        $item_id = $post['item_id'];
+        $value = $post['value'] ?? '';
+
+        if (!$item_id) {
+            throw new \yii\base\Exception("List item id not provided");
+        }
+
+        $item = ElementBulletedListItem::findOne($item_id);
+        if (!$item) {
+            throw new \yii\web\NotFoundHttpException("List item not found " + $item_id);
+        }
+
+        $item->value = $value;
+        $item->last_updated = date('Y-m-d H:i:s');
+
+        if ($item->save()) {
+            return [
+                'message' => 'List item successfully updated.',
+                'last_updated' => [
+                    'timestamp' => Yii::$app->formatter->asDatetime($item->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
+                    'message' => CommonUtils::timeSinceUpdate($item->last_updated)
+                ]
+            
+            ];
+        }
+        
+        throw new \yii\base\Exception("Failed to update list item " + $item_id);
+
+    }
+
+    public function actionDeleteBulletedListItem() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    
+        // Retrieve the item_id from the POST request
+        $item_id = Yii::$app->request->post('item_id');
+    
+        if (!$item_id) {
+            throw new \yii\base\Exception("List item id not provided");
+        }
+    
+        // Find the model based on the item_id
+        $model = ElementBulletedListItem::findOne(['id' => $item_id]);
+    
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException("List item not found " + $item_id);
+        }
+
+        // Delete the model if it exists
+        if ($model->delete()) {
+            return ['message' => 'List item successfully deleted.' ];
+        } 
+
+        throw new \yii\base\Exception("Failed to delete list item " + $item_id);
+
+    }
+    
 }
