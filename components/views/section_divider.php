@@ -8,7 +8,7 @@ $showTopHr = isset($elem->show_top_hr) ? $elem->show_top_hr : false;
 $showBottomHr = isset($elem->show_bottom_hr) ? $elem->show_bottom_hr : false;
 ?>
 
-<div id="divider_<?= $elem->element_id ?>">
+<div id="divider_<?= $elem->element_id ?>" class="section-divider">
     
     <?php if ($topPadding): ?>
         <div style="padding-top: <?= $topPadding ?>;"></div>

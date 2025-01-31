@@ -43,6 +43,7 @@ class IndicatorsItem extends Widget
     public $software_num;
     public $other_num;
     public $openness;
+    public $for_print;
 
     public $current_cv_narrative;
 
@@ -72,7 +73,7 @@ class IndicatorsItem extends Widget
             $indicators[$element['semantics']][$element['name']] = $element['intuition'];
         }
 
-        return $this->render('indicators_item', [
+        $data = [
             'indicators' => $indicators,
             'edit_perm' => $this->edit_perm,
             'works_num' => $this->works_num,
@@ -97,7 +98,12 @@ class IndicatorsItem extends Widget
             'openness' => $this->openness,
             'current_cv_narrative' => $this->current_cv_narrative,
             'element_config' => $this->element_config,
-        ]);
+        ];
+
+        if ($this->for_print) {
+            return $this->render('pdf/indicators_item', $data);    
+        }
+        return $this->render('indicators_item', $data);
     }
 
 }

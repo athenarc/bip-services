@@ -33,6 +33,7 @@ class ContributionsListItem extends Widget
     public $formId;
     public $impact_indicators;
     public $element_config;
+    public $for_print;
 
     public $current_cv_narrative;
 
@@ -52,7 +53,7 @@ class ContributionsListItem extends Widget
      */
     public function run()
     {
-        return $this->render('contributions_list_item', [
+        $data =[
             'impact_indicators' => $this->impact_indicators,
             'edit_perm' => $this->edit_perm,
             'facets_selected' => $this->facets_selected,
@@ -67,7 +68,13 @@ class ContributionsListItem extends Widget
             'element_config' => $this->element_config,
             'current_cv_narrative' => $this->current_cv_narrative,
             'heading_type' => $this->heading_type
-        ]);
+        ];
+
+
+        if ($this->for_print) {
+            return $this->render('pdf/contributions_list_item', $data);
+        }
+        return $this->render('contributions_list_item', $data);
     }
 
 }

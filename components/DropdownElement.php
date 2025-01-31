@@ -18,6 +18,7 @@ class DropdownElement extends Widget
     public $elementDropdownOptionsArray;
     public $option_id;
     public $last_updated;
+    public $for_print;
 
     public function init()
     {
@@ -27,6 +28,9 @@ class DropdownElement extends Widget
 
     public function run()
     {
+        if ($this->for_print) {
+            return $this->render('pdf/dropdown_element');
+        }
         return $this->render('dropdown_element');
     }
 

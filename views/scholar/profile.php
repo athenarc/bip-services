@@ -36,6 +36,7 @@ $this->registerJsFile('@web/js/responsibleAcadAge.js', ['position' => View::POS_
 $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -175,7 +176,18 @@ $this->title = 'BIP! Services - Scholar';
                             </div>
                             <div class="col-xs-4 text-right">
                                 <a href="<?= Url::to(['site/settings']) ?>"><small><i class="fa fa-gears light-grey-link" aria-hidden="true" title="Settings"></i></small></a>
-                                <a href="#"><small><i class="fa fa-file-export light-grey-link" aria-hidden="true" title="Export"></i></small></a>
+                                <a 
+                                    id='pdf-download-link' 
+                                    onclick="animatePdfExportIcon(event)"
+                                    href="<?= Url::to(['scholar/export-pdf', 'orcid'=>$researcher->orcid, 'template_url_name'=>$template->url_name] ) ?>"
+                                >
+                                    <small><i class="fa fa-file-pdf light-grey-link" aria-hidden="true" title="Export"></i></small>
+                                </a>
+                                
+                                <!-- show spinner when pdf link is clicked -->
+                                <small id="loading-spinner" style="display: none;">
+                                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                </small>
                             </div>
                         </div>
                         <?php endif; ?>

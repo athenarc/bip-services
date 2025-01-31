@@ -54,7 +54,8 @@ class ResultItem extends Widget
     public $relations;
     public $space_url_suffix;
     public $space_annotation_db;
-
+    public $for_print;
+    
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
@@ -68,6 +69,9 @@ class ResultItem extends Widget
      */
     public function run()
     {
+        if ($this->for_print) {
+            return $this->render('pdf/result_item');
+        }
         return $this->render('result_item');
     }
 

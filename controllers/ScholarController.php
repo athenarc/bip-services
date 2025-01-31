@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -21,9 +22,7 @@ use app\models\Orcid;
 use app\models\Notes;
 use app\models\Involvement;
 use app\models\Scholar;
-use app\models\Readings;
 use app\models\ResponsibleAcadAge;
-use app\models\ReadingList;
 use app\models\CvNarrative;
 use app\models\Indicators;
 use app\models\ScholarIndicators;
@@ -193,7 +192,7 @@ class ScholarController extends Controller
         ]);
     }
 
-    public function actionProfile($orcid = null, $template_url_name = null/*, $cv_narrative_id = null*/) {
+    public function actionProfile($orcid = null, $template_url_name = null, $for_print = false/*, $cv_narrative_id = null*/) {
 
         $researcher = null;
 
@@ -482,8 +481,7 @@ class ScholarController extends Controller
         }
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
-
-        return $this->render('profile', [
+        $data = [
             'impact_indicators' => $impact_indicators,
             'researcher' => $researcher,
             'researcher_exists' => $researcher_exists ?? null,
@@ -532,7 +530,12 @@ class ScholarController extends Controller
             'template' => $template,
             'templateDropdownData' => $templateDropdownData,
             'template_url_name' => $template_url_name,
-        ]);
+        ];
+
+        if ($for_print) {
+            return $data;
+        }
+        return $this->render('profile', $data);
     }
 
     // used to serve profile indicators to the API
@@ -851,4 +854,28 @@ class ScholarController extends Controller
 
     }
     
+
+    public function actionExportPdf($orcid, $template_url_name)
+    {
+        $data = $this->actionProfile($orcid, $template_url_name, true);
+
+        $htmlContent = $this->renderPartial('pdf_template', $data);
+        $htmlContent = trim($htmlContent); // Remove any leading/trailing whitespace or extra characters
+        // return $htmlContent; // uncomment this to see html page for debugging
+        $client = Yii::$app->httpClient;
+        $response = $client->createRequest()
+            ->setMethod('POST')
+            ->setUrl(Yii::$app->params['pdfExportService'] . '/generate-pdf')
+            ->setData(['html' => $htmlContent])
+            ->send();
+
+        if ($response->isOk) {
+            Yii::$app->response->format = Response::FORMAT_RAW;
+            Yii::$app->response->headers->add('Content-Type', 'application/pdf');
+            Yii::$app->response->headers->add('Content-Disposition', 'attachment'); // Forces download
+            return $response->content;
+        } else {
+            return "Failed to generate PDF.";
+        }
+    }
 }

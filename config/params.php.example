@@ -133,5 +133,7 @@ return [
     ],
     'openaireGraphVersion' => 'v6.0.0',
     'defaultTemplateUrlName' => 'Inclusive_Profile',
+    'solrHost' => '[solr_host]'
+    'pdfExportService' => '[pdf_export_service_url]',
     'defaultElementHeadingType' => 'h3',
 ];

@@ -67,6 +67,7 @@ class ImpactIcons extends Widget
     public $cc_class_message_short;
     public $cc_class_message_ext;
     public $cc_popover_content;
+    public $for_print;
 
     /*
      * Widget initialisation a.k.a. setting widget properties
@@ -175,11 +176,13 @@ class ImpactIcons extends Widget
             'options' => $this->options
         ];
 
+        if ($this->for_print) {
+            return $this->render('pdf/impact_icons', $array_var);
+        }
 
         if (isset($this->options) && isset($this->options['mode']) && $this->options['mode'] == "detailed") {
             return $this->render('detailed_impact_icons', array_merge($array_var, $array_options));
         }
-
 
         return $this->render('impact_icons', $array_var);
     }

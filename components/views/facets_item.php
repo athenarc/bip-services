@@ -49,7 +49,7 @@ use yii\bootstrap\Modal;
                                 </strong>
                                 <?= (!empty($selected_topics)) ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(\'topics[]\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' : ''?><br/>
                             </div>
-                            <input id='fct_field' name='fct_field' value='' type='hidden'/ form=<?=$formId?>>
+                            <input id='fct_field' name='fct_field' value='' type='hidden' form=<?=$formId?>/>
 
                             <?php if (count($result["facets"]["topics"]["counts"]) == 0) { ?>
                                     <span id="topic-facet-items">-</span>

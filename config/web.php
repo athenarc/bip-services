@@ -9,6 +9,9 @@ $config = [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'components' => [
+    'httpClient' => [
+        'class' => 'yii\httpclient\Client',
+    ],
     'session' => [
         // store session in cache
         'class' => 'yii\web\CacheSession',

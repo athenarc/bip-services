@@ -16,6 +16,7 @@ class BulletedList extends Widget
     public $edit_perm;
     public $items;
     public $last_updated;
+    public $for_print;
 
     public function init()
     {
@@ -25,7 +26,10 @@ class BulletedList extends Widget
     public function run()
     {
         $this->last_updated = $this->getLastUpdate();
-
+        
+        if ($this->for_print) {
+            return $this->render('pdf/bulleted_list');
+        }
         return $this->render('bulleted_list');
     }
 
