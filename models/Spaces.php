@@ -13,6 +13,9 @@ class Spaces extends \yii\db\ActiveRecord
     // use the default logo
     public $logo_default = 1;
 
+    // space name as indexed in solr
+    public $solr_name;
+
     /**
      * @inheritdoc
      */
@@ -271,8 +274,9 @@ class Spaces extends \yii\db\ActiveRecord
     }
 
 
-    public function prepareForRequest()
-    {
+    public function prepareForRequest() {
+
+        $this->solr_name = Yii::$app->params['spaceSolrNames'][$this->url_suffix] ?? null;
 
         // Convert topics to an array
         // split the string into an array using ',' as the delimiter and trim each element to remove leading and trailing spaces
