@@ -593,6 +593,11 @@ class SearchForm extends Model
             $query->createFilterQuery('cc_filter')->setQuery('citation_count:[' . $min_impact_scores['cc'] . ' TO *]');
         }
 
+        // show only space-related works in the results
+        if ($this->space_model->solr_name) {
+            $query->createFilterQuery('spaces_filter')->setQuery('spaces:' . $this->space_model->solr_name);
+        }
+
         // do not consider keyword relevance when:
         // * relevance is set to 'low'
         // * ordering is set to 'year'
