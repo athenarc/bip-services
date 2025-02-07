@@ -309,26 +309,38 @@ class Spaces extends \yii\db\ActiveRecord
         return $rows;
     }
 
-    public static function runAnnotationsQuery($dois = [], $annotation_db_name, $graph_db_system, $space_annotations) {
+    public static function findAnnotationIds($query, $papers) {
+        $pids = [];
+        if (strpos($query, '$dois') !== false) {
+            $pids = [ "dois" => array_column($papers, 'doi') ];
+        } elseif (strpos($query, '$ids') !== false) {
+            $pids = [ 
+                "ids" => array_map(function($id) {
+                    return substr(strrchr($id, '|'), 1); // Get part after "|"
+                }, array_column($papers, 'openaire_id'))
+            ];
+        } else {
+            throw new Exception("Invalid query: must contain either '\$dois' or '\$ids'");
+        }
+        return $pids;
+    }
+
+    public static function runAnnotationsQuery($papers, $annotation_db_name, $graph_db_system, $space_annotations) {
 
         $annotation_db = Yii::$app->params['annotation_dbs'][$annotation_db_name];
 
         $conn = GraphConnectionFactory::createConnection($graph_db_system, $annotation_db);
        
-        // Test queries
-        // $query = "MATCH (n) RETURN n";
-        // $query = "MATCH (ee:Person) WHERE ee.name = 'Emil' RETURN ee.from";
-        $query = "MATCH (p:Publication)-[r:HAS_EVIDENCE_ON]->(v:Variant) WHERE p.doi IN ['10.1126/science.aaa4967', '10.1086/342773'] RETURN DISTINCT (p.doi) AS `srcId`, COLLECT({ name: v.name, details: {description: r.description, assertion: r.assertion}}) AS `destData` LIMIT 25";
-        $query_var = 'MATCH (p:Publication)-[r:HAS_EVIDENCE_ON]->(v:Variant) WHERE p.doi IN $dois RETURN DISTINCT (p.doi), COLLECT({ name: v.name, details: {description: r.description, assertion: r.assertion}}) LIMIT 25';
-        // $stats = $protocol->run('RETURN $a AS num, $b AS str', ['a' => 123, 'b' => 'text']);
-        // $stats = $protocol->run($query);
-        // $stats = $protocol->run($query_var, ['dois' => ['10.1126/science.aaa4967', '10.1086/342773']]);
-        // $stats = $protocol->run($query_var, ['dois' => $dois]);
-
         $data = [];
         foreach($space_annotations as $space_annotation) {
 
-            [ $stats, $rows ] = $conn->run($space_annotation->query, ['dois' => $dois]);
+            // get the appropriate id types based on the annotation query (e.g., dois or openaire_ids)
+            $pids = self::findAnnotationIds($space_annotation->query, $papers);
+
+            // run the actual annotation query
+            [ $stats, $rows ] = $conn->run($space_annotation->query, $pids);
+
+            // enrich with annotations
             $data[] = self::enrichAnnotations($rows, $space_annotation);
 
         }
@@ -344,11 +356,11 @@ class Spaces extends \yii\db\ActiveRecord
             return $papers;
         }
 
-        $dois = array_column($papers, 'doi');
 
+        
         // give dois as query param
         // one array per annotation query
-        $dois_to_annotations_db_multiple = self::runAnnotationsQuery($dois, $space_model->annotation_db, $space_model->graph_db_system, $space_annotations);
+        $dois_to_annotations_db_multiple = self::runAnnotationsQuery($papers, $space_model->annotation_db, $space_model->graph_db_system, $space_annotations);
 
         // Group by doi per annotation
         $dois_to_annotations_multiple = [];
