@@ -39,6 +39,12 @@ AppAsset::register($this);
 
     <?php $this->registerJs("var appBaseUrl = '" . Url::base() . "';", \yii\web\View::POS_HEAD); ?>
 
+    <!-- Open Graph meta tags for better social media link previews -->
+    <meta property="og:title" content="<?= Html::encode($this->title) ?>">
+    <meta property="og:image" content="<?= Url::to('@web/img/bip-minimal.png', true) ?>">
+    <meta property="og:url" content="<?= Url::to('', true) ?>">
+    <meta property="og:type" content="website">
+
     <?php $this->head() ?>
 </head>
 <body>
