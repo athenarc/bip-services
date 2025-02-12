@@ -55,6 +55,8 @@ use app\models\ElementDividers;
 use app\models\ElementDividersForm;
 use app\models\ElementFacetsForm;
 use app\models\ElementBulletedList;
+use app\models\ElementTable;
+use app\models\ElementTableHeaders;
 use app\models\ProfileTemplateCategories;
 use app\models\ProfileTemplateCategoriesSearch;
 use app\models\Templates;
@@ -1801,6 +1803,7 @@ class SiteController extends Controller
         $elementIndicatorsModel = $elementModel->elementIndicators;
         $elementFacetsModel = $elementModel->elementFacets;
         $elementBulletedListModel = $elementModel->elementBulletedList;
+        $elementTableModel = $elementModel->elementTable;
 
         $all_indicators = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
 
@@ -1841,6 +1844,7 @@ class SiteController extends Controller
             'elementContributionsModel' => $elementContributionsModel,
             'elementDropdownModel' => $elementDropdownModel,
             'elementBulletedListModel' => $elementBulletedListModel,
+            'elementTableModel' => $elementTableModel,
             'selected_indicators' => $selected_indicators,
             'selected_facets' => $selected_facets,
         ]);
@@ -1868,6 +1872,8 @@ class SiteController extends Controller
         $elementContributionsModel = new ElementContributions();
         $elementDropdownModel = new ElementDropdown();
         $elementDropdownOptionsModels = [new ElementDropdownOptions];
+        $elementTableModel = new ElementTable();
+        $elementTableHeadersModels = [new ElementTableHeaders];
         $elementFacetsFormModel = new ElementFacetsForm();
         $elementBulletedListModel = new ElementBulletedList();
 
@@ -1976,6 +1982,43 @@ class SiteController extends Controller
                             }
                         }
                         break;
+                    case 'Table':
+                        if ($elementTableModel->load($this->request->post())) {
+
+                            $elementTableModel->element_id = $elementModel->id;
+
+                            $elementTableHeadersModels = SpacesAnnotations::createMultipleModels(ElementTableHeaders::classname());
+                            Model::loadMultiple($elementTableHeadersModels, $this->request->post());
+                
+                            // validate all models
+                            $valid1 = $elementTableModel->validate();
+                            $valid2 = Model::validateMultiple($elementTableHeadersModels);
+                            
+                            if ($valid1 && $valid2) {
+
+                                $transaction = \Yii::$app->db->beginTransaction();
+                
+                                try {
+                                    if ($tableFlag = $elementTableModel->save(false)) {
+                                        foreach ($elementTableHeadersModels as $elementTableHeadersModel) {
+                                            $elementTableHeadersModel->element_table_id = $elementTableModel->id;
+                                            if (! ($tableFlag = $elementTableHeadersModel->save(false))) {
+                                                $transaction->rollBack();
+                                                break;
+                                            }
+                                        }
+                                    }
+                
+                                    if ($tableFlag) {
+                                        $transaction->commit();
+                                    }
+                                } catch (Exception $e) {
+                                    $transaction->rollBack();
+                                    $tableFlag = false;
+                                }
+                            }
+                        }
+                        break;
                     case 'Section Divider':
                         if ($elementDividersFormModel->load($this->request->post())) {
                             $elementDividersModel = new ElementDividers();
@@ -2071,6 +2114,8 @@ class SiteController extends Controller
             'elementContributionsModel' => $elementContributionsModel,
             'elementDropdownModel' => $elementDropdownModel,
             'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
+            'elementTableModel' => $elementTableModel,
+            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementBulletedListModel' => $elementBulletedListModel,
             'elementModel' => $elementModel,
             'semanticsOrder' => $semanticsOrder,
@@ -2103,6 +2148,8 @@ class SiteController extends Controller
         $elementDropdownModel = $elementModel->elementDropdown;
         $elementDropdownOptionsModels = $elementDropdownModel->elementDropdownOptions ?? null;
         $elementBulletedListModel = $elementModel->elementBulletedList;
+        $elementTableModel = $elementModel->elementTable;
+        $elementTableHeadersModels = $elementTableModel->elementTableHeaders ?? null;
         $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
 
         $elementIndicatorsFormModel = new ElementIndicatorsForm();
@@ -2247,6 +2294,48 @@ class SiteController extends Controller
                             }
                         }
                         break;
+                    case 'Table':
+                        if ($elementTableModel->load($this->request->post())) {
+
+                            $oldIDs = ArrayHelper::map($elementTableHeadersModels, 'id', 'id');
+                            $elementTableHeadersModels = SpacesAnnotations::createMultipleModels(ElementTableHeaders::classname(), $elementTableHeadersModels);
+                            Model::loadMultiple($elementTableHeadersModels, Yii::$app->request->post());
+                            $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($elementTableHeadersModels, 'id', 'id')));
+
+                            // validate all models
+                            $valid1 = $elementTableModel->validate();
+                            $valid2 = Model::validateMultiple($elementTableHeadersModels);
+
+                            if ($valid1 && $valid2) {
+
+                                $transaction = \Yii::$app->db->beginTransaction();
+                
+                                try {
+                                    if ($tableFlag = $elementTableModel->save(false)) {
+
+                                        if (isset($deletedIDs) && !empty($deletedIDs)) {
+                                            ElementTableHeaders::deleteAll(['id' => $deletedIDs]);
+                                        }
+                                        foreach ($elementTableHeadersModels as $elementTableHeadersModel) {
+                                            // give id, after elementTableModel is updated
+                                            $elementTableHeadersModel->element_table_id = $elementTableModel->id;
+                                            if (! ($tableFlag = $elementTableHeadersModel->save(false))) {
+                                                $transaction->rollBack();
+                                                break;
+                                            }
+                                        }
+                                    }
+                
+                                    if ($tableFlag) {
+                                        $transaction->commit();
+                                    }
+                                } catch (Exception $e) {
+                                    $transaction->rollBack();
+                                    $tableFlag = false;
+                                }
+                            }
+                        }
+                        break;
                     case 'Facets':
                         if ($elementFacetsFormModel->load($this->request->post())) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
@@ -2330,6 +2419,8 @@ class SiteController extends Controller
             'elementContributionsModel' => $elementContributionsModel,
             'elementDropdownModel' => $elementDropdownModel,
             'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
+            'elementTableModel' => $elementTableModel,
+            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementFacetsFormModel' => $elementFacetsFormModel,
             'elementBulletedListModel' => $elementBulletedListModel,
             'indicatorList' => $indicatorList,

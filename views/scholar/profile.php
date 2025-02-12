@@ -19,6 +19,7 @@ use app\components\NarrativeElement;
 use app\components\DropdownElement;
 use app\components\SectionDivider;
 use app\components\BulletedList;
+use app\components\TableElement;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
 
@@ -360,6 +361,21 @@ $this->title = 'BIP! Services - Scholar';
                                 'elements_number' => $element["config"]->elements_number,
                                 'items' => $element["config"]->items,
                                 'edit_perm' => $edit_perm,
+                            ]);
+                            break;
+
+                        case "Table":
+                            echo TableElement::widget([
+                                'edit_perm' => $edit_perm,
+                                'element_id' => $element["element_id"],
+                                'title' => $element["config"]->title,
+                                'description' => $element["config"]->description,
+                                'heading_type' => $element["config"]->heading_type,
+                                'hide_when_empty' => $element["config"]->hide_when_empty,
+                                'max_rows' => $element["config"]->max_rows,
+                                'table_headers' => ArrayHelper::map($element["config"]->elementTableHeaders, 'header_name', 'header_width'),
+                                'table_data' => $element["config"]->table_data,
+                                'last_updated'  => $element["config"]->last_updated,
                             ]);
                             break;
                             

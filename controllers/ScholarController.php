@@ -39,6 +39,8 @@ use app\models\ElementDropdown;
 use app\models\ElementDropdownInstances;
 use app\models\ElementBulletedList;
 use app\models\ElementBulletedListItem;
+use app\models\ElementTable;
+use app\models\ElementTableInstances;
 use app\components\common\CommonUtils;
 
 class ScholarController extends Controller
@@ -384,6 +386,10 @@ class ScholarController extends Controller
                     break;
                 case 'Bulleted List':
                     $config = ElementBulletedList::getConfig($element->id, $template->id, $researcher->user_id);
+                    break;
+
+                case "Table":
+                    $config = ElementTable::getConfigTable($element->id, $template->id, $researcher->user_id);
                     break;
                 default:
                     throw new \yii\base\Exception("Unknown element type: " . $element->type);                    
@@ -767,6 +773,65 @@ class ScholarController extends Controller
                 return ['status' => 'success', 'message' => 'Instance updated successfully.'];
             } else {
                 return ['status' => 'error', 'errors' => $instance->getErrors()];
+            }
+        }
+
+
+        throw new \yii\web\BadRequestHttpException('Invalid request.');
+    }
+    
+    public function actionSaveTableInstance()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $user_id  = Yii::$app->user->id;
+
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            $data = $request->post();
+
+                
+            $postData = Yii::$app->request->post('data');
+            
+
+            $instance = ElementTableInstances::findOne([
+                'user_id' => $user_id,
+                'template_id' => $data['template_id'],
+                'element_id' => $data['element_id'],
+            ]);
+
+
+            if (!$instance) {
+                $instance = new ElementTableInstances();
+                $instance->user_id = $user_id;
+                $instance->template_id = $data['template_id'];
+                $instance->element_id = $data['element_id'];
+            }
+
+
+            if (empty($data['table_data'])){
+                if ($instance->delete()){
+                    return ['status' => 'success', 'message' => 'Instance deleted successfully.' , 'last_updated_message' => null];
+                } else {
+                    // Error occurred while deleting
+                    throw new \yii\base\Exception("Error deleting record: " . implode(", ", $instance->getFirstErrors()));
+                }
+
+            } else {
+
+                // Save as JSON
+                $instance->table_data = json_encode($data['table_data']);
+
+                if ($instance->save()) {
+
+                    $last_updated_message = CommonUtils::timeSinceUpdate($instance->last_updated);
+                    return ['status' => 'success', 'message' => 'Instance updated successfully.', 'last_updated_message' => $last_updated_message];
+
+                } else {
+                    // Error occurred while saving
+                    throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
+                }
             }
         }
 

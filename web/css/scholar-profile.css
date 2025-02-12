@@ -254,3 +254,15 @@ button.my-btn-dropdown {
     font-size: 12pt;
     line-height: 1.1;
 }
+
+textarea.element-table-input {
+    resize: none;
+    overflow-y: hidden;
+}
+
+textarea.element-table-input.form-control[readonly] {
+    background-color: unset;
+    border: none;
+    box-shadow: none;
+    padding: 6px 0px;
+}
