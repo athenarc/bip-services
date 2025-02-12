@@ -81,6 +81,7 @@ $section_profiles = ($section === "profiles");
             'Bulleted List' => 'Bulleted List',
             'Contributions List' => 'Contributions List',
             'Dropdown' => 'Dropdown',
+            'Table' => 'Table',
             'Facets' => 'Facets',
             'Indicators' => 'Indicators',
             'Narrative' => 'Narrative',
@@ -558,6 +559,97 @@ $section_profiles = ($section === "profiles");
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <?= $form->field($elementDropdownOptionsModel, "[{$i}]option_name")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php DynamicFormWidget::end(); ?>
+            </div>
+        <?php endif ?>
+        <?php if ($elementModel->isNewRecord || $elementModel->type == "Table"): ?>
+            <div id="element-type-Table" class="element-type-section" style="display: none;">
+                <div class="divider-header" style="display: flex; align-items: center">
+                    <h1><?= Html::encode('Table') ?></h1>
+                </div>
+                    <?= $form->field($elementTableModel, 'title')->textInput([
+                        'class' => 'search-box form-control',
+                    ]) ?>
+
+                    <?= $form->field($elementTableModel, 'heading_type')->dropDownList([
+                        'h1' => 'H1',
+                        'h2' => 'H2',
+                        'h3' => 'H3',
+                        'h4' => 'H4',
+                        'h5' => 'H5',
+                        'h6' => 'H6',
+                    ], ['prompt' => 'Select header size']) ?>
+                                    
+                    <?= $form->field($elementTableModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']); ?>
+
+                    <?= $form->field($elementTableModel, 'hide_when_empty')->checkbox([
+                        'class' => ['green-checkbox'],
+                    ])->label(false) ?>
+
+                    <?= $form->field($elementTableModel, 'max_rows')->textInput([
+                                    'type' => 'number',
+                                    'class' => 'search-box form-control',
+                                    'min' => 1,
+                                    'step' => 1,
+                                    'placeholder' => 'Enter a positive integer'
+                                ])->hint('Leave empty to allow for dynamic additions and removals.') ?>
+                                        
+                <?php 
+                    DynamicFormWidget::begin([
+                        'widgetContainer' => 'dynamicform_wrapper_table_element', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+                        'widgetBody' => '.container-items-table-element', // required: css class selector
+                        'widgetItem' => '.item-table-element', // required: css class
+                        // 'limit' => 4, // the maximum times, an element can be cloned (default 999)
+                        'min' => 1, // 0 or 1 (default 1)
+                        'insertButton' => '.add-item-table-element', // css class
+                        'deleteButton' => '.remove-item-table-element', // css class
+                        'model' => $elementTableHeadersModels[0],
+                        'formId' => 'element-form',
+                        'formFields' => [
+                            'header_name',
+                            'header_width',
+                        ],
+                    ]); 
+                    ?>
+                    <div style = "margin-bottom:10px">
+                        <label class="pull-left" style="font-size: inherit;" >Table Options</label>
+                        <div class="pull-right">
+                            <button type="button" class="add-item-table-element btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></button>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="container-items-table-element"><!-- widgetContainer -->
+                        <?php foreach ($elementTableHeadersModels as $i => $elementTableHeadersModel): ?>
+                            <div class="item-table-element panel panel-default"><!-- widgetBody -->
+                                <div class="panel-heading panel-heading-unset">
+                                    <div class="pull-right">
+                                        <button type="button" class="remove-item-table-element btn btn-danger btn-xs"><i class="glyphicon glyphicon-minus"></i></button>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="panel-body">
+                                    <?php
+                                        // necessary for update action.
+                                        if (! $elementTableHeadersModel->isNewRecord) {
+                                            echo Html::activeHiddenInput($elementTableHeadersModel, "[{$i}]id");
+                                        }
+                                    ?>
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <?= $form->field($elementTableHeadersModel, "[{$i}]header_name")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                                            <?= $form->field($elementTableHeadersModel, "[{$i}]header_width")->textInput([
+                                                                                                                        'type' => 'number',
+                                                                                                                        'class' => 'search-box form-control',
+                                                                                                                        'min' => 1,
+                                                                                                                        'step' => 1,
+                                                                                                                        'placeholder' => 'Enter a positive integer less than 100 e.g., 30'
+                                                                                                                        ])->hint('All header width inputs must sum to 100. If some widths are left unspecified, the remaining table columns will evenly share the leftover space.') ?>
                                         </div>
                                     </div>
                                 </div>

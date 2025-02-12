@@ -153,4 +153,15 @@ class Elements extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ElementBulletedList::class, ['element_id' => 'id']);
     }
+
+        /**
+     * Gets query for [[ElementTable]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElementTable()
+    {
+        return $this->hasOne(ElementTable::class, ['element_id' => 'id']);
+    }
+
 }

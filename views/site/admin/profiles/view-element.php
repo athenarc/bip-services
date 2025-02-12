@@ -284,5 +284,27 @@ $heading_type_view = [
                 ],
             ]);
         ?>
+    <?php elseif ($elementModel->type == "Table"): ?>
+        <h1><?= Html::encode('Table') ?></h1>
+        <?php 
+            echo DetailView::widget([
+                'model' => $elementTableModel, // Use the main model for the widget
+                'attributes' => [
+                    'title',
+                    $heading_type_view,
+                    'description:html',
+                    'hide_when_empty:boolean',
+                    [
+                        'label' => 'Table Headers',
+                        'value' => function ($model) use ($elementTableModel) {
+                            return implode('<br>', array_map(function ($headerModel) {
+                                return $headerModel->header_name . (isset($headerModel->header_width) ? " ({$headerModel->header_width}%)" : '');
+                            }, $elementTableModel->elementTableHeaders));
+                        },
+                        'format' => 'html', // Enables HTML rendering
+                    ],
+                ],
+            ]);
+        ?>
     <?php endif; ?>
 </div>
