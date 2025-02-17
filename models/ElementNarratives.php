@@ -40,7 +40,7 @@ class ElementNarratives extends \yii\db\ActiveRecord
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
             [['description'], 'string'],
-            [['title'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 1024],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['hide_when_empty'], 'boolean'],
             [['hide_when_empty'], 'default', 'value'=> false],

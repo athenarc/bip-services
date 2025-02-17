@@ -25,7 +25,7 @@ class ElementBulletedList extends \yii\db\ActiveRecord
         return [
             [['element_id'], 'integer'],
             
-            [['title'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 1024],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['description'], 'string'],
           
