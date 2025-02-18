@@ -21,8 +21,6 @@
                 <?= Html::encode($elem->title) ?>
             </<?= $headingType ?>>
 
-            <button id="new-item-btn" type="button" class="add-item btn btn-sm btn-custom-color pull-right">New item</button>
-
             <div style="text-align: justify; font-style: italic;">
                 <?= $elem->description ?>
                 <?php if (!empty($elem->elements_number) && $elem->edit_perm): ?>
@@ -39,7 +37,7 @@
 
         <div class="list-elements">
             
-            <div id="no-items-msg" class="alert alert-warning text-center" role="alert" >
+            <div id="no-items-msg" class="alert alert-warning text-center" role="alert" style="margin-bottom: 0px;" >
                     Information for this element is not currently provided by the researcher.
             </div>
             
@@ -64,6 +62,7 @@
                         <?php endforeach; ?>
                     </div>
                     <div class="status-bar">
+                            
                             <!-- Display Typing or Last Updated -->
                             <span class="status-message" 
                                 data-toggle="tooltip" 
@@ -75,6 +74,11 @@
                                     <?= !empty($elem->last_updated) ? CommonUtils::timeSinceUpdate($elem->last_updated) : 'No updates yet' ?>
                                 <?php endif; ?>
                             </span>
+
+                            <button id="new-item-btn" type="button" class="add-item btn btn-custom-color pull-right" title="Add list item">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </button>
+
                         </div>
             <?php else: ?>
                 <ul>

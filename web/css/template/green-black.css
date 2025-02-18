@@ -533,7 +533,7 @@ h3{
 }
 
 .status-bar {
-    padding: 5px; /* Padding for the div */
+    padding-top: 5px; /* Padding for the div */
     overflow: hidden; /* Clear floats */
     border-radius: 5px; /* Optional: rounded corners */
     cursor: default;
