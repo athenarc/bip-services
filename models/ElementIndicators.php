@@ -36,7 +36,6 @@ class ElementIndicators extends \yii\db\ActiveRecord
             [['indicator_id', 'element_id'], 'required'],
             [['indicator_id', 'element_id', 'semantics_order', 'indicator_order'], 'integer'],
             [['status'], 'string'], 
-            [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['indicator_id', 'element_id'], 'unique', 'targetAttribute' => ['indicator_id', 'element_id']],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
             [['indicator_id'], 'exist', 'skipOnError' => true, 'targetClass' => Indicators::class, 'targetAttribute' => ['indicator_id' => 'id']],
