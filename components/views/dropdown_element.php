@@ -16,7 +16,7 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
     <?php if (!$elem->edit_perm): ?>
         <?php if (!empty($elem->option_id) || !$elem->hide_when_empty): ?>
             <<?= $headingType ?>>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"> <?= $elem->title ?> <small><i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></small></span>
+                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"> <?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
             </<?= $headingType ?>>
         <?php endif; ?>
 
