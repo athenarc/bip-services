@@ -559,3 +559,7 @@ h3{
     color: var(--main-color);
 }
 
+table.element-table > thead {
+    background-image: url(../../img/crossword.png);
+}
+

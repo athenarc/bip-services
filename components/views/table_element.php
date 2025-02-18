@@ -26,8 +26,8 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
 
         <?php if (!empty($elem->table_data)): ?>
             <div class="panel panel-default table-responsive dynamic-table-panel">
-                <table class="table table-hover table-bordered dynamic-table">
-                    <thead style = "background: linear-gradient(to bottom, #fff 0%, #eee 100%);">
+                <table class="table table-hover table-bordered dynamic-table element-table">
+                    <thead>
                         <tr>
                             <?php foreach ($elem->table_headers as $header => $header_width): ?>
                                 <th width = "<?= isset($header_width) ? $header_width . '%' : '' ?>"><?= $header ?></th>
@@ -71,14 +71,14 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
 
         <div class="panel panel-default table-responsive dynamic-table-panel">
 
-            <table class="table table-hover dynamic-table" data-element-id="<?= $elem->element_id?>" data-max-rows="<?= $elem->max_rows?>">
-                <thead style = "background: linear-gradient(to bottom, #fff 0%, #eee 100%);">
+            <table class="table table-hover dynamic-table element-table" data-element-id="<?= $elem->element_id?>" data-max-rows="<?= $elem->max_rows?>">
+                <thead>
                     <tr>
                         <?php $header_action_width = 8;
                         foreach ($elem->table_headers as $header => $header_width): ?>
                             <th width = "<?= isset($header_width) ? $header_width*(100-$header_action_width)/100 . '%' : '' ?>"><?= $header ?></th>
                         <?php endforeach; ?>
-                        <th style="width: <?=  $header_action_width ?>%">Actions</th>
+                        <th style="width: <?=  $header_action_width ?>%"></th>
                     </tr>
                 </thead>
                 <tbody>
