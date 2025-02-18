@@ -95,13 +95,16 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
                 </tbody>
             </table>
 
-            <div style="padding: 10px; border-top: 1px solid #ddd;">
-                <button type="button" class="btn btn-success add-table-row"><i class="fas fa-plus"></i> Add New</button> 
-                <!-- <button type="button" class="btn btn-primary save-element-table"><i class="fas fa-save"></i> Save</button> -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-top: 1px solid #ddd;">
                 <span class="status-bar">
-                    <span class="status-message" style = "float: none;"><?= CommonUtils::timeSinceUpdate($elem->last_updated) ?></span>
+                    <span class="status-message"><?= CommonUtils::timeSinceUpdate($elem->last_updated) ?></span>
                 </span>
+                
+                <button type="button" class="btn btn-custom-color add-table-row">
+                    <i class="fas fa-plus"></i> Add
+                </button> 
             </div>
+
         </div>
 
     <?php endif; ?>

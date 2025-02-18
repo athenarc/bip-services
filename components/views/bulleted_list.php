@@ -76,7 +76,7 @@
                             </span>
 
                             <button id="new-item-btn" type="button" class="add-item btn btn-custom-color pull-right" title="Add list item">
-                                <i class="glyphicon glyphicon-plus"></i>
+                                <i class="fas fa-plus"></i> Add</i>
                             </button>
 
                         </div>
