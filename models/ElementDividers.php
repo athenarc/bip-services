@@ -40,7 +40,7 @@ class ElementDividers extends \yii\db\ActiveRecord
             [['top_padding', 'bottom_padding'], 'string', 'max' => 50],
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
-            [['show_top_hr', 'show_bottom_hr'], 'boolean'],
+            [['show_top_hr', 'show_bottom_hr', 'show_description_tooltip'], 'boolean'],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
         ];
     }
@@ -60,6 +60,7 @@ class ElementDividers extends \yii\db\ActiveRecord
             'bottom_padding' => 'Bottom padding (px)',
             'show_top_hr' => 'Show top rule',
             'show_bottom_hr' => 'Show bottom rule',
+            'show_description_tooltip' => 'Show description as a tooltip',
         ];
     }
 

@@ -472,6 +472,7 @@ use yii\helpers\ArrayHelper;
                         'title' => $element["config"]->title,
                         'heading_type' => $element["config"]->heading_type,
                         'description' => $element["config"]->description,
+                        'show_description_tooltip' => $element["config"]->show_description_tooltip,
                         'top_padding' => $element["config"]->top_padding,
                         'bottom_padding' => $element["config"]->bottom_padding,
                         'show_top_hr' => $element["config"]->show_top_hr,

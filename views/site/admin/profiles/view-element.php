@@ -231,6 +231,7 @@ $heading_type_view = [
                 'title',
                 $heading_type_view,
                 'description:html',
+                'show_description_tooltip:boolean',
                 'top_padding:integer',
                 'bottom_padding:integer',
                 'show_top_hr:boolean',

@@ -419,6 +419,7 @@ $section_profiles = ($section === "profiles");
                     'h6' => 'H6',
                 ], ['prompt' => 'Select header size']) ?>
                 <?= $form->field($elementDividersFormModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']); ?>
+                <?= $form->field($elementDividersFormModel, 'show_description_tooltip')->checkbox([ 'checked' => true ]) ?>
 
                 <h3>Padding</h3>
                 <?= $form->field($elementDividersFormModel, 'top_padding')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
@@ -443,7 +444,10 @@ $section_profiles = ($section === "profiles");
                         'value' => $elementDividersModel->heading_type, // Pre-select saved value
                     ]) ?>
                     <?= $form->field($elementDividersFormModel, 'description')->textarea(['value' => $elementDividersModel->description, 'rows' => 6, 'class' => 'rich_text_area_admin']); ?>
-
+                    <?= $form->field($elementDividersFormModel, 'show_description_tooltip')->checkbox([
+                        'checked' => $elementDividersModel->show_description_tooltip ? true : false,
+                    ]) ?>
+                
                     <h3>Padding</h3>
                     <?= $form->field($elementDividersFormModel, 'top_padding')->textInput(['value' => $elementDividersModel->top_padding, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
 

@@ -2027,8 +2027,9 @@ class SiteController extends Controller
                             $elementDividersModel = new ElementDividers();
                             $elementDividersModel->element_id = $elementModel->id;
                             $elementDividersModel->title = $elementDividersFormModel->title;
-                            $elementDividersModel->description = $elementDividersFormModel->description;
                             $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
+                            $elementDividersModel->description = $elementDividersFormModel->description;
+                            $elementDividersModel->show_description_tooltip = $elementDividersFormModel->show_description_tooltip;
                             $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
@@ -2155,7 +2156,6 @@ class SiteController extends Controller
         $elementTableModel = $elementModel->elementTable;
         $elementTableHeadersModels = $elementTableModel->elementTableHeaders ?? null;
         $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
-
         $elementIndicatorsFormModel = new ElementIndicatorsForm();
         $elementNarrativesFormModel = new ElementNarrativesForm();
         $elementDividersFormModel = new ElementDividersForm();
@@ -2243,8 +2243,9 @@ class SiteController extends Controller
                     case 'Section Divider':
                         if ($elementDividersFormModel->load($this->request->post())) {
                             $elementDividersModel->title = $elementDividersFormModel->title;
-                            $elementDividersModel->description = $elementDividersFormModel->description;
                             $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
+                            $elementDividersModel->description = $elementDividersFormModel->description;
+                            $elementDividersModel->show_description_tooltip = $elementDividersFormModel->show_description_tooltip;
                             $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;

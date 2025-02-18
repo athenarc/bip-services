@@ -347,10 +347,12 @@ $this->title = 'BIP! Services - Scholar';
                                 'title' => $element["config"]->title,
                                 'heading_type' => $element["config"]->heading_type,
                                 'description' => $element["config"]->description,
+                                'show_description_tooltip' => $element['config']->show_description_tooltip,
                                 'top_padding' => $element["config"]->top_padding,
                                 'bottom_padding' => $element["config"]->bottom_padding,
                                 'show_top_hr' => $element["config"]->show_top_hr,
                                 'show_bottom_hr' => $element["config"]->show_bottom_hr,
+                                'edit_perm' => $edit_perm,
                             ]);
                             break;
                         case "Bulleted List":
