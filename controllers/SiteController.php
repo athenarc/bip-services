@@ -1731,7 +1731,7 @@ class SiteController extends Controller
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
         $elementsDataProvider->pagination = false;
-        
+
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
 
         if ($this->request->isPost && $templateModel->load($this->request->post()) && $templateModel->save()) {
@@ -2027,6 +2027,7 @@ class SiteController extends Controller
                             $elementDividersModel = new ElementDividers();
                             $elementDividersModel->element_id = $elementModel->id;
                             $elementDividersModel->title = $elementDividersFormModel->title;
+                            $elementDividersModel->description = $elementDividersFormModel->description;
                             $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
                             $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
@@ -2242,6 +2243,7 @@ class SiteController extends Controller
                     case 'Section Divider':
                         if ($elementDividersFormModel->load($this->request->post())) {
                             $elementDividersModel->title = $elementDividersFormModel->title;
+                            $elementDividersModel->description = $elementDividersFormModel->description;
                             $elementDividersModel->heading_type = $elementDividersFormModel->heading_type;
                             $elementDividersModel->top_padding = $elementDividersFormModel->top_padding;
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;

@@ -35,6 +35,7 @@ class ElementDividers extends \yii\db\ActiveRecord
     {
         return [
             [['title'], 'string', 'max' => 1024],
+            [['description'], 'string'],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['top_padding', 'bottom_padding'], 'string', 'max' => 50],
             [['element_id'], 'required'],
@@ -53,6 +54,7 @@ class ElementDividers extends \yii\db\ActiveRecord
             'id' => 'ID',
             'element_id' => 'Element ID',
             'title' => 'Title',
+            'description' => 'Description',
             'heading_type' => 'Header size',
             'top_padding' => 'Top padding (px)',
             'bottom_padding' => 'Bottom padding (px)',

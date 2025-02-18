@@ -22,6 +22,10 @@ $showBottomHr = isset($elem->show_bottom_hr) ? $elem->show_bottom_hr : false;
         <<?= $headingType ?>><?= $headingText ?></<?= $headingType ?>>
     <?php endif; ?>
 
+    <?php if (isset($elem->description)): ?>
+        <?= $elem->description ?>
+    <?php endif; ?>
+
     <?php if ($showBottomHr): ?>
         <hr>
     <?php endif; ?>

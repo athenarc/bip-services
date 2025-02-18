@@ -346,6 +346,7 @@ $this->title = 'BIP! Services - Scholar';
                                 'element_id' => $element["element_id"],
                                 'title' => $element["config"]->title,
                                 'heading_type' => $element["config"]->heading_type,
+                                'description' => $element["config"]->description,
                                 'top_padding' => $element["config"]->top_padding,
                                 'bottom_padding' => $element["config"]->bottom_padding,
                                 'show_top_hr' => $element["config"]->show_top_hr,

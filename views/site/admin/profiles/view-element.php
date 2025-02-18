@@ -230,6 +230,7 @@ $heading_type_view = [
             'attributes' => [
                 'title',
                 $heading_type_view,
+                'description:html',
                 'top_padding:integer',
                 'bottom_padding:integer',
                 'show_top_hr:boolean',

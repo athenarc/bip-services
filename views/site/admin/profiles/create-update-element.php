@@ -418,6 +418,7 @@ $section_profiles = ($section === "profiles");
                     'h5' => 'H5',
                     'h6' => 'H6',
                 ], ['prompt' => 'Select header size']) ?>
+                <?= $form->field($elementDividersFormModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']); ?>
 
                 <h3>Padding</h3>
                 <?= $form->field($elementDividersFormModel, 'top_padding')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
@@ -441,6 +442,7 @@ $section_profiles = ($section === "profiles");
                         'prompt' => 'Select header size',
                         'value' => $elementDividersModel->heading_type, // Pre-select saved value
                     ]) ?>
+                    <?= $form->field($elementDividersFormModel, 'description')->textarea(['value' => $elementDividersModel->description, 'rows' => 6, 'class' => 'rich_text_area_admin']); ?>
 
                     <h3>Padding</h3>
                     <?= $form->field($elementDividersFormModel, 'top_padding')->textInput(['value' => $elementDividersModel->top_padding, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>

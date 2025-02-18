@@ -12,6 +12,7 @@ class SectionDivider extends Widget
     public $element_id;
     public $title;
     public $heading_type;
+    public $description;
     public $top_padding;
     public $bottom_padding;
     public $show_top_hr;
