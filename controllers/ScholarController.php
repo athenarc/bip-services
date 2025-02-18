@@ -230,9 +230,8 @@ class ScholarController extends Controller
             if ($template->isHidden()) {
             
                 // Set a flash message for the hidden template
-                Yii::$app->session->setFlash('hiddenTemplate', "Note: You are viewing a draft template that is still under development.");
+                Yii::$app->session->setFlash('hiddenTemplate', "Note: You are viewing a hidden academic profile template. This template may be available for experimental purposes.");
             }
-            
             
         } else {
 

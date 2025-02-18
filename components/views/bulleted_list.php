@@ -38,7 +38,7 @@
         <div class="list-elements">
             
             <div id="no-items-msg" class="alert alert-warning text-center" role="alert" style="margin-bottom: 0px;" >
-                    Information for this element is not currently provided by the researcher.
+                The researcher has not yet provided input for this element. 
             </div>
             
             <?php if ($elem->edit_perm): ?>

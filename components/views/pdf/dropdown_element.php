@@ -26,7 +26,7 @@ use yii\helpers\Html;
         <?php else: ?>
             <?php if (!$elem->hide_when_empty): ?>
                 <div class="alert alert-warning" role="alert">
-                    Information for this element is not currently provided by the researcher.
+                    The researcher has not yet provided input for this element. 
                 </div>
             <?php endif ?>
         <?php endif; ?>
