@@ -1656,6 +1656,8 @@ class SiteController extends Controller
         $searchElementsModel = new ElementsSearch();
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
+        $elementsDataProvider->pagination = false;
+
         $user_id = Yii::$app->user->id;
         $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
@@ -1728,7 +1730,8 @@ class SiteController extends Controller
         $searchElementsModel = new ElementsSearch();
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
-
+        $elementsDataProvider->pagination = false;
+        
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
 
         if ($this->request->isPost && $templateModel->load($this->request->post()) && $templateModel->save()) {
