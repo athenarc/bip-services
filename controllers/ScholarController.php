@@ -317,7 +317,7 @@ class ScholarController extends Controller
         //populate profile template categories dropdown
         $templateDropdownData = [];
 
-        if ($template->isHidden()) {
+        if ($template !== null && $template->isHidden()) {
             // Only include the current template in the dropdown if it's hidden
             $templateDropdownData[$template->url_name] = $template->name . ' (Hidden)';
         } else {
@@ -326,83 +326,84 @@ class ScholarController extends Controller
         }
 
         $template_elements = [];
+        if ($template !== null && isset($template->elements)) {
+            foreach($template->elements as $element) {
 
-        foreach($template->elements as $element) {
+                $config = [];
 
-            $config = [];
+                switch($element->type) {
+                    case "Facets":
+                        $config = ElementFacets::getConfigFacet($element->id);
+                        break;
 
-            switch($element->type) {
-                case "Facets":
-                    $config = ElementFacets::getConfigFacet($element->id);
-                    break;
+                    case "Indicators":
+                        $config = ElementIndicators::getConfigIndicator($element->id);
+                        break;
 
-                case "Indicators":
-                    $config = ElementIndicators::getConfigIndicator($element->id);
-                    break;
+                    case "Contributions List":
+                        $config = ElementContributions::getConfigContributions($element->id);
+                        // sort parameter from Contributions List config
+                        $sort_config = $config["sort"] ?? null;
+                        $show_pagination_config = $config["show_pagination"] ?? null;
+                        $top_k_config = $config["top_k"] ?? null;
+                        $page_size_config = $config["page_size"] ?? null;
+                        break;
 
-                case "Contributions List":
-                    $config = ElementContributions::getConfigContributions($element->id);
-                    // sort parameter from Contributions List config
-                    $sort_config = $config["sort"] ?? null;
-                    $show_pagination_config = $config["show_pagination"] ?? null;
-                    $top_k_config = $config["top_k"] ?? null;
-                    $page_size_config = $config["page_size"] ?? null;
-                    break;
+                    case "Section Divider":
+                        $config = ElementDividers::getConfigDivider($element->id);
+                        break;
 
-                case "Section Divider":
-                    $config = ElementDividers::getConfigDivider($element->id);
-                    break;
+                    case "Dropdown":
+                        $config = ElementDropdown::getConfigDropdown($element->id, $template->id, $researcher->user_id);
+                        break;
 
-                case "Dropdown":
-                    $config = ElementDropdown::getConfigDropdown($element->id, $template->id, $researcher->user_id);
-                    break;
-
-                case "Narrative":
-                    $config = ElementNarratives::getConfigNarrative($element->id, $template->id, $researcher->user_id);
-                    $clean_text = CommonUtils::cleanText($config->value);
-                    $text_value = 0;
-                    $limit_status = null;
-                    if ($config->limit_value) {
-                        if ($config->limit_type == ElementNarratives::TYPE_WORDS) {
-                            $text_value = str_word_count($clean_text);
-                        } elseif ($config->limit_type == ElementNarratives::TYPE_CHARACTERS) {
-                            $text_value = mb_strlen($clean_text);
-                        }
-                    }
-                    if ($config->limit_value && $text_value > $config->limit_value) {
-                        $limit_status = "Your text is over the limit of {$config->limit_value} {$config->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
-                    }
-                    if (!$edit_perm) {
-                        if ($text_value > $config->limit_value) {
-                            if  ($config->hide_when_empty) {
-                                unset($config);
-                            }
-                            else {
-                                $config->value = '<div class="alert alert-warning" role="alert">This narrative is not displayed since it exceeds the limit set by the template.</div>';
+                    case "Narrative":
+                        $config = ElementNarratives::getConfigNarrative($element->id, $template->id, $researcher->user_id);
+                        $clean_text = CommonUtils::cleanText($config->value);
+                        $text_value = 0;
+                        $limit_status = null;
+                        if ($config->limit_value) {
+                            if ($config->limit_type == ElementNarratives::TYPE_WORDS) {
+                                $text_value = str_word_count($clean_text);
+                            } elseif ($config->limit_type == ElementNarratives::TYPE_CHARACTERS) {
+                                $text_value = mb_strlen($clean_text);
                             }
                         }
-                    }
-                    break;
-                case 'Bulleted List':
-                    $config = ElementBulletedList::getConfig($element->id, $template->id, $researcher->user_id);
-                    break;
+                        if ($config->limit_value && $text_value > $config->limit_value) {
+                            $limit_status = "Your text is over the limit of {$config->limit_value} {$config->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
+                        }
+                        if (!$edit_perm) {
+                            if ($text_value > $config->limit_value) {
+                                if  ($config->hide_when_empty) {
+                                    unset($config);
+                                }
+                                else {
+                                    $config->value = '<div class="alert alert-warning" role="alert">This narrative is not displayed since it exceeds the limit set by the template.</div>';
+                                }
+                            }
+                        }
+                        break;
+                    case 'Bulleted List':
+                        $config = ElementBulletedList::getConfig($element->id, $template->id, $researcher->user_id);
+                        break;
 
-                case "Table":
-                    $config = ElementTable::getConfigTable($element->id, $template->id, $researcher->user_id);
-                    break;
-                default:
-                    throw new \yii\base\Exception("Unknown element type: " . $element->type);                    
-            }
+                    case "Table":
+                        $config = ElementTable::getConfigTable($element->id, $template->id, $researcher->user_id);
+                        break;
+                    default:
+                        throw new \yii\base\Exception("Unknown element type: " . $element->type);                    
+                }
 
-            // add config for new element
-            if (isset($config)) {
-                $template_elements[] = [
-                    'element_id' => $element->id,
-                    'type' => $element->type,
-                    'name' => $element->name,
-                    'config' => $config,
-                    'limit_status' => isset($limit_status) ? $limit_status : ''
-                ];
+                // add config for new element
+                if (isset($config)) {
+                    $template_elements[] = [
+                        'element_id' => $element->id,
+                        'type' => $element->type,
+                        'name' => $element->name,
+                        'config' => $config,
+                        'limit_status' => isset($limit_status) ? $limit_status : ''
+                    ];
+                }
             }
         }
 
