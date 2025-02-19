@@ -112,18 +112,4 @@ $(document).ready(function() {
         submit_scholar_form();
 
     });
-
-    $('#templates-dropdown').on('change', function(){
-
-        let template_url_name = $('#templates-dropdown').val();
-
-        if (template_url_name){
-            let default_action = $('#templates-dropdown-form').attr('action')
-            $('#templates-dropdown-form').attr('action', default_action + "/" + template_url_name);
-        }
-
-        $("#templates-dropdown-form").submit();
-
-    });
-
 });

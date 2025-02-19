@@ -563,3 +563,33 @@ table.element-table > thead {
     background-image: url(../../img/crossword.png);
 }
 
+/* second navbar related stuff */
+
+.second-navbar {
+    background-image: url(../../img/crossword.png);
+    margin-top: 50px; /* Adjust this value to match your first navbar's height */
+    z-index: 2;
+    font-size: 1.3em;
+}
+
+#template-dropdown .category-item > a {
+    font-weight: bold;
+    cursor: default;
+    text-decoration: none;
+    pointer-events: none; /* Prevents clicking */
+    color: var(--darker-color);
+}
+
+#template-dropdown .dropdown-header > a {
+    text-align: left;
+    font-weight: normal;
+    cursor: pointer;
+    text-decoration: none;
+    display: block; /* Makes the whole row clickable */
+    padding: 5px;
+}
+
+#template-dropdown .dropdown-header > a:hover {
+    background-color: var(--transparent-color); /* Light gray background */
+    color: var(--darker-color) !important; 
+}

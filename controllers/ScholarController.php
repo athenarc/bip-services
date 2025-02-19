@@ -226,12 +226,6 @@ class ScholarController extends Controller
             if(!$template){
                 throw new \yii\web\NotFoundHttpException("BIP! Scholar Template Not Found");
             }
-
-            if ($template->isHidden()) {
-            
-                // Set a flash message for the hidden template
-                Yii::$app->session->setFlash('hiddenTemplate', "Note: You are viewing a hidden academic profile template. This template may be available for experimental purposes.");
-            }
             
         } else {
 
@@ -313,18 +307,7 @@ class ScholarController extends Controller
         // $cv_narrative_works = [];
         // $cv_narratives = [];
         // $public_cv_narratives_count = '';
-
-        //populate profile template categories dropdown
-        $templateDropdownData = [];
-
-        if ($template !== null && $template->isHidden()) {
-            // Only include the current template in the dropdown if it's hidden
-            $templateDropdownData[$template->url_name] = $template->name . ' (Hidden)';
-        } else {
-            // Otherwise, fetch all visible templates
-            $templateDropdownData = ProfileTemplateCategories::getTemplateDropdownData();
-        }
-
+        
         $template_elements = [];
         if ($template !== null && isset($template->elements)) {
             foreach($template->elements as $element) {
@@ -534,7 +517,7 @@ class ScholarController extends Controller
 
             'template_elements' => $template_elements,
             'template' => $template,
-            'templateDropdownData' => $templateDropdownData,
+            'templateDropdownData' => ProfileTemplateCategories::getTemplateDropdownData(),
             'template_url_name' => $template_url_name,
         ];
 
