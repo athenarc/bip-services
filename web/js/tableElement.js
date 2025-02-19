@@ -127,6 +127,7 @@ $(document).ready(function () {
             table.find('tbody').append(newRow);
 
             updateAddRowButton(table);
+            saveTableInstance(table)
 
         }
 
