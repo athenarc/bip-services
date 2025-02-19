@@ -4,6 +4,11 @@
     --lighter-color: #94d194;
     --transparent-color: #439d444d;
 }
+
+html {
+    scroll-behavior: smooth; /* adds smooth schrolling when using ancor links */
+}
+
 /* Buttons... */
 .text-custom-color {
     color: var(--main-color);
@@ -561,6 +566,10 @@ h3{
 
 table.element-table > thead {
     background-image: url(../../img/crossword.png);
+}
+
+.no-underline {
+    text-decoration: none !important;
 }
 
 /* second navbar related stuff */

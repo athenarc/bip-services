@@ -77,7 +77,7 @@ AppAsset::register($this);
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Open data', 'url' => ['site/data']],
             ['label' => 'Indicators', 'url' => ['site/indicators']],
-            // ['label' => 'Help', 'url' => ['/site/help']],
+            ['label' => 'Help', 'url' => ['/site/help']],
             [
                 'label' => 'Admin', 'url' => ['/site/admin-overview'], 
                 'active' => in_array(Yii::$app->controller->action->getUniqueId() , ["site/admin-overview", "site/admin-spaces"]),
