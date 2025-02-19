@@ -271,7 +271,7 @@ class ScholarController extends Controller
             $researcher_exists = Researcher::findOne([ 'orcid' => $response->orcid ]);
             if (!isset($researcher_exists)) {
                 $researcher = Researcher::add($user_id, $response->orcid, $response->access_token, $response->name);
-                $this->redirect(['scholar/profile/' . $researcher->orcid]);
+                return $this->redirect(['scholar/profile/' . $researcher->orcid]);
             }
         }
 
