@@ -572,6 +572,10 @@ table.element-table > thead {
     font-size: 1.3em;
 }
 
+#template-dropdown {
+    margin-left: -15px;
+}
+
 #template-dropdown .category-item > a {
     font-weight: bold;
     cursor: default;
