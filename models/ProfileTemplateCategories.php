@@ -57,18 +57,10 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
 
     public function getTemplateDropdownData() {
         
-        $template_categories = ProfileTemplateCategories::find()
-            ->where([ 'visible' => true ])
+        return ProfileTemplateCategories::find([ 'id', 'name', 'visible' ])
             ->with(['templates' => function ($query) {
                 $query->andWhere(['visible' => true]);
             }])->all();
-
-        $dropdownData = [];
-
-        foreach ($template_categories as $category) {
-            $dropdownData[$category->name] = ArrayHelper::map($category->templates, 'url_name', 'name');
-        }
-
-        return $dropdownData;
+            
     }
 }

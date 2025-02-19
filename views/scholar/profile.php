@@ -20,6 +20,7 @@ use app\components\DropdownElement;
 use app\components\SectionDivider;
 use app\components\BulletedList;
 use app\components\TableElement;
+use app\components\ScholarNavbar;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
 
@@ -57,6 +58,11 @@ $this->title = 'BIP! Services - Scholar';
 <!-- Latest compiled and minified JavaScript -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script> -->
 
+<?php
+use yii\bootstrap\Nav;
+use yii\bootstrap\NavBar;
+?>
+
 <?php if (!isset($researcher->orcid)): ?>
 
     <div class="container-fluid">
@@ -90,6 +96,14 @@ $this->title = 'BIP! Services - Scholar';
     
     <?php $this->title = 'BIP! Scholar - ' . $researcher->name; ?>
 
+    <!-- Second Navbar -->
+    <?= ScholarNavbar::widget([
+        'template' => $template,
+        'templateDropdownData' => $templateDropdownData,
+        'researcher' => $researcher,
+        'edit_perm' => $edit_perm,
+    ]) ?>
+
     <?php
         // Avoid errors from trying to render the full view.
         // In controller we don't calculate all respective view variables,
@@ -98,14 +112,6 @@ $this->title = 'BIP! Services - Scholar';
         if (true): ?>
 
         <div class="container-fluid">
-
-                <!-- show note when template is hidden -->
-                <?php if (Yii::$app->session->hasFlash('hiddenTemplate')): ?>
-                    <div class="alert alert-warning" style="margin-bottom: 0" role="alert">
-                        <?= Yii::$app->session->getFlash('hiddenTemplate') ?>
-                    </div>
-                <?php endif; ?>
-
             <?php ActiveForm::begin(['id' => 'scholar-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'GET', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])]); ?>
             <?php ActiveForm::end(); ?>
             <div class="row">
@@ -114,27 +120,7 @@ $this->title = 'BIP! Services - Scholar';
                         <div class="row">
                             <div class="col-xs-12 col-sm-7">
                                 <div class="d-flex" style="align-items: center; flex-wrap: wrap;">
-                                    <?php if ($edit_perm): ?>
-                                        <span class="mr-10">
-                                            <?php if ($researcher->is_public): ?>
-                                                <i
-                                                    id="profile-visibility-toggle"
-                                                    class="fas fa-lock-open grey-text"
-                                                    title="This profile is publicly visible (Switch to Private Profile)."
-                                                    data-toggle="tooltip"
-                                                    style="font-size: 20px; cursor: pointer;">
-                                                </i>
-                                            <?php else: ?>
-                                                <i
-                                                    id="profile-visibility-toggle"
-                                                    class="fas fa-lock grey-text"
-                                                    title="This profile is only visible to you (Switch to Public Profile)."
-                                                    data-toggle="tooltip"
-                                                    style="font-size: 20px; cursor: pointer;">
-                                                </i>
-                                            <?php endif; ?>
-                                        </span>
-                                    <?php endif; ?>
+                                    
                                     
                                     <span class="mr-5">
                                         <?= $researcher->name ?>
@@ -151,47 +137,12 @@ $this->title = 'BIP! Services - Scholar';
                             </div>
                             
                             <div class="col-xs-12 col-sm-5 text-right">
-                                <?php 
-                                    if (!empty($templateDropdownData)):
-                                        ActiveForm::begin(['id' => 'templates-dropdown-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'POST', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid])]);
-                                ?>
-                                        <span><small>Template:</small></span>
-                                        <?= Html::dropDownList('template_url_name', $template->url_name, $templateDropdownData, [
-                                            'prompt' => 'Select template',
-                                            'class' => 'form-control templates-dropdown',
-                                            'id' => 'templates-dropdown',
-                                            'style' => 'display: inline-block; width: auto;'
-                                        ]); ?>
-                                
-                                <?php 
-                                        ActiveForm::end(); 
-                                    endif;
-                                ?>
-                            </div>
-                        </div>
-                        
-                        <?php if ($edit_perm): ?>
-                        <div class="row">
-                            <div class="col-xs-8">
-                                <small>Template language: <?= Yii::$app->params['languages'][$template->language] ?? 'Unknown' ?></small>
-                            </div>
-                            <div class="col-xs-4 text-right">
-                                <a href="<?= Url::to(['site/settings']) ?>"><small><i class="fa fa-gears light-grey-link" aria-hidden="true" title="Settings"></i></small></a>
-                                <a 
-                                    id='pdf-download-link' 
-                                    onclick="animatePdfExportIcon(event)"
-                                    href="<?= Url::to(['scholar/export-pdf', 'orcid'=>$researcher->orcid, 'template_url_name'=>$template->url_name] ) ?>"
-                                >
-                                    <small><i class="fa fa-file-pdf light-grey-link" aria-hidden="true" title="Export"></i></small>
-                                </a>
-                                
-                                <!-- show spinner when pdf link is clicked -->
-                                <small id="loading-spinner" style="display: none;">
-                                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                 <!-- show spinner when pdf link is clicked -->
+                                 <small id="loading-spinner" style="display: none;">
+                                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Exporting PDF
                                 </small>
                             </div>
                         </div>
-                        <?php endif; ?>
                     </h1>
                 </div>
                 <?php /*

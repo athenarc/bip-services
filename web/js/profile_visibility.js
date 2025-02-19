@@ -31,12 +31,14 @@ function toggleProfileVisibility(isPublic, callback) {
 }
 
 function updateLockIcon(isPublic) {
-    var newClass = isPublic ? 'fa-lock' : 'fa-lock-open';
-    var newTitle = isPublic ? 'This profile is only visible to you (Switch to Public Profile).' : 'This profile is publicly visible (Switch to Private Profile).';
+    var newClass = isPublic ? 'fa-lock-open' : 'fa-lock';
+    var colorClass = isPublic ? 'light-grey-link' : 'text-warning';
+    var newTitle = isPublic ? 'This profile is publicly visible (Switch to Private Profile).' : 'This profile is only visible to you (Switch to Public Profile).';
 
     $('#profile-visibility-toggle')
-        .removeClass('fa-lock fa-lock-open')
+        .removeClass('fa-lock fa-lock-open light-grey-link text-warning')
         .addClass(newClass)
+        .addClass(colorClass)
         .attr('title', newTitle);
 
     $("#profile-visibility-text").text(isPublic ? "Public" : "Private");
@@ -53,7 +55,7 @@ $(document).ready(function() {
     $('#profile-visibility-toggle').click(function() {
         var isPublic = $(this).hasClass('fa-lock');
         toggleProfileVisibility(isPublic, function() {
-            updateLockIcon(!isPublic);
+            updateLockIcon(isPublic);
         });
     });
 });
