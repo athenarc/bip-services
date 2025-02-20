@@ -194,6 +194,32 @@ class ScholarController extends Controller
         ]);
     }
 
+    public function actionMyprofile($template_url_name = null) {
+
+        $user_id = Yii::$app->user->id;
+
+        // redirect to login page, if not already logged in
+        if (!isset($user_id)) {
+            Url::remember();
+            return $this->redirect(['site/login']);
+        }
+
+        $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
+
+        // append orcid if the user has scholar profile
+        $redirect_url = 'scholar/profile/';
+        if ($researcher) {
+            $redirect_url .= $researcher->orcid;
+        }
+
+        // append template name if provided
+        if (isset($template_url_name)) {
+            $redirect_url .= '/' . $template_url_name;
+        }
+
+        return $this->redirect([$redirect_url]);
+    }
+
     public function actionProfile($orcid = null, $template_url_name = null, $for_print = false/*, $cv_narrative_id = null*/) {
 
         $researcher = null;

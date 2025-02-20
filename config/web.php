@@ -123,6 +123,9 @@ $config = [
                 'scholar' => 'scholar/index',
                 'scholar/profile/<orcid>' => 'scholar/profile',
                 'scholar/profile/<orcid>/<template_url_name>' => 'scholar/profile',
+                
+                'scholar/myprofile' => 'scholar/myprofile',
+                'scholar/myprofile/<template_url_name>' => 'scholar/myprofile',
 
                 // readings pages
                 'readings' => 'readings/index',
