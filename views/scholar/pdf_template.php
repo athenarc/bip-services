@@ -396,34 +396,34 @@ use yii\helpers\ArrayHelper;
                     </div>
                     <?php break;
 
-                    case "Indicators":
-                        echo IndicatorsItem::widget([
-                            'works_num' => $result["papers_num"],
-                            'missing_papers_num' => count($missing_papers),
-                            'facets_selected' => $facets_selected,
-                            'popular_works_count' => $popular_works_count,
-                            'influential_works_count' => $influential_works_count,
-                            'citations' => $citations,
-                            'popularity' => $popularity,
-                            'influence' => $influence,
-                            'impulse' => $impulse,
-                            'h_index' => $h_index,
-                            'i10_index' => $i10_index,
-                            'academic_age' => $academic_age,
-                            'paper_min_year' => $paper_min_year,
-                            'responsible_academic_age' => $responsible_academic_age,
-                            'rag_data' => $rag_data,
-                            'papers_num' => $papers_num,
-                            'datasets_num' => $datasets_num,
-                            'software_num' => $software_num,
-                            'other_num' => $other_num,
-                            'openness' => $openness,
-                            'current_cv_narrative' => null,
-                            'element_config' => $element["config"],
-                            'for_print'=> true
-                        ]);
+                case "Indicators":
+                    echo IndicatorsItem::widget([
+                        'works_num' => $result["papers_num"],
+                        'missing_papers_num' => count($missing_papers),
+                        'facets_selected' => $facets_selected,
+                        'popular_works_count' => $popular_works_count,
+                        'influential_works_count' => $influential_works_count,
+                        'citations' => $citations,
+                        'popularity' => $popularity,
+                        'influence' => $influence,
+                        'impulse' => $impulse,
+                        'h_index' => $h_index,
+                        'i10_index' => $i10_index,
+                        'academic_age' => $academic_age,
+                        'paper_min_year' => $paper_min_year,
+                        'responsible_academic_age' => $responsible_academic_age,
+                        'rag_data' => $rag_data,
+                        'papers_num' => $papers_num,
+                        'datasets_num' => $datasets_num,
+                        'software_num' => $software_num,
+                        'other_num' => $other_num,
+                        'openness' => $openness,
+                        'current_cv_narrative' => null,
+                        'element_config' => $element["config"],
+                        'for_print'=> true
+                    ]);
 
-                        break;
+                    break;
 
                 case "Contributions List":?>
                     <div class="contributions">
@@ -458,7 +458,7 @@ use yii\helpers\ArrayHelper;
                         <?php else: ?>
                             <?php if (!$element["config"]->hide_when_empty): ?>
                                 <div class="alert alert-warning" role="alert">
-                                    <strong>Holy BIP!</strong> Information for this narrative is not currently provided by the user.
+                                    The researcher has not yet provided input for this element.
                                 </div>
                             <?php endif ?>
                         <?php endif; ?>
