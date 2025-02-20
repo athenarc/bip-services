@@ -637,9 +637,9 @@ class SiteController extends Controller
         {
             //Now send user mail
             Yii::$app->mailer->compose('passwordReset', ['username' => $username,'token' => $token])
-            ->setFrom(['diwis@imis.athena-innovation.gr' /*'ilias.kanellos@imis.athena-innovation.gr'*/ => 'Bip! Finder'])
+            ->setFrom([Yii::$app->params['adminEmail'] => 'Bip! Services'])
             ->setTo($email)
-            ->setSubject('Password Reset on BIP! Finder')
+            ->setSubject('Password Reset on BIP! Services')
             ->send();
         }
         //All urls redirecting to login or password reset, should remember url
