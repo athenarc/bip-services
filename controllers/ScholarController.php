@@ -361,7 +361,7 @@ class ScholarController extends Controller
                                     unset($config);
                                 }
                                 else {
-                                    $config->value = '<div class="alert alert-warning" role="alert">This narrative is not displayed since it exceeds the limit set by the template.</div>';
+                                    $config->value = '<div class="alert alert-warning text-center" role="alert">This narrative is not displayed since it exceeds the limit set by the template.</div>';
                                 }
                             }
                         }
