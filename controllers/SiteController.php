@@ -66,8 +66,10 @@ use app\models\ElementsSearch;
 use app\models\ElementNarrativesSearch;
 use app\models\Facets;
 use app\models\GraphConnectionFactory;
+use app\models\Orcid;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
+use app\components\OrcidComponent;
 
 class SiteController extends Controller
 {
@@ -532,26 +534,32 @@ class SiteController extends Controller
     /*
      * Sign Up action
      */
-    public function actionSignup()
-    {
+    public function actionSignup() {
         /*
          * If we already are not guest, return to homepage
          */
-        if (!Yii::$app->user->isGuest)
-        {
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
         //Create sign up form
         $model = new SignupForm();
 
-        if($model->load(Yii::$app->request->post()) && $model->signup())
-        {
+        // load sign up model with post data
+        $model_loaded = $model->load(Yii::$app->request->post());
+
+        // when registering a new user WITH ORCID, 
+        // generate a random password so that they can restore it later
+        if ($model_loaded && !$model->password){ 
+            $model->password = Yii::$app->security->generateRandomString(10);
+        }
+
+        if ($model_loaded && ($user = $model->signup())) {       
+
             // After signup is completed, log user in and go back
             $loginModel = new LoginForm();
             $loginModel->username = $model->username;
             $loginModel->password = $model->password;
-            $loginModel->rememberMe = $model->rememberMe;
 
             // Attempt to log the user in
             if ($loginModel->login()) {
@@ -2533,5 +2541,51 @@ class SiteController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionOrcidLogin() {
+        $redirect_uri = Url::to(['site/orcid-callback'], true);
+        $authUrl = Orcid::getAuthorizationUrl($redirect_uri);
+        return $this->redirect($authUrl);
+    }
+
+    public function actionOrcidCallback() {
+
+        $redirect_uri = Url::to(['site/orcid-callback'], true);
+        $orcid_data = Orcid::authorize(Yii::$app->request->get('code'), $redirect_uri);
+
+        if ($orcid_data) {
+ 
+            $auth_id = $orcid_data->orcid;
+            $auth_provider = 'ORCID';
+
+            $researcher = Researcher::findOne([ 'orcid' => $auth_id ]);
+
+            $user = null;
+            // if a researcher is found with the ORCID, log them in
+            if ($researcher) {
+                $user = $researcher->user;
+
+            // else check if a user is registered (through orcid) with the same ORCID
+            } else {
+                $user = User::findOne([ 'auth_id' => $auth_id ]);
+            }
+            
+            // no user is found, redirect to register user with orcid            
+            if (!$user) {
+                
+                Yii::$app->session->set('auth_provider', 'ORCID');
+                Yii::$app->session->set('auth_id', $auth_id);
+
+                return $this->redirect(['site/signup']);
+            }
+
+            Yii::$app->user->login($user);
+
+            return $this->redirect(['site/index']);
+        }
+
+        Yii::$app->session->setFlash('error', 'ORCID authentication failed.');
+        return $this->redirect(['site/login']);
     }
 }

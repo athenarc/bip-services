@@ -14,18 +14,20 @@ use yii\base\Model;
 class Orcid extends Model
 {
 
-	private static $authorization_url = "https://orcid.org/oauth/token";
+	private static $auth_url = 'https://orcid.org/oauth/authorize';
+
+	private static $token_url = "https://orcid.org/oauth/token";
 
 	private static $works_url = "https://pub.orcid.org/v2.1/%orcid%/works";
 
-	public static function authorize($orcid_code) {
-	
-        //The data you want to send via POST
+	public static function authorize($orcid_code, $redirect_uri) {
+
+		//The data you want to send via POST
         $data = [
             'client_id' => Yii::$app->params['orcid_client_id'],
             'client_secret' => Yii::$app->params['orcid_client_secret'],
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Url::to(['scholar/profile'], true),
+            'redirect_uri' => $redirect_uri,
             'code' => $orcid_code
         ];
 
@@ -33,7 +35,7 @@ class Orcid extends Model
         $data_str = http_build_query($data);
 
         //open connection
-        $ch = curl_init(Orcid::$authorization_url);
+        $ch = curl_init(Orcid::$token_url);
 
         //set the url, number of POST vars, POST data
         curl_setopt($ch, CURLOPT_POST, true);
@@ -109,4 +111,12 @@ class Orcid extends Model
 	    return $works;
 	}
 
+	public static function getAuthorizationUrl($redirect_uri) {
+        return Orcid::$auth_url . '?' . http_build_query([
+            'client_id' => Yii::$app->params['orcid_client_id'],
+            'response_type' => 'code',
+            'scope' => '/authenticate',
+            'redirect_uri' => $redirect_uri,
+        ]);
+    }
 }

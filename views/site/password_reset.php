@@ -36,7 +36,7 @@ $this->title = 'Password Reset';
  
      <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
-            <?= Html::submitButton('Reset Password', ['class' => 'btn btn-success', 'name' => 'request-reset-button']) ?>
+            <?= Html::submitButton('Reset Password', ['class' => 'btn btn-custom-color', 'name' => 'request-reset-button']) ?>
         </div>
     </div>
 
