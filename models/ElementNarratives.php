@@ -20,6 +20,8 @@ class ElementNarratives extends \yii\db\ActiveRecord
 {
     const TYPE_WORDS = 0;
     const TYPE_CHARACTERS = 1;
+    const COUNT_MESSAGE = "Your text is over the limit - text that exceeds this limit is not displayed in the public profile page.";
+
     public $value; // Exists in ElementNarrativeInstances, needed for getConfigNarrative
     public $last_updated; // Exists in ElementNarrativeInstances, needed for getConfigNarrative
     
@@ -112,5 +114,26 @@ class ElementNarratives extends \yii\db\ActiveRecord
         }
 
         return $element_config;
+    }
+
+    public function countText($limit_type, $clean_text) {
+        if ($limit_type == ElementNarratives::TYPE_WORDS) {
+            return str_word_count($clean_text);
+        } elseif ($limit_type == ElementNarratives::TYPE_CHARACTERS) {
+            return mb_strlen($clean_text);
+        } else {
+            throw new \Exception('Invalid limit type');
+        }
+    }
+
+    public function getLimitStatus($text_value, $limit_value) {
+        if ($limit_value && $text_value > $limit_value) {
+            return ElementNarratives::COUNT_MESSAGE;
+        }
+        return null;
+    }
+
+    public function countMessage($limit_type, $text_value, $limit_value) {
+        return "{$text_value} " . ($limit_value ? "out of {$limit_value} " : "") . "{$limit_type}";
     }
 }

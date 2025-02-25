@@ -18,7 +18,7 @@ class NarrativeElement extends Widget
     public $edit_perm;
     public $limit_type;
     public $limit_value;
-    public $limit_status;
+    public $messages;
     public $last_updated;
 
     public function init()

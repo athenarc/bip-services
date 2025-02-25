@@ -13,8 +13,13 @@ $(document).ready(function () {
             success: function(response) {
                 console.log('Data saved successfully:', response);
                 $('#status_message_' + element_id + ' .status-message').text(response.message).attr('title', response.date);
-                $('#status_message_' + element_id + ' .status-count').text(response.count);
-                $('#status_message_' + element_id + ' .limit-status').text(response.limit_status);
+                $('#status_message_' + element_id + ' .status-count .count-message').text(response.count);
+                if (response.limit_status) {
+                    $('#status_message_' + element_id + ' .status-count .limit-status').attr('title', response.limit_status);
+                    $('#status_message_' + element_id + ' .status-count .limit-status').show();               
+                } else {
+                    $('#status_message_' + element_id + ' .status-count .limit-status').hide();
+                }
             },
             error: function(xhr, status, error) {
                 console.error('Error saving data:', error);
@@ -62,7 +67,7 @@ $(document).ready(function () {
                 saveContent(ajax_link, element_id, template_id, value);
             }, 1000); // Adjust the debounce delay as needed (1000ms = 1 second)
 
-            ['input', 'change', 'paste'].forEach( event => {
+            ['input', 'change', 'paste', 'keydown'].forEach( event => {
                 editor.on(event, function() {
                     let element_id = editor.getElement().getAttribute('element_id');
                     $('#status_message_' + element_id + ' .status-message').text('Typing...');

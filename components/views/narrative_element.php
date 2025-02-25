@@ -69,9 +69,13 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
                     title="<?= Yii::$app->formatter->asDatetime($elem->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get() ?>"
                 <?php endif; ?>
                 ><?= CommonUtils::timeSinceUpdate($elem->last_updated) ?></span>
-                <span class="status-count"></span>
+                
+                <span class="status-count">
+                    <?php  $displayStyle = $elem->messages['limit'] ? 'inline' : 'none';  ?>
+                    <span class="glyphicon glyphicon-exclamation-sign limit-status" style="color: orange; display: <?= $displayStyle ?>;" title="<?= $elem->messages['limit'] ?>"></span>
+                    <span class="count-message"><?= $elem->messages['count'] ?></span>
+                </span>
             </div>
-            <div class="limit-status" style="color: red"><?= $elem->limit_status ?></div>
         </div>
     <?php endif; ?>
 
