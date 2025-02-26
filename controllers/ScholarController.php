@@ -291,7 +291,8 @@ class ScholarController extends Controller
 
         // if auth_code is present, user has requested to link account with orcid profile
         if (isset($auth_code) && !isset($researcher->access_token)) {
-            $response = Orcid::authorize($auth_code);
+            $redirect_url = Url::to(['scholar/profile'], true);
+            $response = Orcid::authorize($auth_code, $redirect_url);
 
             // researcher already exists (e.g. different users try to authorise with  the same ORCID account)
             $researcher_exists = Researcher::findOne([ 'orcid' => $response->orcid ]);

@@ -39,7 +39,7 @@ $this->title = 'Login';
  
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
-            <?= Html::submitButton('Log In', ['class' => 'btn btn-success col-lg-3', 'name' => 'login-button']) ?>
+            <?= Html::submitButton('Log In', ['class' => 'btn btn-custom-color col-lg-3', 'name' => 'login-button']) ?>
         </div>
     </div>
 
@@ -47,6 +47,10 @@ $this->title = 'Login';
         Don't have an account? <a href="<?= Url::to(['site/signup']) ?>" class="main-green">Sign up</a>
     </div>
 
-
     <?php ActiveForm::end(); ?>
+
+    <div class="orcid-login" style="margin-top: 5em;">
+        <p>Or login with <?= Html::a('ORCID <i class="fa-brands fa-orcid" title="Show profile on ORCID"></i>', ['site/orcid-login'], ['class' => 'btn btn-default']) ?></p>
+
+    </div>
 </div>

@@ -9,7 +9,10 @@ use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use yii\captcha\Captcha;
 
-$this->title = 'Sign Up';
+$auth_provider = Yii::$app->session->get('auth_provider');
+$auth_id = Yii::$app->session->get('auth_id');
+
+$this->title = 'Sign Up' . (($auth_provider) ? ' with ' . $auth_provider : '');
 
 ?>
 <div class="container site-login">
@@ -28,16 +31,24 @@ $this->title = 'Sign Up';
 
         <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'maxlength' => 30, 'class' => 'search-box form-control']) ?>
         <?= $form->field($model, 'email')->textInput(['maxlength' => 50, 'class' => 'search-box form-control']) ?>
-        <?= $form->field($model, 'password')->passwordInput(['maxlength' => 50, 'class' => 'search-box form-control']) ?>
+
+        <?php if (!$auth_id): ?>
+            <?= $form->field($model, 'password')->passwordInput(['maxlength' => 50, 'class' => 'search-box form-control']) ?>
+        <?php else: ?>
+            <?= $form->field($model, 'auth_provider')->textInput(['value' => $auth_provider, 'readonly' => true, 'class' => 'search-box form-control']) ?>
+            <?= $form->field($model, 'auth_id')->textInput(['value' => $auth_id, 'readonly' => true, 'class' => 'search-box form-control']) ?>
+        <?php endif; ?>
 
         <?= $form->field($model, 'captcha')->widget(Captcha::className()) ?>
+        <p class="col-md-offset-1 status-message">Click on the captcha image to refresh it.</p>
+
         <?= /*$form->field($model, 'rememberMe')->checkbox([
             'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
         ])*/"" ?>
 
         <div class="form-group">
             <div class="col-lg-offset-1 col-lg-11">
-                <?= Html::submitButton('Sign Up', ['class' => 'btn btn-success col-lg-3', 'name' => 'signup-button']) ?>
+                <?= Html::submitButton('Sign Up', ['class' => 'btn btn-custom-color col-lg-3', 'name' => 'signup-button']) ?>
             </div>
         </div>
         You can review our Privacy and Personal Data Settings  <a href="<?= Url::toRoute(['site/data-policy#personal_data_settings']) ?>" class="main-green">here</a>.
