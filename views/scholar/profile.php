@@ -272,7 +272,7 @@ use yii\bootstrap\NavBar;
                                 'limit_value' => $element["config"]->limit_value,
                                 'limit_type' => $element["config"]->limit_type,
                                 'last_updated' => $element["config"]->last_updated,
-                                'limit_status' => isset($element["limit_status"]) ? $element["limit_status"] : '',
+                                'messages' => $element["messages"],
                             ]);
                             break;
 

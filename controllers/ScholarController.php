@@ -369,20 +369,15 @@ class ScholarController extends Controller
                     case "Narrative":
                         $config = ElementNarratives::getConfigNarrative($element->id, $template->id, $researcher->user_id);
                         $clean_text = CommonUtils::cleanText($config->value);
-                        $text_value = 0;
-                        $limit_status = null;
-                        if ($config->limit_value) {
-                            if ($config->limit_type == ElementNarratives::TYPE_WORDS) {
-                                $text_value = str_word_count($clean_text);
-                            } elseif ($config->limit_type == ElementNarratives::TYPE_CHARACTERS) {
-                                $text_value = mb_strlen($clean_text);
-                            }
-                        }
-                        if ($config->limit_value && $text_value > $config->limit_value) {
-                            $limit_status = "Your text is over the limit of {$config->limit_value} {$config->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
-                        }
+
+                        $text_value = ElementNarratives::countText($config->limit_type, $clean_text);
+                        $limit_status = ElementNarratives::getLimitStatus($text_value, $config->limit_value);
+                        $count_msg = ElementNarratives::countMessage($config->getLimitTypeName(), $text_value, $config->limit_value);
+
                         if (!$edit_perm) {
-                            if ($text_value > $config->limit_value) {
+
+                            // if the text exceeds the limit set by the template, hide the narrative
+                            if ($config->limit_value && $text_value > $config->limit_value) {
                                 if  ($config->hide_when_empty) {
                                     unset($config);
                                 }
@@ -410,7 +405,10 @@ class ScholarController extends Controller
                         'type' => $element->type,
                         'name' => $element->name,
                         'config' => $config,
-                        'limit_status' => isset($limit_status) ? $limit_status : ''
+                        'messages' => [
+                            'limit' => $limit_status ?? '',
+                            'count' => $count_msg ?? '',
+                        ]
                     ];
                 }
             }
@@ -667,81 +665,76 @@ class ScholarController extends Controller
     }
 
     public function actionSaveNarrativeInstance() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    
         $template_id = Yii::$app->request->post('template_id');
         $element_id = Yii::$app->request->post('element_id');
         $element_text = Yii::$app->request->post('value');
-        $user_id  = Yii::$app->user->id;
-
-        if (!isset($template_id) || !isset($element_id) || !isset($element_text) || !isset($user_id)) {
-            throw new \yii\base\Exception;
+        $user_id = Yii::$app->user->id;
+    
+        // Validate required parameters
+        if (!$template_id || !$element_id || !$user_id) {
+            throw new \yii\base\InvalidParamException('Missing required parameters.');
         }
-
+    
+        $element_narrative = ElementNarratives::findOne(['element_id' => $element_id]);
+    
+        if (!$element_narrative) {
+            throw new \yii\web\NotFoundHttpException('Element narrative not found.');
+        }
+    
+        $limit_type = $element_narrative->limit_type ?? null;
+        $limit_value = $element_narrative->limit_value ?? null;
+    
+        // Fetch existing instance
         $instance = ElementNarrativeInstances::findOne([
             'template_id' => $template_id,
             'element_id' => $element_id,
             'user_id' => $user_id
         ]);
-        
-        if (!$instance) {
-            // Create a new instance
-            $instance = new ElementNarrativeInstances();
-            $instance->template_id = $template_id;
-            $instance->element_id = $element_id;
-            $instance->user_id = $user_id;
-        }
-
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
+    
+        // If value is empty, delete instance if exists
         if (empty($element_text)) {
-            // Delete the instance
-            if (!$instance->delete()) {
-                // Error occurred while deleting
+            if ($instance && !$instance->delete()) {
                 throw new \yii\base\Exception("Error deleting record: " . implode(", ", $instance->getFirstErrors()));
             }
+        
             return [
-                "message" => null,
-                "count" => null,
+                "message" => CommonUtils::timeSinceUpdate(null),
+                "count" => ElementNarratives::countMessage($element_narrative->getLimitTypeName(), 0, $limit_value),
                 "limit_status" => null
             ];
-        
-        } else {
-            $clean_text = CommonUtils::cleanText($element_text);
-            $instance->value = $element_text;
-            
-            // Calculate word/character limit
-            $element_narrative = ElementNarratives::findOne(['element_id' => $element_id]);
-            $text_value = 0;
-            $limit_status = null;
-            $limit_type = $element_narrative->limit_type ?? null;
-            $limit_value = $element_narrative->limit_value ?? null;
-    
-
-            if ($limit_type == ElementNarratives::TYPE_WORDS) {
-                $text_value = str_word_count($clean_text);
-            } elseif ($limit_type == ElementNarratives::TYPE_CHARACTERS) {
-                $text_value = mb_strlen($clean_text);
-            }
-    
-            if ($limit_value && $text_value > $limit_value) {
-                $limit_status = "Your text is over the limit of {$limit_value} {$element_narrative->getLimitTypeName()}. Text that exceeds this limit is not displayed in the public profile page.";
-            }
-
-    
-            // Save the instance
-            if (!$instance->save()) {
-                // Error occurred while saving
-                throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
-            }
-
-            $message = CommonUtils::timeSinceUpdate($instance->last_updated);
-
-            return [
-                "message" => $message,
-                "date" => Yii::$app->formatter->asDatetime($instance->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
-                "count" => "{$text_value} {$element_narrative->getLimitTypeName()}",
-                "limit_status" => $limit_status
-            ];
         }
+    
+        // Clean input text
+        $clean_text = CommonUtils::cleanText($element_text);
+    
+        // If instance does not exist, create a new one
+        if (!$instance) {
+            $instance = new ElementNarrativeInstances([
+                'template_id' => $template_id,
+                'element_id' => $element_id,
+                'user_id' => $user_id
+            ]);
+        }
+    
+        // Update value and save
+        $instance->value = $element_text;
+        if (!$instance->save()) {
+            throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
+        }
+    
+        $text_value = ElementNarratives::countText($element_narrative->limit_type, $clean_text);
+        $limit_status = ElementNarratives::getLimitStatus($text_value, $limit_value);
+        $count_msg = ElementNarratives::countMessage($element_narrative->getLimitTypeName(), $text_value, $limit_value);
+    
+        return [
+            "message" => CommonUtils::timeSinceUpdate($instance->last_updated),
+            "date" => Yii::$app->formatter->asDatetime($instance->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
+            "count" => $count_msg,
+            "limit_status" => $limit_status,
+            "count_msg" => $count_msg,
+        ];
     }
 
     public function actionSaveDropdownInstance()
