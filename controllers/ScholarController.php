@@ -406,8 +406,8 @@ class ScholarController extends Controller
                         'name' => $element->name,
                         'config' => $config,
                         'messages' => [
-                            'limit' => $limit_status,
-                            'count' => $count_msg
+                            'limit' => $limit_status ?? '',
+                            'count' => $count_msg ?? '',
                         ]
                     ];
                 }
@@ -665,71 +665,76 @@ class ScholarController extends Controller
     }
 
     public function actionSaveNarrativeInstance() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    
         $template_id = Yii::$app->request->post('template_id');
         $element_id = Yii::$app->request->post('element_id');
         $element_text = Yii::$app->request->post('value');
-        $user_id  = Yii::$app->user->id;
+        $user_id = Yii::$app->user->id;
+    
+        // Validate required parameters
+        if (!$template_id || !$element_id || !$user_id) {
+            throw new \yii\base\InvalidParamException('Missing required parameters.');
+        }
+    
         $element_narrative = ElementNarratives::findOne(['element_id' => $element_id]);
+    
+        if (!$element_narrative) {
+            throw new \yii\web\NotFoundHttpException('Element narrative not found.');
+        }
+    
         $limit_type = $element_narrative->limit_type ?? null;
         $limit_value = $element_narrative->limit_value ?? null;
-
-        if (!isset($template_id) || !isset($element_id) || !isset($element_text) || !isset($user_id)) {
-            throw new \yii\base\Exception;
-        }
-
+    
+        // Fetch existing instance
         $instance = ElementNarrativeInstances::findOne([
             'template_id' => $template_id,
             'element_id' => $element_id,
             'user_id' => $user_id
         ]);
-        
-        if (!$instance) {
-            // Create a new instance
-            $instance = new ElementNarrativeInstances();
-            $instance->template_id = $template_id;
-            $instance->element_id = $element_id;
-            $instance->user_id = $user_id;
-        }
-
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
+    
+        // If value is empty, delete instance if exists
         if (empty($element_text)) {
-            // Delete the instance
-            if (!$instance->delete()) {
-                // Error occurred while deleting
+            if ($instance && !$instance->delete()) {
                 throw new \yii\base\Exception("Error deleting record: " . implode(", ", $instance->getFirstErrors()));
             }
+        
             return [
                 "message" => CommonUtils::timeSinceUpdate(null),
-                "count" =>  ElementNarratives::countMessage($element_narrative->getLimitTypeName(), 0, $limit_value),
+                "count" => ElementNarratives::countMessage($element_narrative->getLimitTypeName(), 0, $limit_value),
                 "limit_status" => null
             ];
-        
-        } else {
-            $clean_text = CommonUtils::cleanText($element_text);
-            $instance->value = $element_text;
-            
-            // Calculate word/character limit    
-            $text_value = ElementNarratives::countText($limit_type, $clean_text);
-            $limit_status = ElementNarratives::getLimitStatus($text_value, $limit_value);
-            $count_msg = ElementNarratives::countMessage($element_narrative->getLimitTypeName(), $text_value, $limit_value);
-
-            // Save the instance
-            if (!$instance->save()) {
-                // Error occurred while saving
-                throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
-            }
-
-            $message = CommonUtils::timeSinceUpdate($instance->last_updated);
-
-            return [
-                "message" => $message,
-                "date" => Yii::$app->formatter->asDatetime($instance->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
-                "count" => $count_msg,
-                "limit_status" => $limit_status,
-                "count_msg" => $count_msg,
-            ];
         }
+    
+        // Clean input text
+        $clean_text = CommonUtils::cleanText($element_text);
+    
+        // If instance does not exist, create a new one
+        if (!$instance) {
+            $instance = new ElementNarrativeInstances([
+                'template_id' => $template_id,
+                'element_id' => $element_id,
+                'user_id' => $user_id
+            ]);
+        }
+    
+        // Update value and save
+        $instance->value = $element_text;
+        if (!$instance->save()) {
+            throw new \yii\base\Exception("Error saving record: " . implode(", ", $instance->getFirstErrors()));
+        }
+    
+        $text_value = ElementNarratives::countText($element_narrative->limit_type, $clean_text);
+        $limit_status = ElementNarratives::getLimitStatus($text_value, $limit_value);
+        $count_msg = ElementNarratives::countMessage($element_narrative->getLimitTypeName(), $text_value, $limit_value);
+    
+        return [
+            "message" => CommonUtils::timeSinceUpdate($instance->last_updated),
+            "date" => Yii::$app->formatter->asDatetime($instance->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get(),
+            "count" => $count_msg,
+            "limit_status" => $limit_status,
+            "count_msg" => $count_msg,
+        ];
     }
 
     public function actionSaveDropdownInstance()

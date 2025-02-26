@@ -67,13 +67,11 @@ $(document).ready(function () {
                 saveContent(ajax_link, element_id, template_id, value);
             }, 1000); // Adjust the debounce delay as needed (1000ms = 1 second)
 
-            ['input', 'change', 'paste', 'keydown'].forEach( event => {
-                editor.on(event, function() {
-                    let element_id = editor.getElement().getAttribute('element_id');
-                    $('#status_message_' + element_id + ' .status-message').text('Typing...');
-    
-                    debouncedSaveContent();
-                });
+            editor.on('keyup', function() {
+                let element_id = editor.getElement().getAttribute('element_id');
+                $('#status_message_' + element_id + ' .status-message').text('Typing...');
+
+                debouncedSaveContent();
             });
         }
     });
