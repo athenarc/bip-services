@@ -23,6 +23,7 @@ use app\models\SignupForm;
 use app\models\ContactForm;
 use app\models\SearchForm;
 use app\models\SurveyForm;
+use app\models\FeedbackForm;
 use app\models\Article;
 use app\models\Journal;
 use app\models\DoiToPmc;
@@ -2587,5 +2588,29 @@ class SiteController extends Controller
 
         Yii::$app->session->setFlash('error', 'ORCID authentication failed.');
         return $this->redirect(['site/login']);
+    }
+    
+    public function actionFeedback()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException('You must be logged in to submit feedback.');
+        }
+
+        $model = new FeedbackForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            Yii::$app->mailer->compose()
+                ->setTo('bip@athenarc.gr')
+                ->setCc(Yii::$app->user->identity->email)
+                ->setFrom(['diwis@imis.athena-innovation.gr' => 'BIP! Services'])
+                ->setSubject("Feedback: {$model->category}")
+                ->setTextBody("Title: {$model->title}\n\nDescription: {$model->description}\n\nFrom: {$model->email}")
+                ->send();
+
+            Yii::$app->session->setFlash('success', 'Your feedback has been submitted.');
+            return $this->refresh();
+        }
+
+        return $this->render('feedback', ['model' => $model]);
     }
 }
