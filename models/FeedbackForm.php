@@ -15,11 +15,19 @@ class FeedbackForm extends Model
     public function rules()
     {
         return [
-            [['email', 'title', 'description', 'category'], 'required'],
-            ['email', 'email'],
-            ['category', 'in', 'range' => ['bug', 'new feature proposal', 'suggestion', 'user account issue']],
+            [['title', 'description', 'category'], 'required'],
+            ['category', 'in', 'range' => ['general inquiry', 'bug or problem', 'new feature proposal', 'suggestion', 'user account issue']],
             ['title', 'string', 'max' => 255],
             ['description', 'string', 'max' => 800],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'title' => 'Subject',
+            'description' => 'How can we help?',
+            'category' => 'Category',
         ];
     }
 }

@@ -2597,14 +2597,15 @@ class SiteController extends Controller
         }
 
         $model = new FeedbackForm();
+        $userEmail = Yii::$app->user->identity->email;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             Yii::$app->mailer->compose()
-                ->setTo('bip@athenarc.gr')
-                ->setCc(Yii::$app->user->identity->email)
-                ->setFrom(['diwis@imis.athena-innovation.gr' => 'BIP! Services'])
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setCc($userEmail)
+                ->setFrom([Yii::$app->params['adminEmail'] => 'Bip! Services'])
                 ->setSubject("Feedback: {$model->category}")
-                ->setTextBody("Title: {$model->title}\n\nDescription: {$model->description}\n\nFrom: {$model->email}")
+                ->setTextBody("Subject: {$model->title}\n\nDescription: {$model->description}\n\nFrom: {$userEmail}")
                 ->send();
 
             Yii::$app->session->setFlash('success', 'Your feedback has been submitted.');

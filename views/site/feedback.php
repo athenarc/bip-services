@@ -6,7 +6,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\FeedbackForm */
 
-$this->title = 'Submit Feedback';
+$this->title = 'Submit feedback';
 ?>
 <div class="feedback-form">
     <h2><?= Html::encode($this->title) ?></h2>
@@ -19,19 +19,18 @@ $this->title = 'Submit Feedback';
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'email')->textInput(['class' => 'search-box form-control', 'value' => Yii::$app->user->identity->email, 'readonly' => true]) ?>
-
     <?= $form->field($model, 'title')->textInput(['class' => 'search-box form-control']) ?>
-    <?= $form->field($model, 'description')->textarea(['class' => 'search-box form-control', 'rows' => 5, 'style' => 'resize: vertical;']) ?>
     <?= $form->field($model, 'category')->dropDownList([
-        'bug' => 'Bug',
-        'new feature proposal' => 'New Feature Proposal',
+        'general inquiry' => 'General inquiry',
+        'bug or problem' => 'Bug or problem',
+        'new feature proposal' => 'New feature proposal',
         'suggestion' => 'Suggestion',
-        'user account issue' => 'User Account Issue'
+        'user account issue' => 'User account issue'
     ]) ?>
+    <?= $form->field($model, 'description')->textarea(['class' => 'search-box form-control', 'rows' => 5, 'style' => 'resize: vertical;']) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Submit Feedback', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('Submit', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
