@@ -94,6 +94,18 @@ $section_profiles = ($section === "profiles");
 
                 },
             ],
+            [
+                'label' => 'Total Users',
+                'value' => function () use ($elementsTotalUsers) {
+                    if (empty($elementsTotalUsers)) {
+                        return '-'; // Return '-' if array is empty
+                    }
+
+                    // Get the maximum total_users value
+                    $maxUsers = max(array_column($elementsTotalUsers, 'total_users'));
+                    return $maxUsers;
+                },
+            ],
         ],
     ]) ?>
 
@@ -116,6 +128,19 @@ $section_profiles = ($section === "profiles");
             ['class' => 'yii\grid\SerialColumn'],
             'name',
             'type',
+            [
+                'label' => 'Total Users',
+                'value' => function ($model, $key, $index, $column) use ($elementsTotalUsers) {
+                    // Find the matching total_users value
+                    $elementId = $model->id;
+                    foreach ($elementsTotalUsers as $data) {
+                        if ($data['element_id'] == $elementId) {
+                            return $data['total_users']; // Return total_users value
+                        }
+                    }
+                    return '-'; // Default to - if no match found
+                },
+            ],
             [
                 'class' => ActionColumn::className(),
                 'header' => 'Actions',

@@ -5,6 +5,7 @@ namespace app\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Elements;
+use yii\db\Query;
 
 /**
  * ElementsSearch represents the model behind the search form of `app\models\Elements`.
@@ -67,5 +68,45 @@ class ElementsSearch extends Elements
             ->andFilterWhere(['like', 'type', $this->type]);
 
         return $dataProvider;
+    }
+
+    public static function findElementsUsers($template_id)
+    {
+        $query1 = (new Query())
+            ->select(['element_id', 'template_id', 'total_users' => 'COUNT(*)'])
+            ->from(ElementTableInstances::tableName())
+            ->where(['template_id' => $template_id])
+            ->groupBy(['element_id']);
+
+        $query2 = (new Query())
+            ->select(['element_id', 'template_id', 'total_users' => 'COUNT(*)'])
+            ->from(ElementDropdownInstances::tableName())
+            ->where(['template_id' => $template_id])
+            ->groupBy(['element_id']);
+
+        $query3 = (new Query())
+            ->select(['element_id', 'template_id', 'total_users' => 'COUNT(*)'])
+            ->from(ElementNarrativeInstances::tableName())
+            ->where(['template_id' => $template_id])
+            ->groupBy(['element_id']);
+
+        $query4 = (new Query())
+            ->select(['element_id', 'template_id', 'total_users' => 'COUNT(*)'])
+            ->from([
+                (new Query())
+                    ->select(['user_id', 'template_id', 'element_id'])
+                    ->from(ElementBulletedListItem::tableName())
+                    ->where(['template_id' => $template_id])
+                    ->groupBy(['user_id', 'element_id'])
+            ])
+            ->groupBy(['element_id']);
+
+        // Combine queries using UNION ALL
+        $finalQuery = (new Query())
+            ->from(['combined' => $query1->union($query2)->union($query3)->union($query4)])
+            ->where(['template_id' => $template_id]); // Final filtering
+
+        // Execute query
+        return $finalQuery->all();
     }
 }
