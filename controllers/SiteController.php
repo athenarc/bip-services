@@ -1666,6 +1666,7 @@ class SiteController extends Controller
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
         $elementsDataProvider->pagination = false;
+        $elementsTotalUsers = ElementsSearch::findElementsUsers($id);
 
         $user_id = Yii::$app->user->id;
         $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
@@ -1684,6 +1685,7 @@ class SiteController extends Controller
             'profile_template_category_id' => $profile_template_category_id,
             'templateModel' => $templateModel,
             'elementsDataProvider' => $elementsDataProvider,
+            'elementsTotalUsers' => $elementsTotalUsers,
             'templateUrl' => $templateUrl,
         ]);
     }
