@@ -355,8 +355,6 @@ class Spaces extends \yii\db\ActiveRecord
         if (empty($space_annotations)) {
             return $papers;
         }
-
-
         
         // give dois as query param
         // one array per annotation query
@@ -375,12 +373,18 @@ class Spaces extends \yii\db\ActiveRecord
         foreach ($papers as $paper => $paper_data){
 
             $doi = $paper_data['doi'];
+            $openaire_id = substr(strrchr($paper_data['openaire_id'], '|'), 1); // openaire id in our db have an extra prefix "|"
 
             $annotations = [];
             foreach ($dois_to_annotations_multiple as $annotation_row => $dois_to_annotations){
 
+                // first merge by doi
                 if (array_key_exists($doi, $dois_to_annotations)) {
                     $annotations = array_merge($annotations, $dois_to_annotations[$doi]);
+
+                // if doi not found, try to find it by openaire_id
+                } else if (array_key_exists($openaire_id, $dois_to_annotations)) {
+                    $annotations = array_merge($annotations, $dois_to_annotations[$openaire_id]);
                 }
             }
             // Create annotation key to input array
