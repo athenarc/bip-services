@@ -23,6 +23,7 @@ use app\models\SignupForm;
 use app\models\ContactForm;
 use app\models\SearchForm;
 use app\models\SurveyForm;
+use app\models\FeedbackForm;
 use app\models\Article;
 use app\models\Journal;
 use app\models\DoiToPmc;
@@ -1665,6 +1666,7 @@ class SiteController extends Controller
         $elementsDataProvider = $searchElementsModel->search($this->request->queryParams);
         $elementsDataProvider->query->andFilterWhere(['template_id' => $id]);
         $elementsDataProvider->pagination = false;
+        $elementsTotalUsers = ElementsSearch::findElementsUsers($id);
 
         $user_id = Yii::$app->user->id;
         $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
@@ -1683,6 +1685,7 @@ class SiteController extends Controller
             'profile_template_category_id' => $profile_template_category_id,
             'templateModel' => $templateModel,
             'elementsDataProvider' => $elementsDataProvider,
+            'elementsTotalUsers' => $elementsTotalUsers,
             'templateUrl' => $templateUrl,
         ]);
     }
@@ -2587,5 +2590,30 @@ class SiteController extends Controller
 
         Yii::$app->session->setFlash('error', 'ORCID authentication failed.');
         return $this->redirect(['site/login']);
+    }
+    
+    public function actionFeedback()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException('You must be logged in to submit feedback.');
+        }
+
+        $model = new FeedbackForm();
+        $userEmail = Yii::$app->user->identity->email;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            Yii::$app->mailer->compose()
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setCc($userEmail)
+                ->setFrom([Yii::$app->params['adminEmail'] => 'Bip! Services'])
+                ->setSubject("Feedback: {$model->category}")
+                ->setTextBody("Subject: {$model->title}\n\nDescription: {$model->description}\n\nFrom: {$userEmail}")
+                ->send();
+
+            Yii::$app->session->setFlash('success', 'Your feedback has been submitted.');
+            return $this->refresh();
+        }
+
+        return $this->render('feedback', ['model' => $model]);
     }
 }

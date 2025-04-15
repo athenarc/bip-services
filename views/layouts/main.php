@@ -97,6 +97,7 @@ AppAsset::register($this);
                 'label' => '<i class="fa-solid fa-user"></i> ' . Yii::$app->user->identity->username,
                 'items' => [
                     ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => [ 'site/settings' ]],
+                    ['label' => '<i class="fa-solid fa-paper-plane"></i> ' . 'Contact & Feedback', 'url' => ['/site/feedback']],
                     ['label' => '<i class="fa-solid fa-right-from-bracket"></i> ' . 'Logout', 'url' => ['site/logout'], 'linkOptions' => ['data-method' => 'post']]
                 ]
             ];
