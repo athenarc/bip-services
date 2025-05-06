@@ -97,7 +97,21 @@ if ($in_space) {
         </div>
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('abstract') ?>:</b> <?= $article->abstract ?>
-        </div>
+        </div> 
+
+        <!--Impact-->
+        <?= $this->render('@app/components/views/score_icons', [
+            'pop' => $article->attrank,
+            'inf' => $article->pagerank,
+            'cc' => $article->citation_count,
+            'imp' => $article->{'3y_cc'},
+            'pop_class' => $article->pop_class,
+            'inf_class' => $article->inf_class,
+            'cc_class'  => $article->cc_class,
+            'imp_class' => $article->imp_class,
+            ]); 
+            ?> 
+            
         <div class='article-info tag-region'>
 
             <div class="bootstrap-tagsinput">
