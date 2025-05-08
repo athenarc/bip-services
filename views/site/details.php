@@ -110,9 +110,9 @@ if ($in_space) {
             'impulse_score'      => $article->{'3y_cc'},
             'cc_score'           => $article->citation_count,
             'impact_indicators'  => Yii::$app->params['impact_indicators'],
-            'options' => ['showScoreLabel' => true],
             'num_likes' => $article->getNumLikes(),
             'num_views' => $article->getGuestViews() + $article->getUserViews(),
+            'options' => ['showScoreLabel' => true],
         ]) ?>
         
 

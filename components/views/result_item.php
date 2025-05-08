@@ -50,21 +50,24 @@ $item = $this->context;
             </div>
 
             <div class="col-md-4 col-lg-3 text-right">
-                <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
-                            Found <?= $item->dois_num ?> versions</a>
-                <?php endif; ?>
-
-                <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
-                                    'influence_class' => $item->inf_class,
-                                    'impulse_class' => $item->imp_class,
-                                    'cc_class' => $item->cc_class,
-                                    'popularity_score' => $item->pop_score,
-                                    'influence_score' => $item->inf_score,
-                                    'impulse_score' => $item->imp_score,
-                                    'cc_score' => $item->cc_score,
-                                    'impact_indicators' => $item->impact_indicators,
-                                    ]);?>
+                <div style="display: flex; justify-content: flex-end;">
+                    <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
+                            <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
+                                Found <?= $item->dois_num ?> versions</a>
+                    <?php endif; ?>
+                    
+                    <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
+                                        'influence_class' => $item->inf_class,
+                                        'impulse_class' => $item->imp_class,
+                                        'cc_class' => $item->cc_class,
+                                        'popularity_score' => $item->pop_score,
+                                        'influence_score' => $item->inf_score,
+                                        'impulse_score' => $item->imp_score,
+                                        'cc_score' => $item->cc_score,
+                                        'impact_indicators' => $item->impact_indicators,
+                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
+                                        ]);?>
+                </div>
             </div>
         </div>
     </div>
@@ -97,21 +100,25 @@ $item = $this->context;
                         echo "&nbspN/A";
                     else {
                         foreach ($item->concepts as $concept) { ?>
-                            <span class="tag label">
+                            <span class="tag label"; style="display: inline-flex; align-items: center; gap: 3px; font-size: 12px; padding: 0 10px; line-height: 1.2; border-radius: 10px;">
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'],2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);"></i></span>
-                                <span class= "concept-class"> | <?= ImpactIcons::widget([
-                                    'popularity_class' => $concept['pop_class'],
-                                    'influence_class' => $concept['inf_class'],
-                                    'impulse_class' => $concept['imp_class'],
-                                    'cc_class' => $concept['cc_class'],
-                                    'popularity_score' => $item->pop_score,
-                                    'influence_score' => $item->inf_score,
-                                    'impulse_score' => $item->imp_score,
-                                    'cc_score' => $item->cc_score,
-                                    'impact_indicators' => $item->impact_indicators,
-                                    ]);?></span>
+                                <span style="display: inline-flex; align-items: center;">
+                                    <span style="color: #808080;">|</span> 
+                                    <?= ImpactIcons::widget([
+                                        'popularity_class' => $concept['pop_class'],
+                                        'influence_class' => $concept['inf_class'],
+                                        'impulse_class' => $concept['imp_class'],
+                                        'cc_class' => $concept['cc_class'],
+                                        'popularity_score' => $item->pop_score,
+                                        'influence_score' => $item->inf_score,
+                                        'impulse_score' => $item->imp_score,
+                                        'cc_score' => $item->cc_score,
+                                        'impact_indicators' => $item->impact_indicators,
+                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false],
+                                    ]);?>
+                                </span>
                             </span>
                         <?php }
                     } ?>
