@@ -799,3 +799,9 @@ body {
 .admin-table a {
     color: var(--main-color)
 }
+
+.team-member-role {
+    font-style: italic;
+    color: #666;
+    margin-bottom: 4px;
+}

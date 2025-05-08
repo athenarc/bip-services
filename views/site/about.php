@@ -37,7 +37,10 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
                             <?= Html::img($member['imgUrl'], ['alt' => $member['name'], 'class' => 'img-circle team-member-img']) ?>
                             <div>
                                 <a href="<?= $member['link'] ?>" class="main-green" target="_blank"><?= $member['name'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                                <div><?= $member['email'] ?></div>
+                                <?php if (!empty($member['role'])): ?>
+                                    <div class="team-member-role"><?= $member['role'] ?></div>
+                                <?php endif; ?>
+                                <div><?= $member['email'] ?></div> 
                             </div>
                         </div>
                     </div>
