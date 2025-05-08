@@ -3,10 +3,10 @@ use yii\helpers\Html;
 use app\components\ImpactIcons;
 ?>
 
-<div class="citation-scores" style="margin: 3px 0 4px 0; display: flex; align-items: center; flex-wrap: wrap;">
+<div class="citation-scores">
 
     <!-- Impact header -->
-    <div style="font-weight: bold; font-size: 14px; font-family: 'Nunito', sans-serif; color: #808080; margin-right: 8px;">
+    <div class="citation-impact-label">
         Impact:
     </div>
 
