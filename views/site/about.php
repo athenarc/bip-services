@@ -7,6 +7,7 @@ use yii\web\View;
 
 $this->title = 'BIP! Services - About';
 $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 ?>
 
@@ -38,7 +39,17 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
                             <div>
                                 <a href="<?= $member['link'] ?>" class="main-green" target="_blank"><?= $member['name'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                                 <?php if (!empty($member['role'])): ?>
-                                    <div class="team-member-role"><?= $member['role'] ?></div>
+                                    <?php
+                                        $roleParts = explode('&', $member['role']);
+                                        $primaryRole = trim($roleParts[0]);
+                                        $secondaryRole = isset($roleParts[1]) ? trim($roleParts[1]) : null;
+                                    ?>
+                                    <div class="team-member-role">
+                                        <?= $primaryRole ?>
+                                        <?php if ($secondaryRole): ?>
+                                            <span class="mobile-hidden-role"> & <?= $secondaryRole ?></span>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php endif; ?>
                                 <div><?= $member['email'] ?></div> 
                             </div>
@@ -48,7 +59,6 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
             </div>
         </div>
     </div>
-
 
     <h3>
         <a href="#former-team" data-toggle="collapse" class="custom-collapse text-decoration-none" 
@@ -77,7 +87,7 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
         </div>
     </div>
     
-    <h3>How to cite</h3>
+    <h3 id="how-to-cite">How to cite</h3>
 
     <div class="help-text">
 

@@ -804,3 +804,41 @@ body {
     font-style: italic;
     color: #555;
 }
+
+@media (max-width: 768px) {
+    .mobile-hidden-role {
+        display: none;
+    }
+}
+
+.bip-service-buttons {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.bip-service-buttons .bip-btn {
+    background-color: #439d44;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    margin: 6px 10px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.bip-service-buttons .bip-btn:hover {
+    background-color: #368636;
+    text-decoration: none;
+    color: white;
+}
+
+/* Scholar button emphasized */
+.bip-service-buttons .bip-btn-scholar {
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 0 6px rgba(67, 157, 68, 0.5);
+}
