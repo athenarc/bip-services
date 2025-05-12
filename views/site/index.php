@@ -254,13 +254,19 @@ if ($in_space) {
                         Please check your spelling or try again with different input parameters</p>
                     <?php } else { ?>
                         <br/><br/><br/>
-                        <p>More details about BIP! Finder can be found in our publication:</p>
-                        <div class="panel panel-default text-left">
-                            <div class="panel-body">
-                                T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> <i>In Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, Beijing, China, November 2019 <small><?= Html::a("(BibTeX)", "@web/files/bip-finder.bib", ["class" => "grey-link"] ) ?></small>
-                            </div>
+                        <!-- BIP! Services navigation buttons -->
+                        <div class="bip-service-buttons">
+                            <a href="<?= Url::to(['/readings']) ?>" class="bip-btn">BIP! Readings</a>
+                            <a href="<?= Url::to(['/scholar']) ?>" class="bip-btn bip-btn-scholar">BIP! Scholar</a>
+                            <a href="<?= Url::to(['/spaces']) ?>" class="bip-btn">BIP! Spaces</a>
                         </div>
-                        <p><small>We kindly ask that any published research that makes use of BIP! Finder or its data cites the paper above.</small></p>
+                        <div class="panel panel-default text-left">
+                            
+                        </div>
+                        <p><small>
+                            We kindly request that any published research making use of the BIP Services includes a citation to the relevant publications. 
+                            Please refer <?= Html::a('here', ['/site/about#how-to-cite'], ['class' => 'main-green']) ?> for citation guidelines.
+                        </small></p>
                     <?php } ?>
                 </div>
             <?php } ?>
