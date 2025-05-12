@@ -838,7 +838,11 @@ body {
 
 /* Scholar button emphasized */
 .bip-service-buttons .bip-btn-scholar {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(67, 157, 68, 0.6);
+    border: 2px solid #388039;
+    background: linear-gradient(to bottom, #439d44, #388039);
     font-size: 16px;
     font-weight: 600;
-    box-shadow: 0 0 6px rgba(67, 157, 68, 0.5);
+    
 }
