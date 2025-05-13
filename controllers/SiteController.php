@@ -136,7 +136,6 @@ class SiteController extends Controller
 
             // space
             $space_url_suffix = Yii::$app->request->post('space_url_suffix');
-
             $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
             $space_model->prepareForRequest();
 
@@ -203,12 +202,14 @@ class SiteController extends Controller
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+        $articlesCount = Article::find()->count();
 
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
+            'articlesCount' => $articlesCount,
             // 'author_list' => $author_list,
         ]);
     }

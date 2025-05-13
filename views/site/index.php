@@ -33,6 +33,11 @@ $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END
 
 $this->registerCssFile('@web/css/tags.css');
 
+$this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexAnimation.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerCssFile('@web/css/site.css', ['depends' => [\yii\bootstrap\BootstrapAsset::class]]);
+
+
 // set vars to be used in the view
 $keywords = $model->keywords;
 $filters_count = $model->count_filters();
@@ -247,30 +252,87 @@ if ($in_space) {
                         ?></div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <div id='results_set'>
-                    <?php if( $keywords!="" ) { ?>
-                        <p class="help-text" style="text-align: center;">No results found!<br/>
-                        Please check your spelling or try again with different input parameters</p>
                     <?php } else { ?>
-                        <br/><br/><br/>
-                        <!-- BIP! Services navigation buttons -->
-                        <div class="bip-service-buttons">
-                            <a href="<?= Url::to(['/readings']) ?>" class="bip-btn">BIP! Readings</a>
-                            <a href="<?= Url::to(['/scholar']) ?>" class="bip-btn bip-btn-scholar">BIP! Scholar</a>
-                            <a href="<?= Url::to(['/spaces']) ?>" class="bip-btn">BIP! Spaces</a>
+                        <div id='results_set'>
+                            <?php if( $keywords != "" ) { ?>
+                                <p class="help-text" style="text-align: center;">No results found!<br/>
+                                Please check your spelling or try again with different input parameters</p>
+                            <?php } else { ?>
+                                <!-- Layout Blocks Container -->
+                                <div class="container">
+                                    <div class="bip-home-layout bip-animate">
+
+                                        <!-- BIP info Panel -->
+                                        <div class="panel panel-default bip-animate bip-info-panel">
+                                            <div class="panel-body">
+                                            BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
+                                            <a href="<?= Url::to(['site/about']) ?>" class="light-grey-link" target="_blank">
+                                                Learn more <i class="fa fa-external-link-square" aria-hidden="true"></i>
+                                            </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="bip-main-grid">
+
+                                            <!-- Getting Started Panel -->
+                                            <div class="panel panel-default bip-animate bip-started">
+                                                <div class="panel-body">
+                                                    <h3>Getting started</h3>
+                                                    <ul>
+                                                        <li><a href="#" class="light-grey-link">How can I find the most cited papers?</a></li>
+                                                        <li><a href="#" class="light-grey-link">What is the BIP! Impulse Indicator?</a></li>
+                                                        <li><a href="#" class="light-grey-link">Where can I track influence by topic?</a></li>
+                                                        <li><a href="#" class="light-grey-link">How to use BIP! Finder filters?</a></li>
+                                                        <li><a href="#" class="light-grey-link">Can I compare research fields?</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div class="bip-side-boxes bip-animate">
+                                                <!-- Research Works Counter -->
+                                                <div class="panel panel-default bip-counter bip-animate">
+                                                    <div class="panel-body text-center">
+                                                        <strong id="counter-number" data-target="<?= $articlesCount ?>">0</strong><br/>
+                                                        Research works indexed
+                                                    </div>
+                                                </div>
+
+                                                <!-- Carousel -->
+                                                <div class="panel panel-default bip-animate">
+                                                    <div class="panel-body">
+                                                        <div class="bip-carousel">
+                                                            <div class="bip-carousel-inner">
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/scholar']) ?>" class="bip-slide-button">Scholar</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/spaces']) ?>" class="bip-slide-button">Spaces</a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="bip-dots">
+                                                                <span class="dot active" data-slide="0"></span>
+                                                                <span class="dot" data-slide="1"></span>
+                                                                <span class="dot" data-slide="2"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
-                        <div class="panel panel-default text-left">
-                            
-                        </div>
-                        <p><small>
-                            We kindly request that any published research making use of the BIP Services includes a citation to the relevant publications. 
-                            Please refer <?= Html::a('here', ['/site/about#how-to-cite'], ['class' => 'main-green']) ?> for citation guidelines.
-                        </small></p>
                     <?php } ?>
                 </div>
-            <?php } ?>
-    </div>
 </div>
     <?php
         Modal::begin(['headerOptions' => ['id' => 'modalHeader'],
