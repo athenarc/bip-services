@@ -33,9 +33,11 @@ $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END
 
 $this->registerCssFile('@web/css/tags.css');
 
-$this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/indexAnimation.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/site.css', ['depends' => [\yii\bootstrap\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/animateIndicators.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 
 // set vars to be used in the view
@@ -258,6 +260,7 @@ if ($in_space) {
                                 <p class="help-text" style="text-align: center;">No results found!<br/>
                                 Please check your spelling or try again with different input parameters</p>
                             <?php } else { ?>
+
                                 <!-- Layout Blocks Container -->
                                 <div class="container">
                                     <div class="bip-home-layout bip-animate">
@@ -266,7 +269,7 @@ if ($in_space) {
                                         <div class="panel panel-default bip-animate bip-info-panel">
                                             <div class="panel-body">
                                             BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
-                                            <a href="<?= Url::to(['site/about']) ?>" class="light-grey-link" target="_blank">
+                                            <a href="<?= Url::to(['site/about']) ?>" class="main-green" target="_blank">
                                                 Learn more <i class="fa fa-external-link-square" aria-hidden="true"></i>
                                             </a>
                                             </div>
@@ -293,7 +296,7 @@ if ($in_space) {
                                                 <!-- Research Works Counter -->
                                                 <div class="panel panel-default bip-counter bip-animate">
                                                     <div class="panel-body text-center">
-                                                        <strong id="counter-number" data-target="<?= $articlesCount ?>">0</strong><br/>
+                                                        <strong class="animate-indicator" id="counter-number" data-target="<?= $articlesCount ?>">0</strong><br/>
                                                         Research works indexed
                                                     </div>
                                                 </div>
@@ -305,15 +308,15 @@ if ($in_space) {
                                                             <div class="bip-carousel-inner">
                                                                 <div class="bip-carousel-item">
                                                                     <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
-                                                                    <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
-                                                                </div>
-                                                                <div class="bip-carousel-item">
-                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
                                                                     <a href="<?= Url::to(['/scholar']) ?>" class="bip-slide-button">Scholar</a>
                                                                 </div>
                                                                 <div class="bip-carousel-item">
                                                                     <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
                                                                     <a href="<?= Url::to(['/spaces']) ?>" class="bip-slide-button">Spaces</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
                                                                 </div>
                                                             </div>
 
@@ -325,6 +328,7 @@ if ($in_space) {
                                                         </div>
                                                     </div>
                                                 </div>
+ 
                                             </div>
                                         </div>
                                     </div>
