@@ -20,18 +20,11 @@ class AdminStats extends Model {
 
     public function getStats(){
 
-        $this->total_users = self::getTotalUsers();
         $this->total_scholar_profiles = self::getTotalScholarProfiles();
         $this->total_public_scholar_profiles = self::getTotalPublicScholarProfiles();
         $this->total_users_likes = self::getTotalUserLikes();
         $this->total_users_with_likes = self::getTotalUserswithLikes();
     }
-
-
-    public static function getTotalUsers(){
-        return User::find()->count();
-    }
-
 
     public static function getTotalScholarProfiles(){
         return Researcher::find()->where(['not', ['orcid' => null]])->count();

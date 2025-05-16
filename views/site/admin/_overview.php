@@ -17,8 +17,7 @@ echo Html::cssFile('@web/css/template/green-black.css');
         <div class="panel panel-default">
             <div class="panel-heading">User Statistics</div>
                 <div class="panel-body">
-                    <p><strong>Number of Users:</strong> <?= $stats->total_users ?></p>
-                    <div style="position:relative; height:50%; width:50">
+                    <div style="position:relative; width:48%">
                         <canvas id="registered_users-bar-plot"></canvas>
                     </div>
                     <script>
