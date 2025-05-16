@@ -17,6 +17,7 @@ use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use yii\helpers\StringHelper;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 use yii\data\Pagination;
 use app\models\LoginForm;
 use app\models\SignupForm;
@@ -1215,11 +1216,15 @@ class SiteController extends Controller
         $stats = new AdminStats();
         $stats->getStats();
 
+        [$graph_labels, $graph_data] = AdminStats::getMonthlyUserData();
+
 
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
-                'stats' => $stats
+                'stats' => $stats,
+                'graph_labels' => Json::encode($graph_labels),
+                'graph_data' => Json::encode($graph_data)
             ],
         ]);
     }
