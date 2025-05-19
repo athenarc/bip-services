@@ -853,26 +853,11 @@ body {
     color: #808080;
 }
 
-.concept-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 12px;
-    padding: 0 10px;
-    line-height: 1.2;
-    border-radius: 10px;
-}
-
-.concept-divider {
-    display: inline-flex;
-    align-items: center;
-}
-
-.concept-divider span {
-    color: #808080;
-}
-
 .citation-impact-icons {
+    
+    position: relative;
+    top: -3px;   /* move upward */
+    left: -4px;  /* move slightly left */
     display: flex;
     justify-content: flex-end;
     gap: 12px; 
@@ -899,4 +884,10 @@ body {
     font-family: 'Nunito', sans-serif;
     color: #808080;
     margin-right: 8px;
+}
+.tag.label > span[role="button"] {
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+    padding-bottom: 15px;
 }

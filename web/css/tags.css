@@ -80,8 +80,12 @@
 }
 
 .concept-confidence {
-  margin-left: 5px;
-  padding: 0px 2px;
+  position: relative;
+  top: -6px; /* raise it up — adjust to -2px if needed */
+  margin-left: 4px;
+  padding: 0 2px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .fa-concept-confidence {
@@ -91,8 +95,47 @@
   -webkit-text-fill-color: transparent;
 }
 
+.concept-divider {
+  position: relative;
+  top: -6px;
+  left: -5px; 
+  padding-left: 2px;         
+  display: inline-flex;
+  align-items: center; 
+}
+
+.concept-divider span {
+    padding-bottom: 15px;
+    color: #808080;
+}
+
+.concept-divider > span:first-child {
+  margin-left: 4px;
+}
+
+
 #top_topics_in_results .topic-item {
   cursor:pointer;
   background-color: #ddd;
   border: 1px solid var(--main-color);
+}
+
+.version-link-wrapper {
+    margin-top: 2px;
+    display: block;
+    text-align: right;
+}
+.tag.label {
+    font-size: 12px;
+    align-items: center;
+    line-height: 1;
+    padding: 0.1em 0.4em;
+    margin: 2px;
+    display: inline-block;
+    border-radius: 10px;
+
+    /* Optional, for consistent shape and width */
+    box-sizing: border-box;
+    height: 21.1875px; /* lock height */
+    max-height: 21.1875px;
 }
