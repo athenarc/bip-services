@@ -885,9 +885,16 @@ body {
     color: #808080;
     margin-right: 8px;
 }
+
 .tag.label > span[role="button"] {
     line-height: 1;
     vertical-align: middle;
     display: inline-block;
     padding-bottom: 15px;
 }
+
+.team-member-role {
+    font-style: italic;
+    color: #555;
+}
+
