@@ -1,3 +1,39 @@
+function render_admin_pie_chart(container_id, keys, values, labelText) {
+
+    const ctx = document.getElementById(container_id).getContext('2d');
+
+    const myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: keys,
+            datasets: [{
+                label: labelText,
+                data: values,
+                backgroundColor: [
+                    '#81c784', // Active - soft green
+                    '#ffd54f', // Dormant - soft amber
+                    '#e57373'  // Inactive - soft red
+                ],
+                borderWidth: 1,
+
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: `${labelText} stats`
+                },
+                                
+            }
+        }
+    });
+}
+
 function render_admin_bar_plot(container_id, keys, values, labelText) {
 
     const chartColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color');

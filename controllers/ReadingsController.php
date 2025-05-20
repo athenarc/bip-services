@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use app\controllers\BaseController;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use yii\helpers\StringHelper;
@@ -25,7 +26,7 @@ use app\models\ResponsibleAcadAge;
 use app\models\ReadingList;
 use app\models\ScholarIndicators;
 
-class ReadingsController extends Controller
+class ReadingsController extends BaseController
 {
 
     public $enableCsrfValidation = false;
