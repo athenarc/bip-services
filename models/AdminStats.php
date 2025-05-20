@@ -107,9 +107,44 @@ class AdminStats extends Model {
             $cumulative[] = $runningTotal;
         }
 
-        return [array_values($months), $cumulative];
+        return [
+            'labels' => array_values($months),
+            'data' => $cumulative,
+        ];
     
     }
+
+    public static function getUserActivityData()
+    {
+        $now = new \DateTime();
+        $activeDate = (clone $now)->modify('-7 days')->format('Y-m-d H:i:s');
+        $dormantDate = (clone $now)->modify('-30 days')->format('Y-m-d H:i:s');
+
+        $active = User::find()
+            ->where(['>=', 'last_visited', $activeDate])
+            ->count();
+
+        $dormant = User::find()
+            ->where(['<', 'last_visited', $activeDate])
+            ->andWhere(['>=', 'last_visited', $dormantDate])
+            ->count();
+
+
+        // Inactive: > 30 days ago OR never visited (NULL)
+        $inactive = User::find()
+            ->where([
+            'or',
+            ['<', 'last_visited', $dormantDate],
+            ['last_visited' => null]
+            ])
+            ->count();
+
+        return [
+            'labels' => ['Active (≤7d)', 'Dormant (8-30d)', 'Inactive (>30d)'],
+            'data' => [$active, $dormant, $inactive],
+        ];
+    }
+
 
 
 }

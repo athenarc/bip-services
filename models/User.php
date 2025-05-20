@@ -29,6 +29,13 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return 'users';
     }
 
+    public function rules()
+    {
+        return [
+            [['last_visited'], 'safe'],
+        ];
+    }
+
     /**
      * @Hlias: method to return db record that corresponds to user id
      */

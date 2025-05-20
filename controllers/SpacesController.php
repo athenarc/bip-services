@@ -4,10 +4,12 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
+use app\controllers\BaseController;
 use app\models\User;
 
 
-class SpacesController extends Controller
+class SpacesController extends BaseController
+
 {
 
     public function actionIndex() {

@@ -11,6 +11,7 @@ use app\models\IndicatorsSearch;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use app\controllers\BaseController;
 use app\models\Researcher;
 use yii\web\UploadedFile;
 use yii\filters\VerbFilter;
@@ -73,7 +74,7 @@ use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
 
-class SiteController extends Controller
+class SiteController extends BaseController
 {
 
     public $enableCsrfValidation = false;
@@ -1216,15 +1217,16 @@ class SiteController extends Controller
         $stats = new AdminStats();
         $stats->getStats();
 
-        [$graph_labels, $graph_data] = AdminStats::getMonthlyUserData();
+        $monthly_user_data = AdminStats::getMonthlyUserData();
+        $user_activity_data = AdminStats::getUserActivityData();
 
 
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
                 'stats' => $stats,
-                'graph_labels' => Json::encode($graph_labels),
-                'graph_data' => Json::encode($graph_data)
+                'monthly_user_data' => $monthly_user_data,
+                'user_activity_data' => $user_activity_data
             ],
         ]);
     }
