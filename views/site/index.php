@@ -33,6 +33,7 @@ $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END
 
 $this->registerCssFile('@web/css/tags.css');
 
+
 // set vars to be used in the view
 $keywords = $model->keywords;
 $filters_count = $model->count_filters();
