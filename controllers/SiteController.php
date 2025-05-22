@@ -201,6 +201,27 @@ class SiteController extends BaseController
         // - redirection from a search keyword that gets submitted as a POST request
         
         [ $results, $search_model, $space_model ] = $this->doSearch();
+        
+        // Attach zenodo repo URLs to each result
+        $items = $results['rows'] ?? [];
+
+        foreach ($items as &$item) {
+            if (!empty($item['doi'])) {
+                $doi = strtolower(trim($item['doi']));
+
+                $repoUrl = (new \yii\db\Query())
+                    ->select('code_url')
+                    ->from('zenodo_code_repos')
+                    ->where(['doi' => $doi])
+                    ->scalar();
+
+                $item = new \ArrayObject($item, \ArrayObject::ARRAY_AS_PROPS);
+                $item->zenodo_repo_url = $repoUrl;
+            }
+        }
+
+        $results['rows'] = $items;
+
 
         Url::remember();
 
@@ -937,6 +958,20 @@ class SiteController extends BaseController
         $paper_id = Yii::$app->request->get('paper_id');
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
+
+        //Attach code repo URLs from zenodo_code_repos
+        foreach ($citations as &$citation) {
+            if (!empty($citation['doi'])) {
+                $repoUrl = (new \yii\db\Query())
+                    ->select('url')
+                    ->from('zenodo_code_repos')
+                    ->where(['doi' => $citation['doi']])
+                    ->scalar();
+
+                $citation['zenodo_repo_url'] = $repoUrl;
+            }
+        }
+
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [

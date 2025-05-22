@@ -127,6 +127,23 @@ $item = $this->context;
                 </div>
             </div>
         <?php endif; ?>
+        
+        <?php if (!empty($item->zenodo_repo_url)): ?>
+            <div class="tag-region grey-text">
+                <div class="bootstrap-tagsinput">
+                    <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i>
+                    <a href="<?= Html::encode($item->zenodo_repo_url) ?>" target="_blank">
+                        <?= Html::encode($item->zenodo_repo_url) ?>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+        <?php if (isset($item->doi)): ?>
+            <pre style="font-size:11px; color:#666;">
+                DOI: <?= Html::encode($item->doi) ?><br>
+                zenodo_repo_url: <?= Html::encode($item->zenodo_repo_url ?? 'null') ?>
+            </pre>
+        <?php endif; ?>
         <?php if (isset($item->show["relations"]) && $item->show['relations']): ?>
             <!-- relations -->
             <?php if (!empty($item->relations)): ?>
