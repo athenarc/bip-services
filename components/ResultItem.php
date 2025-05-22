@@ -49,6 +49,7 @@ class ResultItem extends Widget
     public $is_oa;
     public $type;
     public $search_context;
+    public $repo_url;
     public $concepts;
     public $annotations;
     public $relations;

@@ -202,6 +202,7 @@ class SiteController extends BaseController
         
         [ $results, $search_model, $space_model ] = $this->doSearch();
         
+        // TODO: the following code should be moved inside the model that performs the search and returns results
         // Attach zenodo repo URLs to each result
         $items = $results['rows'] ?? [];
 
@@ -959,6 +960,7 @@ class SiteController extends BaseController
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
 
+        // TODO: Not sure what is the purpose of this code here. 
         //Attach code repo URLs from zenodo_code_repos
         foreach ($citations as &$citation) {
             if (!empty($citation['doi'])) {
