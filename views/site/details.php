@@ -146,15 +146,18 @@ if ($in_space) {
                     <?php endif; ?>
             <?php } ?>
         </div>
-        <div class='article-info'> 
-            <b>Code Repository:</b>
+         
+            
             <?php if (!empty($article->repo_url)){ ?> 
-                <a href="<?= Html::encode($article->repo_url) ?>" target="_blank" class="main-green">
-                    <?= Html::encode($article->repo_url) ?>
-                    <i class="fa fa-external-link-square" aria-hidden="true"></i></br>
-                </a>    
+                <div class='article-info'>
+                    <b>Code Repository:</b>
+                        <a href="<?= Html::encode($article->repo_url) ?>" target="_blank" class="main-green">
+                            <?= Html::encode($article->repo_url) ?>
+                            <i class="fa fa-external-link-square" aria-hidden="true"></i></br>
+                        </a> 
+                </div>   
             <?php } ?>
-        </div>
+        
         <div class='row'>
             <div class='col-xs-12'>
                 <div class='article-info'>
