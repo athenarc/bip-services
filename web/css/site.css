@@ -856,8 +856,8 @@ body {
 .citation-impact-icons {
     
     position: relative;
-    top: -3px;   /* move upward */
-    left: -4px;  /* move slightly left */
+    top: -3px;   
+    left: -4px;  
     display: flex;
     justify-content: flex-end;
     gap: 12px; 
@@ -885,7 +885,6 @@ body {
     color: #808080;
     margin-right: 8px;
 }
-
 .tag.label > span[role="button"] {
     line-height: 1;
     vertical-align: middle;
@@ -893,8 +892,6 @@ body {
     padding-bottom: 15px;
 }
 
-.team-member-role {
-    font-style: italic;
-    color: #555;
+.version-code-repo {
+    margin-left: 3px; 
 }
-

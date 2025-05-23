@@ -146,12 +146,20 @@ if ($in_space) {
                     <?php endif; ?>
             <?php } ?>
         </div>
+        <div class='article-info'> 
+            <b>Code Repository:</b>
+            <?php if (!empty($article->repo_url)){ ?> 
+                <a href="<?= Html::encode($article->repo_url) ?>" target="_blank" class="main-green">
+                    <?= Html::encode($article->repo_url) ?>
+                    <i class="fa fa-external-link-square" aria-hidden="true"></i></br>
+                </a>    
+            <?php } ?>
+        </div>
         <div class='row'>
             <div class='col-xs-12'>
                 <div class='article-info'>
                     
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
-
                     <b>External links:</b>
                     <?php if(!empty($article->doi) && $article->getPidName() === 'DOI'){ ?>
                         <a href="https://search.crossref.org/search/works?q=<?= $article->doi ?>&from_ui=yes" target='_blank' class="main-green">Crossref <i class="fa fa-external-link-square" aria-hidden="true"></i></a>

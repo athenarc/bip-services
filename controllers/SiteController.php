@@ -203,24 +203,8 @@ class SiteController extends BaseController
         [ $results, $search_model, $space_model ] = $this->doSearch();
         
         // Attach zenodo repo URLs to each result
-        $items = $results['rows'] ?? [];
-
-        foreach ($items as &$item) {
-            if (!empty($item['doi'])) {
-                $doi = strtolower(trim($item['doi']));
-
-                $repoUrl = (new \yii\db\Query())
-                    ->select('code_url')
-                    ->from('zenodo_code_repos')
-                    ->where(['doi' => $doi])
-                    ->scalar();
-
-                $item = new \ArrayObject($item, \ArrayObject::ARRAY_AS_PROPS);
-                $item->zenodo_repo_url = $repoUrl;
-            }
-        }
-
-        $results['rows'] = $items;
+        
+        $results['rows'] = Article::enrichWithZenodoRepoUrls($results['rows'] ?? []);
 
 
         Url::remember();
@@ -448,6 +432,16 @@ class SiteController extends BaseController
         //Render details page
 
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
+        
+        // Attach code repository URL from zenodo_code_repos table based on DOI
+        $doi = strtolower(trim($article->doi ?? ''));
+        if (!empty($doi)) {
+            $article->repo_url = (new \yii\db\Query())
+                ->select('code_url') // or 'url' depending on your table
+                ->from('zenodo_code_repos')
+                ->where(['doi' => $doi])
+                ->scalar();
+        }
 
         return $this->render('details', [
             'article' => $article,
@@ -958,20 +952,6 @@ class SiteController extends BaseController
         $paper_id = Yii::$app->request->get('paper_id');
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
-
-        //Attach code repo URLs from zenodo_code_repos
-        foreach ($citations as &$citation) {
-            if (!empty($citation['doi'])) {
-                $repoUrl = (new \yii\db\Query())
-                    ->select('url')
-                    ->from('zenodo_code_repos')
-                    ->where(['doi' => $citation['doi']])
-                    ->scalar();
-
-                $citation['zenodo_repo_url'] = $repoUrl;
-            }
-        }
-
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [
