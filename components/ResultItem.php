@@ -56,7 +56,6 @@ class ResultItem extends Widget
     public $space_url_suffix;
     public $space_annotation_db;
     public $for_print;
-    public $repo_url;
     
     /*
      * Widget initialisation a.k.a. setting widget properties
