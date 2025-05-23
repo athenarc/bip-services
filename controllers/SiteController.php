@@ -432,8 +432,7 @@ class SiteController extends BaseController
         //Render details page
 
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
-        
-        // Attach code repository URL from zenodo_code_repos table based on DOI
+        // Attach code repository URL from zenodo_code_repos table based on article DOI
         $doi = strtolower(trim($article->doi ?? ''));
         if (!empty($doi)) {
             $article->repo_url = (new \yii\db\Query())
@@ -952,6 +951,21 @@ class SiteController extends BaseController
         $paper_id = Yii::$app->request->get('paper_id');
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
+
+        // TODO: Not sure what is the purpose of this code here. 
+        //Attach code repo URLs from zenodo_code_repos
+        foreach ($citations as &$citation) {
+            if (!empty($citation['doi'])) {
+                $repoUrl = (new \yii\db\Query())
+                    ->select('url')
+                    ->from('zenodo_code_repos')
+                    ->where(['doi' => $citation['doi']])
+                    ->scalar();
+
+                $citation['zenodo_repo_url'] = $repoUrl;
+            }
+        }
+
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [

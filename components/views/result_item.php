@@ -132,8 +132,8 @@ $item = $this->context;
             <div class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
                     <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i>
-                    <a href="<?= Html::encode($item->repo_url) ?>" target="_blank" class="grey-link version-code-repo">
-                        <?= Html::encode($item->repo_url) ?>
+                    <a href="<?= Html::encode($item->zenodo_repo_url) ?>" target="_blank">
+                        <?= Html::encode($item->zenodo_repo_url) ?>
                     </a>
                 </div>
             </div>
