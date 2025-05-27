@@ -895,3 +895,8 @@ body {
 .version-code-repo {
     margin-left: 3px; 
 }
+
+.team-member-role {
+    font-style: italic;
+    color: #555;
+}
