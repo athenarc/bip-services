@@ -2627,9 +2627,14 @@ class SiteController extends BaseController
 
     public function actionChangePassword()
     {
-        $model = new ChangePasswordForm();
+        // if not logged in, redirect to login page
         $user = Yii::$app->user->identity;
+        if (!$user) {
+            return $this->redirect(['site/login']);
+        }
 
+        $model = new ChangePasswordForm();
+        
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->changePassword($user)) {
                 Yii::$app->session->setFlash('success', 'Password changed successfully.');
