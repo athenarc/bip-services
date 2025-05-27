@@ -73,6 +73,7 @@ use app\models\Orcid;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
+use app\models\ChangePasswordForm;
 
 class SiteController extends BaseController
 {
@@ -2622,5 +2623,26 @@ class SiteController extends BaseController
         }
 
         return $this->render('feedback', ['model' => $model]);
+    }
+
+    public function actionChangePassword()
+    {
+        // if not logged in, redirect to login page
+        $user = Yii::$app->user->identity;
+        if (!$user) {
+            return $this->redirect(['site/login']);
+        }
+
+        $model = new ChangePasswordForm();
+        
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->changePassword($user)) {
+                Yii::$app->session->setFlash('success', 'Password changed successfully.');
+                return $this->refresh();
+            }
+        }
+
+        return $this->render('change_password', ['model' => $model]);
+        
     }
 }
