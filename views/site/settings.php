@@ -87,6 +87,18 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                         </div>
                     </div>
                 </div>
+                <h3>Account</h3>
+                <div class="list-group list-group-shadow">
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
+                            <div>
+                            <div class="grey-text"><b>Change password</b></div>
+                                <div class="text-muted-settings">Manage your account security by changing your current password.</div>
+                            </div>
+                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class'=>'main-green']) ?>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
