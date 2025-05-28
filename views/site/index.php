@@ -171,6 +171,17 @@ if ($in_space) {
                 </div>
             <?php } ?>
             <?php ActiveForm::end(); ?>
+
+            <?php if (isset($author) && $author): ?>
+                <div class="panel-body text-left grey-text" style="font-size: 1.2em;">
+                    We also found author <strong><?= htmlspecialchars($author->name) ?></strong>
+                    with a profile on 
+                    <a class="main-green" href="<?= \yii\helpers\Url::to(['/scholar/profile', 'orcid' => $author->orcid]) ?>">
+                        BIP Scholar
+                    </a>
+                </div>
+            <?php endif; ?>
+
             <a href='<?=Url::to(['site/comparison'])?>' target='_blank' id='comparison' class='btn btn-warning'></a>
             <div id='clear-comparison' onclick="clearSelected();">
                 Clear all<i class="fa fa-times" aria-hidden="true"></i>

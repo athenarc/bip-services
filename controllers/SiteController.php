@@ -207,11 +207,19 @@ class SiteController extends BaseController
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
+        $keywords = Yii::$app->request->get('keywords');
+        $author = null;
+
+        if (!empty($keywords)) {
+            $author = Researcher::findPublicByName($keywords);
+        }
+
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
+            'author' => $author,
             // 'author_list' => $author_list,
         ]);
     }
