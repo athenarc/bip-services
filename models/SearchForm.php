@@ -837,6 +837,29 @@ class SearchForm extends Model
         $rows = Spaces::fetchAnnotations($rows, $this->space_model);
         // get relations
         $rows = Relations::getRelations($rows);
+        // attach zenodo code repo URLs in one query
+        $dois = array_filter(array_column($rows, 'doi'));
+        $doi_to_url = [];
+
+        if (!empty($dois)) {
+            $result = (new \yii\db\Query())
+                ->select(['doi', 'code_url'])
+                ->from('zenodo_code_repos')
+                ->where(['doi' => array_map('strtolower', array_map('trim', $dois))])
+                ->indexBy('doi')
+                ->all();
+
+            foreach ($result as $doi => $row) {
+                    $doi_to_url[strtolower(trim($doi))] = $row['code_url'];
+                }
+
+            foreach ($rows as &$row) {
+                $doi_key = strtolower(trim($row['doi'] ?? ''));
+                if (isset($doi_to_url[$doi_key])) {
+                    $row['zenodo_repo_url'] = $doi_to_url[$doi_key];
+                }
+            }
+        }
 
         return $rows;
     }

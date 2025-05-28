@@ -740,21 +740,16 @@
         return "PubMed Id";
     }
 
-    public static function enrichWithZenodoRepoUrls(array $items, string $doiKey = 'doi', string $urlKey = 'zenodo_repo_url'): array {
-        foreach ($items as &$item) {
-            if (!empty($item[$doiKey])) {
-                $doi = strtolower(trim($item[$doiKey]));
-
-                $repoUrl = (new \yii\db\Query())
-                    ->select('code_url')
-                    ->from('zenodo_code_repos')
-                    ->where(['doi' => $doi])
-                    ->scalar();
-
-                $item[$urlKey] = $repoUrl;
-            }
+    public static function getCodeRepoUrlByDoi($doi)
+    {
+        if (empty($doi)) {
+            return null;
         }
-        return $items;
+        return (new \yii\db\Query())
+            ->select('code_url')
+            ->from('zenodo_code_repos')
+            ->where(['doi' => strtolower(trim($doi))])
+            ->scalar();
     }
-        
+            
 }

@@ -203,11 +203,6 @@ class SiteController extends BaseController
         
         [ $results, $search_model, $space_model ] = $this->doSearch();
         
-        // Attach zenodo repo URLs to each result
-        
-        $results['rows'] = Article::enrichWithZenodoRepoUrls($results['rows'] ?? []);
-
-
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
@@ -434,14 +429,7 @@ class SiteController extends BaseController
 
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
         // Attach code repository URL from zenodo_code_repos table based on article DOI
-        $doi = strtolower(trim($article->doi ?? ''));
-        if (!empty($doi)) {
-            $article->repo_url = (new \yii\db\Query())
-                ->select('code_url') // or 'url' depending on your table
-                ->from('zenodo_code_repos')
-                ->where(['doi' => $doi])
-                ->scalar();
-        }
+        $article->repo_url = \app\models\Article::getCodeRepoUrlByDoi($article->doi);
 
         return $this->render('details', [
             'article' => $article,
@@ -953,19 +941,6 @@ class SiteController extends BaseController
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
 
-        // TODO: Not sure what is the purpose of this code here. 
-        //Attach code repo URLs from zenodo_code_repos
-        foreach ($citations as &$citation) {
-            if (!empty($citation['doi'])) {
-                $repoUrl = (new \yii\db\Query())
-                    ->select('url')
-                    ->from('zenodo_code_repos')
-                    ->where(['doi' => $citation['doi']])
-                    ->scalar();
-
-                $citation['zenodo_repo_url'] = $repoUrl;
-            }
-        }
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
