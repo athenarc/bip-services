@@ -172,11 +172,15 @@ if ($in_space) {
             <?php } ?>
             <?php ActiveForm::end(); ?>
 
-            <?php if (!empty($researcherCount) && !empty($researcherSearchUrl)): ?>
-                <div class="panel-body text-left grey-text" style="font-size: 1.2em;">
+            <?php if (!empty($researcher_count)): ?>
+                <div id="researcher_panel" class="panel-body text-left grey-text" style="font-size: 1.2em;">
                     Searching for a researcher? Found
-                    <a class="main-green" href="<?= htmlspecialchars($researcherSearchUrl) ?>"> 
-                        <?= $researcherCount ?> researcher profile<?= $researcherCount > 1 ? 's' : '' ?>
+                    <a class="main-green" href="<?= Url::to([
+                        '/scholar/search',
+                        'keywords' => $keywords,
+                        'ordering' => 'name'
+                    ]) ?>">
+                        <?= $researcher_count ?> researcher profile<?= $researcher_count > 1 ? 's' : '' ?>
                     </a>
                     matching this query.
                 </div>
