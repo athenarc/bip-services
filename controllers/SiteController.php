@@ -1218,16 +1218,10 @@ class SiteController extends BaseController
         $stats = new AdminStats();
         $stats->getStats();
 
-        $monthly_user_data = AdminStats::getMonthlyUserData();
-        $user_activity_data = AdminStats::getUserActivityData();
-
-
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
                 'stats' => $stats,
-                'monthly_user_data' => $monthly_user_data,
-                'user_activity_data' => $user_activity_data
             ],
         ]);
     }
