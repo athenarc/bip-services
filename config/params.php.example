@@ -135,6 +135,7 @@ return [
     'defaultTemplateUrlName' => 'Inclusive_Profile',
     'solrHost' => '[solr_host]'
     'pdfExportService' => '[pdf_export_service_url]',
+    'summarizeService' => '[summarization_service_url]',
     'defaultElementHeadingType' => 'h3',
     // this array maps bip space names to pilot graph names as they are indexed in solr
     'spaceSolrNames' => [

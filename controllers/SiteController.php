@@ -1992,7 +1992,7 @@ class SiteController extends BaseController
                                             }
                                         }
                                     }
-                
+
                                     if ($dropdownFlag) {
                                         $transaction->commit();
                                     }
@@ -2622,5 +2622,65 @@ class SiteController extends BaseController
         }
 
         return $this->render('feedback', ['model' => $model]);
+    }
+
+    public function actionSummarize()
+    {
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        try {
+            $paperIds = Yii::$app->request->post('paperIds');
+            $limit = Yii::$app->request->post('limit');
+            $keywords = Yii::$app->request->post('keywords');
+
+            if (empty($paperIds)) {
+                throw new \Exception("No papers provided");
+            }
+            
+            // Fetch papers from database
+            $papers = (new \yii\db\Query())
+                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract'])
+                ->from('pmc_paper')
+                ->where(['in', 'internal_id', $paperIds])
+                ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
+                ->limit($limit)
+                ->all();
+
+            if (empty($papers)) {
+                throw new \Exception("No papers found");
+            }
+
+            $client = Yii::$app->httpClient;
+            $response = $client->createRequest()
+                ->setMethod('POST') 
+                ->setUrl(Yii::$app->params['summarizeService'] . '/summarize/')
+                ->addHeaders(['Content-Type' => 'application/json'])
+                ->setContent(Json::encode([
+                    'papers' => $papers,
+                    'topic_name' => $keywords,
+                ]))
+                ->send();
+            
+            if ($response->isOk) {
+                $summary = $response->data['summary'] ?? 'No summary available';
+
+                foreach ($papers as $i => $paper) {
+                    $id = $paper['id'];
+                    $url = Url::to(['site/details', 'id' => $paper['doi']], true);
+                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . ($i + 1) . '</a>';
+                    
+                    $summary = str_replace($id, $link, $summary);
+                }
+
+                return $summary;
+
+            } else {
+                return "Failed to summarize results.";
+            }
+
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 }
