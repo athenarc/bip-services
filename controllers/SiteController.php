@@ -208,10 +208,22 @@ class SiteController extends BaseController
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         $keywords = Yii::$app->request->get('keywords');
-        $author = null;
+
+        $researcherCount = 0;
+        $researcherSearchUrl = null;
 
         if (!empty($keywords)) {
-            $author = Researcher::findPublicByName($keywords);
+            $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
+            $scholarResults = $search_model_researcher->search();
+            $researcherCount = count($scholarResults['rows']);
+
+            if ($researcherCount > 0) {
+                $researcherSearchUrl = Url::to([
+                    '/scholar/search',
+                    'keywords' => $keywords,
+                    'ordering' => 'name'
+                ]);
+            }
         }
 
         return $this->render('index', [
@@ -219,7 +231,8 @@ class SiteController extends BaseController
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
-            'author' => $author,
+            'researcherCount' => $researcherCount,
+            'researcherSearchUrl' => $researcherSearchUrl,
             // 'author_list' => $author_list,
         ]);
     }

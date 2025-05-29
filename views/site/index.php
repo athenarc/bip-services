@@ -172,13 +172,13 @@ if ($in_space) {
             <?php } ?>
             <?php ActiveForm::end(); ?>
 
-            <?php if (isset($author) && $author): ?>
+            <?php if (!empty($researcherCount) && !empty($researcherSearchUrl)): ?>
                 <div class="panel-body text-left grey-text" style="font-size: 1.2em;">
-                    We also found author <strong><?= htmlspecialchars($author->name) ?></strong>
-                    with a profile on 
-                    <a class="main-green" href="<?= \yii\helpers\Url::to(['/scholar/profile', 'orcid' => $author->orcid]) ?>">
-                        BIP Scholar
+                    Searching for a researcher? Found
+                    <a class="main-green" href="<?= htmlspecialchars($researcherSearchUrl) ?>"> 
+                        <?= $researcherCount ?> researcher profile<?= $researcherCount > 1 ? 's' : '' ?>
                     </a>
+                    matching this query.
                 </div>
             <?php endif; ?>
 

@@ -47,13 +47,4 @@ class Researcher extends ActiveRecord {
 
         return $researcher;
     }
-
-    public static function findPublicByName($name)
-    {
-        return self::find()
-            ->where(['like', 'name', $name])
-            ->andWhere(['is_public' => 1])
-            ->one();
-    }
-
 }
