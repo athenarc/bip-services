@@ -171,6 +171,21 @@ if ($in_space) {
                 </div>
             <?php } ?>
             <?php ActiveForm::end(); ?>
+
+            <?php if (!empty($researcher_count)): ?>
+                <div id="researcher_panel" class="panel-body text-left grey-text" style="font-size: 1.2em;">
+                    Searching for a researcher? Found
+                    <a class="main-green" href="<?= Url::to([
+                        '/scholar/search',
+                        'keywords' => $keywords,
+                        'ordering' => 'name'
+                    ]) ?>">
+                        <?= $researcher_count ?> researcher profile<?= $researcher_count > 1 ? 's' : '' ?>
+                    </a>
+                    matching this query.
+                </div>
+            <?php endif; ?>
+
             <a href='<?=Url::to(['site/comparison'])?>' target='_blank' id='comparison' class='btn btn-warning'></a>
             <div id='clear-comparison' onclick="clearSelected();">
                 Clear all<i class="fa fa-times" aria-hidden="true"></i>

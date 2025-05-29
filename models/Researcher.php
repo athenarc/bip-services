@@ -47,5 +47,4 @@ class Researcher extends ActiveRecord {
 
         return $researcher;
     }
-
 }

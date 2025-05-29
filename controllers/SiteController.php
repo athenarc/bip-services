@@ -207,12 +207,22 @@ class SiteController extends BaseController
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
+        $keywords = Yii::$app->request->get('keywords');
+
+        $researcher_count = 0;
+
+        if (!empty($keywords)) {
+            $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
+            $scholar_results = $search_model_researcher->search();
+            $researcher_count = count($scholar_results['rows']);
+        }
+
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
-            // 'author_list' => $author_list,
+            'researcher_count' => $researcher_count,
         ]);
     }
 
