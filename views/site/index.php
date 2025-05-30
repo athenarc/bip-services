@@ -30,6 +30,7 @@ $this->registerJsFile('@web/js/beforeSearchFormSubmit.js', ['position' => View::
 $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 
@@ -205,6 +206,7 @@ if ($in_space) {
                             <button class="btn btn-default">Summarize top results</button>
                         </div>
                     </div>
+
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
                             <?php foreach($results['rows'] as $result ) {
