@@ -188,13 +188,21 @@ if ($in_space) {
                     
                     <?= TopTopicsItem::widget([]) ?>
 
-                    <div id="results_hdr" class='row'>
-                        <div class='col-md-3 text-center results-header'><?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results (<?=  Yii::$app->formatter->asDecimal($results['pagination']->pageCount,0) ?> pages)</div>
-                        <div class='col-md-6 text-center'><?= LinkPager::widget(['pagination'=>$results['pagination'],
-                            'maxButtonCount'=>5,
-                            'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
-                            'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
-                        ?>
+                    <div id="results_hdr" class='results-flex-container'>
+                        <div class="results-count text-center">
+                            <?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results
+                            (<?= Yii::$app->formatter->asDecimal($results['pagination']->pageCount, 0) ?> pages)
+                        </div>
+                        <div class="results-pagination text-center">
+                            <?= LinkPager::widget([
+                                'pagination' => $results['pagination'],
+                                'maxButtonCount' => 5,
+                                'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
+                                'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>'
+                            ]); ?>
+                        </div>
+                        <div class="results-summary-button">
+                            <button class="btn btn-default">Summarize top results</button>
                         </div>
                     </div>
                     <div id='results_tbl' class='row'>

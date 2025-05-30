@@ -898,3 +898,26 @@ body {
     color: #555;
 }
 
+.results-flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.results-count,
+.results-pagination,
+.results-summary-button {
+  flex: 1 1 auto;
+  min-width: 250px;
+}
+
+@media (max-width: 768px) {
+  .results-flex-container {
+    flex-direction: column;
+  }
+}
+
