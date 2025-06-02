@@ -34,7 +34,7 @@ function render_admin_pie_chart(container_id, keys, values, labelText) {
                             const val = context.raw;
                             const total = context.dataset.data.reduce((sum, n) => sum + n, 0);
                             const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
-                            return `${labelText} : ${val}/${total} (${pct}%)`;
+                            return ` ${val} out of ${total} (${pct}%)`;
                         }
                     }
                 },
