@@ -86,7 +86,7 @@ class AdminStats extends Model {
 
         return [
             'labels' => ['Active (≤7d)', 'Dormant (8-30d)', 'Inactive (>30d)'],
-            'data' => [$active, $dormant, $inactive],
+            'data' => [(int)$active, (int)$dormant, (int)$inactive],
         ];
     }
 

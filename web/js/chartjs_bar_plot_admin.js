@@ -7,7 +7,7 @@ function render_admin_pie_chart(container_id, keys, values, labelText) {
         data: {
             labels: keys,
             datasets: [{
-                label: labelText,
+                // label: labelText,
                 data: values,
                 backgroundColor: [
                     '#81c784', // Active - soft green
@@ -28,7 +28,16 @@ function render_admin_pie_chart(container_id, keys, values, labelText) {
                     display: true,
                     text: `${labelText} stats`
                 },
-                                
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const val = context.raw;
+                            const total = context.dataset.data.reduce((sum, n) => sum + n, 0);
+                            const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+                            return `${labelText} : ${val}/${total} (${pct}%)`;
+                        }
+                    }
+                },
             }
         }
     });
