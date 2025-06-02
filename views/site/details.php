@@ -97,7 +97,25 @@ if ($in_space) {
         </div>
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('abstract') ?>:</b> <?= $article->abstract ?>
-        </div>
+        </div> 
+
+        <!--Impact-->
+        <?= ImpactIcons::widget([
+            'popularity_class'   => $article->pop_class,
+            'influence_class'    => $article->inf_class,
+            'impulse_class'      => $article->imp_class,
+            'cc_class'           => $article->cc_class,
+            'popularity_score'   => $article->attrank,
+            'influence_score'    => $article->pagerank,
+            'impulse_score'      => $article->{'3y_cc'},
+            'cc_score'           => $article->citation_count,
+            'impact_indicators'  => $indicators,
+            'num_likes' => $article->getNumLikes(),
+            'num_views' => $article->getGuestViews() + $article->getUserViews(),
+            'options' => ['showScoreLabel' => true],
+        ]) ?>
+        
+
         <div class='article-info tag-region'>
 
             <div class="bootstrap-tagsinput">
@@ -131,15 +149,7 @@ if ($in_space) {
         <div class='row'>
             <div class='col-xs-12'>
                 <div class='article-info'>
-
-                    <b>BIP! social metrics:</b>
-                    <span title="Num. of user bookmarks">
-                        <i class="fa fa-bookmark" aria-hidden="true"></i> <?= $article->getNumLikes() ?>
-                    </span>
-                    <span title="Num. of unique page views">
-                        <i class="fa fa-eye" aria-hidden="true"></i> <?= $article->getGuestViews() + $article->getUserViews() ?>
-                    </span>
-                    <br/>
+                    
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
 
                     <b>External links:</b>

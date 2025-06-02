@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use app\controllers\BaseController;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use yii\helpers\StringHelper;
@@ -43,7 +44,7 @@ use app\models\ElementTable;
 use app\models\ElementTableInstances;
 use app\components\common\CommonUtils;
 
-class ScholarController extends Controller
+class ScholarController extends BaseController
 {
 
     public $enableCsrfValidation = false;

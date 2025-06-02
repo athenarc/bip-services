@@ -800,6 +800,99 @@ body {
     color: var(--main-color)
 }
 
+.impact-icons-wrapper {
+    margin: 6px 0 6px 6px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.impact-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.impact-header {
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    color: #808080;
+}
+
+.impact-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.impact-score {
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    color: #808080;
+}
+
+.attention-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.attention-header {
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    color: #808080;
+}
+
+.attention-icon {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #808080;
+}
+
+.citation-impact-icons {
+    
+    position: relative;
+    top: -3px;   /* move upward */
+    left: -4px;  /* move slightly left */
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px; 
+}
+
+.version-link {
+    font-size: 75%;
+}
+
+.tag.label .impact-icon i::before {
+    color: rgb(201, 201, 201) !important;
+}
+
+.citation-scores {
+    margin: 3px 0 4px 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.citation-impact-label {
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    color: #808080;
+    margin-right: 8px;
+}
+
+.tag.label > span[role="button"] {
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+    padding-bottom: 15px;
+}
+
 .team-member-role {
     font-style: italic;
     color: #555;

@@ -9,6 +9,7 @@ $(document).ready(function()
             $("#results_ftr").hide();
             $("#results_set").hide();
             $("#top_topics").hide();
+            $("#researcher_panel").hide();
 
             $("#loading_results").show();
             return true;

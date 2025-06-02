@@ -39,7 +39,6 @@ $this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\Jquery
 $this->registerCssFile('@web/css/site.css', ['depends' => [\yii\bootstrap\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/animateIndicators.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-
 // set vars to be used in the view
 $keywords = $model->keywords;
 $filters_count = $model->count_filters();
@@ -177,6 +176,21 @@ if ($in_space) {
                 </div>
             <?php } ?>
             <?php ActiveForm::end(); ?>
+
+            <?php if (!empty($researcher_count)): ?>
+                <div id="researcher_panel" class="panel-body text-left grey-text" style="font-size: 1.2em;">
+                    Searching for a researcher? Found
+                    <a class="main-green" href="<?= Url::to([
+                        '/scholar/search',
+                        'keywords' => $keywords,
+                        'ordering' => 'name'
+                    ]) ?>">
+                        <?= $researcher_count ?> researcher profile<?= $researcher_count > 1 ? 's' : '' ?>
+                    </a>
+                    matching this query.
+                </div>
+            <?php endif; ?>
+
             <a href='<?=Url::to(['site/comparison'])?>' target='_blank' id='comparison' class='btn btn-warning'></a>
             <div id='clear-comparison' onclick="clearSelected();">
                 Clear all<i class="fa fa-times" aria-hidden="true"></i>

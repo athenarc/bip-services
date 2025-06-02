@@ -11,12 +11,14 @@ use app\models\IndicatorsSearch;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use app\controllers\BaseController;
 use app\models\Researcher;
 use yii\web\UploadedFile;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use yii\helpers\StringHelper;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 use yii\data\Pagination;
 use app\models\LoginForm;
 use app\models\SignupForm;
@@ -71,8 +73,9 @@ use app\models\Orcid;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
+use app\models\ChangePasswordForm;
 
-class SiteController extends Controller
+class SiteController extends BaseController
 {
 
     public $enableCsrfValidation = false;
@@ -203,14 +206,23 @@ class SiteController extends Controller
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
         $articlesCount = Article::find()->count();
+        $keywords = Yii::$app->request->get('keywords');
+
+        $researcher_count = 0;
+
+        if (!empty($keywords)) {
+            $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
+            $scholar_results = $search_model_researcher->search();
+            $researcher_count = count($scholar_results['rows']);
+        }
 
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
+            'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
-            // 'author_list' => $author_list,
         ]);
     }
 
@@ -1216,11 +1228,10 @@ class SiteController extends Controller
         $stats = new AdminStats();
         $stats->getStats();
 
-
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
-                'stats' => $stats
+                'stats' => $stats,
             ],
         ]);
     }
@@ -2616,5 +2627,26 @@ class SiteController extends Controller
         }
 
         return $this->render('feedback', ['model' => $model]);
+    }
+
+    public function actionChangePassword()
+    {
+        // if not logged in, redirect to login page
+        $user = Yii::$app->user->identity;
+        if (!$user) {
+            return $this->redirect(['site/login']);
+        }
+
+        $model = new ChangePasswordForm();
+        
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->changePassword($user)) {
+                Yii::$app->session->setFlash('success', 'Password changed successfully.');
+                return $this->refresh();
+            }
+        }
+
+        return $this->render('change_password', ['model' => $model]);
+        
     }
 }
