@@ -525,9 +525,9 @@ class SearchForm extends Model
         // create a Solr select query
         $query = Yii::$app->solr->createSelect();
 
-        // use dismax query parser and query specific fields
-        $dismax = $query->getDisMax();
-        $dismax->setQueryFields('title abstract authors doi');
+        // use edismax query parser and query specific fields
+        $edismax = $query->getEDisMax();
+        $edismax->setQueryFields('title abstract authors doi');
 
         // return only paper ids and score
         $query->setFields(['internal_id', 'influence', 'popularity', 'impulse', 'citation_count', 'score']);
@@ -635,11 +635,11 @@ class SearchForm extends Model
 
             // form sort clauses based on min-max relavance & impact scores
             $min_sort_clause = 'min(sqrt(sqrt(div(' . $this->ordering . ',' . $max_impact_score . '))),' .
-                            'div(query({!dismax v=$q}),' . $max_relevance_score .'))';
+                            'div(query({!edismax v=$q}),' . $max_relevance_score .'))';
             $query->addSort($min_sort_clause, $query::SORT_DESC);
 
             $max_sort_clause = 'max(sqrt(sqrt(div(' . $this->ordering . ',' . $max_impact_score . '))),' .
-                            'div(query({!dismax v=$q}),' . $max_relevance_score .'))';
+                            'div(query({!edismax v=$q}),' . $max_relevance_score .'))';
             $query->addSort($max_sort_clause, $query::SORT_DESC);
 
         }
