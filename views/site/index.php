@@ -33,6 +33,10 @@ $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END
 
 $this->registerCssFile('@web/css/tags.css');
 
+$this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexAnimation.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/animateIndicators.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 // set vars to be used in the view
 $keywords = $model->keywords;
@@ -263,24 +267,115 @@ if ($in_space) {
                         ?></div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <div id='results_set'>
-                    <?php if( $keywords!="" ) { ?>
-                        <p class="help-text" style="text-align: center;">No results found!<br/>
-                        Please check your spelling or try again with different input parameters</p>
                     <?php } else { ?>
-                        <br/><br/><br/>
-                        <p>More details about BIP! Finder can be found in our publication:</p>
-                        <div class="panel panel-default text-left">
-                            <div class="panel-body">
-                                T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> <i>In Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, Beijing, China, November 2019 <small><?= Html::a("(BibTeX)", "@web/files/bip-finder.bib", ["class" => "grey-link"] ) ?></small>
-                            </div>
+                        <div id='results_set'>
+                            <?php if( $keywords != "" ) { ?>
+                                <p class="help-text" style="text-align: center;">No results found!<br/>
+                                Please check your spelling or try again with different input parameters</p>
+                            <?php } else { ?>
+
+                                <!-- Layout Blocks Container -->
+                                <div class="container">
+                                    <div class="bip-home-layout bip-animate">
+
+                                        <!-- BIP info Panel -->
+                                        <div class="panel panel-default bip-animate bip-info-panel">
+                                            <div class="panel-body">
+                                            BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
+                                            <a href="<?= Url::to(['site/about']) ?>" class="main-green">
+                                                Learn more <i class="fa fa-external-link-square" aria-hidden="true"></i>
+                                            </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="bip-main-grid">
+
+                                            <!-- Getting Started Panel -->
+                                            <div class="panel panel-default bip-animate bip-started">
+                                                <div class="panel-body">
+                                                    <h3>Getting started</h3>
+                                                    <ul>
+                                                        
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-services-account']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Services account?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-scholar-academic-profile']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Scholar academic profile?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/indicators']) ?>" class="light-grey-link">
+                                                                What indicators are used in BIP! Services?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'downloads']) ?>" class="light-grey-link">
+                                                                Can I download the data?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'api']) ?>" class="light-grey-link">
+                                                                Is there a publicly accessible API?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/about', '#' => 'how-to-cite']) ?>" class="light-grey-link">
+                                                                How do I cite BIP! Services?
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div class="bip-side-boxes bip-animate">
+                                                <!-- Research Works Counter -->
+                                                <div class="panel panel-default bip-counter bip-animate">
+                                                    <div class="panel-body text-center">
+                                                        <strong class="animate-indicator" id="counter-number" data-target="<?= $articlesCount ?>">0</strong><br/>
+                                                        Research works indexed
+                                                    </div>
+                                                </div>
+
+                                                <!-- Carousel -->
+                                                <div class="panel panel-default bip-animate">
+                                                    <div class="panel-body">
+                                                        <div class="bip-carousel">
+                                                            <div class="bip-carousel-inner">
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/scholar']) ?>" class="bip-slide-button">Scholar</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/spaces']) ?>" class="bip-slide-button">Spaces</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="bip-dots">
+                                                                <span class="dot active" data-slide="0"></span>
+                                                                <span class="dot" data-slide="1"></span>
+                                                                <span class="dot" data-slide="2"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+ 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
-                        <p><small>We kindly ask that any published research that makes use of BIP! Finder or its data cites the paper above.</small></p>
                     <?php } ?>
                 </div>
-            <?php } ?>
-    </div>
 </div>
     <?php
         Modal::begin(['headerOptions' => ['id' => 'modalHeader'],

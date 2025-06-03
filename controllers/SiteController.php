@@ -139,7 +139,6 @@ class SiteController extends BaseController
 
             // space
             $space_url_suffix = Yii::$app->request->post('space_url_suffix');
-
             $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
             $space_model->prepareForRequest();
 
@@ -206,7 +205,7 @@ class SiteController extends BaseController
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
-
+        $articlesCount = Article::find()->count();
         $keywords = Yii::$app->request->get('keywords');
 
         $researcher_count = 0;
@@ -223,6 +222,7 @@ class SiteController extends BaseController
             'results' => $results,
             'impact_indicators' => $impact_indicators,
             'researcher_count' => $researcher_count,
+            'articlesCount' => $articlesCount,
         ]);
     }
 
