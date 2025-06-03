@@ -17,7 +17,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
     </h1>
     <hr/>
 
-    <h3>BIP! Services</h3>
+	<a href="#bip-services" class="no-underline"><h3 id="bip-services">BIP! Services</h3></a>
     <div class="help-text">
         <p>
             <b>The suite</b>. BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines. The suite comprises four services, <a href='<?= Url::to(['/search']) ?>' class="main-green" target="_blank">Finder</a>, <a href='<?= Url::to(['/scholar']) ?>' class="main-green" target="_blank">Scholar</a>, <a href='<?= Url::to(['/readings']) ?>' class="main-green" target="_blank">Readings</a>, and <a href='<?= Url::to(['/spaces']) ?>' class="main-green" target="_blank">Spaces</a>, each offering unique functionalities addressed to all professionals conducting research. professionals, and technologists across all disciplines, fostering interdisciplinary cooperation. For more information regarding BIP! Services visit <a href='<?= Url::to(['/site/home']) ?>' class="main-green" target="_blank">here</a>.
@@ -87,7 +87,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
         </div>
     </div>
     
-    <h3 id="how-to-cite">How to cite</h3>
+	<a href="#how-to-cite" class="no-underline"><h3 id="how-to-cite">How to cite</h3></a>
 
     <div class="help-text">
 

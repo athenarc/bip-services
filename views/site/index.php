@@ -36,7 +36,6 @@ $this->registerCssFile('@web/css/tags.css');
 $this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/indexAnimation.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerCssFile('@web/css/site.css', ['depends' => [\yii\bootstrap\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/animateIndicators.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 // set vars to be used in the view
@@ -283,7 +282,7 @@ if ($in_space) {
                                         <div class="panel panel-default bip-animate bip-info-panel">
                                             <div class="panel-body">
                                             BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
-                                            <a href="<?= Url::to(['site/about']) ?>" class="main-green" target="_blank">
+                                            <a href="<?= Url::to(['site/about']) ?>" class="main-green">
                                                 Learn more <i class="fa fa-external-link-square" aria-hidden="true"></i>
                                             </a>
                                             </div>
@@ -296,11 +295,37 @@ if ($in_space) {
                                                 <div class="panel-body">
                                                     <h3>Getting started</h3>
                                                     <ul>
-                                                        <li><a href="#" class="light-grey-link">How can I find the most cited papers?</a></li>
-                                                        <li><a href="#" class="light-grey-link">What is the BIP! Impulse Indicator?</a></li>
-                                                        <li><a href="#" class="light-grey-link">Where can I track influence by topic?</a></li>
-                                                        <li><a href="#" class="light-grey-link">How to use BIP! Finder filters?</a></li>
-                                                        <li><a href="#" class="light-grey-link">Can I compare research fields?</a></li>
+                                                        
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-services-account']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Services account?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-scholar-academic-profile']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Scholar academic profile?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/indicators']) ?>" class="light-grey-link">
+                                                                What indicators are used in BIP! Services?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'downloads']) ?>" class="light-grey-link">
+                                                                Can I download the data?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'api']) ?>" class="light-grey-link">
+                                                                Is there a publicly accessible API?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/about', '#' => 'how-to-cite']) ?>" class="light-grey-link">
+                                                                How do I cite BIP! Services?
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>

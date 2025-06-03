@@ -71,9 +71,13 @@ $this->registerCssFile('@web/css/swagger.css');
 
             <!-- Dataset Dumps -->
             <div class="dataset-dumps">
-                <h3>
-                    <i class="fa fa-download"></i> Downloads
-                </h3>
+
+                <a href="#downloads" class="no-underline">
+                    <h3 id="downloads">
+                        <i class="fa fa-download"></i> Downloads    
+                    </h3>
+                </a>
+
                 <p>
                     The latest dataset dump including all citation-based impact indicators is available at 
                     <a href="https://doi.org/10.5281/zenodo.4386934" class="main-green" target="_blank">
@@ -112,7 +116,11 @@ $this->registerCssFile('@web/css/swagger.css');
         </div>
 
         <p>
-            <h2>API</h2>
+            <a href="#api" class="no-underline" style="color: inherit;">
+                <h2 id="api">
+                    API
+                </h2>
+            </a>
             All impact indicators calculated by BIP! can be retrieved via the interface below or via our <a href="https://bip-api.imsi.athenarc.gr/documentation" class="main-green" target="_blank">public API <i class='fa fa-external-link-square' aria-hidden='true'></i></a>.
         </p>
 
