@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const OFFSET = 76; // Adjust this value to your needs
+    const OFFSET = 70; // Adjust this value to your needs
 
     if (window.location.hash) {
         const targetId = window.location.hash.substring(1);

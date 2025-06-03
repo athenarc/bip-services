@@ -12,6 +12,7 @@ $this->registerJsFile('@web/js/third-party/swagger/swagger-ui-bundle.js', ['posi
 $this->registerJsFile('@web/js/third-party/swagger/swagger-ui-standalone-preset.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/third-party/swagger/swagger-ui.css');
 $this->registerCssFile('@web/css/swagger.css');
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 ?>
     <div class="site-about help-text">
