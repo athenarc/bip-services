@@ -468,6 +468,17 @@ class ScholarController extends BaseController
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
             $indicators = $scholar->indicators->compute($rag_data);
+           foreach ($result["papers"] as &$paper) {
+                if (!empty($paper['doi'])) {
+                    $doi = strtolower(trim($paper['doi']));
+                    $paper['zenodo_repo_url'] = (new \yii\db\Query())
+                        ->select('code_url')
+                        ->from('zenodo_code_repos')
+                        ->where(['doi' => $doi])
+                        ->scalar();
+                }
+            }
+            unset($paper); // break reference
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();

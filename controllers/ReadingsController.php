@@ -165,6 +165,23 @@ class ReadingsController extends BaseController
         // fetch involvement
         $result = Involvement::getInvolvement($result, $user_id);
 
+        if (!empty($result['papers'])) {
+            foreach ($result['papers'] as $i => $paper) {
+                if (!empty($paper['doi'])) {
+                    $doi = strtolower(trim($paper['doi']));
+                    $codeUrl = (new \yii\db\Query())
+                        ->select('code_url')
+                        ->from('zenodo_code_repos')
+                        ->where(['doi' => $doi])
+                        ->scalar();
+                    if ($codeUrl) {
+                        $result['papers'][$i]['zenodo_repo_url'] = $codeUrl;
+                    }
+                }
+            }
+        }
+
+
         // find all reading lists of the user
         $reading_lists = ReadingList::find()->where([ 'user_id' => $user_id ])->all();
 
