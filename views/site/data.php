@@ -132,7 +132,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
               const ui = SwaggerUIBundle({
                 url: "https://bip-api.imsi.athenarc.gr/swagger.json",
                 dom_id: '#swagger-ui',
-                deepLinking: true,
+                deepLinking: false,
 
                 presets: [
                   SwaggerUIBundle.presets.apis,
