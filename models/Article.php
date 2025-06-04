@@ -751,5 +751,25 @@
             ->where(['doi' => strtolower(trim($doi))])
             ->scalar();
     }
-            
+
+    public static function getCodeRepoUrlsByDois(array $dois): array
+    {
+        if (empty($dois)) {
+            return [];
+        }
+
+        $normalized_dois = array_map(function ($doi) {
+            return strtolower(trim($doi));
+        }, $dois);
+
+        $rows = (new \yii\db\Query())
+            ->select(['doi', 'code_url'])
+            ->from('zenodo_code_repos')
+            ->where(['doi' => $normalized_dois])
+            ->andWhere(['not', ['code_url' => null]])
+            ->all();
+
+        return array_column($rows, 'code_url', 'doi');  // [doi => code_url]
+    }
+                
 }

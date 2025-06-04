@@ -42,6 +42,7 @@ use app\models\ElementBulletedList;
 use app\models\ElementBulletedListItem;
 use app\models\ElementTable;
 use app\models\ElementTableInstances;
+use app\models\Article;
 use app\components\common\CommonUtils;
 
 class ScholarController extends BaseController
@@ -468,17 +469,16 @@ class ScholarController extends BaseController
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
             $indicators = $scholar->indicators->compute($rag_data);
-           foreach ($result["papers"] as &$paper) {
-                if (!empty($paper['doi'])) {
-                    $doi = strtolower(trim($paper['doi']));
-                    $paper['zenodo_repo_url'] = (new \yii\db\Query())
-                        ->select('code_url')
-                        ->from('zenodo_code_repos')
-                        ->where(['doi' => $doi])
-                        ->scalar();
+            
+            $dois = array_filter(array_column($result['papers'], 'doi'));
+            $repoUrls = Article::getCodeRepoUrlsByDois($dois);
+
+            foreach ($result['papers'] as &$paper) {
+                $doi = strtolower(trim($paper['doi'] ?? ''));
+                if (isset($repoUrls[$doi])) {
+                    $paper['zenodo_repo_url'] = $repoUrls[$doi];
                 }
-            }
-            unset($paper); // break reference
+            } // break reference
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();
