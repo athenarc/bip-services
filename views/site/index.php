@@ -221,6 +221,12 @@ if ($in_space) {
                                             <i class="fa fa-spinner fa-spin"></i> Generating summary...
                                         </div>
                                         <div id="summaryText" style="text-align: justify; display: none;"></div>
+                                        <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
+                                            <label for="summary-count" class="regenerate-label">Regenerate summary using</label>
+                                            <input type="number" id="summary-count" value="5" min="1" max="20" class="regenerate-input" />
+                                            <label for="summary-count" class="regenerate-label">top results.</label>
+                                            <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Go</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

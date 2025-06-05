@@ -921,3 +921,26 @@ body {
   }
 }
 
+.regenerate-summary-box {
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; 
+    gap: 12px;
+    text-align: center;
+}
+
+.regenerate-label {
+    margin: 0;
+}
+
+.regenerate-input {
+    width: 50px;
+    height: 32px;
+    padding: 4px 6px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
