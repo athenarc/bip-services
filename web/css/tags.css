@@ -139,3 +139,8 @@
     height: 21.1875px; /* lock height */
     max-height: 21.1875px;
 }
+
+.tag.label > span[role="button"]:has(+ .concept-confidence) {
+  position: relative;
+  top: -7px;
+}
