@@ -2668,7 +2668,7 @@ class SiteController extends BaseController
                 foreach ($papers as $i => $paper) {
                     $id = $paper['id'];
                     $url = Url::to(['site/details', 'id' => $paper['doi']], true);
-                    $link = '<a href="' . $url . '" target="_blank" class="grey-link">' . ($i + 1) . '</a>';
+                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . ($i + 1) . '</a>';
                     
                     $summary = str_replace($id, $link, $summary);
                 }
