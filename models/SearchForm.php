@@ -618,7 +618,6 @@ class SearchForm extends Model
             if (!empty($spaces_filter)) {
                 $spaces_filter_str = implode(" OR ", $spaces_filter);
                 $query->createFilterQuery('spaces_filter')->setQuery($spaces_filter_str);
-                print_r($spaces_filter_str);
             }
         }
 
