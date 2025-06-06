@@ -189,6 +189,7 @@ class SiteController extends BaseController
             // append keywords and space
             $get_request_array['keywords'] = $keywords;
             $get_request_array['space_url_suffix'] = $space_url_suffix;
+            $get_request_array['provided_by'] = $post_data_all['provided_by'] ?? [];
 
             //Redirect to same action but with parameters in prettyURL format!
             return $this->redirect(Url::to(array_merge(['site/index'], $get_request_array)));
@@ -261,6 +262,7 @@ class SiteController extends BaseController
             $search_params['impulse'], 
             $search_params['cc'], 
             $search_params['type'], 
+            $search_params['provided_by'],
             $space_model
         );
 

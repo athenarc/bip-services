@@ -130,6 +130,9 @@ if ($in_space) {
 
                         <?= CustomFiltersCheckboxList::widget(['id' => 'type_filter', 'name' => 'type', 'model' => $model, 'form' => $form, 'items' => array_map(function ($value) {return $value['name'];}, Yii::$app->params['work_types']), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
 
+                        <?php if ($in_space): ?>
+                            <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+                        <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
                             <label>Start Year</label>
