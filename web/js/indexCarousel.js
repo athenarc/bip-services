@@ -7,6 +7,8 @@ const updateCarousel = (index) => {
     const inner = document.querySelector('.bip-carousel-inner');
     const dots = document.querySelectorAll('.dot');
 
+    if (!inner || dots.length === 0) return;
+    
     inner.style.transform = `translateX(-${index * 100}%)`;
 
     dots.forEach(dot => dot.classList.remove('active'));
