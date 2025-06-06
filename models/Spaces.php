@@ -425,6 +425,13 @@ class Spaces extends \yii\db\ActiveRecord
         // not used
         $search_params['location'] = (Yii::$app->request->get('location') == null || Yii::$app->request->get('location') == '') ? "title-abstract" : Yii::$app->request->get('location');
 
+        // add provided_by
+        if (array_key_exists('provided_by', $get_data_all)) {
+            $search_params['provided_by'] = $get_data_all['provided_by'];
+        } else {
+            $search_params['provided_by'] = [];
+        }
+        
         return [
             $search_params,
             $space_model
