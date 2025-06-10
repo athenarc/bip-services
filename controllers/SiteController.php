@@ -70,6 +70,7 @@ use app\models\ElementNarrativesSearch;
 use app\models\Facets;
 use app\models\GraphConnectionFactory;
 use app\models\Orcid;
+use app\models\SummaryUsage;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
@@ -2626,10 +2627,19 @@ class SiteController extends BaseController
 
     public function actionSummarize()
     {
-
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         try {
+            if (Yii::$app->user->isGuest) {
+                throw new \Exception("You must be logged in to use summarization.");
+            }
+
+            $userId = Yii::$app->user->id;
+
+            if (!SummaryUsage::logAndCheckQuota($userId)) {
+                throw new \Exception("You have reached your daily quota of 20 summarizations.");
+            }
+
             $paperIds = Yii::$app->request->post('paperIds');
             $limit = Yii::$app->request->post('limit');
             $keywords = Yii::$app->request->post('keywords');
@@ -2637,8 +2647,7 @@ class SiteController extends BaseController
             if (empty($paperIds)) {
                 throw new \Exception("No papers provided");
             }
-            
-            // Fetch papers from database
+
             $papers = (new \yii\db\Query())
                 ->select(['id' => 'internal_id', 'doi', 'title', 'abstract'])
                 ->from('pmc_paper')
@@ -2669,18 +2678,28 @@ class SiteController extends BaseController
                     $id = $paper['id'];
                     $url = Url::to(['site/details', 'id' => $paper['doi']], true);
                     $link = '<a href="' . $url . '" target="_blank" class="main-green">' . ($i + 1) . '</a>';
-                    
                     $summary = str_replace($id, $link, $summary);
                 }
 
                 return $summary;
 
             } else {
-                return "Failed to summarize results.";
+                 throw new \Exception("Failed to summarize results.");
             }
 
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
+    }
+    public function actionCheckSummaryQuota()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (Yii::$app->user->isGuest) {
+            return ['quotaReached' => false]; //true to block guests
+        }
+
+        $userId = Yii::$app->user->id;
+        return ['quotaReached' => \app\models\SummaryUsage::isQuotaReached($userId)];
     }
 }
