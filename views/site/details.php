@@ -127,7 +127,23 @@ if ($in_space) {
                     <?php foreach($article->concepts as $concept):?>
                         <span class="tag label">
                             <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?></b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span><span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'],2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);"></i></span>
+                            
+                            <span   role="button" 
+                                    data-toggle="popover" 
+                                    data-placement="auto" 
+                                    title="<b><?= $concept['display_name'] ?></b>" 
+                                    data-content="<?= $data_content ?>"
+                                    style="display: inline-block; line-height: 0.5; position: relative; top: 0.5px;">
+                                    <?= $concept['display_name'] ?>
+                            </span>
+                        
+                            <span   class= "concept-confidence" 
+                                    title = "Confidence: <?= round($concept['concept_score'],2) ?>" >
+                                <i  class="fa-concept-confidence fa-solid fa-circle" 
+                                    style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);
+                                display: inline-block; position: relative; top: 6px;">
+                                </i>
+                            </span>
                         </span>
                     <?php endforeach; ?>
                 <?php endif; ?>
