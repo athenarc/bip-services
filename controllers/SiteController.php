@@ -2627,7 +2627,7 @@ class SiteController extends BaseController
 
     public function actionSummarize()
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         try {
             if (Yii::$app->user->isGuest) {
@@ -2673,15 +2673,24 @@ class SiteController extends BaseController
             
             if ($response->isOk) {
                 $summary = $response->data['summary'] ?? 'No summary available';
+                $plainSummary = $summary;
 
                 foreach ($papers as $i => $paper) {
                     $id = $paper['id'];
+                    $index = $i + 1;
                     $url = Url::to(['site/details', 'id' => $paper['doi']], true);
-                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . ($i + 1) . '</a>';
+                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
                     $summary = str_replace($id, $link, $summary);
-                }
+                    $plainSummary = str_replace("$id", "[$index]", $plainSummary);
+                    
 
-                return $summary;
+                }
+                $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
+                $summary = nl2br($summary);
+                return [
+                    'html' => $summary,
+                    'plain' => $plainSummary,
+                ];
 
             } else {
                  throw new \Exception("Failed to summarize results.");
@@ -2693,7 +2702,7 @@ class SiteController extends BaseController
     }
     public function actionCheckSummaryQuota()
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         if (Yii::$app->user->isGuest) {
             return ['quotaReached' => false]; //true to block guests

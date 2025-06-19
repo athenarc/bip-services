@@ -1,5 +1,18 @@
 $(document).ready(function () {
+
     const summarizeBtn = $('#summarizeBtn');
+    const allPaperIds = JSON.parse(summarizeBtn.attr('data-paper-ids'));
+    const keywords = summarizeBtn.attr('data-keywords');
+    const maxAvailable = allPaperIds.length;
+    const defaultLimit = Math.min(6, allPaperIds.length);
+    
+    $('#summary-count').attr({
+        min: 1,
+        max: Math.min(20, maxAvailable)
+    });
+
+    $('#summary-count').val(defaultLimit);
+
     let quotaReached = false;
 
     // Check quota on page load
@@ -12,16 +25,15 @@ $(document).ready(function () {
                 summarizeBtn
                     .prop('disabled', true)
                     .addClass('disabled')
-                    .off('click');
+                    .off('click')
+                    .attr('title', 'You have reached the daily limit of 20 uses for this feature.');
                 $('#summaryText').html('<span class="text-danger">You have reached your daily quota for summarizations.</span>').show();        
             }
         }
     });
     
     function generateSummary(limit) {
-        const allPaperIds = JSON.parse(summarizeBtn.attr('data-paper-ids'));
-        const keywords = summarizeBtn.attr('data-keywords');
-        const paperIds = allPaperIds.slice(0, limit);
+        const paperIds = allPaperIds.slice(0, Math.min(limit, allPaperIds.length));
 
         $('#summaryText').hide();
         $('#regenerate-summary-box').hide();
@@ -49,8 +61,11 @@ $(document).ready(function () {
                     return;
                 }
 
-                $('#summaryText').html(response).show();
+                window.originalSummary = response.plain;
+
+                $('#summaryText').html(response.html).show();
                 $('#regenerate-summary-box').show();
+                $('#copy-summary-wrapper').show();
             },
             error: function () {
                 $('#summaryLoading').hide();
@@ -65,7 +80,7 @@ $(document).ready(function () {
         $('#summary_panel').collapse('toggle');
 
         if ($('#summaryContent').html().indexOf('fa-spinner') !== -1) {
-            generateSummary(5);
+            generateSummary(defaultLimit);
         }
     });
     
@@ -83,6 +98,16 @@ $(document).ready(function () {
         if (e.key === 'Enter') {
             e.preventDefault(); 
             $('#regenerate-summary-btn').click(); 
+        }
+    });
+    $('#copy-summary-btn').click(function () {
+        if (window.originalSummary) {
+            navigator.clipboard.writeText(window.originalSummary).then(() => {
+                alert('Summary copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy summary.');
+                console.error(err);
+            });
         }
     });
 });

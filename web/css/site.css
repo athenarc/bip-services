@@ -921,13 +921,8 @@ body {
   }
 }
 
-.regenerate-summary-box {
-    margin-top: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center; 
-    gap: 12px;
-    text-align: center;
+.regenerate-summary-box { 
+    margin-bottom: 15px; 
 }
 
 .regenerate-label {
@@ -942,5 +937,14 @@ body {
     line-height: 1.42857143;
     border: 1px solid #ccc;
     border-radius: 4px;
+    text-align: center;
+}
+
+.summary-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
 }
 

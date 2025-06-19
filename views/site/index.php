@@ -217,16 +217,24 @@ if ($in_space) {
                             <div class="panel panel-default">
                                 <div class="panel-body">
                                     <div id="summaryContent" class="grey-text">
+                                        <div class="summary-controls">
+                                            <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
+                                                <i class="fa fa-info-circle text-muted" title="Change the number of top results used for summarization."></i>
+                                                <label for="summary-count" class="regenerate-label">Use top</label>
+                                                <input type="number" id="summary-count" class="regenerate-input" />
+                                                <label for="summary-count" class="regenerate-label">results.</label>
+                                                <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Generate</button>
+                                            </div>
+                                            <div class="text-right" id="copy-summary-wrapper" style="display: none;">
+                                                <button id="copy-summary-btn" class="btn btn-sm btn-default" title="Copy original summary to clipboard">
+                                                    <i class="fa fa-files-o" aria-hidden="true"></i> Copy summary
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div id="summaryLoading" class="text-center">
                                             <i class="fa fa-spinner fa-spin"></i> Generating summary...
                                         </div>
                                         <div id="summaryText" style="text-align: justify; display: none;"></div>
-                                        <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
-                                            <label for="summary-count" class="regenerate-label">Regenerate summary using</label>
-                                            <input type="number" id="summary-count" value="5" min="1" max="20" class="regenerate-input" />
-                                            <label for="summary-count" class="regenerate-label">top results.</label>
-                                            <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Go</button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

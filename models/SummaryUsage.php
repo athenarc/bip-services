@@ -23,6 +23,10 @@ class SummaryUsage extends ActiveRecord
 
     public static function logAndCheckQuota($userId)
     {
+        if (self::isAdmin($userId)) {
+        return true; 
+        }
+
         $count = self::find()
             ->where(['user_id' => $userId])
             ->andWhere(['DATE(created_at)' => date('Y-m-d')])
@@ -41,9 +45,20 @@ class SummaryUsage extends ActiveRecord
 
     public static function isQuotaReached($userId)
     {
+        if (self::isAdmin($userId)) {
+        return false; 
+        }
+
         return self::find()
             ->where(['user_id' => $userId])
             ->andWhere(['DATE(created_at)' => date('Y-m-d')])
             ->count() >= 20;
+    }
+
+    public static function isAdmin($userId)
+    {
+        return (bool) Yii::$app->db->createCommand("SELECT is_admin FROM users WHERE id = :id")
+            ->bindValue(':id', $userId)
+            ->queryScalar();
     }
 }
