@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+    $('#copy-summary-btn').tooltip();
     const summarizeBtn = $('#summarizeBtn');
     const allPaperIds = JSON.parse(summarizeBtn.attr('data-paper-ids'));
     const keywords = summarizeBtn.attr('data-keywords');
@@ -102,11 +102,20 @@ $(document).ready(function () {
     });
     $('#copy-summary-btn').click(function () {
         if (window.originalSummary) {
+            const $btn = $('#copy-summary-btn');
+
             navigator.clipboard.writeText(window.originalSummary).then(() => {
-                alert('Summary copied to clipboard!');
+                
+                const $btn = $('#copy-summary-btn');
+                $btn.attr('data-original-title', 'Summary copied!').tooltip('show');
+                $btn.off('mouseenter focus');
+
+                setTimeout(() => {
+                    $btn.tooltip('hide');
+                    $btn.removeAttr('data-original-title');
+                }, 1500);
             }).catch(err => {
-                alert('Failed to copy summary.');
-                console.error(err);
+                console.error('Failed to copy summary.', err);
             });
         }
     });

@@ -226,12 +226,12 @@ if ($in_space) {
                                                 <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Generate</button>
                                             </div>
                                             <div class="text-right" id="copy-summary-wrapper" style="display: none;">
-                                                <button id="copy-summary-btn" class="btn btn-sm btn-default" title="Copy original summary to clipboard">
-                                                    <i class="fa fa-files-o" aria-hidden="true"></i> Copy summary
-                                                </button>
+                                                <a id="copy-summary-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip">
+                                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy Summary
+                                                </a>
                                             </div>
                                         </div>
-                                        <div id="summaryLoading" class="text-center">
+                                        <div id="summaryLoading" class="text-center summary-loading-centered">
                                             <i class="fa fa-spinner fa-spin"></i> Generating summary...
                                         </div>
                                         <div id="summaryText" style="text-align: justify; display: none;"></div>

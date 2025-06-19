@@ -922,22 +922,39 @@ body {
 }
 
 .regenerate-summary-box { 
-    margin-bottom: 15px; 
+    margin-bottom: 10px; 
+    display: flex;
+    align-items: center; 
+    gap: 6px; 
+    flex-wrap: wrap;
 }
 
 .regenerate-label {
     margin: 0;
+    font-size: 14px;
+    line-height: 22px; /* Same as input/button height */
 }
 
 .regenerate-input {
     width: 50px;
-    height: 32px;
-    padding: 4px 6px;
-    font-size: 14px;
+    height: 17px;
+    font-size: 12px;
     line-height: 1.42857143;
     border: 1px solid #ccc;
     border-radius: 4px;
-    text-align: center;
+    padding-left: 18px; 
+    text-align: left;
+    vertical-align: middle;
+}
+.regenerate-button {
+    height: 20px;
+    padding: 0px 10px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .summary-controls {
@@ -947,4 +964,6 @@ body {
     flex-wrap: wrap;
     margin-bottom: 10px;
 }
-
+.summary-loading-centered {
+    margin-bottom: 14px; 
+}
