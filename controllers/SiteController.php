@@ -2675,6 +2675,7 @@ class SiteController extends BaseController
                 $summary = $response->data['summary'] ?? 'No summary available';
                 $plainSummary = $summary;
 
+                // replace the paper ids with the links
                 foreach ($papers as $i => $paper) {
                     $id = $paper['id'];
                     $index = $i + 1;
@@ -2682,9 +2683,27 @@ class SiteController extends BaseController
                     $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
                     $summary = str_replace($id, $link, $summary);
                     $plainSummary = str_replace("$id", "[$index]", $plainSummary);
-                    
-
                 }
+
+                // add references to the summary
+                $references = $response->data['references'];
+                $referencesText = "\n\nReferences:\n";
+
+                foreach ($references as $index => $ref) {
+                    // Find the paper in $papers with the matching id
+                    foreach ($papers as $paperIndex => $paper) {
+                        if ($paper['id'] == $ref['id']) {
+                            // Replace the paper's id with the $index (or $paperIndex if you want the index in $papers)
+                            $refIndex = $index + 1; // or $paperIndex + 1 if you want the index from $papers
+                            $referencesText .= "[$refIndex] " . $ref['title'] . "\n";
+                            break;
+                        }
+                    }
+                }
+
+                // Append references to the summary
+                $plainSummary .= $referencesText;
+
                 $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
                 $summary = nl2br($summary);
                 return [

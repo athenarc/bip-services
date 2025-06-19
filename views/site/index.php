@@ -227,7 +227,7 @@ if ($in_space) {
                                             </div>
                                             <div class="text-right" id="copy-summary-wrapper" style="display: none;">
                                                 <a id="copy-summary-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip">
-                                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy Summary
+                                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
                                                 </a>
                                             </div>
                                         </div>
