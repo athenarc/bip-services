@@ -7,21 +7,25 @@ $(document).ready(function() {
         }
 
     });
-
-    $('#keyword-relevance-toggle').on('change', function(){
-        var isChecked = $(this).prop('checked');
-        $.ajax({
-            url: appBaseUrl + '/user/update-keyword-relevance',
-            type: 'POST',
-            data: {
-                keyword_relevance: isChecked ? 1 : 0,
-                _csrf: yii.getCsrfToken(),
-            },
-            error: function(xhr, status, error) {
-                const errorMesssage = 'Failed to update keyword relevance';
-                console.error(errorMesssage, error);
-                alert(errorMesssage);
-            }
-        });
-    });
 });
+
+function toggleSwitch(checkbox, settingName, url) {
+    var isChecked = checkbox.checked;
+    $.ajax({
+        url,
+        type: 'POST',
+        data: {
+            settingName,
+            settingValue: isChecked ? 1 : 0,
+            _csrf: yii.getCsrfToken(),
+        },
+        success: function(response) {
+            console.log('Setting updated successfully:', response);
+        },
+        error: function(xhr, status, error) {
+            const errorMesssage = 'Failed to update setting';
+            console.error(errorMesssage, error);
+            alert(errorMesssage);
+        }
+    });
+}
