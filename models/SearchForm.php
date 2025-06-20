@@ -31,6 +31,7 @@ class SearchForm extends Model
     public $cc;
     public $type;
     public $space_model;
+    public $provided_by;
 
     /*
          * Constructor method to help with validation
@@ -40,7 +41,7 @@ class SearchForm extends Model
      *
      * @author Ilias Kanellos
      */
-        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $space_model = null)
+        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $provided_by = [], $space_model = null)
         {
           parent::__construct();
           $this->ordering = $ordering;
@@ -77,6 +78,7 @@ class SearchForm extends Model
           $this->impulse = $impulse;
           $this->cc = $cc;
           $this->type = $type;
+          $this->provided_by = $provided_by;
           $this->space_model = $space_model;
         }
 
@@ -151,6 +153,7 @@ class SearchForm extends Model
             'ordering' => 'Ordering:',
             'location' => 'Search in:',
             'cc' => 'Citation Count',
+            'provided_by' => 'Provided by',
         ];
     }
 
@@ -525,9 +528,9 @@ class SearchForm extends Model
         // create a Solr select query
         $query = Yii::$app->solr->createSelect();
 
-        // use dismax query parser and query specific fields
-        $dismax = $query->getDisMax();
-        $dismax->setQueryFields('title abstract authors doi');
+        // use edismax query parser and query specific fields
+        $edismax = $query->getEDisMax();
+        $edismax->setQueryFields('title abstract authors doi');
 
         // return only paper ids and score
         $query->setFields(['internal_id', 'influence', 'popularity', 'impulse', 'citation_count', 'score']);
@@ -593,9 +596,29 @@ class SearchForm extends Model
             $query->createFilterQuery('cc_filter')->setQuery('citation_count:[' . $min_impact_scores['cc'] . ' TO *]');
         }
 
-        // show only space-related works in the results
-        if ($this->space_model->solr_name) {
-            $query->createFilterQuery('spaces_filter')->setQuery('spaces:' . $this->space_model->solr_name);
+        // Check if solr_name is set
+        if (!empty($this->space_model->solr_name)) {
+
+            $spaces_filter = [];
+
+            // If $provided_by is set, filter solr_name accordingly
+            $solr_names = $this->space_model->solr_name;
+            if (!empty($this->provided_by)) {
+                // Filter only the entries whose 'value' is in $provided_by
+                $solr_names = array_filter($solr_names, function($space) {
+                    return in_array($space['value'], $this->provided_by);
+                });
+            }
+
+            // Build the Solr filter string
+            foreach ($solr_names as $space) {
+                $spaces_filter[] = "spaces:" . $space['value'];
+            }
+
+            if (!empty($spaces_filter)) {
+                $spaces_filter_str = implode(" OR ", $spaces_filter);
+                $query->createFilterQuery('spaces_filter')->setQuery($spaces_filter_str);
+            }
         }
 
         // do not consider keyword relevance when:
@@ -635,11 +658,11 @@ class SearchForm extends Model
 
             // form sort clauses based on min-max relavance & impact scores
             $min_sort_clause = 'min(sqrt(sqrt(div(' . $this->ordering . ',' . $max_impact_score . '))),' .
-                            'div(query({!dismax v=$q}),' . $max_relevance_score .'))';
+                            'div(query({!edismax v=$q}),' . $max_relevance_score .'))';
             $query->addSort($min_sort_clause, $query::SORT_DESC);
 
             $max_sort_clause = 'max(sqrt(sqrt(div(' . $this->ordering . ',' . $max_impact_score . '))),' .
-                            'div(query({!dismax v=$q}),' . $max_relevance_score .'))';
+                            'div(query({!edismax v=$q}),' . $max_relevance_score .'))';
             $query->addSort($max_sort_clause, $query::SORT_DESC);
 
         }
@@ -966,6 +989,7 @@ class SearchForm extends Model
         if ($this->popularity != 'all') $count++;
         if ($this->impulse != 'all') $count++;
         if ($this->cc != 'all') $count++;
+        if (!empty($this->provided_by)) $count++;
 
         return $count;
     }

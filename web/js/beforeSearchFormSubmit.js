@@ -10,6 +10,7 @@ $(document).ready(function()
             $("#results_set").hide();
             $("#top_topics").hide();
             $("#summary_panel").hide();
+            $("#researcher_panel").hide();
 
             $("#loading_results").show();
             return true;

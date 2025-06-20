@@ -74,6 +74,7 @@ use app\models\SummaryUsage;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
+use app\models\ChangePasswordForm;
 
 class SiteController extends BaseController
 {
@@ -139,7 +140,6 @@ class SiteController extends BaseController
 
             // space
             $space_url_suffix = Yii::$app->request->post('space_url_suffix');
-
             $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
             $space_model->prepareForRequest();
 
@@ -190,6 +190,7 @@ class SiteController extends BaseController
             // append keywords and space
             $get_request_array['keywords'] = $keywords;
             $get_request_array['space_url_suffix'] = $space_url_suffix;
+            $get_request_array['provided_by'] = $post_data_all['provided_by'] ?? [];
 
             //Redirect to same action but with parameters in prettyURL format!
             return $this->redirect(Url::to(array_merge(['site/index'], $get_request_array)));
@@ -206,13 +207,24 @@ class SiteController extends BaseController
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+        $articlesCount = Article::find()->count();
+        $keywords = Yii::$app->request->get('keywords');
+
+        $researcher_count = 0;
+
+        if (!empty($keywords)) {
+            $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
+            $scholar_results = $search_model_researcher->search();
+            $researcher_count = count($scholar_results['rows']);
+        }
 
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
-            // 'author_list' => $author_list,
+            'researcher_count' => $researcher_count,
+            'articlesCount' => $articlesCount,
         ]);
     }
 
@@ -251,6 +263,7 @@ class SiteController extends BaseController
             $search_params['impulse'], 
             $search_params['cc'], 
             $search_params['type'], 
+            $search_params['provided_by'],
             $space_model
         );
 
@@ -1218,16 +1231,10 @@ class SiteController extends BaseController
         $stats = new AdminStats();
         $stats->getStats();
 
-        $monthly_user_data = AdminStats::getMonthlyUserData();
-        $user_activity_data = AdminStats::getUserActivityData();
-
-
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
                 'stats' => $stats,
-                'monthly_user_data' => $monthly_user_data,
-                'user_activity_data' => $user_activity_data
             ],
         ]);
     }
@@ -2713,8 +2720,8 @@ class SiteController extends BaseController
             return ['error' => $e->getMessage()];
         }
     }
-    public function actionCheckSummaryQuota()
-    {
+
+    public function actionCheckSummaryQuota() {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         if (Yii::$app->user->isGuest) {
@@ -2723,5 +2730,24 @@ class SiteController extends BaseController
 
         $userId = Yii::$app->user->id;
         return ['quotaReached' => \app\models\SummaryUsage::isQuotaReached($userId)];
+    }
+
+    public function actionChangePassword() {
+        // if not logged in, redirect to login page
+        $user = Yii::$app->user->identity;
+        if (!$user) {
+            return $this->redirect(['site/login']);
+        }
+
+        $model = new ChangePasswordForm();
+        
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->changePassword($user)) {
+                Yii::$app->session->setFlash('success', 'Password changed successfully.');
+                return $this->refresh();
+            }
+        }
+
+        return $this->render('change_password', ['model' => $model]);
     }
 }
