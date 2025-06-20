@@ -6,6 +6,7 @@ $(document).ready(function () {
     const maxAvailable = allPaperIds.length;
     const defaultLimit = Math.min(6, allPaperIds.length);
     
+    
     $('#summary-count').attr({
         min: 1,
         max: Math.min(20, maxAvailable)
@@ -34,7 +35,7 @@ $(document).ready(function () {
     
     function generateSummary(limit) {
         const paperIds = allPaperIds.slice(0, Math.min(limit, allPaperIds.length));
-
+        $('#copy-summary-wrapper').hide();
         $('#summaryText').hide();
         $('#regenerate-summary-box').hide();
         $('#summaryLoading').show();
@@ -90,6 +91,7 @@ $(document).ready(function () {
 
         const topN = parseInt($('#summary-count').val(), 10);
         if (isNaN(topN) || topN < 0 || topN > 20) return;
+        $('#copy-summary-btn').hide();
         generateSummary(topN);
 
     });
