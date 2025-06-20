@@ -2649,7 +2649,7 @@ class SiteController extends BaseController
             }
 
             $papers = (new \yii\db\Query())
-                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract'])
+                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'])
                 ->from('pmc_paper')
                 ->where(['in', 'internal_id', $paperIds])
                 ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
@@ -2675,6 +2675,8 @@ class SiteController extends BaseController
                 $summary = $response->data['summary'] ?? 'No summary available';
                 $plainSummary = $summary;
 
+                $referenceLines = [];
+
                 // replace the paper ids with the links
                 foreach ($papers as $i => $paper) {
                     $id = $paper['id'];
@@ -2683,26 +2685,18 @@ class SiteController extends BaseController
                     $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
                     $summary = str_replace($id, $link, $summary);
                     $plainSummary = str_replace("$id", "[$index]", $plainSummary);
+                    // Build references line
+                    $title = $paper['title'] ?? 'Untitled';
+                    $journal = $paper['journal'] ?? 'Unknown Journal';
+                    $year = $paper['year'] ?? 'n.d.';
+                    $doi = $paper['doi'] ?? '';
+                    $doiUrl = $doi ? "https://doi.org/{$doi}" : '';
+                    $referenceLines[] = "[$index] $title. $journal, $year. $doiUrl";
                 }
 
-                // add references to the summary
-                $references = $response->data['references'];
-                $referencesText = "\n\nReferences:\n";
-
-                foreach ($references as $index => $ref) {
-                    // Find the paper in $papers with the matching id
-                    foreach ($papers as $paperIndex => $paper) {
-                        if ($paper['id'] == $ref['id']) {
-                            // Replace the paper's id with the $index (or $paperIndex if you want the index in $papers)
-                            $refIndex = $index + 1; // or $paperIndex + 1 if you want the index from $papers
-                            $referencesText .= "[$refIndex] " . $ref['title'] . "\n";
-                            break;
-                        }
-                    }
+                if (!empty($referenceLines)) {
+                    $plainSummary .= "\n\nReferences:\n" . implode("\n", $referenceLines);
                 }
-
-                // Append references to the summary
-                $plainSummary .= $referencesText;
 
                 $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
                 $summary = nl2br($summary);
