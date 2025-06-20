@@ -4,15 +4,14 @@ $(document).ready(function () {
     const allPaperIds = JSON.parse(summarizeBtn.attr('data-paper-ids'));
     const keywords = summarizeBtn.attr('data-keywords');
     const maxAvailable = allPaperIds.length;
-    const defaultLimit = Math.min(6, allPaperIds.length);
-    
-    
+    const regenerateLimit = Math.min(6, allPaperIds.length);
+
     $('#summary-count').attr({
         min: 1,
         max: Math.min(20, maxAvailable)
     });
 
-    $('#summary-count').val(defaultLimit);
+    $('#summary-count').val(regenerateLimit);
 
     let quotaReached = false;
 
@@ -81,7 +80,8 @@ $(document).ready(function () {
         $('#summary_panel').collapse('toggle');
 
         if ($('#summaryContent').html().indexOf('fa-spinner') !== -1) {
-            generateSummary(defaultLimit);
+            // first time we generate a summary, we use the default limit of 5
+            generateSummary(5);
         }
     });
     
