@@ -91,7 +91,6 @@ $(document).ready(function () {
 
         const topN = parseInt($('#summary-count').val(), 10);
         if (isNaN(topN) || topN < 0 || topN > 20) return;
-        $('#copy-summary-btn').hide();
         generateSummary(topN);
 
     });
