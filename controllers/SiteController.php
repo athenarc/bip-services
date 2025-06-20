@@ -70,6 +70,7 @@ use app\models\ElementNarrativesSearch;
 use app\models\Facets;
 use app\models\GraphConnectionFactory;
 use app\models\Orcid;
+use app\models\SummaryUsage;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
@@ -1999,7 +2000,7 @@ class SiteController extends BaseController
                                             }
                                         }
                                     }
-                
+
                                     if ($dropdownFlag) {
                                         $transaction->commit();
                                     }
@@ -2631,8 +2632,107 @@ class SiteController extends BaseController
         return $this->render('feedback', ['model' => $model]);
     }
 
-    public function actionChangePassword()
+    public function actionSummarize()
     {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        try {
+            if (Yii::$app->user->isGuest) {
+                throw new \Exception("You must be logged in to use summarization.");
+            }
+
+            $userId = Yii::$app->user->id;
+
+            if (!SummaryUsage::logAndCheckQuota($userId)) {
+                throw new \Exception("You have reached your daily quota of 20 summarizations.");
+            }
+
+            $paperIds = Yii::$app->request->post('paperIds');
+            $limit = Yii::$app->request->post('limit');
+            $keywords = Yii::$app->request->post('keywords');
+
+            if (empty($paperIds)) {
+                throw new \Exception("No papers provided");
+            }
+
+            $papers = (new \yii\db\Query())
+                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'])
+                ->from('pmc_paper')
+                ->where(['in', 'internal_id', $paperIds])
+                ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
+                ->limit($limit)
+                ->all();
+
+            if (empty($papers)) {
+                throw new \Exception("No papers found");
+            }
+
+            $client = Yii::$app->httpClient;
+            $response = $client->createRequest()
+                ->setMethod('POST') 
+                ->setUrl(Yii::$app->params['summarizeService'] . '/summarize/')
+                ->addHeaders(['Content-Type' => 'application/json'])
+                ->setContent(Json::encode([
+                    'papers' => $papers,
+                    'topic_name' => $keywords,
+                ]))
+                ->send();
+            
+            if ($response->isOk) {
+                $summary = $response->data['summary'] ?? 'No summary available';
+                $plainSummary = $summary;
+
+                $referenceLines = [];
+
+                // replace the paper ids with the links
+                foreach ($papers as $i => $paper) {
+                    $id = $paper['id'];
+                    $index = $i + 1;
+                    $url = Url::to(['site/details', 'id' => $paper['doi']], true);
+                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
+                    $summary = str_replace($id, $link, $summary);
+                    $plainSummary = str_replace("$id", "[$index]", $plainSummary);
+                    // Build references line
+                    $title = $paper['title'] ?? 'Untitled';
+                    $journal = $paper['journal'] ?? 'Unknown Journal';
+                    $year = $paper['year'] ?? 'n.d.';
+                    $doi = $paper['doi'] ?? '';
+                    $doiUrl = $doi ? "https://doi.org/{$doi}" : '';
+                    $referenceLines[] = "[$index] $title. $journal, $year. $doiUrl";
+                }
+
+                if (!empty($referenceLines)) {
+                    $plainSummary .= "\n\nReferences:\n" . implode("\n", $referenceLines);
+                }
+
+                $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
+                $summary = nl2br($summary);
+                return [
+                    'html' => $summary,
+                    'plain' => $plainSummary,
+                ];
+
+            } else {
+                 throw new \Exception("Failed to summarize results.");
+            }
+
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function actionCheckSummaryQuota() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (Yii::$app->user->isGuest) {
+            return ['quotaReached' => false]; //true to block guests
+        }
+
+        $userId = Yii::$app->user->id;
+        return ['quotaReached' => \app\models\SummaryUsage::isQuotaReached($userId)];
+    }
+
+    public function actionChangePassword() {
         // if not logged in, redirect to login page
         $user = Yii::$app->user->identity;
         if (!$user) {
@@ -2649,6 +2749,5 @@ class SiteController extends BaseController
         }
 
         return $this->render('change_password', ['model' => $model]);
-        
     }
 }

@@ -14,15 +14,16 @@ class UserController extends Controller
         return $this->render('index', ['model' => $model]);
     }
 
-    public function actionUpdateKeywordRelevance()
-    {
+    public function actionUpdateSetting() {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
     
-        $keywordRelevance = Yii::$app->request->post('keyword_relevance');
+        $setting_name = Yii::$app->request->post('settingName');
+        $setting_value = Yii::$app->request->post('settingValue');
+
         $user = User::findOne(Yii::$app->user->id);
     
         if ($user) {
-            $user->keyword_relevance = $keywordRelevance;
+            $user[$setting_name] = $setting_value;
             if ($user->save()) {
                 return ['success' => true];
             } else {

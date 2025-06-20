@@ -27,8 +27,32 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                                 <div class="text-muted-settings">Choose whether to consider keyword relevance when ranking results.</div>
                             </div>
                             <div class="my-switch">
-                                <input type="checkbox" id="keyword-relevance-toggle" class="my-switch-input" <?= ($user->keyword_relevance) ? "checked" : "" ?> >
+                                <input 
+                                    id="keyword-relevance-toggle"
+                                    type="checkbox" 
+                                    class="my-switch-input" 
+                                    <?= ($user->keyword_relevance) ? "checked" : "" ?> 
+                                    onchange="toggleSwitch(this, 'keyword_relevance', '<?= Url::to(['/user/update-setting']) ?>')"
+                                >
                                 <label for="keyword-relevance-toggle" class="my-switch-slider"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
+                            <div>
+                                <span class="grey-text"><b>AI assistant</b></span>
+                                <div class="text-muted-settings">Enable AI assistance to explore smarter and more adaptive features.</div>
+                            </div>
+                            <div class="my-switch">
+                                <input 
+                                    id="ai-features-toggle"
+                                    type="checkbox" 
+                                    class="my-switch-input" 
+                                    <?= ($user->ai_features) ? "checked" : "" ?> 
+                                    onchange="toggleSwitch(this, 'ai_features', '<?= Url::to(['/user/update-setting']) ?>')"
+                                >
+                                <label for="ai-features-toggle" class="my-switch-slider"></label>
                             </div>
                         </div>
                     </div>
