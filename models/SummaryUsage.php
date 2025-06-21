@@ -61,4 +61,15 @@ class SummaryUsage extends ActiveRecord
             ->bindValue(':id', $userId)
             ->queryScalar();
     }
+
+    public static function isAiAssistantEnabledForCurrentUser(): bool
+    {
+        $user = Yii::$app->user;
+        
+        if ($user->isGuest) {
+            return false;
+        }
+
+        return !empty($user->identity->ai_features);
+    }
 }
