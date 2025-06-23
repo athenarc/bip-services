@@ -16,6 +16,7 @@ use app\components\TopTopicsItem;
 use app\components\CustomBootstrapModal;
 use yii\helpers\ArrayHelper;
 use app\models\Indicators;
+use app\models\SummaryUsage;
 
 use Yii;
 
@@ -222,16 +223,19 @@ if ($in_space) {
                                 'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
                             ?>
                         </div>
-                        <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
-                            <button id="summarizeBtn" class="btn btn-default btn-sm" 
-                                    data-paper-ids='<?= json_encode(array_map(function($result) { 
-                                        return $result['internal_id']; 
-                                    }, $results['rows'])) ?>'
-                                    data-keywords='<?= $keywords ?>'
-                                >
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
-                            </button>
-                        </div>
+                    
+                        <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
+                            <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                                <button id="summarizeBtn" class="btn btn-default btn-sm" 
+                                        data-paper-ids='<?= json_encode(array_map(function($result) { 
+                                            return $result['internal_id']; 
+                                        }, $results['rows'])) ?>'
+                                        data-keywords='<?= $keywords ?>'
+                                    >
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <div id="summary_panel" class="collapse row">
