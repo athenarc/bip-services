@@ -24,9 +24,9 @@ class SummaryUsage extends ActiveRecord
 
     public static function logAndCheckQuota($userId)
     {
-        // if (self::isAdmin($userId)) {
-        //     return true;
-        // }
+        if (self::isAdmin($userId)) {
+            return true;
+        }
 
         $threshold = (int) (AdminOptions::getValue('summarize_button_threshold') ?? 20);
 
@@ -57,9 +57,9 @@ class SummaryUsage extends ActiveRecord
 
     public static function isQuotaReached($userId)
     {
-        // if (self::isAdmin($userId)) {
-        //     return false; 
-        // }
+        if (self::isAdmin($userId)) {
+            return false; 
+        }
 
         // Get threshold from admin_options or fallback to 20
         $threshold = (int) (AdminOptions::getValue('summarize_button_threshold') ?? 20);
@@ -71,9 +71,13 @@ class SummaryUsage extends ActiveRecord
             ->count();
 
         // Log the values for debugging
-        error_log("SUMMARY QUOTA DEBUG: user_id=$userId, count=$count, threshold=$threshold");
-
-        return $count >= $threshold;
+        error_log("SUMMARY QUOTA CHECK for user_id=$userId: count=$count / threshold=$threshold");
+        
+        return [
+            'used' => $count,
+            'limit' => $threshold,
+            'quotaReached' => $count >= $threshold,
+        ];
     }
 
 

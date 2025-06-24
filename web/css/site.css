@@ -1135,3 +1135,10 @@ body {
 .bip-dots .dot.active {
     background-color: var(--main-color);
 }
+
+.summary-usage-info {
+    font-size: 0.8em;
+    text-align: left;
+    color: grey; 
+    margin-top: 15px;
+}

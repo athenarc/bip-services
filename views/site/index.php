@@ -277,10 +277,13 @@ if ($in_space) {
                                                 </a>
                                             </div>
                                         </div>
+
                                         <div id="summaryLoading" class="text-center summary-loading-centered">
                                             <i class="fa fa-spinner fa-spin"></i> Generating summary...
                                         </div>
+
                                         <div id="summaryText" style="text-align: justify; display: none;"></div>
+                                        <div id="summary-usage-info" class="summary-usage-info"></div>
                                     </div>
                                 </div>
                             </div>

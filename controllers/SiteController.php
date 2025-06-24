@@ -2752,11 +2752,15 @@ class SiteController extends BaseController
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         if (Yii::$app->user->isGuest) {
-            return ['quotaReached' => false]; //true to block guests
+            return [
+                'quotaReached' => false,
+                'used' => 0,
+                'limit' => (int) (\app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20),
+            ]; //true to block guests
         }
 
         $userId = Yii::$app->user->id;
-        return ['quotaReached' => \app\models\SummaryUsage::isQuotaReached($userId)];
+        return \app\models\SummaryUsage::isQuotaReached($userId);
     }
 
     public function actionChangePassword() {
