@@ -75,6 +75,7 @@ use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
 use app\models\ChangePasswordForm;
+use app\models\AdminOptions;
 
 class SiteController extends BaseController
 {
@@ -1373,6 +1374,31 @@ class SiteController extends BaseController
 
     }
 
+    public function actionAdminOptions()
+    {
+        $section = "thresholds";
+
+        if (!AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException("Page not Found");
+        }
+
+        $threshold = (int) AdminOptions::getValue('summarize_button_threshold');
+
+        if (Yii::$app->request->isPost) {
+            $newValue = (int) Yii::$app->request->post('threshold');
+            AdminOptions::setValue('summarize_button_threshold', $newValue);
+            Yii::$app->session->setFlash('success', 'Threshold updated successfully.');
+            return $this->redirect(['site/admin-options']);
+        }
+
+        return $this->render('admin/main', [
+            'section' => 'options',
+            'options_data' => [
+                'threshold' => $threshold,
+            ],
+        ]);
+    }
+
     public function actionSettings() {
         $user_id = Yii::$app->user->id;
 
@@ -2642,9 +2668,10 @@ class SiteController extends BaseController
             }
 
             $userId = Yii::$app->user->id;
+            $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
 
             if (!SummaryUsage::logAndCheckQuota($userId)) {
-                throw new \Exception("You have reached your daily quota of 20 summarizations.");
+                throw new \Exception("You have reached your daily quota of {$threshold} summarizations.");
             }
 
             $paperIds = Yii::$app->request->post('paperIds');

@@ -29,3 +29,15 @@ function toggleSwitch(checkbox, settingName, url) {
         }
     });
 }
+
+function confirmAiAssistantToggle(elem, url) {
+    if (elem.checked) {
+        const confirmed = confirm("You are about to enable the AI Assistant. Please note that this feature may share your input with third-party services to provide enhanced functionality. By proceeding, you confirm that you understand this and you give your consent.");
+        if (!confirmed) {
+            elem.checked = false;
+            return;
+        }
+    }
+
+    toggleSwitch(elem, 'ai_features', url);
+}

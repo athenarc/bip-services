@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\models\AdminOptions;
 
 class SummaryUsage extends ActiveRecord
 {
@@ -23,37 +24,58 @@ class SummaryUsage extends ActiveRecord
 
     public static function logAndCheckQuota($userId)
     {
-        if (self::isAdmin($userId)) {
-        return true; 
-        }
+        // if (self::isAdmin($userId)) {
+        //     return true;
+        // }
+
+        $threshold = (int) (AdminOptions::getValue('summarize_button_threshold') ?? 20);
 
         $count = self::find()
             ->where(['user_id' => $userId])
             ->andWhere(['DATE(created_at)' => date('Y-m-d')])
             ->count();
 
-        if ($count >= 20) {
+        error_log("CHECK_QUOTA: user $userId has $count / $threshold");
+
+        if ($count >= $threshold) {
+            error_log("QUOTA REACHED for user $userId");
             return false;
         }
 
         $log = new self();
         $log->user_id = $userId;
-        $log->save(false);
+        $log->created_at = date('Y-m-d H:i:s'); 
 
+        if (!$log->save()) {
+            error_log("FAILED TO SAVE LOG for user $userId");
+            error_log(print_r($log->getErrors(), true));
+        } else {
+            error_log("LOG SAVED for user $userId");
+        }
         return true;
     }
 
     public static function isQuotaReached($userId)
     {
-        if (self::isAdmin($userId)) {
-        return false; 
-        }
+        // if (self::isAdmin($userId)) {
+        //     return false; 
+        // }
 
-        return self::find()
+        // Get threshold from admin_options or fallback to 20
+        $threshold = (int) (AdminOptions::getValue('summarize_button_threshold') ?? 20);
+
+        // Count user summaries today
+        $count = self::find()
             ->where(['user_id' => $userId])
             ->andWhere(['DATE(created_at)' => date('Y-m-d')])
-            ->count() >= 20;
+            ->count();
+
+        // Log the values for debugging
+        error_log("SUMMARY QUOTA DEBUG: user_id=$userId, count=$count, threshold=$threshold");
+
+        return $count >= $threshold;
     }
+
 
     public static function isAdmin($userId)
     {

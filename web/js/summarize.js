@@ -5,7 +5,7 @@ $(document).ready(function () {
     const keywords = summarizeBtn.attr('data-keywords');
     const maxAvailable = allPaperIds.length;
     const defaultLimit = Math.min(6, allPaperIds.length);
-    
+    const summarizeThreshold = summarizeBtn.data('threshold') || 20;
     
     $('#summary-count').attr({
         min: 1,
@@ -27,7 +27,7 @@ $(document).ready(function () {
                     .prop('disabled', true)
                     .addClass('disabled')
                     .off('click')
-                    .attr('title', 'You have reached the daily limit of 20 uses for this feature.');
+                    .attr('title', `You have reached the daily limit of ${summarizeThreshold} uses for this feature.`);
                 $('#summaryText').html('<span class="text-danger">You have reached your daily quota for summarizations.</span>').show();        
             }
         }
