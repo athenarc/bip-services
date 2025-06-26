@@ -14,7 +14,7 @@ $(document).ready(function () {
     const allPaperIds = JSON.parse($summarizeBtn.attr('data-paper-ids'));
     const keywords = $summarizeBtn.attr('data-keywords');
     const maxAvailable = allPaperIds.length;
-    const defaultLimit = Math.min(6, maxAvailable);
+    const defaultLimit = Math.min(5, maxAvailable);
     const summarizeThreshold = $summarizeBtn.data('threshold') || 20;
 
     let quotaReached = false;
@@ -22,7 +22,7 @@ $(document).ready(function () {
     $summaryCount.attr({
         min: 1,
         max: Math.min(20, maxAvailable)
-    }).val(defaultLimit);
+    }).val(Math.min(6, maxAvailable));
 
     checkQuotaOnLoad();
 
