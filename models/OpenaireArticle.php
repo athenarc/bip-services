@@ -39,15 +39,19 @@ class OpenaireArticle extends Model {
     }
 
     public function get($source) {
-
         if (empty($source)) {
             $source = "prod";
         }
 
-        $url = OpenaireArticle::$api_endpoints[$source];
+        // Use the correct Graph API base URL
+        $graph_api_endpoints = [
+            "prod" => "https://api.openaire.eu/graph/v2/researchProducts/",
+            "beta" => "https://api-beta.openaire.eu/graph/v2/researchProducts/",
+        ];
 
-        $ch = curl_init($url . $this->id . '?format=json');
+        $url = $graph_api_endpoints[$source] . $this->id;
 
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($ch);
@@ -56,10 +60,7 @@ class OpenaireArticle extends Model {
 
         curl_close($ch);
 
-        return [
-            $code,
-            $response
-        ];
+        return [$code, $response];
     }
 
     private static function isMultidimensionalArray($field_value) {
@@ -67,81 +68,47 @@ class OpenaireArticle extends Model {
         return !(count($field_value) == count($field_value, COUNT_RECURSIVE));
     }
 
-    public function parse_response($response) {
-
+   public function parse_response($response) {
         $response = json_decode($response, true);
 
-        if (!isset($response["result"]["metadata"]["oaf:entity"]["oaf:result"]))
-            return [];
+        $impact = $response['indicators']['citationImpact'] ?? [];
 
-        $result = $response["result"]["metadata"]["oaf:entity"]["oaf:result"];
+        $map = [
+            'citationCount' => 'citationClass',
+            'popularity' => 'popularityClass',
+            'influence' => 'influenceClass',
+            'impulse' => 'impulseClass',
+        ];
 
-        if (isset($result["title"])) {
-            if (OpenAIREArticle::isMultidimensionalArray($result["title"])) {
-                $this->title = $result["title"][0]["content"];
-            } else {
-                $this->title = $result["title"]["content"];
+        // Mapping from OpenAIRE class to BIP chart class
+        $classMap = [
+            'C1' => 'A',
+            'C2' => 'B',
+            'C3' => 'C',
+            'C4' => 'D',
+            'C5' => 'E',
+        ];
+
+        $this->measures = [];
+        $this->measures_classes = [];
+
+        foreach ($map as $valueKey => $classKey) {
+            if (isset($impact[$valueKey])) {
+                $this->measures[$valueKey] = $impact[$valueKey];
             }
-        }
-
-        if (isset($result["description"])) {
-            if (is_array($result["description"])) {
-                $this->abstract = $result["description"][0];
-            } else {
-                $this->abstract = (empty($result["description"])) ? 'N/A' : $result["description"];
-            }
-        }
-
-        // if there is one author, api returns one object, else it returns array; OpenAIRE's beautiful stuff :)
-        if (isset($result["creator"])) {
-
-            if (OpenAIREArticle::isMultidimensionalArray($result["creator"])) {
-
-                // sort based on 'rank'
-                usort($result["creator"], function($a, $b) { return $a['rank'] <=> $b['rank']; });
-
-                // join with comma
-                $this->authors = implode(", ", array_column($result["creator"], 'content'));
-             } else {
-                $this->authors = $result["creator"]["content"];
-            }
-        }
-
-        if (isset($result["dateofacceptance"]))
-            $this->year = substr($result["dateofacceptance"], 0, 4);
-
-
-        if (isset($result["pid"])) {
-
-            // $result["creator"] IS NOT a multidimensional array: https://stackoverflow.com/a/994599/6938911
-            if (OpenAIREArticle::isMultidimensionalArray($result["pid"])) {
-                $this->dois = array_filter(array_map(function($pid) { if ($pid['classid'] === 'doi') return $pid["content"]; }, $result["pid"]));
-            } else {
-                if ($result["pid"]["classid"] === "doi") {
-                    $this->dois = [ $result["pid"]["content"] ];
+            if (isset($impact[$classKey])) {
+                $rawClass = $impact[$classKey];
+                if (isset($classMap[$rawClass])) {
+                    $this->measures_classes[$valueKey] = $classMap[$rawClass];
                 }
             }
         }
-
-        // filter only impact measures (i.e., those that have id, score & class specified)
-        // other measures also exist (e.g., views, downloads etc)
-        $result["measure"] = array_filter($result["measure"], function($val) {
-            return array_key_exists('id', $val) && array_key_exists('score', $val) && array_key_exists('class', $val);
-        });
-
-        // impact scores & classes
-        if (isset($result["measure"]) && count($result["measure"]) > 0) {
-            $this->measures = array_combine(array_column($result["measure"], 'id'), array_column($result["measure"], 'score'));
-            $this->measures_classes = array_combine(array_column($result["measure"], 'id'), array_map(function($m) {
-                // this function transforms classes from the old (3) to the new 5 ones.
-                // TODO: adjust when classes in OpenAIRE are updated
-                // A is the same
-                if ($m == "A") return "A";
-                if ($m == "B") return "C";
-                else if ($m == "C") return "E";
-                else return Yii::$app->params['impact_classes_mapping'][$m];
-
-            }, array_column($result["measure"], 'class')));
+        // Remap citationCount -> citations (for compatibility)
+        if (isset($this->measures['citationCount'])) {
+            $this->measures['citations'] = $this->measures['citationCount'];
+        }
+        if (isset($this->measures_classes['citationCount'])) {
+            $this->measures_classes['citations'] = $this->measures_classes['citationCount'];
         }
     }
 
@@ -183,6 +150,15 @@ class OpenaireArticle extends Model {
 
     public function calculateChartData() {
         $impact = $this->measures_classes;
-        $this->chart_data = ChartData::calculate($impact["popularity"], $impact["influence"], $impact["impulse"], $impact["influence_alt"]);
+
+        $fallback = 'E';
+
+        $pop = $impact["popularity"] ?? $fallback;
+        $inf = $impact["influence"] ?? $fallback;
+        $imp = $impact["impulse"] ?? $fallback;
+        $cit = $impact["citations"] ?? $fallback;
+
+        $this->chart_data = ChartData::calculate($pop, $inf, $imp, $cit);
     }
+
 }
