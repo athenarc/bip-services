@@ -10,6 +10,7 @@ $this->title = 'BIP! Services - Settings';
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/settings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/on-off-my-switch.css');
+$this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 ?>
 
 <div class="container-fluid">
@@ -50,7 +51,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                                     type="checkbox" 
                                     class="my-switch-input" 
                                     <?= ($user->ai_features) ? "checked" : "" ?> 
-                                    onchange="toggleSwitch(this, 'ai_features', '<?= Url::to(['/user/update-setting']) ?>')"
+                                    onchange="confirmAiAssistantToggle(this, '<?= Url::to(['/user/update-setting']) ?>')"
                                 >
                                 <label for="ai-features-toggle" class="my-switch-slider"></label>
                             </div>
