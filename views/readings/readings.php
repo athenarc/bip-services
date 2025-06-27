@@ -305,7 +305,7 @@ $papers = $result["papers"];
 
         if (\app\models\SummaryUsage::isAiAssistantEnabledForCurrentUser()):    
     ?>
-        <div class="col-md-12 text-right" style="margin-bottom: 15px;">
+        <div class="text-right" style="margin-bottom: 15px;">
             <button id="summarizeBtn" class="btn btn-default btn-sm"
                     data-paper-ids='<?= $paperIds ?>'
                     data-keywords=""
