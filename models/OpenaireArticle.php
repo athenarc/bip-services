@@ -29,8 +29,8 @@ class OpenaireArticle extends Model {
     public $chart_data;
 
     private static $api_endpoints = [
-        "prod" => "https://services.openaire.eu/search/v2/api/results/",
-        "beta" => "https://beta.services.openaire.eu/search/v2/api/results/",
+        "prod" => "https://api.openaire.eu/graph/v2/researchProducts/",
+        "beta" => "https://api-beta.openaire.eu/graph/v2/researchProducts/",
     ];
 
     public function __construct($id){
@@ -44,12 +44,7 @@ class OpenaireArticle extends Model {
         }
 
         // Use the correct Graph API base URL
-        $graph_api_endpoints = [
-            "prod" => "https://api.openaire.eu/graph/v2/researchProducts/",
-            "beta" => "https://api-beta.openaire.eu/graph/v2/researchProducts/",
-        ];
-
-        $url = $graph_api_endpoints[$source] . $this->id;
+        $url = OpenaireArticle::$api_endpoints[$source] . $this->id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
