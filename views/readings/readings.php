@@ -21,6 +21,7 @@ $this->registerJsFile('@web/js/favoriteTags.js',  ['position' => View::POS_END, 
 $this->registerJsFile('@web/js/tinymceModal.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholar-readings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::class]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -298,7 +299,61 @@ $papers = $result["papers"];
             Loading publications (it may take a couple of seconds)...
         </div>
     </div>
-    <?php if ($papers_num > 0): ?>
+    <?php if ($papers_num > 0): 
+        $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
+        $paperIds = json_encode(array_map(function($p) { return $p['internal_id']; }, $papers));
+
+        if (\app\models\SummaryUsage::isAiAssistantEnabledForCurrentUser()):    
+    ?>
+        <div class="col-md-12 text-right" style="margin-bottom: 15px;">
+            <button id="summarizeBtn" class="btn btn-default btn-sm"
+                    data-paper-ids='<?= $paperIds ?>'
+                    data-keywords=""
+                    data-threshold="<?= $threshold ?>">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
+            </button>
+        </div>
+    <?php endif; ?>
+        <div id="summary_panel" class="collapse row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="summaryContent" class="grey-text">
+                            <div class="summary-controls">
+                                <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
+                                    <label for="summary-count" class="regenerate-label">Use top</label>
+                                    <input type="number" id="summary-count" class="regenerate-input" />
+                                    <label for="summary-count" class="regenerate-label">results.</label>
+                                    <span role="button" data-toggle="popover" data-placement="auto"
+                                        title="AI Summary"
+                                        data-content="<p>The summary format will change based on the selected number of papers:</p>
+                                        <ul>
+                                            <li>1-5 papers: Produces a concise overview.</li>
+                                            <li>6-20 papers: Creates a more detailed, literature review-style summary.</li>
+                                        </ul>">
+                                        <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small>
+                                    </span>
+                                    <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Summarize</button>
+                                </div>
+                                <div class="text-right" id="copy-summary-wrapper" style="display: none;">
+                                    <a id="copy-summary-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip">
+                                        <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div id="summaryLoading" class="text-center summary-loading-centered">
+                                <i class="fa fa-spinner fa-spin"></i> Generating summary...
+                            </div>
+
+                            <div id="summaryText" style="text-align: justify; display: none;"></div>
+                            <div id="summary-usage-info" class="summary-usage-info"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="publications">
             <div class='row'>
                 <div class='col-md-4 text-left results-header'>

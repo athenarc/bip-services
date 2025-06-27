@@ -223,7 +223,11 @@ if ($in_space) {
                                 'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
                             ?>
                         </div>
-                    
+
+                        <?php
+                            $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
+                        ?>
+
                         <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
                             <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
                                 <button id="summarizeBtn" class="btn btn-default btn-sm" 
@@ -231,6 +235,7 @@ if ($in_space) {
                                             return $result['internal_id']; 
                                         }, $results['rows'])) ?>'
                                         data-keywords='<?= $keywords ?>'
+                                        data-threshold="<?= $threshold ?>"
                                     >
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
                                 </button>
@@ -272,10 +277,13 @@ if ($in_space) {
                                                 </a>
                                             </div>
                                         </div>
+
                                         <div id="summaryLoading" class="text-center summary-loading-centered">
                                             <i class="fa fa-spinner fa-spin"></i> Generating summary...
                                         </div>
+
                                         <div id="summaryText" style="text-align: justify; display: none;"></div>
+                                        <div id="summary-usage-info" class="summary-usage-info"></div>
                                     </div>
                                 </div>
                             </div>
