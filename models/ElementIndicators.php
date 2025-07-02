@@ -76,20 +76,35 @@ class ElementIndicators extends \yii\db\ActiveRecord
         return $this->hasOne(Indicators::class, ['id' => 'indicator_id']);
     }
 
-    public function getConfigIndicator($element_id) {
+    public static function getConfigIndicator($element_id) {
         $config = [];
-
-        $indicators_config = ElementIndicators::find()->where([ 'element_id' => $element_id ])->with('indicator')->all();
+    
+        $indicators_config = self::find()
+            ->where(['element_id' => $element_id])
+            ->with('indicator')
+            ->all();
+    
         foreach ($indicators_config as $i_config) {
-
-            $config[$i_config->indicator->name] = [
-                'indicator' => $i_config->indicator,
+            $config[] = [
+                'indicator' => [
+                    'name' => $i_config->indicator->name,
+                    'semantics' => $i_config->indicator->semantics,
+                ],
                 'status' => $i_config->status,
                 'semantics_order' => $i_config->semantics_order,
-                'indicator_order' => $i_config->indicator_order
+                'indicator_order' => $i_config->indicator_order,
+                'linked_contribution_element_id' => $i_config->linked_contribution_element_id,
             ];
         }
-
+    
         return $config;
+    }  
+
+    public static function getLinkedContributionElementId($element_id)
+    {
+        return self::find()
+            ->select('linked_contribution_element_id')
+            ->where(['element_id' => $element_id])
+            ->scalar();
     }
 }

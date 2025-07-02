@@ -50,6 +50,18 @@ class FacetsItem extends Widget
      */
     public function run()
     {
+        // Check if this Facets box is linked to a specific Contributions List
+        $linked_id = $this->element_config['linked_contribution_element_id'] ?? null;
+
+        if ($linked_id && isset($this->result['contributions_lists'][$linked_id])) {
+            // Overwrite result to only use the specific contribution list works
+            $this->result['papers'] = $this->result['contributions_lists'][$linked_id]['works'] ?? [];
+            $this->result['topics'] = $this->result['contributions_lists'][$linked_id]['topics'] ?? [];
+            $this->result['roles'] = $this->result['contributions_lists'][$linked_id]['roles'] ?? [];
+            $this->result['accesses'] = $this->result['contributions_lists'][$linked_id]['accesses'] ?? [];
+            $this->result['types'] = $this->result['contributions_lists'][$linked_id]['types'] ?? [];
+        }
+
         $data =[
             'edit_perm' => $this->edit_perm,
             'result' => $this->result,

@@ -9,6 +9,7 @@ class ElementIndicatorsForm extends Model
     public $selectedIndicators = [];
     public $semanticsOrder = '';
     public $indicatorOrder = '';
+    public $linked_contribution_element_id;
 
     public function rules()
     {
@@ -16,6 +17,7 @@ class ElementIndicatorsForm extends Model
             ['selectedIndicators', 'safe'],
             ['semanticsOrder', 'string'], 
             ['indicatorOrder', 'string'], 
+            ['linked_contribution_element_id', 'integer']
         ];
     }
 }

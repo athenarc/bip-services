@@ -332,7 +332,7 @@ class ScholarController extends BaseController
         $rag_data = '';
         $missing_papers = [];
         $work_types_num = ['papers' => 0, 'datasets' => 0];
-        // $cv_narrative_works = [];
+    // $cv_narrative_works = [];
         // $cv_narratives = [];
         // $public_cv_narratives_count = '';
         
@@ -412,6 +412,8 @@ class ScholarController extends BaseController
                             'count' => $count_msg ?? '',
                         ]
                     ];
+                }else{
+                     Yii::debug("No config found for element ID {$element->id}, type {$element->type}", __METHOD__);
                 }
             }
         }

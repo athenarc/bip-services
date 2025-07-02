@@ -1975,6 +1975,7 @@ class SiteController extends BaseController
                                         $semantics = strtolower($elementIndicators->indicator->semantics);
                                         $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                         $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
+                                        $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
         
                                         $elementIndicators->save();
                                 }
@@ -2134,6 +2135,7 @@ class SiteController extends BaseController
                                 $elementFacets = new ElementFacets();
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
+                                $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
                                 $elementFacets->save();
                             }
                         }
@@ -2225,6 +2227,7 @@ class SiteController extends BaseController
                     'visualize_opt' => $element_facet->facet->visualize_opt,
                     'numbers_opt' => $element_facet->facet->numbers_opt,
                     'border_opt' => $element_facet->facet->border_opt,
+                    'linked_contribution_element_id' => $element_facet->linked_contribution_element_id,
                 ];
             }
         }
@@ -2237,7 +2240,8 @@ class SiteController extends BaseController
                     'status' => $element_indicator->status,
                     'semantics_order' => $element_indicator->semantics_order,
                     'semantics' => $element_indicator->indicator->semantics,
-                    'indicator_order' => $element_indicator->indicator_order
+                    'indicator_order' => $element_indicator->indicator_order,
+                    'linked_contribution_element_id' => $element_indicator->linked_contribution_element_id,
                 ];
             }
         }
@@ -2275,7 +2279,7 @@ class SiteController extends BaseController
                                     $semantics = strtolower($elementIndicators->indicator->semantics);
                                     $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                     $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
-
+                                    $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
                                     $elementIndicators->save();
                                 }
                             }
@@ -2447,6 +2451,7 @@ class SiteController extends BaseController
                                 $elementFacets = new ElementFacets();
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
+                                $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
                                 $elementFacets->save();
                             }
                        }

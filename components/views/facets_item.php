@@ -36,6 +36,15 @@ use yii\bootstrap\Modal;
                     <div id="current_cv_narrative_description" class="tiny-mce-body-cv-narrative"><?=$current_cv_narrative->description?></div>
 
                 <?php else : ?>
+                    <?php if (isset($element_config['linked_contribution_element_name'])): ?>
+                        <div class="facet-row">
+                            <div class="facet-header grey-text">
+                                <i class="fa fa-link" aria-hidden="true"></i>
+                                <strong>Linked contribution list</strong>: <?= Html::encode($element_config['linked_contribution_element_name']) ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if(isset($element_config['Topics'])): ?>
                         <div class="facet-row">
                             <div class="facet-header grey-text">

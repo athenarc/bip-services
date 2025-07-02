@@ -7,6 +7,8 @@ use yii\helpers\Url;
 use yii\jui\Accordion;
 use app\models\ElementNarratives;
 use wbraganca\dynamicform\DynamicFormWidget;
+use yii\helpers\ArrayHelper;
+use app\models\Elements;
 
 /** @var yii\web\View $this */
 /** @var app\models\Elements $elementModel */
@@ -129,6 +131,24 @@ $section_profiles = ($section === "profiles");
 
             <div class="facets-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Facets') ?></h1>
+                <?php
+                if (!$elementModel->isNewRecord && isset($existing_facets[0]['linked_contribution_element_id'])) {
+                    $elementFacetsFormModel->linked_contribution_element_id = $existing_facets[0]['linked_contribution_element_id'];
+                }
+                $contributionsLists = Elements::find()
+                    ->where(['type' => 'Contributions List', 'template_id' => $elementModel->template_id])
+                    ->all();
+                
+                $dropdownOptions = [];
+                foreach ($contributionsLists as $el) {
+                    $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
+                }
+                ?>
+
+                <?= $form->field($elementFacetsFormModel, 'linked_contribution_element_id')->dropDownList(
+                    $dropdownOptions,
+                    ['prompt' => 'Select a Contributions List to link']
+                )->label('Linked Contribution List') ?>
             </div>
 
             <?php $facetTypes = ["Topics", "Roles", "Availability", "Work type"]; ?>
@@ -211,6 +231,24 @@ $section_profiles = ($section === "profiles");
 
             <div class="indicators-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Indicators') ?></h1>
+                <?php
+                if (!$elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
+                    $elementIndicatorsFormModel->linked_contribution_element_id = $existing_indicators[0]['linked_contribution_element_id'];
+                }
+                $contributionsLists = \app\models\Elements::find()
+                    ->where(['template_id' => $template_id, 'type' => 'Contributions List'])
+                    ->all();
+
+                    $dropdownOptions = [];
+                    foreach ($contributionsLists as $el) {
+                        $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
+                    }
+                ?>
+
+                <?= $form->field($elementIndicatorsFormModel, 'linked_contribution_element_id')->dropDownList(
+                    $dropdownOptions,
+                    ['prompt' => 'Select a Contributions List to link']
+                )->label("Linked Contribution List") ?>
                 <button type="button" class="toggle-all-indicators">Collapse All</button>
                 <select class="global-status-combobox">
                     <option value="" disabled selected>Group Actions</option>
@@ -232,7 +270,7 @@ $section_profiles = ($section === "profiles");
                 // Default semantics order for new records
                 $defaultSemanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
 
-                if (!$elementModel->isNewRecord) {
+                if (!$elementModel->isNewRecord ) {
                     if (!empty($existing_indicators)) {
                         $semanticsOrderCombined = [];
                         foreach ($existing_indicators as $existing_indicator) {
