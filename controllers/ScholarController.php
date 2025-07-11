@@ -353,11 +353,6 @@ class ScholarController extends BaseController
 
                     case "Contributions List":
                         $config = ElementContributions::getConfigContributions($element->id);
-                        // sort parameter from Contributions List config
-                        $sort_config = $config["sort"] ?? null;
-                        $show_pagination_config = $config["show_pagination"] ?? null;
-                        $top_k_config = $config["top_k"] ?? null;
-                        $page_size_config = $config["page_size"] ?? null;
                         break;
 
                     case "Section Divider":
@@ -435,9 +430,6 @@ class ScholarController extends BaseController
 
             $scholar = new Scholar($researcher);
 
-            // fetch scholar's works for ORCiD
-            $scholar->fetchWorks($sort_field, $top_k_config);
-
             // avoid calculation of redundant information, when the request is not coming from cv-narratives modal.
             // proper modifications were made in the profile view also.
             // if(!$is_cv_narrative_pjax){
@@ -451,18 +443,45 @@ class ScholarController extends BaseController
             //     }
 
             // fetch papers in current page
-            $result = $scholar->getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config);
+            $contributions_lists_results = [];
 
-            // true if at least a facet is selected
-            $facets_selected = !empty($tags) || !empty($accesses) || !empty($rd_status) || !empty($types) || !empty($topics);
+            foreach ($template_elements as $element) {
+                if ($element['type'] === 'Contributions List') {
+                    $element_id = $element['element_id'];
+                    $config = $element['config'];
 
-            // get last selected facet field and its value
-            $facet_field = Yii::$app->request->get('fct_field');
+                    $filters = $config['filters'] ?? [];
+                    $sort_field_local = $config['sort'] ?? 'year';
+                    $top_k = $config['top_k'] ?? null;
+                    $show_pagination = $config['show_pagination'] ?? null;
+                    $page_size = $config['page_size'] ?? null;
 
-            $result["facets"] = $scholar->getFacets($topics, $tags, $roles, $accesses, $types, $facet_field);
+                    $pagination_enabled = isset($show_pagination) ? ((int)$show_pagination !== 0) : true;
+                    $page_size_final = $page_size ?? 10;
 
-            // fetch involvement
-            $result = Involvement::getInvolvement($result, $researcher->user_id);
+                    $use_url_filters = $config['use_url_filters'] ?? false;
+
+                    $topics = $use_url_filters ? Yii::$app->request->get('topics', $filters['topics'] ?? null) : ($filters['topics'] ?? null);
+                    $tags = $use_url_filters ? Yii::$app->request->get('tags', $filters['tags'] ?? null) : ($filters['tags'] ?? null);
+                    $roles = $use_url_filters ? Yii::$app->request->get('roles', $filters['roles'] ?? null) : ($filters['roles'] ?? null);
+                    $accesses = $use_url_filters ? Yii::$app->request->get('accesses', $filters['accesses'] ?? null) : ($filters['accesses'] ?? null);
+                    $types = $use_url_filters ? Yii::$app->request->get('types', $filters['types'] ?? null) : ($filters['types'] ?? null);
+
+                    $scholar->fetchWorksLimited($sort_field_local, $top_k);
+                    $result = $scholar->getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field_local, $pagination_enabled, $page_size_final, $top_k);
+
+                    $facet_field = Yii::$app->request->get('fct_field');
+                    $result['facets'] = $scholar->getFacets($topics, $tags, $roles, $accesses, $types, $facet_field);
+                    $result = Involvement::getInvolvement($result, $researcher->user_id);
+
+                    $contributions_lists_results[$element_id] = $result;
+
+                    if (!$pagination_enabled && $top_k !== null) {
+                        $contributions_lists_results[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
+                        $contributions_lists_results[$element_id]['papers_num'] = min($top_k, count($result['papers']));
+                    }
+                }
+            }
 
             $missing_papers = $scholar->missing_papers;
 
@@ -547,6 +566,7 @@ class ScholarController extends BaseController
             'template' => $template,
             'templateDropdownData' => ProfileTemplateCategories::getTemplateDropdownData(),
             'template_url_name' => $template_url_name,
+            'contributions_lists' => $contributions_lists_results,
         ];
 
         if ($for_print) {
@@ -572,9 +592,6 @@ class ScholarController extends BaseController
         }
 
         $scholar = new Scholar($researcher);
-
-        // fetch scholar's works for ORCiD
-        $scholar->fetchWorks(null, null);
 
         $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 

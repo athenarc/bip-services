@@ -25,48 +25,32 @@ class Scholar extends Model
         $this->researcher = $researcher;
     }
 
-    public function fetchWorks($sort_field, $top_k_config) {
-
-        // get scholar's works from ORCiD
+    public function fetchWorksLimited($sort_field, $top_k = null) {
+        
         $orcid_works = Orcid::get_works($this->researcher->orcid, $this->researcher->access_token);
 
-        // get dois from works (filter null or our empty dois)
-        $this->dois = array_map(function($w) { return (isset($w["doi"])) ? $w["doi"] : null; }, $orcid_works);
+        $all_dois = array_filter(array_map(fn($w) => $w["doi"] ?? null, $orcid_works));
 
-        // get dois in db
-        $this->found_ids_dois = (new \yii\db\Query())->select("internal_id, doi")->from('pmc_paper')->where(['doi' => $this->dois])->all();
-        $found_dois = array_map(function ($r) { return ['doi' => $r['doi']]; }, $this->found_ids_dois);
+        $query = (new \yii\db\Query())
+            ->select("internal_id, doi")
+            ->from("pmc_paper")
+            ->where(['doi' => $all_dois])
+            ->orderBy([Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC]);
 
-        
-        // Apply ordering and limit if $top_k_config is set
-        if (isset($top_k_config)) {
-        
-            $orderByClause = [
-                Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC
-            ];
-                
-            $this->dois = (new \yii\db\Query())
-                ->select("internal_id, doi")
-                ->from('pmc_paper')
-                ->where(['doi' => $this->dois])
-                ->orderBy($orderByClause)
-                ->limit($top_k_config)
-                ->all();
+        if ($top_k !== null) {
+            $query->limit($top_k);
         }
 
+        $this->found_ids_dois = $query->all();
+        $this->dois = array_column($this->found_ids_dois, 'doi');
 
+        $found_dois_set = array_map(fn($r) => ['doi' => $r['doi']], $this->found_ids_dois);
 
-        // find missing papers, comparing $works received from orcid with papers found in our database
-        $this->missing_papers = array_udiff($orcid_works, $found_dois, function($a, $b) {
-            if (!isset($a["doi"]))
-                return -1;
-            elseif (!isset($b["doi"]))
-                return 1;
-            else
-                return strcmp($a["doi"], $b["doi"]);
+        $this->missing_papers = array_udiff($orcid_works, $found_dois_set, function($a, $b) {
+            return strcmp($a["doi"] ?? '', $b["doi"] ?? '');
         });
-
     }
+
 
     public function fetchCvNarrativeDois($cv_narrative_ids){
 
@@ -95,8 +79,8 @@ class Scholar extends Model
         return $papers;
     }
 
-    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config) {
-
+    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config, $top_k = null){
+        Yii::debug("TOP_K received in getArticlesInPage(): " . var_export($top_k, true), __METHOD__);
         $impact_fields = Yii::$app->params['impact_fields'];
         $orderByClause = [
             $impact_fields[$sort_field] => SORT_DESC
@@ -165,13 +149,30 @@ class Scholar extends Model
 
         // paginated query to retrieve all paper details
         // if page_size_config is not set, default to one page
-        $pagination = new Pagination([
-            'pageSize' => (isset($show_pagination_config) && $show_pagination_config == 0) ? $papers_num : ($page_size_config ?? $papers_num),
-            'totalCount' => $papers_num,
-        ]);
+        $pagination = null;
+        $offset = 0;
+
+        if ($show_pagination_config) {
+            $effective_page_size = $page_size_config ?? $papers_num;
+            $pagination = new Pagination([
+                'pageSize' => $effective_page_size,
+                'totalCount' => $papers_num,
+            ]);
+            $offset = $pagination->offset;
+        } else {
+            $offset = 0;
+        }
+
+        // Calculate effective limit
+        $limit = null;
+        if (!$show_pagination_config && $top_k !== null) {
+            $limit = $top_k;
+        } elseif ($pagination !== null) {
+            $limit = $pagination->limit;
+        }
 
         // fetch details (and order) for paper in current page
-        $papers = (new \yii\db\Query())
+        $papers_query = (new \yii\db\Query())
             ->select('pmc_paper.*, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
             ->from('pmc_paper')
             ->leftJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
@@ -182,9 +183,11 @@ class Scholar extends Model
             ->where(['internal_id' => $base_query->select('internal_id')])
             ->groupBy('internal_id')
             ->orderBy($orderByClause)
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
+            ->offset($offset)
+            ->limit($limit);
+
+        $papers = $papers_query->all();
+
 
         // get impact scores
         $papers = SearchForm::get_impact_class($papers);
@@ -195,11 +198,16 @@ class Scholar extends Model
         // get relations
         $papers = Relations::getRelations($papers);
 
+        if ($top_k !== null && !$show_pagination_config) {
+            $papers = array_slice($papers, 0, $top_k);
+        }
+
         return [
             'pagination' => $pagination,
             'papers' => $papers,
-            'papers_num' => $papers_num,
+            'papers_num' => count($papers),
         ];
+
     }
 
     public function getTopicFacets($topics, $tags, $roles, $accesses, $types, $facet_field) {

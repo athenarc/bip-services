@@ -196,25 +196,28 @@ use yii\bootstrap\NavBar;
 
                     switch ($element["type"]) {
                         case "Facets":
+                            // optionally pick a contributions list's facets (first one, or match by element ID if needed)
+                            $anyList = reset($contributions_lists);
+                            $facet_data = $anyList['facets'] ?? [];
+
                             echo FacetsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'result' => $result,
+                                'result' => ['facets' => $facet_data],
                                 'formId' => 'scholar-form',
-                                'selected_topics' => $selected_topics,
-                                'selected_roles' => $selected_roles,
-                                'selected_accesses' => $selected_accesses,
-                                'selected_types' => $selected_types,
+                                'selected_topics' => Yii::$app->request->get('topics'),
+                                'selected_roles' => Yii::$app->request->get('roles'),
+                                'selected_accesses' => Yii::$app->request->get('accesses'),
+                                'selected_types' => Yii::$app->request->get('types'),
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
                                 'element_config' => $element["config"]
                             ]);
-
                             break;
 
                         case "Indicators":
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'works_num' => $result["papers_num"],
+                                'works_num' => $papers_num,
                                 'missing_papers_num' => count($missing_papers),
                                 'facets_selected' => $facets_selected,
                                 'popular_works_count' => $popular_works_count,
@@ -241,23 +244,36 @@ use yii\bootstrap\NavBar;
                             break;
 
                         case "Contributions List":
+                            $list_id = $element["element_id"];
+                            $list_result = $contributions_lists[$list_id] ?? [
+                                'papers' => [],
+                                'papers_num' => 0,
+                                'facets' => [],
+                            ];
+
                             echo ContributionsListItem::widget([
                                 'impact_indicators' => $impact_indicators,
                                 'edit_perm' => $edit_perm,
-                                'facets_selected' => $facets_selected,
-                                'result' => $result,
-                                'papers' => $result["papers"],
-                                'works_num' => $result["papers_num"],
+                                'facets_selected' => !empty($list_result['facets']),
+                                'result' => $list_result,
+                                'papers' => $list_result["papers"],
+                                'works_num' => count($list_result["papers"]),
                                 'missing_papers' => $missing_papers,
                                 'missing_papers_num' => count($missing_papers),
-                                'sort_field' => $sort_field,
-                                'orderings' => $orderings,
+                                'sort_field' => $element['config']['sort'] ?? 'year',
+                                'orderings' => [
+                                    'year' => 'Publication year',
+                                    'influence' => 'Influence',
+                                    'popularity' => 'Popularity',
+                                    'impulse' => 'Impulse',
+                                    'citation_count' => 'Citation Count'
+                                ],
                                 'formId' => 'scholar-form',
                                 'current_cv_narrative' => null,
                                 'element_config' => $element["config"]
                             ]);
-
                             break;
+
 
                         case "Narrative":
                             echo NarrativeElement::widget([

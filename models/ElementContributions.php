@@ -78,7 +78,23 @@ class ElementContributions extends \yii\db\ActiveRecord
      * @param int $element_id
      * @return ElementContributions|null
      */
-    public function getConfigContributions($element_id) {
-        return self::find()->where([ 'element_id' => $element_id ])->one();
+    public static function getConfigContributions($element_id) {
+        $model = self::find()->where(['element_id' => $element_id])->one();
+
+        if (!$model) {
+            Yii::debug("No config found for Contributions List element ID $element_id", __METHOD__);
+            return []; 
+        }
+
+        return [
+            'heading_type' => $model->heading_type,
+            'show_header' => $model->show_header,
+            'show_pagination' => $model->show_pagination,
+            'sort' => $model->sort,
+            'top_k' => $model->top_k,
+            'page_size' => $model->page_size,
+            'filters' => [],
+        ];
     }
+
 }

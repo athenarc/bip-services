@@ -32,13 +32,17 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
     <div id="publications">
         <div class='row'>
             <div class='col-md-4 text-left results-header'>
-                <?= !empty($element_config['top_k']) ? "Top" : "" ?>
+                <?php if (!empty($element_config['top_k'])): ?>
+                    Top <?= count($papers) ?> results
+                    sorted by <?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
+                <?php else: ?>
                     <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
-                <?php if ($result['pagination']->pageCount > 1): ?>
-                    (<?=  Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
+                    <?php if ($result['pagination']->pageCount > 1): ?>
+                        (<?=  Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
+                    <?php endif; ?>
                 <?php endif; ?>
-                <?= !empty($element_config['top_k']) ? "sorted by " . Html::tag('i', $orderings[$sort_field]) : "" ?>
             </div>
+
             <div class='col-md-4 text-center'><?= LinkPager::widget([
                 'pagination' => $result['pagination'],
                 'maxButtonCount' => 5,
