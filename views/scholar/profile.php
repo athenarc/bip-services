@@ -192,6 +192,8 @@ use yii\bootstrap\NavBar;
 
             <?php
                 echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
+                $indicatorIndex = 0;
+                $listIds = array_keys($contributions_indicators);
                 foreach ($template_elements as $index => $element) {
 
                     switch ($element["type"]) {
@@ -215,32 +217,41 @@ use yii\bootstrap\NavBar;
                             break;
 
                         case "Indicators":
+                            
+                            $indicator_items = $element['config'];
+                            $linked_list_id = $indicator_items[0]['linked_contribution_element_id'] ?? null;
+
+                            if (!$linked_list_id || !isset($contributions_indicators[$linked_list_id])) {
+                                echo "<div class='text-danger'> No indicators found for linked list ID: $linked_list_id</div>";
+                                break;
+                            }
+
+                            $indicators_local = $contributions_indicators[$linked_list_id];
+
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'works_num' => $papers_num,
-                                'missing_papers_num' => count($missing_papers),
+                                'works_num' => $indicators_local['works_num'] ?? 0,
+                                'missing_papers_num' => $indicators_local['missing_papers_num'] ?? 0,
+                                'popular_works_count' => $indicators_local['popular_works_count'] ?? 0,
+                                'influential_works_count' => $indicators_local['influential_works_count'] ?? 0,
+                                'citations' => $indicators_local['citations_num'] ?? 0,
+                                'popularity' => $indicators_local['popularity'] ?? ['number' => 0, 'exponent' => 'e0'],
+                                'influence' => $indicators_local['influence'] ?? ['number' => 0, 'exponent' => 'e0'],
+                                'impulse' => $indicators_local['impulse'] ?? 0,
+                                'h_index' => $indicators_local['h_index'] ?? 0,
+                                'i10_index' => $indicators_local['i10_index'] ?? 0,
+                                'academic_age' => $indicators_local['academic_age'] ?? '',
+                                'responsible_academic_age' => $indicators_local['responsible_academic_age'] ?? '',
+                                'paper_min_year' => $indicators_local['paper_min_year'] ?? 0,
+                                'papers_num' => $indicators_local['work_types_num']['papers'] ?? 0,
+                                'datasets_num' => $indicators_local['work_types_num']['datasets'] ?? 0,
+                                'software_num' => $indicators_local['work_types_num']['software'] ?? 0,
+                                'other_num' => $indicators_local['work_types_num']['other'] ?? 0,
+                                'openness' => $indicators_local['openness'] ?? [],
                                 'facets_selected' => $facets_selected,
-                                'popular_works_count' => $popular_works_count,
-                                'influential_works_count' => $influential_works_count,
-                                'citations' => $citations,
-                                'popularity' => $popularity,
-                                'influence' => $influence,
-                                'impulse' => $impulse,
-                                'h_index' => $h_index,
-                                'i10_index' => $i10_index,
-                                'academic_age' => $academic_age,
-                                'paper_min_year' => $paper_min_year,
-                                'responsible_academic_age' => $responsible_academic_age,
                                 'rag_data' => $rag_data,
-                                'papers_num' => $papers_num,
-                                'datasets_num' => $datasets_num,
-                                'software_num' => $software_num,
-                                'other_num' => $other_num,
-                                'openness' => $openness,
-                                'current_cv_narrative' => null,
                                 'element_config' => $element["config"],
                             ]);
-
                             break;
 
                         case "Contributions List":

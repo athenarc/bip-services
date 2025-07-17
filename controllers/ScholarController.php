@@ -444,6 +444,8 @@ class ScholarController extends BaseController
 
             // fetch papers in current page
             $contributions_lists_results = [];
+            $indicators_model = new Indicators();
+            $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
             foreach ($template_elements as $element) {
                 if ($element['type'] === 'Contributions List') {
@@ -475,6 +477,23 @@ class ScholarController extends BaseController
                     $result = Involvement::getInvolvement($result, $researcher->user_id);
 
                     $contributions_lists_results[$element_id] = $result;
+
+                    $minimal_papers = $scholar->getOnlyAllArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field_local, $top_k);
+
+                    // Extract DOIs
+                    $dois = array_filter(array_map('strtolower', array_column($minimal_papers, 'doi')));
+
+                    $all_papers = [];
+
+                    if (!empty($dois)) {
+                        $all_papers = \app\models\Article::find()
+                            ->where(['doi' => $dois])
+                            ->asArray()
+                            ->all();
+                    }
+
+                    $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
+
 
                     if (!$pagination_enabled && $top_k !== null) {
                         $contributions_lists_results[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
@@ -567,6 +586,7 @@ class ScholarController extends BaseController
             'templateDropdownData' => ProfileTemplateCategories::getTemplateDropdownData(),
             'template_url_name' => $template_url_name,
             'contributions_lists' => $contributions_lists_results,
+            'contributions_indicators' => $contributions_indicators,
         ];
 
         if ($for_print) {
@@ -596,7 +616,6 @@ class ScholarController extends BaseController
         $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
         // calculate and return scholar indicators
-        $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
         return $scholar->indicators->compute($rag_data);
     }
 
