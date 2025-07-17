@@ -136,7 +136,7 @@ $section_profiles = ($section === "profiles");
                     $elementFacetsFormModel->linked_contribution_element_id = $existing_facets[0]['linked_contribution_element_id'];
                 }
                 $contributionsLists = Elements::find()
-                    ->where(['type' => 'Contributions List', 'template_id' => $elementModel->template_id])
+                    ->where(['type' => 'Contributions List', 'template_id' => $template_id])
                     ->all();
                 
                 $dropdownOptions = [];
