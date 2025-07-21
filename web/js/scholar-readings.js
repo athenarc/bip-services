@@ -43,19 +43,19 @@ function clearFacet(facetName) {
 }
 
 $(document).on('click', '.facet-item', function () {
+    let elementId = $(this).attr('id');
+    let input = $(`#${elementId}-i`);
 
-        let elementId = $(this).attr('id');
-        let input = $(`#${elementId}-i`);
+    // toggle disabled prop for input
+    if (input.attr('disabled')) input.removeAttr('disabled');
+    else input.attr('disabled', 'disabled');
 
-        // toggle disabled prop for input
-        if (input.attr('disabled')) input.removeAttr('disabled');
-        else input.attr('disabled', 'disabled');
+    let [facetName, facetId] = elementId.split('-');
+    $('#fct_field').val(facetName);
 
-        let [facetName, facetId] = elementId.split('-');
+    $('#scholar-form input[name="list_id"]').not('[form="scholar-form"]').remove();
 
-        $('#fct_field').val(facetName);
-
-        submit_scholar_form();
+    submit_scholar_form();
 });
 
 $(document).ready(function() {

@@ -36,6 +36,12 @@ class ContributionsListItem extends Widget
     public $for_print;
 
     public $current_cv_narrative;
+    public $facets_for_this_list;
+    public $selected_topics;
+    public $selected_tags;
+    public $selected_roles;
+    public $selected_accesses;
+    public $selected_types;
 
     // public $show;
 
@@ -67,13 +73,20 @@ class ContributionsListItem extends Widget
             'formId' => $this->formId,
             'element_config' => $this->element_config,
             'current_cv_narrative' => $this->current_cv_narrative,
-            'heading_type' => $this->heading_type
+            'heading_type' => $this->heading_type,
+            'facets_for_this_list' => $this->facets_for_this_list,
+            'selected_topics' => $this->selected_topics,
+            'selected_tags' => $this->selected_tags,
+            'selected_roles' => $this->selected_roles,
+            'selected_accesses' => $this->selected_accesses,
+            'selected_types' => $this->selected_types,
         ];
 
 
         if ($this->for_print) {
             return $this->render('pdf/contributions_list_item', $data);
         }
+        
         return $this->render('contributions_list_item', $data);
     }
 

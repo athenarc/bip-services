@@ -199,12 +199,24 @@ use yii\bootstrap\NavBar;
                     switch ($element["type"]) {
                         case "Facets":
                             // optionally pick a contributions list's facets (first one, or match by element ID if needed)
-                            $anyList = reset($contributions_lists);
-                            $facet_data = $anyList['facets'] ?? [];
+                            //$linked_id = $element['config']['linked_contribution_element_id'] ?? null;
+                            $linked_id = null;
+                            foreach ($element['config'] as $section) {
+                                if (is_array($section) && isset($section['linked_contribution_element_id'])) {
+                                    $linked_id = $section['linked_contribution_element_id'];
+                                    break;
+                                }
+                            }
+                            if (!isset($contributions_lists[$linked_id])) {
+                                echo "<div class='text-danger'>Missing result for linked list ID: $linked_id</div>";
+                                break;
+                            }
+
+                            $selected = $contributions_selected_filters[$linked_id] ?? [];
 
                             echo FacetsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'result' => ['facets' => $facet_data],
+                                'result' =>  $contributions_lists[$linked_id],
                                 'formId' => 'scholar-form',
                                 'selected_topics' => Yii::$app->request->get('topics'),
                                 'selected_roles' => Yii::$app->request->get('roles'),
@@ -256,11 +268,15 @@ use yii\bootstrap\NavBar;
 
                         case "Contributions List":
                             $list_id = $element["element_id"];
+                            $element_id = $element['element_id'];
+                            
                             $list_result = $contributions_lists[$list_id] ?? [
                                 'papers' => [],
                                 'papers_num' => 0,
                                 'facets' => [],
                             ];
+                            $selected = $contributions_selected_filters[$list_id] ?? [];
+                            $facets_for_this_list = $facets_linked_to_lists[$element_id] ?? null;
 
                             echo ContributionsListItem::widget([
                                 'impact_indicators' => $impact_indicators,
@@ -281,7 +297,13 @@ use yii\bootstrap\NavBar;
                                 ],
                                 'formId' => 'scholar-form',
                                 'current_cv_narrative' => null,
-                                'element_config' => $element["config"]
+                                'element_config' => $element["config"],
+                                'facets_for_this_list' => $facets_for_this_list,
+                                'selected_topics' => $selected['topics'] ?? [],
+                                'selected_tags' => $selected['tags'] ?? [],
+                                'selected_roles' => $selected['roles'] ?? [],
+                                'selected_accesses' => $selected['accesses'] ?? [],
+                                'selected_types' => $selected['types'] ?? [],
                             ]);
                             break;
 

@@ -9,6 +9,19 @@ use yii\bootstrap\Modal;
 <div class="row">
     <div class="col-xs-12">
         <div class="well profile">
+            <?php
+                // Try to extract the first defined list_id from any facet type
+                $linked_id = null;
+                foreach ($element_config as $section) {
+                    if (is_array($section) && isset($section['linked_contribution_element_id'])) {
+                        $linked_id = $section['linked_contribution_element_id'];
+                        break;
+                    }
+                }
+            ?>
+            <?php if ($linked_id): ?>
+                <input type="hidden" name="list_id" value="<?= Html::encode($linked_id) ?>" form="<?= $formId ?>">
+            <?php endif; ?>
             <div>
                 <?php if (isset($current_cv_narrative)): ?>
                     <h4>

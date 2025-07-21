@@ -33,7 +33,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         <div class='row'>
             <div class='col-md-4 text-left results-header'>
                 <?php if (!empty($element_config['top_k'])): ?>
-                    Top <?= $element_config['top_k'] ?> results
+                    Top <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
                     sorted by <?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
                 <?php else: ?>
                     <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
