@@ -289,6 +289,7 @@ class ScholarController extends BaseController
         }
 
         $types = Yii::$app->request->get('types');
+        $listsFilters = Yii::$app->request->get('lists', []);
         $list_id_from_request = Yii::$app->request->get('list_id');
 
         // if auth_code is present, user has requested to link account with orcid profile
@@ -336,7 +337,6 @@ class ScholarController extends BaseController
     // $cv_narrative_works = [];
         // $cv_narratives = [];
         // $public_cv_narratives_count = '';
-        
         $template_elements = [];
         if ($template !== null && isset($template->elements)) {
             foreach($template->elements as $element) {
@@ -469,11 +469,12 @@ class ScholarController extends BaseController
 
                 $use_url_filters = ((int)$list_id_from_request === (int)$element_id);
 
-                $topics_for_list = $use_url_filters ? Yii::$app->request->get('topics', $filters['topics'] ?? null) : ($filters['topics'] ?? null);
-                $tags_for_list = $use_url_filters ? Yii::$app->request->get('tags', $filters['tags'] ?? null) : ($filters['tags'] ?? null);
-                $roles_for_list = $use_url_filters ? Yii::$app->request->get('roles', $filters['roles'] ?? null) : ($filters['roles'] ?? null);
-                $accesses_for_list = $use_url_filters ? Yii::$app->request->get('accesses', $filters['accesses'] ?? null) : ($filters['accesses'] ?? null);
-                $types_for_list = $use_url_filters ? Yii::$app->request->get('types', $filters['types'] ?? null) : ($filters['types'] ?? null);
+                $listFilters = Yii::$app->request->get('lists', []);
+                $topics_for_list   = $listFilters[$element_id]['topics']   ?? ($filters['topics'] ?? null);
+                $tags_for_list     = $listFilters[$element_id]['tags']     ?? ($filters['tags'] ?? null);
+                $roles_for_list    = $listFilters[$element_id]['roles']    ?? ($filters['roles'] ?? null);
+                $accesses_for_list = $listFilters[$element_id]['accesses'] ?? ($filters['accesses'] ?? null);
+                $types_for_list    = $listFilters[$element_id]['types']    ?? ($filters['types'] ?? null);
 
                 $contributions_selected_filters[$element_id] = [
                     'topics' => $topics,
@@ -510,6 +511,7 @@ class ScholarController extends BaseController
                     $contributions_lists[$element_id]['papers_num'] = min($top_k, count($result['papers']));
                 }
             }
+            
 
             foreach ($template_elements as $element) {
                 if ($element['type'] !== 'Facets') {
@@ -639,6 +641,24 @@ class ScholarController extends BaseController
             // }
         }
 
+        $selected_topics   = $listsFilters[$list_id_from_request]['topics']   ?? [];
+        $selected_roles    = $listsFilters[$list_id_from_request]['roles']    ?? [];
+        $selected_accesses = $listsFilters[$list_id_from_request]['accesses'] ?? [];
+        $selected_types    = $listsFilters[$list_id_from_request]['types']    ?? [];
+        $listsFilters = Yii::$app->request->get('lists', []);
+
+        // prepare a mapping for selected filters per list
+        $selected_per_list = [];
+
+        foreach ($listsFilters as $listId => $filters) {
+            $selected_per_list[$listId] = [
+                'topics'   => $filters['topics']   ?? [],
+                'roles'    => $filters['roles']    ?? [],
+                'accesses' => $filters['accesses'] ?? [],
+                'types'    => $filters['types']    ?? [],
+            ];
+        }
+
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
         $data = [
             'impact_indicators' => $impact_indicators,
@@ -672,11 +692,11 @@ class ScholarController extends BaseController
                 'impulse' => 'Impulse',
                 'citation_count' => 'Citation Count'
             ],
-            'selected_topics' => $topics,
+            'selected_topics'   => $selected_topics,
+            'selected_roles'    => $selected_roles,
+            'selected_accesses' => $selected_accesses,
+            'selected_types'    => $selected_types,
             'selected_tags' => $tags,
-            'selected_roles' => $roles,
-            'selected_accesses' => $accesses,
-            'selected_types' => $types,
             'facets_selected' => $facets_selected,
             'sort_field' => $sort_field,
             // 'is_cv_narrative_pjax' => $is_cv_narrative_pjax,
@@ -692,6 +712,7 @@ class ScholarController extends BaseController
             'contributions_lists' => $contributions_lists,
             'contributions_indicators' => $contributions_indicators,
             'facets_linked_to_lists' => $facets_linked_to_lists,
+            'selected_per_list' => $selected_per_list,
         ];
 
         if ($for_print) {

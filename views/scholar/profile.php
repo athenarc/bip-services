@@ -224,7 +224,8 @@ use yii\bootstrap\NavBar;
                                 'selected_types' => Yii::$app->request->get('types'),
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
-                                'element_config' => $element["config"]
+                                'element_config' => $element["config"],
+                                'selected_per_list' => $selected_per_list, 
                             ]);
                             break;
 

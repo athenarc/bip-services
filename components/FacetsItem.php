@@ -35,6 +35,7 @@ class FacetsItem extends Widget
 
     public $element_config;
     public $for_print;
+    public $selected_per_list;
 
 
     /*
@@ -73,11 +74,12 @@ class FacetsItem extends Widget
             'current_cv_narrative' => $this->current_cv_narrative,
             'researcher' => $this->researcher,
             'element_config' => $this->element_config,
+            'selected_per_list' => $this->selected_per_list,
         ];
 
         if ($this->for_print) {
             return $this->render('pdf/facets_item', $data);
-        }
+        }      
         return $this->render('facets_item', $data);
     }
 
