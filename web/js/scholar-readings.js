@@ -1,5 +1,5 @@
 function submit_scholar_form() {
-    // Save scroll position
+
     sessionStorage.setItem('scrollPos', $(window).scrollTop());
 
     $("#loading_results").show();
@@ -66,7 +66,12 @@ function clearFacet(listId, facetName) {
     submit_scholar_form();
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
+    let scrollPos = sessionStorage.getItem('scrollPos');
+    if (scrollPos !== null) {
+        $(window).scrollTop(scrollPos);
+    }
+
     $('#reading-list-public-switch').click(function(event) {
         var csrfToken = $('meta[name="csrf-token"]').attr("content");
         var is_public = (event.target.checked) ? 1 : 0;

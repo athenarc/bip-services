@@ -131,6 +131,7 @@ $section_profiles = ($section === "profiles");
 
             <div class="facets-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Facets') ?></h1>
+            </div>
                 <?php
                 if (!$elementModel->isNewRecord && isset($existing_facets[0]['linked_contribution_element_id'])) {
                     $elementFacetsFormModel->linked_contribution_element_id = $existing_facets[0]['linked_contribution_element_id'];
@@ -149,7 +150,7 @@ $section_profiles = ($section === "profiles");
                     $dropdownOptions,
                     ['prompt' => 'Select a Contributions List to link']
                 )->label('Linked Contribution List') ?>
-            </div>
+            
 
             <?php $facetTypes = ["Topics", "Roles", "Availability", "Work type"]; ?>
 
@@ -231,24 +232,28 @@ $section_profiles = ($section === "profiles");
 
             <div class="indicators-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Indicators') ?></h1>
-                <?php
-                if (!$elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
-                    $elementIndicatorsFormModel->linked_contribution_element_id = $existing_indicators[0]['linked_contribution_element_id'];
+            </div>
+
+            <?php
+            if (!$elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
+                $elementIndicatorsFormModel->linked_contribution_element_id = $existing_indicators[0]['linked_contribution_element_id'];
+            }
+            $contributionsLists = \app\models\Elements::find()
+                ->where(['template_id' => $template_id, 'type' => 'Contributions List'])
+                ->all();
+
+                $dropdownOptions = [];
+                foreach ($contributionsLists as $el) {
+                    $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
                 }
-                $contributionsLists = \app\models\Elements::find()
-                    ->where(['template_id' => $template_id, 'type' => 'Contributions List'])
-                    ->all();
+            ?>
 
-                    $dropdownOptions = [];
-                    foreach ($contributionsLists as $el) {
-                        $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
-                    }
-                ?>
-
-                <?= $form->field($elementIndicatorsFormModel, 'linked_contribution_element_id')->dropDownList(
-                    $dropdownOptions,
-                    ['prompt' => 'Select a Contributions List to link']
-                )->label("Linked Contribution List") ?>
+            <?= $form->field($elementIndicatorsFormModel, 'linked_contribution_element_id')->dropDownList(
+                $dropdownOptions,
+                ['prompt' => 'Select a Contributions List to link']
+            )->label("Linked Contribution List") ?>
+            
+            <div style="margin-top:10px; display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="toggle-all-indicators">Collapse All</button>
                 <select class="global-status-combobox">
                     <option value="" disabled selected>Group Actions</option>
