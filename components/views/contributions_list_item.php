@@ -57,41 +57,49 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         </div>
         <div id='results_tbl' class='row'>
             <div class="col-xs-12">
-                <?php foreach ($papers as $paper) {
-                    echo ResultItem::widget([
-                        "impact_indicators" => $impact_indicators,
-                        "internal_id" => $paper["internal_id"],
-                        "edit_perm" => $edit_perm,
-                        "doi" => $paper["doi"],
-                        "dois_num" => $paper["dois_num"],
-                        "openaire_id" => $paper["openaire_id"],
-                        "title" => $paper["title"],
-                        "authors" => $paper["authors"],
-                        "journal" => $paper["journal"],
-                        "year" => $paper["year"],
-                        "concepts" => $paper["concepts"],
-                        "relations" => $paper["relations"],
-                        "tags" => $paper["tags"],
-                        "involvements" => Yii::$app->params['involvement_fields'],
-                        "involved" => $paper["involvement"],
-                        "pop_score" => $paper["attrank"],
-                        "inf_score" => $paper["pagerank"],
-                        "imp_score" => $paper["3y_cc"],
-                        "cc_score" => $paper["citation_count"],
-                        "pop_class" => $paper["pop_class"],
-                        "inf_class" => $paper["inf_class"],
-                        "imp_class" => $paper["imp_class"],
-                        "cc_class" => $paper["cc_class"],
-                        "is_oa" => $paper["is_oa"],
-                        "type" => $paper["type"],
-                        "show" => [
-                            "concepts" => true,
-                            "relations" => true,
-                            "tags" => false,
-                            "involvement" => true,
-                        ]
-                    ]);
-                } ?>
+                <?php
+                try{
+                    foreach ($papers as $paper) {
+                        echo ResultItem::widget([
+                            "impact_indicators" => $impact_indicators,
+                            "internal_id" => $paper["internal_id"],
+                            "edit_perm" => $edit_perm,
+                            "doi" => $paper["doi"],
+                            "dois_num" => $paper["dois_num"],
+                            "openaire_id" => $paper["openaire_id"],
+                            "title" => $paper["title"],
+                            "authors" => $paper["authors"],
+                            "journal" => $paper["journal"],
+                            "year" => $paper["year"],
+                            "concepts" => $paper["concepts"],
+                            "relations" => $paper["relations"],
+                            "tags" => $paper["tags"],
+                            "involvements" => Yii::$app->params['involvement_fields'],
+                            "involved" => $paper["involvement"],
+                            "pop_score" => $paper["attrank"],
+                            "inf_score" => $paper["pagerank"],
+                            "imp_score" => $paper["3y_cc"],
+                            "cc_score" => $paper["citation_count"],
+                            "pop_class" => $paper["pop_class"],
+                            "inf_class" => $paper["inf_class"],
+                            "imp_class" => $paper["imp_class"],
+                            "cc_class" => $paper["cc_class"],
+                            "is_oa" => $paper["is_oa"],
+                            "type" => $paper["type"],
+                            "show" => [
+                                "concepts" => true,
+                                "relations" => true,
+                                "tags" => false,
+                                "involvement" => true,
+                            ]
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    var_dump('Error inside ResultItem', $e->getMessage());
+                    exit;
+                }   
+                ?>
+
             </div>
         </div>
     </div>

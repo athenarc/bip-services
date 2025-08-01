@@ -501,10 +501,57 @@ class ScholarController extends BaseController
 
                 $result = Involvement::getInvolvement($result, $researcher->user_id);
 
+                $selected_ids_for_list = $listsFilters[$element_id]['selected_ids'] ?? null;
+
+                if ($selected_ids_for_list) {
+                    $result['papers'] = array_filter($result['papers'], function($paper) use ($selected_ids_for_list) {
+                        return in_array($paper['internal_id'], $selected_ids_for_list);
+                    });
+                    $result['papers_num'] = count($result['papers']);
+                }
+
                 $contributions_lists[$element_id] = $result;
+                if (Yii::$app->request->isAjax && $list_id_from_request) {
+                    $list_result = $contributions_lists[$list_id_from_request] ?? [];
+
+                    // find element config for this list_id
+                    $element_config = [];
+                    foreach ($template_elements as $te) {
+                        if ($te['element_id'] == $list_id_from_request) {
+                            $element_config = $te['config'];
+                            break;
+                        }
+                    }
+
+                    // make sure impact_indicators is defined
+                    $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+
+                    return $this->renderPartial('@app/components/views/contributions_list_item', [
+                        'impact_indicators'   => $impact_indicators,
+                        'edit_perm'           => $edit_perm,
+                        'result'              => $list_result,
+                        'papers'              => $list_result['papers'] ?? [],
+                        'works_num'           => $list_result['papers_num'] ?? 0,
+                        'missing_papers'      => $missing_papers,
+                        'missing_papers_num'  => count($missing_papers),
+                        'sort_field'          => $sort_field,
+                        'orderings'           => [
+                            'year'           => 'Publication year',
+                            'influence'      => 'Influence',
+                            'popularity'     => 'Popularity',
+                            'impulse'        => 'Impulse',
+                            'citation_count' => 'Citation Count',
+                        ],
+                        'formId'              => 'scholar-form',
+                        'element_config'      => $element_config,
+                        'facets_selected'     => $facets_selected,
+                        'current_cv_narrative'=> null,
+                    ]);
+                }
 
                 $all_papers = $scholar->indicators->papers;
                 $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
+                $contributions_lists[$element_id]['all_papers'] = $scholar->getOnlyAllArticlesInPage();
 
                 if (!$pagination_enabled && $top_k !== null) {
                     $contributions_lists[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);

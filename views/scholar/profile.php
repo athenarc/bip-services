@@ -39,6 +39,7 @@ $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'd
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -276,38 +277,116 @@ use yii\bootstrap\NavBar;
                                 'papers_num' => 0,
                                 'facets' => [],
                             ];
+                            // Add Select Works button and modal trigger
+                            echo Html::button('<i class="fa fa-check-square-o"></i> Select Works', [
+                                'class' => 'btn btn-custom-color',
+                                'style' => 'margin-bottom:10px;',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#select-works-modal-' . $list_id
+                            ]);
+
+                            $footer = '
+                                <button class="btn btn-success save-selected-works" 
+                                        data-list-id="' . $list_id . '">Save</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            ';
+
+                            Modal::begin([
+                                'header' => "<h4>Select Works for This List</h4>",
+                                'id' => 'select-works-modal-' . $list_id,
+                                'size' => 'modal-lg',
+                                'footer' => $footer
+                            ]);
+                            ?>
+
+                                <?= Html::hiddenInput('selected_papers_' . $list_id, '', [
+                                    'id' => 'selected_papers_' . $list_id,
+                                    'required' => true
+                                ]) ?>
+
+                                <?php
+                                // Use GridView like in CV Narrative, but with your papers
+                                echo GridView::widget([
+                                    'id' => 'papers-selection-grid-' . $list_id,
+                                    'dataProvider' => new yii\data\ArrayDataProvider([
+                                        'allModels' => $list_result['all_papers'] ?? $list_result['papers'],
+                                        'pagination' => false,
+                                    ]),
+                                    'layout' => "<div style='overflow-y:auto; max-height:500px'>{items}</div>",
+                                    'tableOptions' => [
+                                        'class' => 'table table-striped'
+                                    ],
+                                    'columns' => [
+                                        [
+                                            'class' => 'yii\grid\CheckboxColumn',
+                                            'name' => 'papers-selection[]',
+                                            'contentOptions' => ['class' => 'papers-checkbox-column'],
+                                            'headerOptions' => ['class' => 'papers-checkbox-column'],
+                                            'checkboxOptions' => function ($model) {
+                                                return [
+                                                    'class' => 'papers-selection-checkbox green-checkbox',
+                                                    'data-key' => $model['internal_id']
+                                                ];
+                                            },
+                                        ],
+
+                                        [
+                                            'label' => Html::tag('span', 'Select All', ['class' => 'text-muted', 'style' => 'font-weight: normal;']),
+                                            'encodeLabel' => false,
+                                            'format' => 'raw',
+                                            'value' => function ($data) {
+                                                $row  = Html::beginTag('div', ['class' => 'article-info']);
+                                                $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? "N/A" : $data['title']));
+                                                $row .= Html::beginTag('div');
+                                                $row .= Html::tag('i', (empty($data['journal']) ? "N/A" : $data['journal']) . ' · ');
+                                                $row .= Html::tag('i', empty($data['year']) ? "N/A" : $data['year']);
+                                                $row .= Html::endTag('div');
+                                                $row .= Html::endTag('div');
+                                                return $row;
+                                            },
+                                        ],
+                                    ],
+                                ]);
+                                ?>
+
+                            <?php Modal::end(); ?>
+                        <?php
                             $selected = $contributions_selected_filters[$list_id] ?? [];
                             $facets_for_this_list = $facets_linked_to_lists[$element_id] ?? null;
-
-                            echo ContributionsListItem::widget([
-                                'impact_indicators' => $impact_indicators,
-                                'edit_perm' => $edit_perm,
-                                'facets_selected' => !empty($list_result['facets']),
-                                'result' => $list_result,
-                                'papers' => $list_result["papers"],
-                                'works_num' => count($list_result["papers"]),
-                                'missing_papers' => $missing_papers,
-                                'missing_papers_num' => count($missing_papers),
-                                'sort_field' => $element['config']['sort'] ?? 'year',
-                                'orderings' => [
-                                    'year' => 'Publication year',
-                                    'influence' => 'Influence',
-                                    'popularity' => 'Popularity',
-                                    'impulse' => 'Impulse',
-                                    'citation_count' => 'Citation Count'
-                                ],
-                                'formId' => 'scholar-form',
-                                'current_cv_narrative' => null,
-                                'element_config' => $element["config"],
-                                'facets_for_this_list' => $facets_for_this_list,
-                                'selected_topics' => $selected['topics'] ?? [],
-                                'selected_tags' => $selected['tags'] ?? [],
-                                'selected_roles' => $selected['roles'] ?? [],
-                                'selected_accesses' => $selected['accesses'] ?? [],
-                                'selected_types' => $selected['types'] ?? [],
-                            ]);
+                        ?>
+                            <div id="contributions-list-<?= $list_id ?>">
+                                <?php
+                                    echo ContributionsListItem::widget([
+                                        'impact_indicators' => $impact_indicators,
+                                        'edit_perm' => $edit_perm,
+                                        'facets_selected' => !empty($list_result['facets']),
+                                        'result' => $list_result,
+                                        'papers' => $list_result["papers"],
+                                        'works_num' => count($list_result["papers"]),
+                                        'missing_papers' => $missing_papers,
+                                        'missing_papers_num' => count($missing_papers),
+                                        'sort_field' => $element['config']['sort'] ?? 'year',
+                                        'orderings' => [
+                                            'year' => 'Publication year',
+                                            'influence' => 'Influence',
+                                            'popularity' => 'Popularity',
+                                            'impulse' => 'Impulse',
+                                            'citation_count' => 'Citation Count'
+                                        ],
+                                        'formId' => 'scholar-form',
+                                        'current_cv_narrative' => null,
+                                        'element_config' => $element["config"],
+                                        'facets_for_this_list' => $facets_for_this_list,
+                                        'selected_topics' => $selected['topics'] ?? [],
+                                        'selected_tags' => $selected['tags'] ?? [],
+                                        'selected_roles' => $selected['roles'] ?? [],
+                                        'selected_accesses' => $selected['accesses'] ?? [],
+                                        'selected_types' => $selected['types'] ?? [],
+                                    ]);
+                                ?>
+                            </div>
+                        <?php
                             break;
-
 
                         case "Narrative":
                             echo NarrativeElement::widget([
