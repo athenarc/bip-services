@@ -475,13 +475,13 @@ class ScholarController extends BaseController
                 $roles_for_list    = $listFilters[$element_id]['roles']    ?? ($filters['roles'] ?? null);
                 $accesses_for_list = $listFilters[$element_id]['accesses'] ?? ($filters['accesses'] ?? null);
                 $types_for_list    = $listFilters[$element_id]['types']    ?? ($filters['types'] ?? null);
-
+                
                 $contributions_selected_filters[$element_id] = [
-                    'topics' => $topics,
-                    'tags' => $tags,
-                    'roles' => $roles,
-                    'accesses' => $accesses,
-                    'types' => $types
+                    'topics' => $topics_for_list,
+                    'tags' => $tags_for_list,
+                    'roles' => $roles_for_list,
+                    'accesses' => $accesses_for_list,
+                    'types' => $types_for_list
                 ];
 
                 $scholar->fetchWorksLimited($sort_field_local, $top_k);
@@ -491,23 +491,68 @@ class ScholarController extends BaseController
                     $accesses_for_list, $types_for_list,
                     $sort_field_local, $pagination_enabled, $page_size_final, $top_k
                 );
+                $selected_ids_for_list = $listsFilters[$element_id]['selected_ids'] ?? null;
 
+                // Get ALL filtered papers for the modal (no pagination)
+                $all_papers_result = $scholar->getArticlesInPage(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list,
+                    $sort_field_local, false, 10000, $top_k // pagination disabled, large page size
+                );
+
+                // Now set all_papers to the full set
+                $result['all_papers'] = Involvement::getInvolvement([
+                    'papers' => $all_papers_result['papers']
+                ], $researcher->user_id)['papers'];
+                
                 $facet_field = Yii::$app->request->get('fct_field');
                 
                 $result['facets'] = $scholar->getFacets(
                     $topics_for_list, $tags_for_list, $roles_for_list,
-                    $accesses_for_list, $types_for_list, $facet_field
+                    $accesses_for_list, $types_for_list, $facet_field,
+                    $result['papers']
                 );
 
                 $result = Involvement::getInvolvement($result, $researcher->user_id);
 
-                $selected_ids_for_list = $listsFilters[$element_id]['selected_ids'] ?? null;
+                // Convert comma-separated string to array if needed
+                if (is_string($selected_ids_for_list)) {
+                    $selected_ids_for_list = array_filter(explode(',', $selected_ids_for_list));
+                }
 
-                if ($selected_ids_for_list) {
-                    $result['papers'] = array_filter($result['papers'], function($paper) use ($selected_ids_for_list) {
+                if (is_array($selected_ids_for_list) && !empty($selected_ids_for_list)) {
+                    $result['papers'] = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
                         return in_array($paper['internal_id'], $selected_ids_for_list);
                     });
                     $result['papers_num'] = count($result['papers']);
+                    $pagination_enabled = false;
+                    $page_size_final = count($result['papers']);
+
+                    // Update pagination object to reflect new total
+                    if (isset($result['pagination'])) {
+                        $result['pagination']->totalCount = count($result['papers']);
+                    }
+                    // make sure the contributions list actually gets the full set
+                    $contributions_lists[$element_id] = $result;
+                }
+
+                $all_papers = $scholar->indicators->papers;
+
+                if (!empty($selected_ids_for_list)) {
+                    // use only the selected works
+                    $contributions_indicators[$element_id] = $indicators_model->computeForPapers($result['papers'], $rag_data);
+                } else {
+                    // otherwise, use all filtered works (not just the first page)
+                    $all_papers = $scholar->indicators->papers;
+                    $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
+                }
+                
+                if (!$pagination_enabled && $top_k !== null) {
+                    $contributions_lists[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
+                    $contributions_lists[$element_id]['papers_num'] = min($top_k, count($result['papers']));
+                } else {
+                    $contributions_lists[$element_id]['papers'] = $result['papers'];
+                    $contributions_lists[$element_id]['papers_num'] = count($result['papers']);
                 }
 
                 $contributions_lists[$element_id] = $result;
@@ -547,15 +592,6 @@ class ScholarController extends BaseController
                         'facets_selected'     => $facets_selected,
                         'current_cv_narrative'=> null,
                     ]);
-                }
-
-                $all_papers = $scholar->indicators->papers;
-                $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
-                $contributions_lists[$element_id]['all_papers'] = $scholar->getOnlyAllArticlesInPage();
-
-                if (!$pagination_enabled && $top_k !== null) {
-                    $contributions_lists[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
-                    $contributions_lists[$element_id]['papers_num'] = min($top_k, count($result['papers']));
                 }
             }
             

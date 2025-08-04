@@ -219,10 +219,10 @@ use yii\bootstrap\NavBar;
                                 'edit_perm' => $edit_perm,
                                 'result' =>  $contributions_lists[$linked_id],
                                 'formId' => 'scholar-form',
-                                'selected_topics' => Yii::$app->request->get('topics'),
-                                'selected_roles' => Yii::$app->request->get('roles'),
-                                'selected_accesses' => Yii::$app->request->get('accesses'),
-                                'selected_types' => Yii::$app->request->get('types'),
+                                'selected_topics' => $selected['topics'] ?? [],
+                                'selected_roles' => $selected['roles'] ?? [],
+                                'selected_accesses' => $selected['accesses'] ?? [],
+                                'selected_types' => $selected['types'] ?? [],
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
                                 'element_config' => $element["config"],
@@ -328,6 +328,9 @@ use yii\bootstrap\NavBar;
                                                     'data-key' => $model['internal_id']
                                                 ];
                                             },
+                                            'header' => Html::checkbox('select-all', false, [
+                                                'class' => 'papers-select-on-check-all'
+                                            ]),
                                         ],
 
                                         [
