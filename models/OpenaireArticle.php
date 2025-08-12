@@ -118,6 +118,7 @@ class OpenaireArticle extends Model {
         $this->doi_papers = (new \yii\db\Query())
             ->select('pmc_paper.*, user_id')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($userid) . ' AND showit = true')
             ->where(['doi' => $this->dois])
             ->groupBy('internal_id')

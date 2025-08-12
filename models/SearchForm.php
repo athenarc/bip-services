@@ -713,10 +713,12 @@ class SearchForm extends Model
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         $rows = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'doi', 'openaire_id', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->select(['internal_id', 'dois_num', 'pmc_paper_pids.doi', 'pmc_paper.openaire_id', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['in', 'internal_id', $paper_ids])
+            ->groupBy('internal_id')
             ->orderBy(addslashes($this->getRankingMethod($this->ordering)) . " DESC")
             ->all();
 
@@ -937,7 +939,9 @@ class SearchForm extends Model
         $rows = (new \yii\db\Query())
             ->select(['internal_id', 'doi', 'title', 'abstract', 'authors', 'journal', 'year', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['in', 'internal_id', $paper_ids])
+            ->groupBy('internal_id')
             ->orderBy(addslashes($this->getRankingMethod($this->ordering)) . " DESC")
             ->all();
 
@@ -970,8 +974,10 @@ class SearchForm extends Model
         $query = (new \yii\db\Query())
         ->select(['internal_id', 'doi', 'openaire_id', 'title', 'journal','year', 'pagerank', 'pagerank_normalized','attrank', 'attrank_normalized', '3y_cc', '3y_cc_normalized', 'citation_count', 'citation_count_normalized', 'user_id'])
         ->from('pmc_paper')
+        ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
         ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
-        ->where("internal_id=".$id);
+        ->where("internal_id=".$id)
+        ->groupBy('internal_id');
 
         //Get the results of the page.
         $rows = $query->all();
@@ -1018,9 +1024,11 @@ class SearchForm extends Model
         return (new \yii\db\Query())
             ->select('internal_id, doi, title, authors, journal, year, user_id')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['internal_id' => $similar_paper_ids])
+            ->groupBy('internal_id')
             ->all();
     }
 
@@ -1028,6 +1036,7 @@ class SearchForm extends Model
         $rows = (new \yii\db\Query())
             ->select(['doi', 'attrank', 'pagerank'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['in', 'doi', $dois])
             ->all();
 
