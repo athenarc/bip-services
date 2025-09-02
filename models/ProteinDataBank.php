@@ -50,6 +50,7 @@ class ProteinDataBank extends \yii\db\ActiveRecord
         $paper_data = (new \yii\db\Query())
             ->select(['internal_id', 'doi', 'title', 'authors', 'journal', 'year', 'attrank', 'pagerank', '3y_cc'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $result["doi"]])
             ->one();
 
