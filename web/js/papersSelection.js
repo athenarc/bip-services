@@ -56,6 +56,8 @@ $(document).ready(function () {
     $(document).on('click', '.save-selected-works', function () {
         let listId = $(this).data('list-id');
         let selectedPapers = getSelectedPapersArray(listId);
+        console.log("DEBUG listId:", listId);
+        console.log("DEBUG selectedPapers:", selectedPapers);
 
         if (selectedPapers.length === 0) {
             alert('Please select at least one work.');
@@ -65,25 +67,22 @@ $(document).ready(function () {
         $('#select-works-modal-' + listId).modal('hide');
 
         $.ajax({
-            url: window.location.pathname,
-            type: 'GET',
+            url: '/dbip/web/scholar/save-selected-works',
+            type: 'POST',
             data: {
                 list_id: listId,
-                lists: {
-                    [listId]: {
-                        selected_ids: selectedPapers
-                    }
+                paper_ids: selectedPapers,
+                _csrf: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                console.log('AJAX response:', response);
+                if (response.status === 'success') {
+                    location.reload(); // or use PJAX if you want smoother reload
+                } else {
+                    alert('Failed to save: ' + response.message);
                 }
             },
-            success: function () {
-                let url = window.location.pathname;
-                let params = new URLSearchParams(window.location.search);
-
-                params.set('list_id', listId);
-                params.set(`lists[${listId}][selected_ids]`, selectedPapers.join(','));
-
-                window.location.href = url + '?' + params.toString();
-            },error: function (xhr) {
+            error: function (xhr) {
                 console.error('AJAX error status:', xhr.status);
                 console.error('AJAX error response:', xhr.responseText);
                 alert('Error ' + xhr.status + ' — check console for details.');

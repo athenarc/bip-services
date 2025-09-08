@@ -18,7 +18,7 @@ class Scholar extends Model
     public $dois;
     public $found_ids_dois;
     public $indicators;
-    public $missing_papers;
+    public $missing_papers; 
 
     public function __construct($researcher){
         parent::__construct();
@@ -32,8 +32,9 @@ class Scholar extends Model
         $all_dois = array_filter(array_map(fn($w) => $w["doi"] ?? null, $orcid_works));
 
         $query = (new \yii\db\Query())
-            ->select("internal_id, doi")
-            ->from("pmc_paper")
+            ->select("p.internal_id, pd.doi")
+            ->from("pmc_paper p")
+            ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
             ->where(['doi' => $all_dois])
             ->orderBy([Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC]);
 
@@ -44,6 +45,48 @@ class Scholar extends Model
         $this->found_ids_dois = $query->all();
         $this->dois = array_column($this->found_ids_dois, 'doi');
 
+// --- BRANCH CODE
+//         $query = (new \yii\db\Query())
+//             ->select("internal_id, doi")
+//             ->from("pmc_paper")
+//             ->where(['doi' => $all_dois])
+//             ->orderBy([Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC]);
+
+//         if ($top_k !== null) {
+//             $query->limit($top_k);
+//         }
+
+//         $this->found_ids_dois = $query->all();
+//         $this->dois = array_column($this->found_ids_dois, 'doi');
+// ---- MAIN CODE
+//         // get dois in db
+//         $this->found_ids_dois = (new \yii\db\Query())
+//                             ->select('p.internal_id, pd.doi')
+//                             ->from('pmc_paper p')
+//                             ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
+//                             ->where(['doi' => $this->dois])
+//                             ->all();
+
+//         // contains all dois, all versions of all papers.
+//         $found_dois = array_map(function ($r) { return ['doi' => $r['doi']]; }, $this->found_ids_dois);
+
+//         // contains one doi per paper
+//         $dois_query = (new \yii\db\Query())
+//             ->select('pmc_paper_pids.doi')
+//             ->from('pmc_paper')
+//             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+//             ->where(['doi' => $this->dois])
+//             ->groupBy('internal_id');
+
+//         // Apply ordering and limit if $top_k_config is set
+//         if (isset($top_k_config)) {
+//             $dois_query->orderBy([
+//             Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC])
+//             ->limit($top_k_config);
+//         }
+
+//         $this->dois = array_column($dois_query->all(), 'doi');
+// -----
         $found_dois_set = array_map(fn($r) => ['doi' => $r['doi']], $this->found_ids_dois);
 
         $this->missing_papers = array_udiff($orcid_works, $found_dois_set, function($a, $b) {
@@ -73,7 +116,9 @@ class Scholar extends Model
         $papers = (new \yii\db\Query())
             ->select('internal_id, doi, year, title, journal')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $found_dois])
+            ->groupBy('internal_id')
             ->all();
 
         return $papers;
@@ -90,6 +135,7 @@ class Scholar extends Model
         $base_query = (new \yii\db\Query())
             ->select('internal_id')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
         // add applied filters
@@ -173,8 +219,9 @@ class Scholar extends Model
 
         // fetch details (and order) for paper in current page
         $papers_query = (new \yii\db\Query())
-            ->select('pmc_paper.*, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
+            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                 AND tags_to_papers.user_id = ' . $this->researcher->user_id)
             ->leftJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -215,6 +262,7 @@ class Scholar extends Model
         $topics_query = (new \yii\db\Query())
             ->select('concepts.id, concepts.display_name, COUNT(concepts.id) as count')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
             ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
             ->where(['doi' => $this->dois]);
@@ -227,6 +275,7 @@ class Scholar extends Model
                 $tags_subquery = (new \yii\db\Query())
                     ->select('internal_id')
                     ->from('pmc_paper')
+                    ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                     ->innerJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                             AND tags_to_papers.user_id = ' . $this->researcher->user_id)
                     ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -240,6 +289,7 @@ class Scholar extends Model
                 $roles_subquery = (new \yii\db\Query())
                     ->select('internal_id')
                     ->from('pmc_paper')
+                    ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                     ->innerJoin('involvement_to_papers', 'pmc_paper.internal_id = involvement_to_papers.paper_id
                             AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
                     ->where(['doi' => $this->dois])
@@ -264,6 +314,7 @@ class Scholar extends Model
         $tags_query = (new \yii\db\Query())
             ->select('tags.id, tags.name, COUNT(tags.id) as count')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->innerJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                     AND tags_to_papers.user_id = ' . $this->researcher->user_id)
             ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -277,6 +328,7 @@ class Scholar extends Model
                 $topics_subquery = (new \yii\db\Query())
                     ->select('internal_id')
                     ->from('pmc_paper')
+                    ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                     ->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
                     ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
                     ->where(['doi' => $this->dois])
@@ -289,6 +341,7 @@ class Scholar extends Model
                 $roles_subquery = (new \yii\db\Query())
                     ->select('internal_id')
                     ->from('pmc_paper')
+                    ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                     ->innerJoin('involvement_to_papers', 'pmc_paper.internal_id = involvement_to_papers.paper_id
                             AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
                     ->where(['doi' => $this->dois])
@@ -313,6 +366,7 @@ class Scholar extends Model
         $roles_query = (new \yii\db\Query())
             ->select('involvement, COUNT(involvement) as count')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->innerJoin('involvement_to_papers', 'pmc_paper.internal_id = involvement_to_papers.paper_id
                     AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
             ->where(['doi' => $this->dois]);
@@ -325,6 +379,7 @@ class Scholar extends Model
             $topics_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
                 ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
                 ->where(['doi' => $this->dois])
@@ -337,6 +392,7 @@ class Scholar extends Model
             $tags_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                         AND tags_to_papers.user_id = ' . $this->researcher->user_id)
                 ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -362,6 +418,7 @@ class Scholar extends Model
         $accesses_query = (new \yii\db\Query())
             ->select('is_oa, COUNT(*) as count')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
         if (!empty($accesses) && strcmp($facet_field, "access")) {
@@ -372,6 +429,7 @@ class Scholar extends Model
             $topics_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
                 ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
                 ->where(['doi' => $this->dois])
@@ -384,6 +442,7 @@ class Scholar extends Model
             $tags_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                         AND tags_to_papers.user_id = ' . $this->researcher->user_id)
                 ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -397,6 +456,7 @@ class Scholar extends Model
             $roles_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('involvement_to_papers', 'pmc_paper.internal_id = involvement_to_papers.paper_id
                         AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
                 ->where(['doi' => $this->dois])
@@ -417,6 +477,7 @@ class Scholar extends Model
         $types_query = (new \yii\db\Query())
             ->select('type, COUNT(*) as count')
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
         if (!empty($types) && strcmp($facet_field, "type")) {
@@ -431,6 +492,7 @@ class Scholar extends Model
             $topics_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
                 ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
                 ->where(['doi' => $this->dois])
@@ -443,6 +505,7 @@ class Scholar extends Model
             $tags_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
                         AND tags_to_papers.user_id = ' . $this->researcher->user_id)
                 ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
@@ -456,6 +519,7 @@ class Scholar extends Model
             $roles_subquery = (new \yii\db\Query())
                 ->select('internal_id')
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->innerJoin('involvement_to_papers', 'pmc_paper.internal_id = involvement_to_papers.paper_id
                         AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
                 ->where(['doi' => $this->dois])
@@ -498,4 +562,56 @@ class Scholar extends Model
             ],
         ];
     }
+
+    public static function getSelectedPapersForList($list_id) {
+        
+        $list_id = (int)$list_id;
+    
+        $json_ids = Yii::$app->db->createCommand("
+            SELECT selected_papers
+            FROM contributions_list_selections
+            WHERE list_id = :lid
+            LIMIT 1
+        ")
+        ->bindValue(':lid', $list_id)
+        ->queryScalar();
+    
+        if (!$json_ids) {
+            return [];
+        }
+    
+        $arr = json_decode($json_ids, true);
+        if (!is_array($arr)) {
+            return [];
+        }
+    
+        return array_map('intval', $arr);
+    }
+    
+    public static function saveSelectedPapersForList($list_id, $paper_ids) {
+
+        $list_id   = (int)$list_id;
+        $paper_ids = array_values(array_unique(array_map('intval', (array)$paper_ids)));
+        $json_ids  = json_encode($paper_ids);
+    
+        try {
+            return Yii::$app->db->createCommand("
+                INSERT INTO contributions_list_selections (list_id, selected_papers, created_by)
+                VALUES (:lid, :json, :uid)
+                ON DUPLICATE KEY UPDATE
+                    selected_papers = VALUES(selected_papers),
+                    created_by      = VALUES(created_by),
+                    updated_at      = CURRENT_TIMESTAMP()
+            ")
+            ->bindValues([
+                ':lid'  => $list_id,
+                ':json' => $json_ids,
+                ':uid'  => Yii::$app->user->id ?? null,
+            ])
+            ->execute();
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+            return 0;
+        }
+    }    
 }

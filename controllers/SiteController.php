@@ -27,6 +27,7 @@ use app\models\SearchForm;
 use app\models\SurveyForm;
 use app\models\FeedbackForm;
 use app\models\Article;
+use app\models\PmcPaperPids;
 use app\models\Journal;
 use app\models\DoiToPmc;
 use app\models\UsersLikes;
@@ -372,10 +373,17 @@ class SiteController extends BaseController
 
         $doi = $id;
 
-        $article = Article::find()->where(['doi' => $doi])->one();
+        $article = Article::find()
+            ->joinWith('pids p')
+            ->where(['p.doi' => $doi])
+            ->one();
+
+
         if (!$article) {
             throw new \yii\web\NotFoundHttpException("Article not found");
         }
+
+        $article->doi = $doi;
 
         // properly format article details (authors, journal, abstract etc)
         $article->formatDetails();
@@ -502,8 +510,10 @@ class SiteController extends BaseController
         $works = (new \yii\db\Query())
             ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['in', 'doi', $dois])
+            ->groupBy('internal_id')
             ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function($element) { return "\"$element\""; }, $dois)) . ')')])
             ->all();
 
@@ -983,7 +993,8 @@ class SiteController extends BaseController
         return $this->renderPartial('papers_list', [
             'warning' => 'This list contains duplicate records, as identified by the <a href="https://graph.openaire.eu/docs/graph-production-workflow/deduplication" class="main-green" target="_blank">OpenAIRE deduplication algorithm</a> based on metadata analysis.',
             'papers' => $versions,
-            'impact_indicators' => $impact_indicators
+            'impact_indicators' => $impact_indicators,
+            'hide_bookmark' => true
         ]);
     }
 
@@ -2690,7 +2701,9 @@ class SiteController extends BaseController
             $papers = (new \yii\db\Query())
                 ->select(['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'])
                 ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
                 ->where(['in', 'internal_id', $paperIds])
+                ->groupBy('internal_id')
                 ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
                 ->limit($limit)
                 ->all();

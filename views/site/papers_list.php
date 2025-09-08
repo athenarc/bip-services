@@ -51,12 +51,19 @@ use app\components\ImpactIcons;
                                       ]);?>
 
             </td>
-            <td style = "text-align:right;">
-              <!-- bookmark -->
-              <?= BookmarkIcon::widget(['user_liked' => $paper['user_id'],
-                                        'user_logged' => Yii::$app->user->id,
-                                        'id_bookmark' => $paper['internal_id']]);?>
-            </td>
+            
+            <?php if (!isset($hide_bookmark) || !$hide_bookmark): ?>
+              <td style = "text-align:right;">
+                <!-- bookmark -->
+
+
+                <?= BookmarkIcon::widget(['user_liked' => $paper['user_id'],
+                                          'user_logged' => Yii::$app->user->id,
+                                          'id_bookmark' => $paper['internal_id']]);?>
+              </td>
+            <?php endif; ?>
+            
+
         </tr>
     <?php } ?>
   </tbody>

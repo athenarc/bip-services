@@ -491,8 +491,9 @@ class ScholarController extends BaseController
                     $accesses_for_list, $types_for_list,
                     $sort_field_local, $pagination_enabled, $page_size_final, $top_k
                 );
-                $selected_ids_for_list = $listsFilters[$element_id]['selected_ids'] ?? null;
 
+                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);
+        
                 // Get ALL filtered papers for the modal (no pagination)
                 $all_papers_result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
@@ -513,12 +514,7 @@ class ScholarController extends BaseController
                     $result['papers']
                 );
 
-                $result = Involvement::getInvolvement($result, $researcher->user_id);
-
-                // Convert comma-separated string to array if needed
-                if (is_string($selected_ids_for_list)) {
-                    $selected_ids_for_list = array_filter(explode(',', $selected_ids_for_list));
-                }
+                $result = Involvement::getInvolvement($result, $researcher->user_id); 
 
                 if (is_array($selected_ids_for_list) && !empty($selected_ids_for_list)) {
                     $result['papers'] = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
@@ -532,6 +528,15 @@ class ScholarController extends BaseController
                     if (isset($result['pagination'])) {
                         $result['pagination']->totalCount = count($result['papers']);
                     }
+                    $result['facets'] = $scholar->getFacets(
+                        $topics_for_list, $tags_for_list, $roles_for_list,
+                        $accesses_for_list, $types_for_list, $facet_field,
+                        $result['papers']
+                    );
+
+                    $result['facets'] = $this->recountFacetsFromPapers($result['facets'], $result['papers']);
+                    $result['facets'] = $this->filterZeroFacets($result['facets']);
+
                     // make sure the contributions list actually gets the full set
                     $contributions_lists[$element_id] = $result;
                 }
@@ -1192,6 +1197,110 @@ class ScholarController extends BaseController
             return $response->content;
         } else {
             return "Failed to generate PDF.";
+        }
+    }
+
+   private function recountFacetsFromPapers($facets, $papers) {
+        $newCounts = [
+            'topics'   => [],
+            'roles'    => [],
+            'accesses' => [],
+            'types'    => [],
+            'tags'     => [],
+        ];
+
+        foreach ($papers as $paper) {
+
+            // Topics from concepts
+            if (!empty($paper['concepts'])) {
+                foreach ($paper['concepts'] as $concept) {
+                    $topicId = $concept['id'];
+                    if (!isset($newCounts['topics'][$topicId])) {
+                        $newCounts['topics'][$topicId] = 0;
+                    }
+                    $newCounts['topics'][$topicId]++;
+                }
+            }
+
+            // Roles from involvement
+            if (!empty($paper['involvement'])) {
+                foreach ($paper['involvement'] as $roleId) {
+                    if (!isset($newCounts['roles'][$roleId])) {
+                        $newCounts['roles'][$roleId] = 0;
+                    }
+                    $newCounts['roles'][$roleId]++;
+                }
+            }
+
+            // Accesses
+            if (isset($paper['is_oa'])) {
+                $accessId = $paper['is_oa'];
+                if (!isset($newCounts['accesses'][$accessId])) {
+                    $newCounts['accesses'][$accessId] = 0;
+                }
+                $newCounts['accesses'][$accessId]++;
+            }
+
+            // Types
+            if (isset($paper['type'])) {
+                $typeId = $paper['type'];
+                if (!isset($newCounts['types'][$typeId])) {
+                    $newCounts['types'][$typeId] = 0;
+                }
+                $newCounts['types'][$typeId]++;
+            }
+        }
+
+        // Reset counts
+        foreach ($facets as $facetType => &$facetData) {
+            foreach ($facetData['counts'] as $id => &$oldCount) {
+                $oldCount = "0";
+            }
+        }
+
+        // Apply new counts
+        foreach ($newCounts as $facetType => $counts) {
+            foreach ($counts as $id => $count) {
+                if (isset($facets[$facetType]['counts'][$id])) {
+                    $facets[$facetType]['counts'][$id] = (string)$count;
+                }
+            }
+        }
+        return $facets;
+    }
+    
+    private function filterZeroFacets($facets) {
+        foreach ($facets as $facetType => &$facetData) {
+            foreach ($facetData['counts'] as $id => $count) {
+                if ($count === "0") {
+                    unset($facetData['counts'][$id]);
+                    unset($facetData['options'][$id]);
+                }
+            }
+        }
+        return $facets;
+    }
+
+    public function actionSaveSelectedWorks() {
+        
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $list_id   = (int)Yii::$app->request->post('list_id');
+        $paper_ids = array_map('intval', (array)Yii::$app->request->post('paper_ids', []));
+
+        if (!$list_id) {
+            return ['status' => 'error', 'message' => 'Invalid list_id'];
+        }
+
+        try {
+            $affected = \app\models\Scholar::saveSelectedPapersForList($list_id, $paper_ids);
+            if ($affected > 0) {
+                return ['status' => 'success', 'message' => 'Works saved successfully'];
+            }
+            return ['status' => 'error', 'message' => 'Nothing was saved'];
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+            return ['status' => 'error', 'message' => 'DB error'];
         }
     }
 }
