@@ -1,0 +1,935 @@
+doi,urls,positions
+10.5281/zenodo.1001502,https://github.com/gcube-team/gcube-releases/tree/master/execution/gRS2Broker/1.1.0-4.6.1-126524,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001503,https://github.com/gcube-team/gcube-releases/tree/master/portal/gcube-responsive-theme/6.3.1-4.6.1-141386,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001504,https://github.com/gcube-team/gcube-releases/tree/master/portal/gcube-responsive-theme/6.3.1-4.6.1-141386,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015048,https://github.com/HakamShams/Focal_TSMP,metadata.notes
+10.5281/zenodo.10015049,https://github.com/HakamShams/Focal_TSMP,metadata.notes
+10.5281/zenodo.1001505,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/gcube-widgets-library/2.2.0-4.6.1-144383,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015053,"https://ror.org/021nxhr62, https://ror.org/05w4e8v21","metadata.notes, metadata.notes"
+10.5281/zenodo.10015054,"https://ror.org/021nxhr62, https://ror.org/05w4e8v21","metadata.notes, metadata.notes"
+10.5281/zenodo.1001506,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/gcube-widgets-library/2.2.0-4.6.1-144383,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001507,https://github.com/gcube-team/gcube-releases/tree/master/portal/portal-manager/2.3.0-4.6.1-148705,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001508,https://github.com/gcube-team/gcube-releases/tree/master/portal/portal-manager/2.3.0-4.6.1-148705,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001509,https://github.com/gcube-team/gcube-releases/tree/master/portal/VREHome-template/6.4.0-4.6.1-135088,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015097,https://github.com/leonardobeccari/H2Aub_cov_analysis/tree/v0.1aplha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015098,https://github.com/leonardobeccari/H2Aub_cov_analysis/tree/v0.1aplha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015099,"https://github.com/rstudio/shiny, https://github.com/ColorlibHQ/AdminLTE, https://github.com/JsLth/gretan/releases, https://github.com/JsLth/gretan/tree/v0.8.1","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001510,https://github.com/gcube-team/gcube-releases/tree/master/portal/VREHome-template/6.4.0-4.6.1-135088,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015100,"https://github.com/rstudio/shiny, https://github.com/ColorlibHQ/AdminLTE, https://github.com/JsLth/gretan/tree/v0.6.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015103,https://github.com/rperrin22/QCF_Stress_Calculations/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015104,https://github.com/rperrin22/QCF_Stress_Calculations/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001511,https://github.com/gcube-team/gcube-releases/tree/master/portal/client-context-library/1.0.0-4.6.1-134944,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015111,"https://github.com/nasa-pds/pds-api), https://github.com/NASA-PDS/registry-api/tree/v1.4.0-SNAPSHOT","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015112,"https://github.com/nf-core/pixelator/pull/111, https://github.com/nf-core/pixelator/pull/112, https://github.com/nf-core/pixelator/pull/113, https://github.com/nf-core/pixelator/pull/114, https://github.com/nf-core/pixelator/pull/115, https://github.com/nf-core/pixelator/pull/116, https://github.com/nf-core/pixelator/pull/117, https://github.com/nf-core/pixelator/pull/118, https://github.com/nf-core/pixelator/pull/120, https://github.com/nf-core/pixelator/pull/122, https://github.com/nf-core/pixelator/pull/124, https://github.com/nf-core/pixelator/pull/125, https://github.com/nf-core/pixelator/pull/123, https://github.com/nf-core/pixelator/pull/121, https://github.com/nf-core/pixelator/pull/122, https://github.com/nf-core/pixelator/compare/1.3.1...1.4.0, https://github.com/nf-core/pixelator/tree/1.4.0, https://github.com/nf-core/pixelator","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015113,"https://github.com/nf-core/pixelator/releases/tag/1.0.0, https://github.com/nf-core/pixelator/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001512,https://github.com/gcube-team/gcube-releases/tree/master/portal/client-context-library/1.0.0-4.6.1-134944,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001513,https://github.com/gcube-team/gcube-releases/tree/master/portal/social-networking-library/1.16.0-4.6.1-148756,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001514,https://github.com/gcube-team/gcube-releases/tree/master/portal/social-networking-library/1.16.0-4.6.1-148756,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015142,https://github.com/pano-tacanan-history/oliveiraprotopanoan/tree/v1.1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001515,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.statistical-manager-algorithms/1.3.0-4.6.1-142330,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001516,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.statistical-manager-algorithms/1.3.0-4.6.1-142330,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001517,https://github.com/gcube-team/gcube-releases/tree/master/social-networking/social-data-search-client/1.2.0-4.6.1-142324,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015170,https://github.com/stephenchea/gastrulation-nipbl-mouse-birth-defects/tree/bioRxiv.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015171,https://github.com/stephenchea/gastrulation-nipbl-mouse-birth-defects/tree/bioRxiv.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015173,https://github.com/YijianZhou/RSeL_TED/tree/v3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001518,https://github.com/gcube-team/gcube-releases/tree/master/social-networking/social-data-search-client/1.2.0-4.6.1-142324,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001519,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/questions/2.2.0-4.6.1-135136,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001520,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/questions/2.2.0-4.6.1-135136,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001521,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets.widgets.github-connector/1.4.0-4.6.1-148637,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015214,"https://github.com/rmartinsanta/PDSP/tree/v1-Zenodo, https://github.com/rmartinsanta/PDSP","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015215,https://github.com/rmartinsanta/PDSP/tree/v0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015216,"https://github.com/rstudio/shiny, https://github.com/ColorlibHQ/AdminLTE, https://github.com/JsLth/gretan/tree/v0.6.2","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015217,https://github.com/hzhou43/SARS2-CoE/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001522,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets.widgets.github-connector/1.4.0-4.6.1-148637,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015221,https://github.com/ropensci/rtweet/tree/v1.2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001523,https://github.com/gcube-team/gcube-releases/tree/master/execution/MadgikCommons/1.5.0-4.6.1-124895,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015239,https://github.com/NASA-PDS/pds3-product-tools/tree/v4.4.0-SNAPSHOT,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001524,https://github.com/gcube-team/gcube-releases/tree/master/execution/MadgikCommons/1.5.0-4.6.1-124895,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015245,https://github.com/NASA-PDS/pds3-product-tools/tree/v4.4.0-SNAPSHOT,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001525,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/decompress-archive-plugin/1.0.1-4.6.1-150677,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001526,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/decompress-archive-plugin/1.0.1-4.6.1-150677,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001527,https://github.com/gcube-team/gcube-releases/tree/master/application-support-layer/application-support-layer-vremanagement/6.9.0-4.6.1-129683,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001528,https://github.com/gcube-team/gcube-releases/tree/master/application-support-layer/application-support-layer-vremanagement/6.9.0-4.6.1-129683,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001529,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.workspace-light-tree/2.14.0-4.6.1-125963,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001530,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.workspace-light-tree/2.14.0-4.6.1-125963,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015300,https://github.com/jgolob/arf/tree/v0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015301,https://github.com/jgolob/arf/tree/v0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001531,https://github.com/gcube-team/gcube-releases/tree/master/vo-management/usermanagement-core/2.3.2-4.6.1-151504,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001532,https://github.com/gcube-team/gcube-releases/tree/master/vo-management/usermanagement-core/2.3.2-4.6.1-151504,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015321,https://popl24.sigplan.org/,metadata.meeting.url
+10.5281/zenodo.1001533,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/rmp-common-library/2.7.1-4.6.1-144316,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001534,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/rmp-common-library/2.7.1-4.6.1-144316,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001535,https://github.com/gcube-team/gcube-releases/tree/master/portal/ldap-export-servlet/1.2.0-4.6.1-131877,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001536,https://github.com/gcube-team/gcube-releases/tree/master/portal/ldap-export-servlet/1.2.0-4.6.1-131877,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001537,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/statistical-manager-ewe-integrator/1.1.1-4.6.1-152424,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001538,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/statistical-manager-ewe-integrator/1.1.1-4.6.1-152424,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001539,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/workspace-portlet-tree/6.17.2-4.6.1-153054,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001540,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/workspace-portlet-tree/6.17.2-4.6.1-153054,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001541,https://github.com/gcube-team/gcube-releases/tree/master/common/common-utils-encryption/1.0.2-4.6.1-126535,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015411,https://github.com/hsalinasGIT/SHARE_pySPEDAS_MMS_currdir/tree/v1.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001542,https://github.com/gcube-team/gcube-releases/tree/master/common/common-utils-encryption/1.0.2-4.6.1-126535,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001543,https://github.com/gcube-team/gcube-releases/tree/master/information-system/information-system-model/1.5.0-4.6.1-150941,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015436,"https://github.com/Farama-Foundation/Shimmy/pull/111), https://github.com/Farama-Foundation/Shimmy/pull/104), https://github.com/Farama-Foundation/Shimmy/compare/v1.2.1...v1.3.0, https://github.com/Farama-Foundation/Shimmy/tree/v1.3.0","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001544,https://github.com/gcube-team/gcube-releases/tree/master/information-system/information-system-model/1.5.0-4.6.1-150941,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001545,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/data-transfer-library/1.2.0-4.6.1-149241,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001546,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/data-transfer-library/1.2.0-4.6.1-149241,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001547,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/report-generator-portlet/6.1.0-4.6.1-142373,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001548,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/report-generator-portlet/6.1.0-4.6.1-142373,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001551,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/tabular-model-util/2.1.1-4.6.1-130678,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015514,"https://github.com/koaning/scikit-lego/pull/584, https://github.com/koaning/scikit-lego/pull/582, https://github.com/koaning/scikit-lego/pull/580, https://github.com/koaning/scikit-lego/pull/577, https://github.com/koaning/scikit-lego/tree/v0.6.16","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015515,https://github.com/pola-rs/polars/tree/py-0.19.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001552,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/tabular-model-util/2.1.1-4.6.1-130678,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001553,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-widgetx-tdx-source/1.10.0-4.6.1-142668,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001554,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-widgetx-tdx-source/1.10.0-4.6.1-142668,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015543,"https://github.com/ufs-community/ufs-srweather-app/discussions/categories/q-a, https://github.com/ufs-community/regional_workflow)","metadata.description, metadata.notes"
+10.5281/zenodo.10015544,"https://github.com/ufs-community/ufs-srweather-app/discussions/categories/q-a, https://github.com/ufs-community/regional_workflow)","metadata.description, metadata.notes"
+10.5281/zenodo.1001555,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/simul-fish-growth-portlet/1.3.0-4.6.1-151143,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001556,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/simul-fish-growth-portlet/1.3.0-4.6.1-151143,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001557,https://github.com/gcube-team/gcube-releases/tree/master/portal/social-mail-servlet/2.2.0-4.6.1-146892,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001558,https://github.com/gcube-team/gcube-releases/tree/master/portal/social-mail-servlet/2.2.0-4.6.1-146892,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015584,"https://github.com/jakta-bdi/jakta/compare/v0.7.9...v0.7.10, https://github.com/jakta-bdi/jakta/commit/b31fa7ac6549a060440789f562b211b0e2eb878e, https://github.com/jakta-bdi/jakta/tree/v0.7.10","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015585,https://github.com/NASA-PDS/validate/tree/v3.4.0-SNAPSHOT,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015586,https://github.com/NOAA-EDAB/forageindex/tree/v0.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015587,https://github.com/NOAA-EDAB/forageindex/tree/v0.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015588,https://github.com/aladinor/Atmoscol2023/tree/0.1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001559,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/gcube-GISViewer/2.11.0-4.6.1-150645,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015595,"https://github.com/azavea/raster-vision/pull/1932, https://github.com/azavea/raster-vision/pull/1934, https://github.com/azavea/raster-vision/pull/1952, https://github.com/azavea/raster-vision/pull/1953, https://github.com/azavea/raster-vision/pull/1959, https://github.com/azavea/raster-vision/tree/v0.21.3","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001560,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/gcube-GISViewer/2.11.0-4.6.1-150645,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001561,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/invites-sent/1.1.0-4.6.1-129997,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015614,"https://github.com/RangamaniLabUCSD/MechanoCircadian/pull/6, https://github.com/RangamaniLabUCSD/MechanoCircadian/tree/v1.1.1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015615,https://github.com/RangamaniLabUCSD/MechanoCircadian/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015618,https://github.com/quinoqg/SpeckleMet/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015619,https://github.com/quinoqg/SpeckleSense/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001562,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/invites-sent/1.1.0-4.6.1-129997,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015620,https://github.com/RangamaniLabUCSD/MechanoCircadian/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001563,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/workspace-explorer-app/1.0.1-4.6.1-150705,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001564,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/workspace-explorer-app/1.0.1-4.6.1-150705,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001565,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-json-export-widget/1.5.0-4.6.1-142626,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001566,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-json-export-widget/1.5.0-4.6.1-142626,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001567,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/excel-generator/1.0.0-4.6.1-151216,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015670,https://github.com/BIMAU/hybrid_om/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015672,https://github.com/erinsauer/sex-biased-MG-transmission/tree/v.1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001568,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/excel-generator/1.0.0-4.6.1-151216,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015683,https://github.com/Swaranjali167/Jobify/tree/publish,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015684,https://github.com/Swaranjali167/Jobify/tree/vi,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015685,https://github.com/Swaranjali167/Jobify/tree/vi,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001569,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/runtime-resource-creator/2.3.0-4.6.1-150653,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001570,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/runtime-resource-creator/2.3.0-4.6.1-150653,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015706,https://github.com/ateucher/lutz/tree/v0.3.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015707,https://github.com/ateucher/lutz/tree/v0.3.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015708,https://github.com/chloewhicker/E3SM/tree/archive/cwhicker/elm-snicaradv4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015709,https://github.com/chloewhicker/E3SM/tree/archive/cwhicker/elm-snicaradv4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001571,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-csv-export-widget/1.9.0-4.6.1-142631,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015710,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.12,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015711,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.12,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015712,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.11,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015713,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.11,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015714,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.15,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015715,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.13,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015716,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2.1-8.11-neural,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015717,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.14,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015718,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.16,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015719,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.17,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001572,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-csv-export-widget/1.9.0-4.6.1-142631,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015721,https://github.com/coq-tactician/coq-tactician/tree/1.0-beta2-8.15,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015722,"https://github.com/ronisbr/PrettyTables.jl/compare/v2.3.2...v2.4.0, https://github.com/ronisbr/PrettyTables.jl/tree/v2.4.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015723,"https://github.com/ronisbr/PrettyTables.jl/compare/v2.2.7...v2.2.8, https://github.com/ronisbr/PrettyTables.jl/tree/v2.2.8","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015724,"https://ror.org/01h531d29, https://ror.org/0517h6h17","metadata.notes, metadata.notes"
+10.5281/zenodo.10015725,"https://ror.org/01h531d29, https://ror.org/0517h6h17","metadata.notes, metadata.notes"
+10.5281/zenodo.1001573,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/ecological-engine-geospatial-extensions/1.5.0-4.6.1-151494,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001574,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/ecological-engine-geospatial-extensions/1.5.0-4.6.1-151494,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015749,"https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/47, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/50, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/46, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/51, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/52, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/38, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/53, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/55, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/34, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/60, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/57, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/59, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/58, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/compare/v1.3.0...v1.4.0, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/tree/v1.4.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001575,https://github.com/gcube-team/gcube-releases/tree/master/data-access/tree-manager-framework/3.0.1-4.6.1-125723,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015750,"https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/16, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/18, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/17, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/19, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/20, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/pull/20, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/compare/v1.1.2...v1.2.0, https://github.com/opensciencegrid/xrootd-monitoring-shoveler/tree/v1.2.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001576,https://github.com/gcube-team/gcube-releases/tree/master/data-access/tree-manager-framework/3.0.1-4.6.1-125723,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015761,https://gitlab.com/pe-software/pelib,metadata.custom.code:codeRepository
+10.5281/zenodo.1001577,https://github.com/gcube-team/gcube-releases/tree/master/data-access/irmng-spd-plugin/1.7.0-4.6.1-142406,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015774,https://github.com/xoopR/distr6/tree/v1.8.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015777,"https://github.com/stanford-futuredata/megablocks/pull/31, https://github.com/stanford-futuredata/megablocks/compare/v0.3.2...v0.3.3, https://github.com/stanford-futuredata/megablocks/tree/v0.3.3","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001578,https://github.com/gcube-team/gcube-releases/tree/master/data-access/irmng-spd-plugin/1.7.0-4.6.1-142406,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015786,"https://github.com/noisepy/NoisePy/pull/243, https://github.com/noisepy/NoisePy/pull/244, https://github.com/noisepy/NoisePy/pull/246, https://github.com/noisepy/NoisePy/compare/v0.9.79...v0.9.81, https://github.com/noisepy/NoisePy/tree/v0.9.81","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001579,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/species-discovery/3.9.1-4.6.1-146555,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015794,"https://github.com/EuroGO-SHIP/AtlantOS_QC/compare/v1.6.0...v1.7.0, https://github.com/EuroGO-SHIP/AtlantOS_QC/compare/v1.4.0...v1.7.0, https://github.com/EuroGO-SHIP/AtlantOS_QC/tree/v1.7.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015795,"https://eurogo-ship.eu/, https://eurogo-ship.eu/","metadata.description, metadata.notes"
+10.5281/zenodo.1001580,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/species-discovery/3.9.1-4.6.1-146555,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001581,https://github.com/gcube-team/gcube-releases/tree/master/information-system/discovery-client/1.0.1-4.6.1-125857,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015814,https://github.com/bioimage-io/spec-bioimage-io/tree/v0.4.9post4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001582,https://github.com/gcube-team/gcube-releases/tree/master/information-system/discovery-client/1.0.1-4.6.1-125857,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001583,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.invite-friends-widget/1.4.0-4.6.1-148935,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001584,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.invite-friends-widget/1.4.0-4.6.1-148935,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015842,https://github.com/uibcdf/PyUnitWizard/tree/0.9.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015843,https://github.com/psvkaushik/Group50_Proj2/tree/1.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015844,https://github.com/psvkaushik/Group50_Proj2/tree/1.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015845,https://github.com/psvkaushik/Group50_Proj2/tree/v4.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015846,https://github.com/psvkaushik/Group50_Proj2/tree/1.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015847,"https://github.com/CliMA/Oceananigans.jl/compare/v0.89.2...v0.89.3, https://github.com/CliMA/Oceananigans.jl/tree/v0.89.3","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015848,https://github.com/MuskKat/SE_Project1/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015849,https://github.com/MuskKat/SE_Project1/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001585,https://github.com/gcube-team/gcube-releases/tree/master/portal/portal-staging/2.0.0-4.6.1-129347,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001586,https://github.com/gcube-team/gcube-releases/tree/master/portal/portal-staging/2.0.0-4.6.1-129347,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015862,https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015863,"https://github.com/MAAP-Project/stac_ipyleaflet/compare/0.3.5...0.3.6, https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.3.6","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015864,https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015865,"https://github.com/MAAP-Project/stac_ipyleaflet/pull/58, https://github.com/MAAP-Project/stac_ipyleaflet/pull/55, https://github.com/MAAP-Project/stac_ipyleaflet/compare/0.1.0...0.2.0, https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.2.0","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015866,https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015868,https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.3.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001587,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/operation-statistical/1.2.4-4.6.1-147150,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015870,https://github.com/MAAP-Project/stac_ipyleaflet/tree/0.3.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001588,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/operation-statistical/1.2.4-4.6.1-147150,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001589,https://github.com/gcube-team/gcube-releases/tree/master/social-networking/social-data-indexer-se-plugin/1.2.1-4.6.1-148682,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015890,https://github.com/ag105020/CFM-Rhodopsin/tree/1.07,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015891,https://github.com/ag105020/CFM-Rhodopsin/tree/1.04,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015892,"https://github.com/deshima-dev/demerge/tree/v2025.4.1, https://github.com/deshima-dev/demerge","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015893,"https://github.com/deshima-dev/dmerge/pull/39, https://github.com/deshima-dev/dmerge/compare/v2.2.0...v2.3.0, https://github.com/deshima-dev/dmerge/tree/v2.3.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015894,"https://github.com/Sage-Bionetworks-Workflows/py-orca/pull/25, https://github.com/Sage-Bionetworks-Workflows/py-orca/pull/26, https://github.com/Sage-Bionetworks-Workflows/py-orca/pull/27, https://github.com/Sage-Bionetworks-Workflows/py-orca/pull/28, https://github.com/Sage-Bionetworks-Workflows/py-orca/pull/25, https://github.com/Sage-Bionetworks-Workflows/py-orca/compare/v1.3.1...v1.3.2, https://github.com/Sage-Bionetworks-Workflows/py-orca/tree/v1.3.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015899,https://github.com/aradfarahani/DEM-Bathymetry/tree/v0.1.0-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001590,https://github.com/gcube-team/gcube-releases/tree/master/social-networking/social-data-indexer-se-plugin/1.2.1-4.6.1-148682,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10015900,https://github.com/aradfarahani/DEM-Bathymetry/tree/v0.1.0-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001591,https://github.com/gcube-team/gcube-releases/tree/master/data-publishing/document-store-lib/2.0.0-4.6.1-148474,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015918,https://github.com/dapperstats/salvage/tree/2023-10-18_00-13,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015919,"https://github.com/radio-astro-tools/radio-beam/pull/113, https://github.com/radio-astro-tools/radio-beam/pull/115, https://github.com/radio-astro-tools/radio-beam/pull/116, https://github.com/radio-astro-tools/radio-beam/pull/116, https://github.com/radio-astro-tools/radio-beam/compare/v0.3.4...v0.3.5, https://github.com/radio-astro-tools/radio-beam/tree/v0.3.5","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001592,https://github.com/gcube-team/gcube-releases/tree/master/data-publishing/document-store-lib/2.0.0-4.6.1-148474,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10015920,"https://github.com/Mosquito-Alert/sampling_effort_data, https://github.com/Mosquito-Alert/sampling_effort_data/tree/v2023.10.18","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001593,https://github.com/gcube-team/gcube-releases/tree/master/application/aquamaps.aquamapsservice-cl/3.0.7-4.6.1-144534,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015935,"https://github.com/PetrKryslUCSD/FinEtools.jl/compare/v7.1.5...v7.1.6, https://github.com/PetrKryslUCSD/FinEtools.jl/tree/v7.1.6","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015936,https://github.com/MosquitoAlert/Data/tree/v1.291.2023,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001594,https://github.com/gcube-team/gcube-releases/tree/master/application/aquamaps.aquamapsservice-cl/3.0.7-4.6.1-144534,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015941,"https://github.com/evolarjun), https://github.com/pha4ge/hAMRonization/tree/v1.1.3","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015942,"https://github.com/xsuite/xcoll/compare/v0.5.11...v0.5.12, https://github.com/xsuite/xcoll/tree/v0.5.12, https://github.com/xsuite/xcoll","metadata.description, metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015943,"https://github.com/xsuite/xcoll/compare/v0.2.5...v0.2.6, https://github.com/xsuite/xcoll/tree/v0.2.6","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015946,https://github.com/pha4ge/hAMRonization/tree/v1.1.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015947,"https://github.com/shonilbhide/dollar_bot, https://github.com/usmanwardag/dollar_bot/tree/v2.0","metadata.related_identifiers[1].identifier, metadata.references[0]"
+10.5281/zenodo.10015948,"https://github.com/shonilbhide/dollar_bot, https://github.com/usmanwardag/dollar_bot/tree/v2.0","metadata.related_identifiers[1].identifier, metadata.references[0]"
+10.5281/zenodo.10015951,https://github.com/dpcook/rna_seq_ovcan/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015952,https://github.com/dpcook/rna_seq_ovcan/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015953,https://github.com/opensciencegrid/xrootd-monitoring-shoveler/tree/v1.2.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015954,https://github.com/paulgovan/WeibullR.plotly/tree/v0.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015966,https://github.com/yanqiuLiu0908/BPAN-system-analysis/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015967,https://github.com/yanqiuLiu0908/BPAN-system-analysis/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10015972,"https://github.com/jakta-bdi/jakta/compare/v0.7.10...v0.7.11, https://github.com/jakta-bdi/jakta/commit/2cc5cfebf4aede5bb78f05ba0279df6932703a1c, https://github.com/jakta-bdi/jakta/tree/v0.7.11","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015985,"https://github.com/VEuPathDB/web-monorepo/tree/v1.3.6-patch.2, https://github.com/VEuPathDB/web-monorepo","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015986,"https://github.com/VEuPathDB/web-monorepo/pull/555, https://github.com/VEuPathDB/web-monorepo/compare/v1.0.83...v1.0.84, https://github.com/VEuPathDB/web-monorepo/tree/v1.0.84","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10015987,"https://github.com/ZiyuanYinn/Odd-Low-Pass_Filter/tree/v1.0.0, https://github.com/ZiyuanYinn/Odd-Low-Pass_Filter/tree/v2.0.0","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10015988,https://github.com/ZiyuanYinn/Odd-Low-Pass_Filter/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001599,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/parameter-descriptors/1.2.0-4.6.1-146487,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001600,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/parameter-descriptors/1.2.0-4.6.1-146487,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10016009,https://github.com/RuleNHao/SELF-ANN/tree/pub,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001601,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.switch-button-widget/1.0.0-4.6.1-125951,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016010,https://github.com/RuleNHao/SELF-ANN/tree/pub,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016011,"https://github.com/monarch-initiative/monarch-app/pull/382, https://github.com/monarch-initiative/monarch-app/pull/401, https://github.com/monarch-initiative/monarch-app/pull/402, https://github.com/monarch-initiative/monarch-app/pull/397, https://github.com/monarch-initiative/monarch-app/pull/407, https://github.com/monarch-initiative/monarch-app/pull/412, https://github.com/monarch-initiative/monarch-app/pull/410, https://github.com/monarch-initiative/monarch-app/pull/407, https://github.com/monarch-initiative/monarch-app/compare/v0.17.3...v0.17.4, https://github.com/monarch-initiative/monarch-app/tree/v0.17.4","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016016,"https://github.com/JuliaSmoothOptimizers/AMD.jl/compare/v0.5.2...v0.5.3, https://github.com/JuliaSmoothOptimizers/AMD.jl/tree/v0.5.3","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001602,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.switch-button-widget/1.0.0-4.6.1-125951,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016021,"https://github.com/KingsburyLab/pyEQL/blob/main/CHANGELOG.md, https://github.com/KingsburyLab/pyEQL/pull/46, https://github.com/KingsburyLab/pyEQL/pull/47, https://github.com/KingsburyLab/pyEQL/pull/30, https://github.com/KingsburyLab/pyEQL/pull/49, https://github.com/KingsburyLab/pyEQL/pull/51, https://github.com/KingsburyLab/pyEQL/pull/48, https://github.com/KingsburyLab/pyEQL/pull/50, https://github.com/KingsburyLab/pyEQL/compare/v0.8.1...v0.9.0, https://github.com/KingsburyLab/pyEQL/tree/v0.9.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001603,https://github.com/gcube-team/gcube-releases/tree/master/application/aquamaps.aquamapsspeciesview/1.3.5-4.6.1-144544,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10016030,"https://github.com/saalfeldlab/paintera/pull/510, https://github.com/saalfeldlab/paintera/tree/macos-latest","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016035,"https://github.com/saalfeldlab/paintera/pull/510, https://github.com/saalfeldlab/paintera/tree/windows-latest","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016036,"https://github.com/saalfeldlab/paintera/pull/510, https://github.com/saalfeldlab/paintera/tree/ubuntu-latest","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016037,https://github.com/saalfeldlab/paintera/tree/windows-latest,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016038,https://github.com/saalfeldlab/paintera/tree/macos-latest,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001604,https://github.com/gcube-team/gcube-releases/tree/master/application/aquamaps.aquamapsspeciesview/1.3.5-4.6.1-144544,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10016041,https://github.com/saalfeldlab/paintera/tree/ubuntu-latest,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016042,https://github.com/BuKyungBuKyung/jaccard_normalization/tree/tr1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016043,https://github.com/BuKyungBuKyung/jaccard_normalization/tree/tr1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016046,https://github.com/DanieleCarlesso-Research/WeaverAnts-CooperativeTransport/tree/Code-Datasets-v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016047,https://github.com/DanieleCarlesso-Research/WeaverAnts-CooperativeTransport/tree/Code-Datasets-v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016061,"https://github.com/JuliaSmoothOptimizers/LimitedLDLFactorizations.jl/compare/v0.5.0...v0.5.1, https://github.com/JuliaSmoothOptimizers/LimitedLDLFactorizations.jl/tree/v0.5.1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001607,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.image-previewer-widget/1.2.0-4.6.1-149322,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016078,https://ror.org/00f54p054,metadata.notes
+10.5281/zenodo.10016079,https://ror.org/00f54p054,metadata.notes
+10.5281/zenodo.1001608,https://github.com/gcube-team/gcube-releases/tree/master/portlets-widgets/portlets-widgets.image-previewer-widget/1.2.0-4.6.1-149322,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016080,"https://github.com/CooperstoneLab/PhenolicsDB/blob/main/inst/extdata/PhenolicsDB/msp/phenolics_pos.msp, https://github.com/CooperstoneLab/PhenolicsDB/blob/main/inst/extdata/PhenolicsDB/msp/phenolics_neg.msp, https://github.com/CooperstoneLab/PhenolicsDB/blob/main/inst/extdata/PhenolicsDB/mgf/PhenolicsDB_Positive.mgf, https://github.com/CooperstoneLab/PhenolicsDB/blob/main/inst/extdata/PhenolicsDB/mgf/PhenolicsDB_Negative.mgf, https://github.com/CooperstoneLab/PhenolicsDB/tree/0.04.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001609,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-template-widget/1.8.0-4.6.1-142129,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001610,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-template-widget/1.8.0-4.6.1-142129,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10016108,https://github.com/BWBrook/LandUse/tree/Land_use,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016109,https://github.com/BWBrook/LandUse/tree/Land_use,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001611,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/data-transfer-service/2.0.0-4.6.1-150858,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016110,"https://github.com/JonathonMifsud/BatchArtemisSRAMiner/compare/v1.0.1...v1.0.2, https://github.com/JonathonMifsud/BatchArtemisSRAMiner/tree/v1.0.2","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016111,"https://github.com/JuliaSmoothOptimizers/LDLFactorizations.jl/compare/v0.10.0...v0.10.1, https://github.com/JuliaSmoothOptimizers/LDLFactorizations.jl/tree/v0.10.1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001612,https://github.com/gcube-team/gcube-releases/tree/master/data-transfer/data-transfer-service/2.0.0-4.6.1-150858,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001613,https://github.com/gcube-team/gcube-releases/tree/master/data-access/ncbi-spd-plugin/1.7.0-4.6.1-142409,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001614,https://github.com/gcube-team/gcube-releases/tree/master/data-access/ncbi-spd-plugin/1.7.0-4.6.1-142409,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016141,https://github.com/jpark-lab/SpatialAnalysis/tree/publish,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016142,https://github.com/jpark-lab/SpatialAnalysis/tree/publish,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001615,https://github.com/gcube-team/gcube-releases/tree/master/information-system/gcube-resources/1.5.0-4.6.1-150948,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001616,https://github.com/gcube-team/gcube-releases/tree/master/information-system/gcube-resources/1.5.0-4.6.1-150948,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001617,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/resource-management-portlet/6.4.0-4.6.1-150651,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001618,https://github.com/gcube-team/gcube-releases/tree/master/portlets-admin/resource-management-portlet/6.4.0-4.6.1-150651,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001619,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/last-updated-files/2.3.0-4.6.1-146901,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001620,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/last-updated-files/2.3.0-4.6.1-146901,metadata.related_identifiers[1].identifier
+10.5281/zenodo.1001621,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/statistical-manager-gcubews/2.2.0-4.6.1-133380,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001622,https://github.com/gcube-team/gcube-releases/tree/master/data-analysis/statistical-manager-gcubews/2.2.0-4.6.1-133380,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001623,https://github.com/gcube-team/gcube-releases/tree/master/search/resultset-garbage-collector/3.2.0-4.6.1-126745,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016239,https://github.com/green-striped-gecko/AusFoxMicrosats/tree/datareadme,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001624,https://github.com/gcube-team/gcube-releases/tree/master/search/resultset-garbage-collector/3.2.0-4.6.1-126745,metadata.related_identifiers[1].identifier
+10.5281/zenodo.10016240,https://github.com/green-striped-gecko/AusFoxMicrosats/tree/datareadme,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001625,https://github.com/gcube-team/gcube-releases/tree/master/application/gcube-reporting-modeler/1.3.0-4.6.1-125719,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001626,https://github.com/gcube-team/gcube-releases/tree/master/application/gcube-reporting-modeler/1.3.0-4.6.1-125719,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016264,https://ror.org/05mmh0f86,metadata.notes
+10.5281/zenodo.10016265,https://ror.org/05mmh0f86,metadata.notes
+10.5281/zenodo.1001627,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-statistical-widget/1.5.0-4.6.1-147242,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001628,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-statistical-widget/1.5.0-4.6.1-147242,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001629,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-sdmx-export-widget/1.10.0-4.6.1-151422,metadata.related_identifiers[2].identifier
+10.5281/zenodo.10016299,"https://github.com/SPS-L/pyeplan/compare/v0.4...v0.5, https://github.com/SPS-L/pyeplan/tree/v0.5","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001630,https://github.com/gcube-team/gcube-releases/tree/master/portlets-user/tabular-data-sdmx-export-widget/1.10.0-4.6.1-151422,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001631,https://github.com/gcube-team/gcube-releases/tree/master/accounting/accounting-insert-rstudio-se-plugin/1.0.0-4.6.1-148358,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001632,https://github.com/gcube-team/gcube-releases/tree/master/accounting/accounting-insert-rstudio-se-plugin/1.0.0-4.6.1-148358,metadata.related_identifiers[2].identifier
+10.5281/zenodo.1001633,https://github.com/bjodah/chempy/tree/v0.5.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016335,https://github.com/loyalty-fox/emergency_decision/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016336,https://github.com/loyalty-fox/emergency_decision/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001637,https://github.com/tillgrallert/p3601db9e/tree/v0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016406,"https://github.com/zakodium-oss/react-science/compare/v0.28.0...v0.28.1, https://github.com/zakodium-oss/react-science/issues/568, https://github.com/zakodium-oss/react-science/commit/c35339965dc3c4391f06ef81ffdc9c104e0594f8, https://github.com/zakodium-oss/react-science/tree/v0.28.1","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001642,https://github.com/skuschel/postpic/tree/v0.3.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016466,https://github.com/PCdurham/Semantic_Classification_of_Rivers_and_Bars/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016467,https://github.com/PCdurham/Semantic_Classification_of_Rivers_and_Bars/tree/v1.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016468,https://github.com/timKraeuter/ICGT-2023/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016469,https://github.com/timKraeuter/ICGT-2023/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016470,https://github.com/timKraeuter/ECMFA-2023/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016471,https://github.com/timKraeuter/ECMFA-2023/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016472,https://github.com/hcji/PyFingerprint/tree/v3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016481,"https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_opioides/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_antibioticos/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/tree/3.0.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016485,https://github.com/hmgu-itg/T2D_SCZ/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016486,https://github.com/hmgu-itg/T2D_SCZ/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016489,"https://github.com/Montimage/acas, https://github.com/Montimage/acas&nbsp;","metadata.description, metadata.description"
+10.5281/zenodo.10016490,"https://github.com/Montimage/acas, https://github.com/Montimage/acas&nbsp;","metadata.description, metadata.description"
+10.5281/zenodo.10016518,https://github.com/gagolews/genieclust/tree/v1.1.5,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016535,"https://github.com/GiorgiaAuroraAdorni/virtual-CAT-app/, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-app/, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-data-infrastructure, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-data-infrastructurerastructure, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-programming-language-interpreter/tree/1.0.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016536,"https://github.com/GiorgiaAuroraAdorni/virtual-CAT-app/, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-app/, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-data-infrastructure, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-data-infrastructurerastructure, https://github.com/GiorgiaAuroraAdorni/virtual-CAT-programming-language-interpreter/tree/1.0.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016541,https://github.com/NeoGeographyToolkit/StereoPipeline/tree/2023-10-17-daily-build,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016542,"https://github.com/NASA-PDS/nucleus/pull/50, https://github.com/NASA-PDS/nucleus/pull/55, https://github.com/NASA-PDS/nucleus/pull/56, https://github.com/NASA-PDS/nucleus/pull/57, https://github.com/NASA-PDS/nucleus/pull/58, https://github.com/NASA-PDS/nucleus/pull/64, https://github.com/NASA-PDS/nucleus/pull/69, https://github.com/NASA-PDS/nucleus/pull/70, https://github.com/NASA-PDS/nucleus/pull/55, https://github.com/NASA-PDS/nucleus/pull/56, https://github.com/NASA-PDS/nucleus/compare/v0.1.0...v0.2.0, https://github.com/NASA-PDS/nucleus/tree/v0.2.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016543,"https://github.com/PINTO0309/onnx2tf/files/12933180/trilu_14.onnx.zip, https://github.com/PINTO0309/onnx2tf/issues/538, https://github.com/PINTO0309/onnx2tf/pull/539, https://github.com/PINTO0309/onnx2tf/compare/1.18.13...1.18.14, https://github.com/PINTO0309/onnx2tf/tree/1.18.14","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016545,"https://github.com/ewels/MultiQC/pull/2025, https://github.com/ewels/MultiQC/pull/2102, https://github.com/ewels/MultiQC/pull/2115, https://github.com/ewels/MultiQC/pull/2082, https://github.com/ewels/MultiQC/pull/2049, https://github.com/ewels/MultiQC/pull/2081, https://github.com/ewels/MultiQC/pull/2101, https://github.com/ewels/MultiQC/pull/1632, https://github.com/ewels/MultiQC/pull/2124, https://github.com/ewels/MultiQC/pull/2109, https://github.com/ewels/MultiQC/pull/2113, https://github.com/ewels/MultiQC/pull/2119, https://github.com/ewels/MultiQC/pull/2121, https://github.com/ewels/MultiQC/pull/2074, https://github.com/ewels/MultiQC/pull/2131, https://github.com/ewels/MultiQC/pull/2133, https://github.com/ACEnglish/truvari, https://github.com/ewels/MultiQC/pull/1751, https://github.com/ewels/MultiQC/pull/2128, https://github.com/ewels/MultiQC/pull/2118, https://github.com/ewels/MultiQC/pull/2108, https://github.com/ewels/MultiQC/pull/2075, https://github.com/ewels/MultiQC/pull/2126, https://github.com/ewels/MultiQC/pull/2129, https://github.com/ewels/MultiQC/pull/2106, https://github.com/ewels/MultiQC/pull/2127, https://github.com/ewels/MultiQC/pull/2083, https://github.com/ewels/MultiQC/pull/2094, https://github.com/ewels/MultiQC/pull/2123, https://github.com/ewels/MultiQC/pull/2095, https://github.com/ewels/MultiQC/tree/v1.17","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016546,https://github.com/hmgu-itg/T2D_SCZ/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016547,"https://github.com/BlueBrain/eFEL/pull/325, https://github.com/BlueBrain/eFEL/compare/5.2.0...5.2.1, https://github.com/BlueBrain/eFEL/tree/5.2.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016548,https://github.com/pano-tacanan-history/oliveiraprotopanoan/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001655,https://github.com/ruebot/gccaedits_data/tree/v2017.10,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016551,https://github.com/s-broda/tsa_python/tree/v1.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016552,https://github.com/s-broda/tsa_python/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016553,https://github.com/saalfeldlab/paintera/tree/windows-latest,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016554,https://github.com/mmccar26/spider-focused-food-web/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016555,https://github.com/mmccar26/spider-focused-food-web/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016558,https://github.com/lanl/waves/tree/0.6.21,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016559,"https://github.com/PowerGridModel/power-grid-model/pull/403, https://github.com/PowerGridModel/power-grid-model/compare/v1.6.11...v1.6.12, https://github.com/PowerGridModel/power-grid-model/tree/v1.6.12","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016560,https://github.com/hmgu-itg/T2D_SCZ/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016561,"https://github.com/nf-osi/nf-metadata-dictionary/pull/353, https://github.com/nf-osi/nf-metadata-dictionary/pull/354, https://github.com/nf-osi/nf-metadata-dictionary/pull/357, https://github.com/nf-osi/nf-metadata-dictionary/compare/v8.2.0...v8.2.1, https://github.com/nf-osi/nf-metadata-dictionary/tree/v8.2.1","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016562,"https://github.com/biaslab/RxInfer.jl/compare/v2.13.0...v2.13.1, https://github.com/biaslab/RxInfer.jl/tree/v2.13.1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016563,https://github.com/HydrolabUniud/database_fvg/tree/streams,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016564,https://github.com/HydrolabUniud/database_fvg/tree/streams,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016566,https://github.com/rcrichmond/spousal_sleep/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016567,https://github.com/rcrichmond/spousal_sleep/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016569,https://github.com/astropy/specutils/tree/v1.12.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016570,https://github.com/simple-crypto/SMAesH-challenge/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016571,https://github.com/simple-crypto/SMAesH-challenge/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016575,https://github.com/BrisClimate/Isentropic-mixing-PLD/tree/v1.0.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016576,https://github.com/BrisClimate/Isentropic-mixing-PLD/tree/v1.0.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016577,"https://github.com/biaslab/ReactiveMP.jl/compare/v3.11.0...v3.11.1, https://github.com/biaslab/ReactiveMP.jl/tree/v3.11.1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001658,https://github.com/ciro-alfano/TestGitHubAndVS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016580,https://github.com/jonas-fuchs/varVAMP/tree/v.0.9.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016581,https://github.com/rcrichmond/spousal_sleep/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016583,https://github.com/ropensci/drake/tree/7.13.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016584,https://github.com/CompuNanoLab/PANTANI/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016586,"https://github.com/SwanseaUniversityMedical/concept-library/compare/Concept-Library-2.0.6...Concept-Library-2.0.7, https://github.com/SwanseaUniversityMedical/concept-library/tree/Concept-Library-2.0.7","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016587,"https://github.com/KeYProject/key/compare/KeY-2.4.0...nightly, https://github.com/KeYProject/key/tree/nightly","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016588,https://github.com/elizabethsimps/functional_traits_rhf/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016589,https://github.com/elizabethsimps/functional_traits_rhf/tree/1.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001659,https://github.com/ciro-alfano/TestGitHubAndVS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016592,https://github.com/rcrichmond/spousal_sleep/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016593,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016594,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016595,"https://github.com/BlueBrain/BlueCelluLab/pull/96, https://github.com/BlueBrain/BlueCelluLab/compare/1.6.1...1.6.2, https://github.com/BlueBrain/BlueCelluLab/tree/1.6.2","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016596,https://github.com/rcrichmond/spousal_sleep/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016597,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016598,"https://github.com/replikation/poreCov/compare/1.9.1...1.9.2, https://github.com/replikation/poreCov/tree/1.9.2","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016600,https://github.com/simple-crypto/SMAesH-challenge/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016603,"https://github.com/comorment/containers/releases/tag/v1.3.0, https://github.com/comorment/containers/blob/main/CHANGELOG.md, https://github.com/comorment/containers/releases/tag/v1.3.0, https://github.com/comorment/containers/pull/204, https://github.com/comorment/containers/compare/v1.3.0...v1.3.9, https://github.com/comorment/containers/tree/v1.3.9","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016604,https://github.com/r-cas/caracas/tree/v2.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016605,https://github.com/QIMP-Team/MOOSE/tree/moose-v.2.2.36,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016608,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016609,https://github.com/hds-sandbox/bulk_RNAseq_course/tree/v3.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016610,"https://github.com/BlueBrain/BluePyEModel/pull/68, https://github.com/BlueBrain/BluePyEModel/compare/0.0.46...0.0.47, https://github.com/BlueBrain/BluePyEModel/tree/0.0.47","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016611,"https://github.com/comorment/containers/releases/tag/v1.3.0, https://github.com/comorment/containers/blob/main/CHANGELOG.md, https://github.com/comorment/containers/releases/tag/v1.3.0, https://github.com/comorment/containers/pull/202, https://github.com/comorment/containers/compare/v1.3.0...v1.3.8, https://github.com/comorment/containers/tree/v1.3.8","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016613,https://github.com/ag105020/CFM-Rhodopsin/tree/1.03,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016615,https://github.com/sentinel-hub/eo-learn/tree/v1.5.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016616,"https://github.com/biopragmatics/bioregistry/compare/v0.10.63...v0.10.64, https://github.com/biopragmatics/bioregistry/tree/v0.10.64","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016618,"https://github.com/NBChub/bgcflow/pull/289, https://github.com/NBChub/bgcflow/pull/295, https://github.com/NBChub/bgcflow/discussions/282#discussioncomment-7270753, https://github.com/NBChub/bgcflow/compare/v0.7.7...v0.7.8, https://github.com/NBChub/bgcflow/tree/v0.7.8","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016619,https://github.com/DominiqueBourgeois/SMIS/tree/v2.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016622,"https://github.com/RADAR-base/radar-jersey/pull/73, https://github.com/RADAR-base/radar-jersey/pull/77, https://github.com/RADAR-base/radar-jersey/pull/78, https://github.com/RADAR-base/radar-jersey/compare/v0.10.0...v0.11.0, https://github.com/RADAR-base/radar-jersey/tree/v0.11.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016623,https://github.com/ag105020/CFM-Rhodopsin/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016625,"https://github.com/SwanseaUniversityMedical/concept-library/compare/Concept-Library-2.0.5...Concept-Library-2.0.6, https://github.com/SwanseaUniversityMedical/concept-library/tree/Concept-Library-2.0.6","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016627,"https://github.com/remsens-lim/pyMakeRetrieval/compare/v1.0.5...v1.1.0, https://github.com/remsens-lim/pyMakeRetrieval/tree/v1.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016629,"https://github.com/KeYProject/key/compare/KeY-2.4.0...nightly, https://github.com/KeYProject/key/tree/nightly","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016630,https://github.com/eWaterCycle/infra/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016632,https://github.com/remsens-lim/pyMakeRetrieval/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016634,"https://github.com/zakodium-oss/react-science/compare/v0.27.0...v0.28.0, https://github.com/zakodium-oss/react-science/issues/564, https://github.com/zakodium-oss/react-science/commit/cb14d4778412e0cc86216b4e29855f127d985ba7, https://github.com/zakodium-oss/react-science/commit/6e3ba05c256ebb755885f5ecfb913ee8b0df421b, https://github.com/zakodium-oss/react-science/issues/566, https://github.com/zakodium-oss/react-science/commit/10c65fe0591aa4913ab525df5f07a731f5ef10b6, https://github.com/zakodium-oss/react-science/issues/557, https://github.com/zakodium-oss/react-science/commit/db366208ec8a85fe7060a0acd0011eb637113431, https://github.com/zakodium-oss/react-science/issues/559, https://github.com/zakodium-oss/react-science/commit/d258b6938dc748f00a944e59b5123988cddb88f4, https://github.com/zakodium-oss/react-science/tree/v0.28.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016635,"https://github.com/layerfMRI/LAYNII/issues/77, https://github.com/layerfMRI/LAYNII/tree/v2.5.3","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016636,"https://github.com/SABS-R3-Epidemiology/epiabm/pull/162, https://github.com/SABS-R3-Epidemiology/epiabm/pull/173, https://github.com/SABS-R3-Epidemiology/epiabm/pull/180, https://github.com/SABS-R3-Epidemiology/epiabm/pull/193, https://github.com/SABS-R3-Epidemiology/epiabm/pull/199, https://github.com/SABS-R3-Epidemiology/epiabm/pull/209, https://github.com/SABS-R3-Epidemiology/epiabm/pull/232, https://github.com/SABS-R3-Epidemiology/epiabm/pull/239, https://github.com/SABS-R3-Epidemiology/epiabm/pull/167, https://github.com/SABS-R3-Epidemiology/epiabm/pull/162, https://github.com/SABS-R3-Epidemiology/epiabm/pull/173, https://github.com/SABS-R3-Epidemiology/epiabm/pull/190, https://github.com/SABS-R3-Epidemiology/epiabm/pull/195, https://github.com/SABS-R3-Epidemiology/epiabm/compare/v1.0.1...v1.1.0, https://github.com/SABS-R3-Epidemiology/epiabm/tree/v1.1.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016637,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016638,https://github.com/TUMMFE/Viewccelera/tree/2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016639,"https://github.com/biigle/core/pull/680, https://github.com/biigle/core/pull/681, https://github.com/biigle/core/compare/v3.62.0...v3.62.1, https://github.com/biigle/core/tree/v3.62.1","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016642,"https://github.com/research-software-directory/RSD-production/blob/main/database-migration/migration-scripts/2.0.0-to-2.1.0.sql, https://github.com/research-software-directory/RSD-as-a-service/commit/93df9c753c71fb62fe824e3fa9359b05a40e181d, https://github.com/research-software-directory/RSD-as-a-service/commit/f5e0cbeb721095af4cc250d88887e72907b2ede1, https://github.com/research-software-directory/RSD-as-a-service/commit/777c57a1b0302394c96a47789aa09e9062e379a7, https://github.com/research-software-directory/RSD-as-a-service/commit/e3d18bd1d0f3942e49dd3e6c68942296aca27abb, https://github.com/research-software-directory/RSD-as-a-service/commit/13f6c64e7b08184f1335b94c5e55c1b9dd15b10d, https://github.com/research-software-directory/RSD-as-a-service/commit/c47e6b7aafda8f1a10c52da07d97dbec116b98f6, https://github.com/research-software-directory/RSD-as-a-service/commit/1b7439ccc814bd31b5dc1bd0e316a1cdda937ed7, https://github.com/research-software-directory/RSD-as-a-service/commit/26ad1f809da3cba3f81cef214edc5feeea78dee3, https://github.com/research-software-directory/RSD-as-a-service/commit/de4201a306b51dc9533d2f4d342ee39350f59d66, https://github.com/research-software-directory/RSD-as-a-service/commit/2aed145e318ac5a96f71fbd6ad624a1541cf2c25, https://github.com/research-software-directory/RSD-as-a-service/commit/d1a79b8f9754943575dee2d9aabfa4f0c0480a87, https://github.com/research-software-directory/RSD-as-a-service/commit/2f537f2c717cf445880c0e7250fea0a8e9e9ecb1, https://github.com/research-software-directory/RSD-as-a-service/tree/v2.1.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016643,"https://github.com/mljs/matrix/compare/v6.10.5...v6.10.6, https://github.com/mljs/matrix/issues/168, https://github.com/mljs/matrix/commit/dd8e729c68454cc179f4542053e1e55c5de92c70, https://github.com/mljs/matrix/tree/v6.10.6","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016644,"https://github.com/TUDelft-CITG/OpenCLSim/pull/140, https://github.com/TUDelft-CITG/OpenCLSim/pull/145, https://github.com/TUDelft-CITG/OpenCLSim/pull/139, https://github.com/TUDelft-CITG/OpenCLSim/compare/v1.6.0...v1.6.1, https://github.com/TUDelft-CITG/OpenCLSim/tree/v1.6.1","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016645,"https://github.com/pymc-devs/pytensor/pull/478, https://github.com/pymc-devs/pytensor/compare/rel-2.17.2...rel-2.17.3, https://github.com/pymc-devs/pytensor/tree/rel-2.17.3","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016646,https://github.com/jcanivete/swirl/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016647,https://github.com/jcanivete/swirl/tree/alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016648,https://github.com/remsens-lim/pyMakeRetrieval/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016649,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016650,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016651,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016652,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016655,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016656,https://github.com/otakinatsuko/fibrosis_2023_code/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016657,"https://www.github.com/image-js/image-js/issues/630, https://www.github.com/image-js/image-js/commit/10bec0b4b4794cf8c9d8459ebf77380829fa814d, https://github.com/image-js/image-js/tree/v0.35.5","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016663,https://github.com/BlueBrain/snap/tree/v2.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016665,https://github.com/yetinam/pyocto/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016666,https://github.com/yetinam/pyocto/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016669,https://github.com/ElkeDeZitter/Xtrapol8/tree/v1.2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016670,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016671,https://github.com/csi-hamburg/HCHS-brain-states-RR/tree/v2.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016672,"https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_opioides/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_antibioticos/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/pull/6, https://github.com/cienciadedatosysalud/atlas-farmacia/pull/7, https://github.com/cienciadedatosysalud/atlas-farmacia/pull/6, https://github.com/cienciadedatosysalud/atlas-farmacia/compare/2.1.3...3.0.0, https://github.com/cienciadedatosysalud/atlas-farmacia/tree/3.0.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016673,https://github.com/open-atmos/PySDM/tree/v2.30,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016674,"https://github.com/deshima-dev/testdata, https://github.com/deshima-dev/dmerge/pull/30, https://github.com/deshima-dev/dmerge/pull/33, https://github.com/deshima-dev/dmerge/pull/36, https://github.com/deshima-dev/dmerge/pull/37, https://github.com/deshima-dev/dmerge/compare/v2.1.3...v2.2.0, https://github.com/deshima-dev/dmerge/tree/v2.2.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016678,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016679,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016680,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016681,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016682,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016683,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016684,"https://github.com/holoviz/hvplot/pull/1141, https://github.com/holoviz/hvplot/pull/1156, https://github.com/holoviz/hvplot/pull/1171, https://github.com/holoviz/hvplot/pull/1102, https://github.com/holoviz/hvplot/pull/1129, https://github.com/holoviz/hvplot/pull/1154, https://github.com/holoviz/hvplot/pull/1103, https://github.com/holoviz/hvplot/pull/1127, https://github.com/holoviz/hvplot/pull/1157, https://github.com/holoviz/hvplot/pull/1128, https://github.com/holoviz/hvplot/pull/1158, https://github.com/holoviz/hvplot/pull/1174, https://github.com/holoviz/hvplot/pull/1140, https://github.com/holoviz/hvplot/pull/1132, https://github.com/holoviz/hvplot/pull/1144, https://github.com/holoviz/hvplot/pull/1121, https://github.com/holoviz/hvplot/pull/1083, https://github.com/holoviz/hvplot/pull/1113, https://github.com/holoviz/hvplot/pull/1135, https://github.com/holoviz/hvplot/pull/1163, https://github.com/holoviz/hvplot/pull/1092, https://github.com/holoviz/hvplot/pull/1139, https://github.com/holoviz/hvplot/pull/1151, https://github.com/holoviz/hvplot/pull/997, https://github.com/holoviz/hvplot/pull/1130, https://github.com/holoviz/hvplot/pull/1142, https://github.com/holoviz/hvplot/pull/1084, https://github.com/holoviz/hvplot/pull/1173, https://github.com/holoviz/hvplot/pull/1177, https://github.com/holoviz/hvplot/pull/999, https://github.com/holoviz/hvplot/pull/1118, https://github.com/holoviz/hvplot/pull/1146, https://github.com/holoviz/hvplot/pull/1164, https://github.com/holoviz/hvplot/pull/1175, https://github.com/holoviz/hvplot/pull/1077, https://github.com/holoviz/hvplot/pull/1131, https://github.com/holoviz/hvplot/pull/1172, https://github.com/holoviz/hvplot/pull/1123, https://github.com/holoviz/hvplot/compare/v0.8.4...v0.9.0, https://github.com/holoviz/hvplot/tree/v0.9.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016685,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016690,https://github.com/rheilmayr/Treeconomics/tree/1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016691,https://github.com/rheilmayr/Treeconomics/tree/1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016692,"https://github.com/pylhc/irnl_rdt_correction/pull/11, https://github.com/pylhc/irnl_rdt_correction/compare/v1.1.0...v1.1.1, https://github.com/pylhc/irnl_rdt_correction/tree/v1.1.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016693,https://github.com/wadpac/GGIR/tree/3.0-0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016694,https://github.com/enl2018/0818/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016695,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016696,https://github.com/enl2018/0818/tree/V1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016697,https://github.com/psvkaushik/Group50_Proj2/tree/v2.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016698,https://github.com/enl2018/R-script-for-Unraveling-soil-microbiome-across-V-smelters/tree/1.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016699,https://github.com/enl2018/R-script-for-Unraveling-soil-microbiome-across-V-smelters/tree/V1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016702,https://github.com/rheilmayr/Treeconomics/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016704,https://github.com/bioimage-io/spec-bioimage-io/tree/v0.4.9post3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016706,https://github.com/psvkaushik/Group50_Proj2/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016708,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/1.0.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016709,https://github.com/psvkaushik/Group50_Proj2/tree/v2.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016710,"https://github.com/QuantumSavory/QuantumClifford.jl/compare/v0.8.16...v0.8.17, https://github.com/QuantumSavory/QuantumClifford.jl/tree/v0.8.17","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016711,https://github.com/Sudaraka88/LDWeaver/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016712,https://github.com/AnthonyCuog/PoritesColorSurveys/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016713,https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/tree/v3.0.0a7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016716,https://github.com/pablo-moisset/metacom_sensitivity/tree/asynch_metacom,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016717,https://github.com/pablo-moisset/metacom_sensitivity/tree/asynch_metacom,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016718,https://github.com/ag105020/CFM-Diatom/tree/1.05,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016719,https://github.com/enl2018/0818/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016720,https://github.com/psvkaushik/Group50_Proj2/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016721,https://github.com/WShaoLab/SysteMHC-pipeline/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016722,https://github.com/WShaoLab/SysteMHC-pipeline/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016723,https://github.com/rheilmayr/Treeconomics/tree/1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016724,https://github.com/ag105020/CFM-Rhodopsin/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016726,https://github.com/psvkaushik/Group50_Proj2/tree/v2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016727,https://github.com/lbl-camera/fvGP/tree/4.0.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016730,https://github.com/AmiryousefiLab/nmANOVA/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016731,https://github.com/AmiryousefiLab/nmANOVA/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016732,https://github.com/dapperstats/salvage/tree/2023-10-17_00-13,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016734,https://github.com/quinoqg/SpeckleSense/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016735,"https://github.com/JuliaIBPM/ViscousFlow.jl/compare/v0.6.3...v0.6.4, https://github.com/JuliaIBPM/ViscousFlow.jl/tree/v0.6.4","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016736,https://github.com/MDBAuth/MDBA_Gauge_Getter/tree/v0.5.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016737,https://github.com/quinoqg/SpeckleSense/tree/0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016738,https://github.com/gnudatalanguage/gdl/tree/weekly-release,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016739,https://github.com/fmorland/unhatchedeggs/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016740,"https://github.com/fmorland/unhatchedeggs, https://github.com/fmorland/unhatchedeggs/tree/v1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016741,https://github.com/WQLin8/omicsMIC/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016742,https://github.com/WQLin8/omicsMIC/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016743,https://github.com/WQLin8/omicsMIC/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016744,https://github.com/quinoqg/SpeckleSense/tree/0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016745,https://github.com/ag105020/CFM-Rhodopsin/tree/1.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016746,"https://github.com/NVIDIA/NVFlare/pull/2069, https://github.com/NVIDIA/NVFlare/pull/2072, https://github.com/NVIDIA/NVFlare/pull/2074, https://github.com/NVIDIA/NVFlare/pull/2077, https://github.com/NVIDIA/NVFlare/compare/2.3.6...2.3.7, https://github.com/NVIDIA/NVFlare/tree/2.3.7","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016747,https://github.com/WQLin8/omicsMIC/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016749,https://github.com/quinoqg/SpeckleSense/tree/0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001675,"https://github.com/cylc/cylc/releases/tag/7.5.0, https://github.com/metomi/fcm/releases/tag/2017.10.0, https://github.com/metomi/rose/blob/master/CHANGES.md, https://github.com/metomi/rose/tree/2017.10.0","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016750,"https://github.com/iterative/dvc/pull/10026, https://github.com/iterative/dvc/compare/3.26.1...3.26.2, https://github.com/iterative/dvc/tree/3.26.2","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016751,https://github.com/NASA-PDS/doi-service/tree/v2.4.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016754,https://github.com/quinoqg/SpeckleSense/tree/0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016755,https://github.com/ag105020/CFM-Rhodopsin/tree/1.00,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016756,https://github.com/vivilink/sycamore/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016757,https://github.com/vivilink/sycamore/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016759,https://github.com/Lirlisa/test-compresion/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016760,https://github.com/Lirlisa/test-compresion/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016761,https://github.com/elizabethsimps/functional_traits_rhf/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016762,"https://github.com/kitzeslab/bioacoustics-model-zoo, https://github.com/kitzeslab/bioacoustics-model-zoo#model-list, https://github.com/kitzeslab/bioacoustics-cookbook/tree/main/cnn_project_with_config_yml, https://github.com/kitzeslab/opensoundscape/pull/802, https://github.com/kitzeslab/opensoundscape/pull/804, https://github.com/kitzeslab/opensoundscape/pull/806, https://github.com/kitzeslab/opensoundscape/pull/805, https://github.com/kitzeslab/opensoundscape/pull/809, https://github.com/kitzeslab/opensoundscape/pull/808, https://github.com/kitzeslab/opensoundscape/pull/815, https://github.com/kitzeslab/opensoundscape/pull/813, https://github.com/kitzeslab/opensoundscape/pull/812, https://github.com/kitzeslab/opensoundscape/pull/836, https://github.com/kitzeslab/opensoundscape/pull/846, https://github.com/kitzeslab/opensoundscape/pull/843, https://github.com/kitzeslab/opensoundscape/pull/842, https://github.com/kitzeslab/opensoundscape/pull/839, https://github.com/kitzeslab/opensoundscape/pull/834, https://github.com/kitzeslab/opensoundscape/pull/835, https://github.com/kitzeslab/opensoundscape/pull/810, https://github.com/kitzeslab/opensoundscape/pull/851, https://github.com/kitzeslab/opensoundscape/pull/848, https://github.com/kitzeslab/opensoundscape/pull/783, https://github.com/kitzeslab/opensoundscape/pull/853, https://github.com/kitzeslab/opensoundscape/pull/849, https://github.com/kitzeslab/opensoundscape/pull/858, https://github.com/kitzeslab/opensoundscape/pull/862, https://github.com/kitzeslab/opensoundscape/pull/860, https://github.com/kitzeslab/opensoundscape/pull/866, https://github.com/kitzeslab/opensoundscape/pull/868, https://github.com/kitzeslab/opensoundscape/pull/869, https://github.com/kitzeslab/opensoundscape/pull/867, https://github.com/kitzeslab/opensoundscape/compare/v0.9.1...v0.10.0, https://github.com/kitzeslab/opensoundscape/tree/v0.10.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016766,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016767,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016769,https://github.com/WQLin8/omicsMIC/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016770,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016771,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016772,https://github.com/WQLin8/omicsMIC/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016773,"https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/commit/87aa016ee8c2df5cce00af835fa534d98878d3db, https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/commit/16e03c97d976001f86a9ce3f4efee7bc166974fa, https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/commit/90533854b474ebc6cdb1d43690fead6ceb52184a, https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/commit/2e2e9cb10e242935b1452631f48b4d8f446bfc80, https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/commit/b20331a3c122737283ac840c67f84bb567dbe1f6, https://github.com/saalfeldlab/paintera/pull/500, https://github.com/saalfeldlab/paintera/tree/macos-latest","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016774,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016779,https://github.com/WQLin8/omicsMIC/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016780,https://github.com/NREL/reV/tree/v0.8.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016781,"https://github.com/openforcefield/openff-evaluator/pull/533, https://github.com/openforcefield/openff-evaluator/pull/534, https://github.com/openforcefield/openff-evaluator/compare/v0.4.6...v0.4.7, https://github.com/openforcefield/openff-evaluator/tree/v0.4.7","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016782,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016783,"https://github.com/Consensys/gnark/security/advisories/GHSA-7p92-x423-vwj6, https://github.com/Consensys/gnark/pull/820, https://github.com/Consensys/gnark/pull/855, https://github.com/Consensys/gnark/pull/857, https://github.com/Consensys/gnark/pull/859, https://github.com/Consensys/gnark/pull/853, https://github.com/Consensys/gnark/pull/840, https://github.com/Consensys/gnark/pull/857, https://github.com/Consensys/gnark/compare/v0.9.0...v0.9.1, https://github.com/Consensys/gnark/tree/v0.9.1","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016784,https://github.com/VEuPathDB/web-monorepo/tree/web-common-v0.8.10,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016786,"https://github.com/ropensci/waywiser/tree/v0.6.3, https://github.com/ropensci/waywiser","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10016787,https://github.com/ropensci/waywiser/tree/v0.5.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016789,https://github.com/miku/metha/tree/v0.2.51,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016790,https://github.com/BartoszSobolewski/test/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016791,https://github.com/BartoszSobolewski/test/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016792,https://github.com/utrigos/Disturbance_Generated_Competitive_Coexistence_Code/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016793,https://github.com/Godabnormal/BigDataFusion/tree/Code,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016794,https://github.com/Godabnormal/BigDataFusion/tree/Code,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016795,"https://github.com/mcabbott/Tullio.jl/compare/v0.3.5...v0.3.6, https://github.com/mcabbott/Tullio.jl/tree/v0.3.6","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016796,https://github.com/Russell9798/OpenFAST-v3.4-Lidar-IfW-Original/tree/2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016797,https://github.com/VEuPathDB/web-monorepo/tree/web-common-v0.8.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016798,"https://github.com/spcl/dace/compare/v0.14.4...v0.15, https://github.com/spcl/dace/tree/v0.15","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016801,https://github.com/weecology/PortalData/tree/5.16.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016803,"https://github.com/JacksonBurns/astartes/pull/158, https://github.com/JacksonBurns/astartes/compare/v1.1.3...v1.1.3.post1, https://github.com/JacksonBurns/astartes/tree/v1.1.3.post1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016804,"https://github.com/mit-ll-responsible-ai/equine/pull/21, https://github.com/mit-ll-responsible-ai/equine/pull/22, https://github.com/mit-ll-responsible-ai/equine/pull/28, https://github.com/mit-ll-responsible-ai/equine/compare/v0.1.1...v0.1.2, https://github.com/mit-ll-responsible-ai/equine/tree/v0.1.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016806,https://github.com/RobotComponents/RobotComponents/tree/2.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016809,"https://github.com/aphp/edsnlp/compare/v0.9.1...v0.10.0alpha1, https://github.com/aphp/edsnlp/tree/v0.10.0beta1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016811,https://github.com/kura-okubo/SeisMonitoring_Paper/tree/v0.1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016812,https://github.com/shqwu/Test_Zenodo/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016814,https://github.com/LieberInstitute/living_brain_reanalysis/tree/v0_preprint,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016816,"https://github.com/asdf-format/asdf/graphs/contributors, https://github.com/asdf-format/asdf/tree/3.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016817,"https://github.com/aphp/edsnlp/compare/v0.9.1...v0.10.0alpha1, https://github.com/aphp/edsnlp/tree/v0.10.0beta1","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016819,https://github.com/ShoutikM/AdaptiveHigherOrderCoordination/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016820,"https://github.com/cheminfo/openchemlib-js/compare/v8.7.0...v8.7.1, https://github.com/cheminfo/openchemlib-js/issues/178, https://github.com/cheminfo/openchemlib-js/commit/46a0237bbd3824d2834d986d9fc484bf82791dcb, https://github.com/cheminfo/openchemlib-js/tree/v8.7.1","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016824,"https://github.com/asdf-format/asdf/graphs/contributors, https://github.com/asdf-format/asdf/tree/3.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016827,https://github.com/jcanivete/swirl/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016828,https://github.com/breviloquia-italica/pipeline/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016831,https://github.com/Russell9798/OpenFAST-v3.4-Lidar-IfW-Original/tree/2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016832,https://github.com/OHDSI/PhenotypeLibrary/tree/v3.29.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016834,https://github.com/jcanivete/swirl/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016837,https://github.com/n-szulc/lysine_deserts/tree/1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016838,https://github.com/PCdurham/Semantic_Classification_of_Rivers_and_Bars/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016840,"https://github.com/ihmeuw/vivarium_cluster_tools/pull/194, https://github.com/ihmeuw/vivarium_cluster_tools/compare/v1.4.1...v1.4.2, https://github.com/ihmeuw/vivarium_cluster_tools/tree/v1.4.2","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016841,https://github.com/diku-dk/futhark/tree/nightly,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016842,"https://github.com/Geode-solutions/OpenGeode/compare/v14.9.1-rc.10...v14.9.1-rc.11, https://github.com/Geode-solutions/OpenGeode/commit/3c6daaa032a6806d3817481475a8bd0718018fe5, https://github.com/Geode-solutions/OpenGeode/tree/v14.9.1-rc.11","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016843,https://github.com/henri-samuel/STB_CORRECTION/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016844,https://github.com/henri-samuel/STB_CORRECTION/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016846,https://github.com/medialab/minet/tree/1.0.0-a54,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016847,"https://github.com/bird-house/birdhouse-deploy/pull/390, https://github.com/bird-house/birdhouse-deploy/compare/1.34.0...1.35.0, https://github.com/bird-house/birdhouse-deploy/tree/1.35.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016849,"https://github.com/pszufe/OSMToolset.jl/compare/v0.2.1...v0.2.2, https://github.com/pszufe/OSMToolset.jl/tree/v0.2.2","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016850,"https://github.com/JakubManikowski1, https://github.com/pszufe/OSMToolset.jl/tree/v0.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016851,"https://github.com/cheminfo/mass-tools/compare/v7.19.0...v7.19.1, https://github.com/cheminfo/mass-tools/commit/8f148f62dd837caa45537b9d74422b3a3a1adfcd, https://github.com/cheminfo/mass-tools/tree/v7.19.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016853,https://github.com/salgh/OpticalExtensometerUU/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016854,https://github.com/salgh/OpticalExtensometerUU/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016856,https://github.com/vantage6/vantage6/tree/version/4.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016857,https://github.com/rjfarmer/gfort2py/tree/v2.3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016858,"https://github.com/WShaoLab/SysteMHC-pipeline/commits/v1.0.0, https://github.com/WShaoLab/SysteMHC-pipeline/tree/v1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016859,https://github.com/junjie1003/FMT/tree/1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016860,https://github.com/junjie1003/FMT/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016863,https://github.com/shardywx/borneo_vortex_wcd_paper/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016864,https://github.com/shardywx/borneo_vortex_wcd_paper/tree/0.4.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016865,"https://github.com/deshima-dev/dmerge/pull/25, https://github.com/deshima-dev/dmerge/pull/26, https://github.com/deshima-dev/dmerge/pull/28, https://github.com/deshima-dev/dmerge/compare/v2.1.2...v2.1.3, https://github.com/deshima-dev/dmerge/tree/v2.1.3","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016866,https://github.com/health-data-science-OR/coding-for-ml/tree/v2.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016868,https://github.com/sa-tre/satre-specification/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016869,https://github.com/Phlya/adjustText/tree/0.8.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016871,"https://github.com/OlivierHnt/RadiiPolynomial.jl/compare/v0.7.1...v0.7.2, https://github.com/OlivierHnt/RadiiPolynomial.jl/tree/v0.7.2","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016872,https://github.com/puls-group/diffusion_in_slit_pores/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016873,https://github.com/MatthewHeun/Recca/tree/v0.1.46,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016874,https://github.com/openwashdata/grdwtrsmpkwale/tree/v0.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016875,https://github.com/openwashdata/grdwtrsmpkwale/tree/v0.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016878,"https://github.com/Geode-solutions/OpenGeode/compare/v14.9.1-rc.9...v14.9.1-rc.10, https://github.com/Geode-solutions/OpenGeode/issues/857, https://github.com/Geode-solutions/OpenGeode/commit/8aaec61d042f6bce5b8aa7ec415ee7e43f56b8e7, https://github.com/Geode-solutions/OpenGeode/tree/v14.9.1-rc.10","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016879,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016880,"https://github.com/cheminfo/mass-tools/compare/v7.18.0...v7.19.0, https://github.com/cheminfo/mass-tools/commit/e1ac88eb69ab6549956d3ba613c0e333ff720e30, https://github.com/cheminfo/mass-tools/tree/v7.19.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016881,https://github.com/breviloquia-italica/pipeline/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016882,"https://github.com/biopragmatics/bioregistry/compare/v0.10.62...v0.10.63, https://github.com/biopragmatics/bioregistry/tree/v0.10.63","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016884,https://github.com/puls-group/diffusion_in_slit_pores/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016885,https://github.com/thijs-blom/laad-paraview/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016886,https://github.com/PIK-ICoNe/NetworkDynamics.jl/tree/v0.8.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016887,https://github.com/junjie1003/FMT/tree/1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016888,https://github.com/PIK-ICoNe/NetworkDynamics.jl/tree/v0.8.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016889,"https://github.com/bihealth/mehari/compare/v0.12.0...v0.13.0, https://github.com/bihealth/mehari/issues/213, https://github.com/bihealth/mehari/commit/cc61a66c175a4447c0422b01bbb6c572e1687725, https://github.com/bihealth/mehari/issues/215, https://github.com/bihealth/mehari/commit/73b1be40dd6f3c7c54aaeb2d0142444a702af1e3, https://github.com/bihealth/mehari/issues/214, https://github.com/bihealth/mehari/commit/02286fa15be47053d2e80a8f707dbb2361772033, https://github.com/bihealth/mehari/issues/206, https://github.com/bihealth/mehari/commit/62ee63b84f9509cfaffad33ec9aa0ee2181681e0, https://github.com/bihealth/mehari/tree/v0.13.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016891,https://github.com/thijs-blom/laad-paraview/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016893,"https://github.com/deshima-dev/dmerge/pull/25, https://github.com/deshima-dev/dmerge/compare/v2.1.2...v2.1.3, https://github.com/deshima-dev/dmerge/tree/v2.1.3","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016894,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016895,https://github.com/salgh/OpticalExtensometerUU/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016896,https://github.com/idiap/bayesian-recurrence/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016897,https://github.com/idiap/bayesian-recurrence/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016898,https://github.com/Russell9798/ROSCO-v2.6-LAC-IPC/tree/2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016900,https://github.com/lexibank/barlowkilliantomoip/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016901,https://github.com/salgh/OpticalExtensometerUU/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016903,https://github.com/yanqiuLiu0908/BPAN-system-analysis/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016904,https://github.com/anaioliveira/NNandMOHID/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016905,https://github.com/anaioliveira/NNandMOHID/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016906,https://github.com/zauberzeug/nicegui/tree/v1.3.17,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016907,"https://github.com/georgback/CycPred/commits/1.0.0, https://github.com/georgback/CycPred/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016908,"https://github.com/georgback/CycPred/compare/version1.0...1.0.0, https://github.com/georgback/CycPred/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016909,"https://github.com/GeoStat-Framework/PyKrige/pull/277, https://github.com/GeoStat-Framework/PyKrige/pull/277, https://github.com/GeoStat-Framework/PyKrige/issues/272, https://github.com/GeoStat-Framework/PyKrige/pull/256, https://github.com/GeoStat-Framework/PyKrige/tree/v1.7.1","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016910,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016911,https://github.com/anaioliveira/NNandMOHID/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016912,https://github.com/sjoertvv/manyTDE/tree/mnras23,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016913,https://github.com/sjoertvv/manyTDE/tree/mnras23,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016916,https://github.com/sjoertvv/manyTDE/tree/mnras23,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016918,"https://github.com/mzmine/mzmine3/pull/1514, https://github.com/mzmine/mzmine3/tree/Development-release","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016919,"https://github.com/georgback/CycPred/commits/1.0.0, https://github.com/georgback/CycPred/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016921,https://github.com/NBISweden/pipelines-nextflow/tree/v2.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016923,https://github.com/ome/bioformats/tree/v7.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016925,"https://github.com/RADAR-base/ManagementPortal/pull/705, https://github.com/RADAR-base/ManagementPortal/pull/708, https://github.com/RADAR-base/ManagementPortal/pull/712, https://github.com/RADAR-base/ManagementPortal/pull/713, https://github.com/RADAR-base/ManagementPortal/pull/718, https://github.com/RADAR-base/ManagementPortal/pull/720, https://github.com/RADAR-base/ManagementPortal/pull/716, https://github.com/RADAR-base/ManagementPortal/pull/726, https://github.com/RADAR-base/ManagementPortal/pull/725, https://github.com/RADAR-base/ManagementPortal/pull/727, https://github.com/RADAR-base/ManagementPortal/pull/731, https://github.com/RADAR-base/ManagementPortal/compare/v2.0.0...v2.1.0, https://github.com/RADAR-base/ManagementPortal/tree/v2.1.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016926,https://github.com/TUMMFE/Viewccelera/tree/2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016929,"https://github.com/BlueBrain/BluePyEModel/pull/67, https://github.com/BlueBrain/BluePyEModel/compare/0.0.45...0.0.46, https://github.com/BlueBrain/BluePyEModel/tree/0.0.46","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016930,"https://github.com/GAA-UAM/scikit-fda/pull/511, https://github.com/GAA-UAM/scikit-fda/pull/510, https://github.com/GAA-UAM/scikit-fda/pull/517, https://github.com/GAA-UAM/scikit-fda/pull/518, https://github.com/GAA-UAM/scikit-fda/pull/466, https://github.com/GAA-UAM/scikit-fda/pull/520, https://github.com/GAA-UAM/scikit-fda/pull/523, https://github.com/GAA-UAM/scikit-fda/pull/522, https://github.com/GAA-UAM/scikit-fda/pull/526, https://github.com/GAA-UAM/scikit-fda/pull/532, https://github.com/GAA-UAM/scikit-fda/pull/533, https://github.com/GAA-UAM/scikit-fda/pull/534, https://github.com/GAA-UAM/scikit-fda/pull/542, https://github.com/GAA-UAM/scikit-fda/pull/519, https://github.com/GAA-UAM/scikit-fda/pull/546, https://github.com/GAA-UAM/scikit-fda/pull/505, https://github.com/GAA-UAM/scikit-fda/pull/552, https://github.com/GAA-UAM/scikit-fda/pull/554, https://github.com/GAA-UAM/scikit-fda/pull/556, https://github.com/GAA-UAM/scikit-fda/pull/557, https://github.com/GAA-UAM/scikit-fda/pull/561, https://github.com/GAA-UAM/scikit-fda/pull/565, https://github.com/GAA-UAM/scikit-fda/pull/571, https://github.com/GAA-UAM/scikit-fda/pull/573, https://github.com/GAA-UAM/scikit-fda/pull/578, https://github.com/GAA-UAM/scikit-fda/pull/577, https://github.com/GAA-UAM/scikit-fda/pull/436, https://github.com/GAA-UAM/scikit-fda/pull/582, https://github.com/GAA-UAM/scikit-fda/pull/523, https://github.com/GAA-UAM/scikit-fda/pull/542, https://github.com/GAA-UAM/scikit-fda/pull/554, https://github.com/GAA-UAM/scikit-fda/pull/556, https://github.com/GAA-UAM/scikit-fda/pull/564, https://github.com/GAA-UAM/scikit-fda/pull/565, https://github.com/GAA-UAM/scikit-fda/pull/573, https://github.com/GAA-UAM/scikit-fda/compare/0.8.1...0.9, https://github.com/GAA-UAM/scikit-fda/tree/0.9","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016931,"https://github.com/BlueBrain/BlueCelluLab/pull/95, https://github.com/BlueBrain/BlueCelluLab/compare/1.6.0...1.6.1, https://github.com/BlueBrain/BlueCelluLab/tree/1.6.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016932,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016934,https://github.com/xoopR/distr6/tree/v1.8.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016936,https://github.com/diku-dk/futhark/tree/nightly,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016937,"https://github.com/FZJ-INM1-BDA/siibra-python/pull/485, https://github.com/FZJ-INM1-BDA/siibra-python/pull/487, https://github.com/FZJ-INM1-BDA/siibra-python/pull/486, https://github.com/FZJ-INM1-BDA/siibra-python/pull/482, https://github.com/FZJ-INM1-BDA/siibra-python/pull/488, https://github.com/FZJ-INM1-BDA/siibra-python/pull/484, https://github.com/FZJ-INM1-BDA/siibra-python/pull/448, https://github.com/FZJ-INM1-BDA/siibra-python/compare/v0.4a71...v0.4a74, https://github.com/FZJ-INM1-BDA/siibra-python/tree/v0.4a74","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016938,"https://github.com/PedestrianDynamics/PedPy/pull/231, https://github.com/PedestrianDynamics/PedPy/pull/232, https://github.com/PedestrianDynamics/PedPy/pull/233, https://github.com/PedestrianDynamics/PedPy/pull/234, https://github.com/PedestrianDynamics/PedPy/compare/v1.0.1...v1.0.2, https://github.com/PedestrianDynamics/PedPy/tree/v1.0.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016939,https://github.com/PhillipPapastefanou/LepiX1.1_output/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016940,https://github.com/PhillipPapastefanou/LepiX1.1_output/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016941,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016942,https://github.com/TUMMFE/Viewccelera/tree/1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016943,https://github.com/diku-dk/futhark/tree/nightly,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016946,https://github.com/Skylark0924/Rofunc/tree/v0.0.2.5,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016947,"https://github.com/BlueBrain/EModelRunner/pull/101, https://github.com/BlueBrain/EModelRunner/pull/101, https://github.com/BlueBrain/EModelRunner/compare/1.1.17...1.1.18, https://github.com/BlueBrain/EModelRunner/tree/1.1.18","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016948,https://github.com/NAG-DevOps/speed-hpc/tree/6.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016949,https://github.com/fmorland/unhatchedeggs/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016950,https://github.com/YukinojoKoyama/Koyama-et-al.CodeandData/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016951,"https://github.com/diku-dk/futhark/pull/2032, https://github.com/diku-dk/futhark/tree/nightly","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016956,https://github.com/diku-dk/futhark/tree/nightly,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016964,https://github.com/fuyuki-ando/Data-and-Graph/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016965,https://github.com/fuyuki-ando/Data-and-Graph/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016974,https://github.com/cellml/libcellml/tree/v0.5.0-rc.5,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016977,https://github.com/fuyuki-ando/Data-and-Graph/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016978,https://github.com/dapperstats/salvage/tree/2023-10-16_00-13,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016981,"https://github.com/PetrKryslUCSD/FinEtools.jl/compare/v7.1.4...v7.1.5, https://github.com/PetrKryslUCSD/FinEtools.jl/tree/v7.1.5","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016982,"https://github.com/HTR-United/htr-united/compare/v0.1.85...v0.1.86, https://github.com/HTR-United/htr-united/tree/v0.1.86","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016983,https://github.com/BartoszSobolewski/Monochromatic-arithmetic-progressions/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016984,https://github.com/BartoszSobolewski/Monochromatic-arithmetic-progressions/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016985,https://github.com/netZoo/netZooPy/tree/0.9.17,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016987,https://github.com/kenflat2/NS-Map/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016995,"https://github.com/raghavnarula/MovieRecommender/pull/15, https://github.com/raghavnarula/MovieRecommender/pull/18, https://github.com/raghavnarula/MovieRecommender/pull/19, https://github.com/raghavnarula/MovieRecommender/pull/16, https://github.com/raghavnarula/MovieRecommender/pull/17, https://github.com/raghavnarula/MovieRecommender/pull/16, https://github.com/raghavnarula/MovieRecommender/compare/v1.0...v2.0, https://github.com/raghavnarula/MovieRecommender/tree/v2.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10016997,https://github.com/diku-dk/futhark/tree/nightly,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10016999,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017,https://github.com/yanchick/UniaxialGyro/tree/v0.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017001,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017002,https://github.com/shardywx/data_science/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017003,https://github.com/shardywx/data_science/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017006,https://github.com/AnnikaStein/Trending-QuarX/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017007,https://github.com/AnnikaStein/Trending-QuarX/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017008,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017009,https://github.com/AnnikaStein/Trending-QuarX/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017010,https://github.com/AnnikaStein/Trending-QuarX/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017012,https://github.com/PiedadGO/taller-de-git/tree/V2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017013,https://github.com/PiedadGO/taller-de-git/tree/V2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017014,https://github.com/polca/unfold/tree/v.1.1.5,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017015,https://github.com/rempsyc/lavaanExtra/tree/v0.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017016,https://github.com/shardywx/borneo_vortex_wcd_paper/tree/0.3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017017,https://github.com/tianlt/deepdirect/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017018,https://github.com/tianlt/deepdirect/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017019,https://github.com/tianlt/deepdirect/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017020,https://github.com/tianlt/deepdirect/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017021,https://github.com/armiano/ICA_dynomics/tree/new,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017022,https://github.com/armiano/ICA_dynomics/tree/testing,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017023,https://github.com/VaishnaviNaik96/test_510/tree/test,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017024,https://github.com/VaishnaviNaik96/test_510/tree/test,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017025,https://github.com/Sajad-Hosseini/Urban-Traffic-Network/tree/1.0.7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017026,https://github.com/Sajad-Hosseini/Urban-Traffic-Network-Data/tree/1.0.8,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017027,https://github.com/google/jax,metadata.description
+10.5281/zenodo.10017028,https://github.com/google/jax,metadata.description
+10.5281/zenodo.10017031,"https://github.com/only4sim/ZoKrates/commits/v0.1.0, https://github.com/only4sim/ZoKrates/tree/v0.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017032,"https://github.com/only4sim/ZoKrates/commits/v0.1.0, https://github.com/only4sim/ZoKrates/tree/v0.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017033,https://github.com/katrinmisel/HIRAC/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017034,https://github.com/katrinmisel/HIRAC/tree/2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017035,https://github.com/katrinmisel/HIRAC/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017036,https://github.com/katrinmisel/HIRAC/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017037,https://github.com/google/jax,metadata.description
+10.5281/zenodo.10017038,https://github.com/Sajad-Hosseini/Urban-Traffic-Network/tree/1.0.7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017041,https://github.com/ThreePoundUniverse/VisualSEEG/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017042,https://github.com/ThreePoundUniverse/VisualSEEG/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017043,https://github.com/shardywx/borneo_vortex_wcd_paper/tree/0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017044,https://github.com/ThreePoundUniverse/VisualSEEG/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017045,"https://github.com/ThreePoundUniverse/VisualSEEG/files/12906186/test.txt, https://github.com/ThreePoundUniverse/VisualSEEG/tree/v1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017046,https://github.com/katrinmisel/HIRAC/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017048,https://github.com/ThreePoundUniverse/VisualSEEG/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017051,https://github.com/FunCongWang/CForBio.metagenome/tree/Update,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017052,https://github.com/FunCongWang/CForBio.metagenome/tree/Update,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017062,https://github.com/immunogenomics/hla2023/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017066,https://github.com/DengpanYang/BiLSTM-Attention/tree/model,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017067,https://github.com/DengpanYang/BiLSTM-Attention/tree/model,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017068,https://github.com/immunogenomics/scHLApers/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017070,"https://github.com/choczhang/AICare/commits/1.0.0, https://github.com/choczhang/AICare/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017071,"https://github.com/choczhang/AICare/compare/0.0.1...1.0.0, https://github.com/choczhang/AICare/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017076,"https://github.com/choczhang/AICare/commits/1.0.0, https://github.com/choczhang/AICare/tree/1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017077,https://github.com/adrizhong/test/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017078,https://github.com/adrizhong/test/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017080,https://github.com/kustcn/legacy_galaxy/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017081,https://github.com/kustcn/legacy_galaxy/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017084,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017085,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017086,https://github.com/adriannez/dF-protocol-optimization/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017087,https://github.com/adriannez/dF-protocol-optimization/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017088,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017089,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017090,https://github.com/armiano/ICA_dynomics/tree/new,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017091,https://github.com/adrizhong/dF-protocol-optimization/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017092,https://github.com/adrizhong/dF-protocol-optimization/tree/new,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017093,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017094,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017097,https://github.com/adrizhong/dF-protocol-optimization/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017102,https://github.com/crimeacs/PhaseHunter/tree/v0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017103,https://github.com/crimeacs/PhaseHunter/tree/v0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017104,https://github.com/psipred/Merizo/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017105,https://github.com/psipred/Merizo/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017106,https://github.com/adrizhong/dF-protocol-optimization/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017107,https://github.com/crimeacs/PhaseHunter/tree/v0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017108,https://github.com/detouma/adaptation/tree/published,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017109,https://github.com/detouma/adaptation/tree/2.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017111,"https://github.com/KVSlab/turtleFSI/pull/97, https://github.com/KVSlab/turtleFSI/compare/2.3.1...v2.4, https://github.com/KVSlab/turtleFSI/tree/v2.4","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017112,https://github.com/KVSlab/turtleFSI/tree/2.3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017113,https://github.com/KVSlab/turtleFSI/tree/2.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017114,https://github.com/KVSlab/turtleFSI/tree/2.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017115,https://github.com/fweidner/playground/tree/v0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017117,https://github.com/KVSlab/turtleFSI/tree/2.3.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017119,https://github.com/fweidner/playground/tree/v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017120,https://github.com/detouma/adaptation/tree/published,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017121,https://github.com/mobeenuos/VIABLE-SEM/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017122,https://github.com/mobeenuos/VIABLE-SEM/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017127,https://github.com/balaka92/Nucleosome/tree/V1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017128,https://github.com/balaka92/Nucleosome/tree/V1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017129,https://github.com/fweidner/playground/tree/v0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017130,https://github.com/JosephGWoods/ISMRM2022_VSASL_Bloch_Simulations/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017131,https://github.com/JosephGWoods/ISMRM2022_VSASL_Bloch_Simulations/tree/V1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017135,https://github.com/andreamontessori/Openacc_LB/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017136,https://github.com/andreamontessori/Openacc_LB/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017137,https://github.com/alunaw/Two-ColorDiFC/tree/v0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017138,https://github.com/SLuckeneder/mining-Brazil/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017140,https://github.com/andreamontessori/Openacc_LB/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017142,https://github.com/oddjacobson/CH1_Sampling/tree/IJP_Publication,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017143,https://github.com/oddjacobson/CH1_Sampling/tree/IJP_Publication,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017146,https://github.com/balaka92/TIS-DNA-Ex-Ion/tree/v0.0.0-TIS-ION,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017147,https://github.com/balaka92/TIS-DNA-Ex-Ion/tree/v0.0.0-TIS-ION,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017148,https://github.com/oddjacobson/CH1_Sampling/tree/ijp_release,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017149,https://github.com/oddjacobson/CH1_Sampling/tree/ijp_release,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017150,"https://github.com/FUME-dev/fume/tree/2.0, https://github.com/FUME-dev/fume","metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10017151,https://github.com/FUME-dev/fume/tree/2023.10,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017152,https://github.com/FUME-dev/fume/tree/2023.10,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017156,"https://github.com/R1j1t/contextualSpellCheck/pull/95, https://github.com/R1j1t/contextualSpellCheck/pull/92, https://github.com/R1j1t/contextualSpellCheck/pull/96, https://github.com/R1j1t/contextualSpellCheck/pull/92, https://github.com/R1j1t/contextualSpellCheck/compare/0.4.3...v0.4.4, https://github.com/R1j1t/contextualSpellCheck/tree/v0.4.4","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001716,https://github.com/fbpic/fbpic/tree/0.5.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017161,"https://github.com/datalad/datalad-next/pull/455, https://github.com/datalad/datalad-next/issues/462, https://github.com/datalad/datalad-next/pull/464, https://github.com/datalad/datalad-next/issues/475, https://github.com/datalad/datalad-next/pull/483, https://github.com/datalad/datalad-next/issues/481, https://github.com/datalad/datalad-next/pull/486, https://github.com/datalad/datalad-next/issues/478, https://github.com/datalad/datalad-next/pull/485, https://github.com/datalad/datalad-next/issues/470, https://github.com/datalad/datalad-next/pull/471, https://github.com/datalad/datalad-next/issues/466, https://github.com/datalad/datalad-next/pull/467, https://github.com/datalad/datalad-next/issues/453, https://github.com/datalad/datalad-next/pull/457, https://github.com/datalad/datalad-next/tree/1.0.1","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017162,"https://github.com/bihealth/mehari/compare/v0.13.0...v0.14.0, https://github.com/bihealth/mehari/issues/217, https://github.com/bihealth/mehari/commit/0d7b6d8f7ca62b7152dad0d2da6557bb62580e58, https://github.com/bihealth/mehari/tree/v0.14.0","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017165,https://github.com/Bjournaux/SeaFreeze/tree/v0.9.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017240,https://github.com/CompuNanoLab/PANTANI/tree/v0.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017252,"https://github.com/jakta-bdi/jakta/compare/v0.7.11...v0.7.12, https://github.com/jakta-bdi/jakta/commit/3a7290da7519db1691760531ae47d149e158b411, https://github.com/jakta-bdi/jakta/tree/v0.7.12","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017253,"https://github.com/JuliaManifolds/Manifolds.jl/compare/v0.8.80...v0.8.81, https://github.com/JuliaManifolds/Manifolds.jl/tree/v0.8.81","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017254,"https://sourcesup.renater.fr/www/pyfedic/html/index.html, https://sourcesup.renater.fr/www/pyfedic/html/index.html","metadata.description, metadata.description"
+10.5281/zenodo.10017255,https://github.com/man805/Diffusion-Video-Autoencoders/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017256,https://github.com/man805/Diffusion-Video-Autoencoders/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017257,"https://github.com/JuliaDynamics/FractalDimensions.jl/compare/v1.7.3...v1.7.4, https://github.com/JuliaDynamics/FractalDimensions.jl/tree/v1.7.4","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017260,"https://github.com/biopragmatics/bioregistry/compare/v0.10.64...v0.10.65, https://github.com/biopragmatics/bioregistry/tree/v0.10.65","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017277,https://github.com/NeoGeographyToolkit/StereoPipeline/tree/2023-10-18-daily-build,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017280,"https://github.com/ubvu/2023-09-25-uvavu#openscienceagainsthumanity, https://github.com/ubvu/2023-09-25-uvavu#how-to-play, https://github.com/ubvu/2023-09-25-uvavu#playing-online, https://github.com/ubvu/OpenScienceAgainstHumanity, https://github.com/ubvu/OpenScienceAgainstHumanity, https://github.com/ubvu/OpenScienceAgainstHumanity","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.alternate_identifiers[0].identifier"
+10.5281/zenodo.10017312,https://github.com/ChristinaAsmus/irrigation_param_analysis/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017313,https://github.com/takeuchi-lab/pmopt/tree/2023-10-18,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017314,https://github.com/takeuchi-lab/pmopt/tree/2023-10-18,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017317,"https://github.com/PowerGridModel/power-grid-model/pull/406, https://github.com/PowerGridModel/power-grid-model/compare/v1.6.12...v1.6.13, https://github.com/PowerGridModel/power-grid-model/tree/v1.6.13","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017354,https://github.com/QIMP-Team/MOOSE/tree/moosez-v.2.2.37,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017423,https://github.com/polifonia-project/meetups-application/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017424,https://github.com/polifonia-project/meetups-application/tree/v0.5.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017427,"https://github.com/JuliaDynamics/DynamicalSystems.jl/compare/v3.2.2...v3.2.3, https://github.com/JuliaDynamics/DynamicalSystems.jl/tree/v3.2.3","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017428,https://github.com/sstephenson2/SeisCRUST/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017430,https://github.com/LARS-research/EmerGNN/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017431,https://github.com/LARS-research/EmerGNN/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017484,"https://github.com/ncihtan/data-models/pull/310, https://github.com/ncihtan/data-models/pull/311, https://github.com/ncihtan/data-models/compare/v23.9.1...v23.10.1, https://github.com/ncihtan/data-models/tree/v23.10.1","metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017489,https://github.com/ManiVaultStudio/SpaceWalker/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001749,https://github.com/tniet/OSeMOSYS/tree/v0.7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017490,https://github.com/ManiVaultStudio/SpaceWalker/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001750,https://github.com/tniet/OSeMOSYS/tree/v0.7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017505,https://github.com/vlsi-nanocomputing/Octantis/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017506,https://github.com/vlsi-nanocomputing/Octantis/tree/1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001751,https://github.com/OpenGreekAndLatin/First1KGreek/tree/1.1.3173,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017532,https://github.com/leguillf/MASSH/tree/v2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017533,https://github.com/leguillf/MASSH/tree/v2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001754,https://github.com/gbabbitt/DROIDS-1.0---free-software-project-for-comparative-protein-dynamics/tree/v1.28,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017540,https://github.com/sstephenson2/SMV2rho/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017541,https://github.com/sstephenson2/SMV2rho/tree/v0.1.0-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001755,"https://github.com/gbabbitt/DROIDS-1.0, https://github.com/gbabbitt/DROIDS-1.0, https://github.com/gbabbitt/DROIDS-1.0---free-software-project-for-comparative-protein-dynamics/tree/1.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017596,https://github.com/orlox/mesa_input_data/tree/master/2016_binary_models,metadata.description
+10.5281/zenodo.10017597,https://github.com/orlox/mesa_input_data/tree/master/2016_binary_models,metadata.description
+10.5281/zenodo.10017607,"https://github.com/nf-core/methylseq/issues/81, https://github.com/nf-core/methylseq/pull/341, https://github.com/nf-core/methylseq/pull/345, https://github.com/nf-core/methylseq/pull/342, https://github.com/nf-core/methylseq/pull/343, https://github.com/nf-core/methylseq/pull/335, https://github.com/nf-core/methylseq/issues/336, https://github.com/nf-core/methylseq/compare/2.4.0...2.5.0, https://github.com/nf-core/methylseq/tree/2.5.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017608,https://github.com/jc-namlab/FS/tree/V0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017609,https://github.com/jc-namlab/FS/tree/V0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001762,https://github.com/chemreac/chemreac/tree/v0.7.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017646,https://github.com/TiBiUan/AoT_Benchmarking/tree/AoT,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017647,https://github.com/TiBiUan/AoT_Benchmarking/tree/AoT,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017662,https://github.com/Fundacion-AZTI/JRadar/tree/JRadar_v3.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017663,"https://www.tesselle.org, https://www.tesselle.org, https://codeberg.org/tesselle/tesselle/src/tag/v1.3.0, https://codeberg.org/tesselle/tesselle","metadata.description, metadata.description, metadata.related_identifiers[0].identifier, metadata.custom.code:codeRepository"
+10.5281/zenodo.10017666,https://github.com/GarmanGroup/RADDOSE-3D/tree/v4.0.1027,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017669,"https://github.com/nf-core/fetchngs/pull/185, https://github.com/nf-core/fetchngs/pull/187, https://github.com/nf-core/fetchngs/pull/184, https://github.com/nf-core/fetchngs/pull/186, https://github.com/nf-core/fetchngs/pull/189, https://github.com/nf-core/fetchngs/pull/190, https://github.com/nf-core/fetchngs/pull/191, https://github.com/nf-core/fetchngs/pull/192, https://github.com/nf-core/fetchngs/pull/193, https://github.com/nf-core/fetchngs/pull/195, https://github.com/nf-core/fetchngs/pull/198, https://github.com/nf-core/fetchngs/pull/200, https://github.com/nf-core/fetchngs/pull/202, https://github.com/nf-core/fetchngs/pull/203, https://github.com/nf-core/fetchngs/pull/204, https://github.com/nf-core/fetchngs/pull/211, https://github.com/nf-core/fetchngs/pull/201, https://github.com/nf-core/fetchngs/pull/212, https://github.com/nf-core/fetchngs/pull/213, https://github.com/nf-core/fetchngs/pull/214, https://github.com/nf-core/fetchngs/pull/215, https://github.com/nf-core/fetchngs/pull/216, https://github.com/nf-core/fetchngs/pull/217, https://github.com/nf-core/fetchngs/pull/218, https://github.com/nf-core/fetchngs/pull/219, https://github.com/nf-core/fetchngs/pull/222, https://github.com/nf-core/fetchngs/pull/224, https://github.com/nf-core/fetchngs/pull/223, https://github.com/nf-core/fetchngs/pull/225, https://github.com/nf-core/fetchngs/pull/227, https://github.com/nf-core/fetchngs/pull/226, https://github.com/nf-core/fetchngs/pull/228, https://github.com/nf-core/fetchngs/pull/230, https://github.com/nf-core/fetchngs/pull/188, https://github.com/nf-core/fetchngs/pull/231, https://github.com/nf-core/fetchngs/compare/1.10.1...1.11.0, https://github.com/nf-core/fetchngs/tree/1.11.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001767,https://github.com/PerseusDL/canonical-greekLit/tree/0.0.385,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017687,https://github.com/perfanalytics/pose2sim/tree/v0.4.7,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017704,https://github.com/fanchenjuan9/SEM/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017705,https://github.com/fanchenjuan9/SEM/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001771,https://github.com/ibreckhe/MORA_pheno_reassembly/tree/v1.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001772,https://github.com/ibreckhe/MORA_pheno_reassembly/tree/v1.01,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017721,https://github.com/gereon-t/trajectopy/tree/v1.1.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017722,https://github.com/fanchenjuan9/CCA/tree/v2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017723,https://github.com/fanchenjuan9/CCA/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017726,"https://github.com/NNPDF/pineko/pull/104, https://github.com/NNPDF/pineko/pull/106, https://github.com/NNPDF/pineko/pull/107, https://github.com/NNPDF/pineko/pull/110, https://github.com/NNPDF/pineko/pull/109, https://github.com/NNPDF/pineko/pull/111, https://github.com/NNPDF/pineko/pull/112, https://github.com/NNPDF/pineko/pull/113, https://github.com/NNPDF/pineko/pull/114, https://github.com/NNPDF/pineko/pull/115, https://github.com/NNPDF/pineko/pull/116, https://github.com/NNPDF/pineko/pull/118, https://github.com/NNPDF/pineko/pull/117, https://github.com/NNPDF/pineko/pull/120, https://github.com/NNPDF/pineko/pull/126, https://github.com/NNPDF/pineko/pull/125, https://github.com/NNPDF/pineko/pull/127, https://github.com/NNPDF/pineko/pull/129, https://github.com/NNPDF/pineko/pull/128, https://github.com/NNPDF/pineko/compare/v0.4.1...v0.4.2, https://github.com/NNPDF/pineko/tree/v0.4.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017729,https://github.com/fanchenjuan9/CCA/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017730,https://github.com/fanchenjuan9/CCA/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017731,"https://github.com/hifis-net/ansible-role-redis/compare/v1.4.1...v1.4.2, https://github.com/hifis-net/ansible-role-redis/issues/133, https://github.com/hifis-net/ansible-role-redis/pull/135, https://github.com/Normo, https://github.com/hifis-net/ansible-role-redis/pull/134, https://github.com/Normo, https://github.com/hifis-net/ansible-role-redis/tree/v1.4.2","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017734,"https://github.com/qcodes/qcodes_loop, https://github.com/qcodes/qcodes_loop, https://github.com/QCoDeS/Qcodes/tree/v0.41.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017735,https://github.com/fanchenjuan9/CCA/tree/v2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001775,https://github.com/PerseusDL/canonical-greekLit/tree/0.0.390,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017787,https://github.com/fanchenjuan9/CCA/tree/v2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017788,https://github.com/GLatombe/Kernel-Integral-Method/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017789,https://github.com/GLatombe/Kernel-Integral-Method/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017790,https://github.com/dvolgyes/zenodo_get/tree/v1.5.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017791,https://github.com/johannesmayerat/10.5194-esd-2023-8-code/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017792,https://github.com/johannesmayerat/10.5194-esd-2023-8-code/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017793,"https://github.com/diku-dk/futhark/pull/2033, https://github.com/diku-dk/futhark/tree/nightly","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017794,https://github.com/gereon-t/trajectopy-core/tree/v1.3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017802,"https://github.com/WShaoLab/SysteMHC-pipeline/commits/v1.0.0, https://github.com/WShaoLab/SysteMHC-pipeline/tree/v1.0.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017813,https://github.com/WShaoLab/SysteMHC-pipeline/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001782,https://github.com/restrepo/TCC/tree/untagged-937110148241e1f2cf89,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017823,https://github.com/dgerosa/CV/tree/2023-10-18-13-52,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001783,https://github.com/tqdm/tqdm/tree/v4.19.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017833,https://github.com/aLiehrmann/DiffSegR/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017834,https://github.com/aLiehrmann/DiffSegR/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017835,https://github.com/takeuchi-lab/SafePatternPruning/tree/2023-10-18,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017836,https://github.com/takeuchi-lab/SafePatternPruning/tree/2023-10-18,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001784,https://github.com/Schallaven/ffeimg/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017845,https://github.com/BasWullems/salt_intrusion_lstm/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017846,https://github.com/BasWullems/salt_intrusion_lstm/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017847,"https://github.com/CoffeaTeam/coffea/pull/853, https://github.com/CoffeaTeam/coffea/pull/868, https://github.com/CoffeaTeam/coffea/pull/869, https://github.com/CoffeaTeam/coffea/pull/873, https://github.com/CoffeaTeam/coffea/pull/877, https://github.com/CoffeaTeam/coffea/pull/879, https://github.com/CoffeaTeam/coffea/pull/880, https://github.com/CoffeaTeam/coffea/pull/889, https://github.com/CoffeaTeam/coffea/pull/890, https://github.com/CoffeaTeam/coffea/pull/887, https://github.com/CoffeaTeam/coffea/pull/872, https://github.com/CoffeaTeam/coffea/pull/888, https://github.com/CoffeaTeam/coffea/pull/893, https://github.com/CoffeaTeam/coffea/pull/894, https://github.com/CoffeaTeam/coffea/pull/896, https://github.com/CoffeaTeam/coffea/pull/895, https://github.com/CoffeaTeam/coffea/pull/897, https://github.com/CoffeaTeam/coffea/pull/875, https://github.com/CoffeaTeam/coffea/pull/898, https://github.com/CoffeaTeam/coffea/pull/905, https://github.com/CoffeaTeam/coffea/pull/900, https://github.com/CoffeaTeam/coffea/pull/909, https://github.com/CoffeaTeam/coffea/pull/908, https://github.com/CoffeaTeam/coffea/pull/900, https://github.com/CoffeaTeam/coffea/pull/909, https://github.com/CoffeaTeam/coffea/compare/v2023.7.0.rc0...v2023.10.0.rc0, https://github.com/CoffeaTeam/coffea/tree/v2023.10.0.rc0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001785,https://github.com/Schallaven/ffeimg/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10017862,"https://github.com/ResearchObject/ro-crate-py/pull/154, https://github.com/ResearchObject/ro-crate-py/pull/155, https://github.com/ResearchObject/ro-crate-py/pull/156, https://github.com/ResearchObject/ro-crate-py/pull/157, https://github.com/ResearchObject/ro-crate-py/pull/161, https://github.com/ResearchObject/ro-crate-py/pull/162, https://github.com/ResearchObject/ro-crate-py/pull/163, https://github.com/ResearchObject/ro-crate-py/pull/166, https://github.com/ResearchObject/ro-crate-py/compare/0.8.0...0.9.0, https://github.com/ResearchObject/ro-crate-py/tree/0.9.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10017893,https://gitlab.com/ecas-lab-tec/approximate-flexible-acceleration-ml/approximate-gemm-accelerator,metadata.description
+10.5281/zenodo.1001792,https://github.com/popphylotools/mvMapper/tree/v1.4.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001793,https://github.com/popphylotools/mvMapper/tree/v1.4.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001802,https://github.com/matthiaskoenig/cy3sbml/tree/v0.2.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001803,https://github.com/behr-github/Lightning-AMF-Effects/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001808,https://github.com/wolverton-research-group/nve/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018088,https://www.anaconda.com/,metadata.description
+10.5281/zenodo.10018089,https://www.anaconda.com/,metadata.description
+10.5281/zenodo.1001809,https://github.com/wolverton-research-group/nve/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018133,https://www.ibitf.co.in/,metadata.grants[0].url
+10.5281/zenodo.10018134,https://www.ibitf.co.in/,metadata.grants[0].url
+10.5281/zenodo.1001814,https://github.com/KseniaErshova/Transferrin-calculations-with-R/tree/v4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001816,https://github.com/diana-hep/yadage/tree/v0.12.13,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018177,https://github.com/timKraeuter/VisualDebugger/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018178,https://github.com/timKraeuter/VisualDebugger/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018179,https://github.com/snlab-ch/migraph/tree/v1.1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018180,https://github.com/CMCC-Foundation/MedFS-Validation/tree/eas5-v2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018181,https://github.com/CMCC-Foundation/MedFS-Validation/tree/eas5-v2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018182,https://github.com/timKraeuter/object-diagram-js/tree/zenodo-v2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018183,https://github.com/timKraeuter/object-diagram-modeler/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018184,https://github.com/fanchenjuan9/raw-data/tree/V3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018185,https://github.com/fanchenjuan9/raw-data/tree/V3.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018192,https://github.com/jatalah/Escapes-Mediterraneo/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018193,https://github.com/jatalah/Escapes-Mediterraneo/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018194,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018195,https://github.com/gereon-t/trajectopy-core/tree/v1.3.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018196,https://github.com/gereon-t/trajectopy/tree/v1.1.5,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018199,https://github.com/GRONINGEN-MICROBIOME-CENTRE/SV_GWAS/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001820,https://github.com/Riselya/Infection-and-Migration-metaanalysis/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018210,https://github.com/adam-kerrigan/bader-rs/tree/v0.4.6,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018235,"https://github.com/bird-house/birdhouse-deploy/pull/391, https://github.com/bird-house/birdhouse-deploy/compare/1.35.0...1.35.1, https://github.com/bird-house/birdhouse-deploy/tree/1.35.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.1001826,"https://github.com/broadinstitute/mvicuna, https://github.com/broadinstitute/v-phaser2, https://github.com/broadinstitute/viral-ngs/tree/v1.18.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018260,https://github.com/ScialdoneLab/MATACseq/tree/matac-seq,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018261,https://github.com/ScialdoneLab/MATACseq/tree/matac-seq,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018280,"https://ror.org/0060t0j89, https://ror.org/03wsadn68, https://ror.org/0060t0j89","metadata.notes, metadata.notes, metadata.notes"
+10.5281/zenodo.10018285,"https://gitlab.com/tensors/tensor_toolbox, https://gitlab.com/tensors/tensor_toolbox, https://github.com/mingwu-li/torus_collocation, https://github.com/mingwu-li/torus_collocation, https://github.com/jain-shobhit/SSMTool/tree/v2.5-beta","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018307,"https://github.com/handley-lab/lsbi/pull/5, https://github.com/handley-lab/lsbi/compare/v0.1.0...v0.1.1, https://github.com/handley-lab/lsbi/tree/v0.1.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018308,"https://github.com/obophenotype/bio-attribute-ontology/pull/287, https://github.com/obophenotype/bio-attribute-ontology/pull/289, https://github.com/obophenotype/bio-attribute-ontology/pull/290, https://github.com/obophenotype/bio-attribute-ontology/pull/291, https://github.com/obophenotype/bio-attribute-ontology/pull/292, https://github.com/obophenotype/bio-attribute-ontology/pull/293, https://github.com/obophenotype/bio-attribute-ontology/pull/295, https://github.com/obophenotype/bio-attribute-ontology/pull/296, https://github.com/obophenotype/bio-attribute-ontology/compare/v2023-08-24...v2023-10-18, https://github.com/obophenotype/bio-attribute-ontology/tree/v2023-10-18","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018449,https://github.com/liserman/handcodeR/tree/v0.1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018454,https://github.com/Walters-Research-Group/ICOIN_RACM2/tree/1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018457,https://github.com/timKraeuter/LMCS-2024/tree/zenodo-v4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018458,https://github.com/timKraeuter/LMCS-2024/tree/zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018459,https://github.com/cefect/FloodRescaler/tree/v0.0.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018460,https://github.com/ppernot/2023_BVS/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018461,https://github.com/ppernot/2023_BVS/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018464,https://github.com/liserman/handcodeR/tree/v0.1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018465,https://github.com/vantage6/vantage6/tree/version/4.1.0b0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018473,https://github.com/robsonpg/Bslonclouds/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018474,https://github.com/robsonpg/Bslonclouds/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018492,https://github.com/zhangfupeng-gzhu/GNC/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018493,https://github.com/zhangfupeng-gzhu/GNC/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018501,"https://ee-vianna.projects.earthengine.app/view/efi, https://ee-vianna.projects.earthengine.app/view/ife.","metadata.description, metadata.description"
+10.5281/zenodo.10018502,"https://github.com/sintefmath/Jutul.jl/compare/v0.2.14...v0.2.15, https://github.com/sintefmath/Jutul.jl/tree/v0.2.15","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018509,https://github.com/samharrison7/SEAT/tree/v0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001851,https://github.com/vmikk/metagMisc/tree/v.0.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018510,https://github.com/samharrison7/SEAT/tree/v0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018512,https://github.com/jyshoji/text_analysis_tumor_organoids/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018513,https://github.com/jyshoji/text_analysis_tumor_organoids/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018514,https://github.com/Gabaldonlab/jloh/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001852,https://github.com/mheriyanto/mh_kermantau/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001853,https://github.com/mheriyanto/mh_kermantau/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.1001854,https://github.com/nschorgh/Planetary-Code-Collection/tree/v1.1.4,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018544,"https://github.com/sylvaticus/BDisposal.jl/compare/v0.0.3...v0.0.4, https://github.com/sylvaticus/BDisposal.jl/tree/v0.0.4","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018547,"https://github.com/c-scale-community/use-case-return, https://github.com/c-scale-community/use-case-return/tree/v0.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018548,"https://github.com/c-scale-community/use-case-return, https://github.com/c-scale-community/use-case-return/tree/v0.1.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018579,https://github.com/Walters-Research-Group/ICOIN_RACM2/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018580,"https://github.com/PowerGridModel/power-grid-model/pull/408, https://github.com/PowerGridModel/power-grid-model/compare/v1.6.13...v1.6.14, https://github.com/PowerGridModel/power-grid-model/tree/v1.6.14","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018581,https://github.com/r-pound/COAGEM/tree/v1.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018582,https://github.com/r-pound/COAGEM/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018583,https://github.com/Savic-Lab/B-ALL_Chromatin_Landscape/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018584,https://github.com/Savic-Lab/B-ALL_Chromatin_Landscape/tree/1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018585,https://github.com/formicidae-tracker/documentation/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018586,https://github.com/formicidae-tracker/documentation/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018706,https://hal.science/hal-02933095v1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018751,https://github.com/stroke-optimist/streamlit_lifetime_stroke/tree/v2.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018760,"https://github.com/OpenFreeEnergy/gufe/pull/236, https://github.com/OpenFreeEnergy/gufe/pull/242, https://github.com/OpenFreeEnergy/gufe/pull/244, https://github.com/OpenFreeEnergy/gufe/pull/228, https://github.com/OpenFreeEnergy/gufe/compare/v0.9.4...0.9.5, https://github.com/OpenFreeEnergy/gufe/tree/0.9.5","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018764,https://github.com/GP2code/NeuroBoosterArray/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018765,https://github.com/GP2code/NeuroBoosterArray/tree/v1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018768,https://github.com/dianna-ai/distance_explainer/tree/v0.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018769,https://github.com/dianna-ai/distance_explainer/tree/v0.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018770,https://github.com/dnousome/CRISPRAnnotation/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018771,https://github.com/dnousome/CRISPRAnnotation/tree/v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018774,https://github.com/r-duh/MuXTalk/tree/MuXTalk_v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018775,https://github.com/r-duh/MuXTalk/tree/MuXTalk_v1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018776,https://github.com/ismaRP/MALDIpqi/tree/v.0.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018779,"https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_opioides/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/blob/main/atlas_antibioticos/README.md, https://github.com/cienciadedatosysalud/atlas-farmacia/tree/3.0.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018782,https://github.com/ameghana/CSC510-FALL23-P27-Project2/tree/v0.0.2-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018783,https://github.com/ameghana/CSC510-FALL23-P27-Project2/tree/v0.0.1-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018830,https://github.com/origami-team/geogami/tree/v3.2.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018877,https://github.com/hlwander/BVRE-forecast-code/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018885,https://github.com/INVEST-flagship/Hakovirta-et-al-2023-Joint-physical-custody-of-children-in-Europe-A-growing-phenomenon/tree/v1.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018886,https://github.com/INVEST-flagship/Hakovirta-et-al-2023-Joint-physical-custody-of-children-in-Europe-A-growing-phenomenon/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018899,https://github.com/NASA-PDS/registry/tree/v1.4.0-dev,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018918,https://github.com/Nooshinabd/SCS-code-/tree/v.SCS,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018919,https://github.com/Nooshinabd/SCS-code-/tree/v.SCS,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018928,"https://github.com/Project-MONAI/MONAILabel/tree/main/plugins/ohifv3, https://github.com/Project-MONAI/MONAILabel/blob/main/plugins/ohifv3/images/ohifv3.jpg?raw=true&quot;, https://github.com/Project-MONAI/MONAILabel/pull/1561, https://github.com/Project-MONAI/MONAI/releases/tag/1.3.0, https://github.com/Project-MONAI/MONAILabel/tree/0.8.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018929,"https://github.com/Project-MONAI/MONAILabel/tree/main/plugins/ohifv3, https://github.com/Project-MONAI/MONAILabel/blob/main/plugins/ohifv3/images/ohifv3.jpg?raw=true&quot;, https://github.com/Project-MONAI/MONAILabel/pull/1561, https://github.com/Project-MONAI/MONAI/releases/tag/1.3.0, https://github.com/Project-MONAI/MONAILabel/tree/0.8.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018949,https://ror.org/00var5q80,metadata.notes
+10.5281/zenodo.1001895,https://github.com/pybel/pybel-tools/tree/v0.4.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10018950,https://ror.org/00var5q80,metadata.notes
+10.5281/zenodo.10018960,"https://github.com/handley-lab/lsbi/pull/6, https://github.com/handley-lab/lsbi/compare/v0.1.1...v0.2.0, https://github.com/handley-lab/lsbi/tree/v0.2.0","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10018966,https://github.com/mbrennan17/mag_trace/tree/v1.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019,https://github.com/N00D13/IndoorGPS/tree/1.0.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019011,"https://github.com/huilisabrina/HEELS/commits/v1.0.0-alpha, https://github.com/huilisabrina/HEELS/tree/v1.0.0-alpha","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019012,"https://github.com/huilisabrina/HEELS/commits/v1.0.0-alpha, https://github.com/huilisabrina/HEELS/tree/v1.0.0-alpha","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019013,https://github.com/kcrefvik/pman-ada/tree/pman-ada,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019014,https://github.com/kcrefvik/pman-ada/tree/pman-ada,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019015,https://github.com/gabbyprovan/con2020/tree/v1.2.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019017,"https://github.com/VEuPathDB/web-monorepo/pull/557, https://github.com/VEuPathDB/web-monorepo/compare/v1.0.84...v1.0.85, https://github.com/VEuPathDB/web-monorepo/tree/v1.0.85","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019018,"https://github.com/brain-tools/esce/pull/62, https://github.com/brain-tools/esce/pull/63, https://github.com/brain-tools/esce/tree/v0.3.2","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019019,https://github.com/brain-tools/esce/tree/v0.2.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019034,https://github.com/PlantSynBioLab/SoyARC_manuscript_public/tree/Auxin,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019035,https://github.com/PlantSynBioLab/SoyARC_manuscript_public/tree/Auxin,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019036,"https://github.com/zpb4/Synthetic-Forecast-v1-FIRO-DISES, https://github.com/zpb4/Synthetic-Forecast-v2-FIRO-DISES, https://github.com/zpb4/FIRO_synthetic-ensemble-forecasts/tree/v1.0.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019037,https://github.com/zpb4/FIRO_synthetic-ensemble-forecasts/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019046,https://github.com/Nooshinabd/SCS-code-/tree/v.SCS,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019049,https://github.com/mrbuche/flavio/tree/v0.1.3,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019053,"https://github.com/jakta-bdi/jakta/compare/v0.7.12...v0.7.13, https://github.com/jakta-bdi/jakta/commit/d81b999218340b96e44fbf4df682d35ee4948b37, https://github.com/jakta-bdi/jakta/tree/v0.7.13","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019058,"https://github.com/mhardcastle/lotss-hba-survey, https://github.com/tikk3r/flocs/tree/v4.5.0","metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019059,https://github.com/formicidae-tracker/fort-tags/tree/v1.4.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019060,https://github.com/formicidae-tracker/fort-tags/tree/v1.4.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019063,"https://github.com/zpb4/Synthetic-Forecast-v1-FIRO-DISES, https://github.com/zpb4/Synthetic-Forecast-v2-FIRO-DISES, https://github.com/zpb4/FIRO_synthetic-ensemble-forecasts/tree/v1.0.1","metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019080,https://github.com/sstephenson2/global-residual-topography/tree/v1.0.1,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019081,https://github.com/sstephenson2/global-residual-topography/tree/v0.1.0-alpha,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019084,https://github.com/formicidae-tracker/hermes/tree/v0.5.4-zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019085,https://github.com/formicidae-tracker/hermes/tree/v0.5.4-zenodo,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019090,https://github.com/formicidae-tracker/leto/tree/v0.5.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019091,https://github.com/formicidae-tracker/leto/tree/v0.5.2,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019094,https://github.com/formicidae-tracker/libarke/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019095,https://github.com/formicidae-tracker/libarke/tree/v1.0.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019100,https://github.com/formicidae-tracker/olympus/tree/v0.5.8,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019101,https://github.com/formicidae-tracker/olympus/tree/v0.5.8,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019131,https://github.com/formicidae-tracker/tag-layouter/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019132,https://github.com/formicidae-tracker/tag-layouter/tree/v0.1.0,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019133,"https://github.com/Kitware/vtk-js/compare/v28.12.5...v28.13.0, https://github.com/Kitware/vtk-js/commit/843b42306aa09e5ffcaa1c9618635ab097686754, https://github.com/Kitware/vtk-js/commit/43e10d3806a5eeea63bd7d5311cf305eec15c584, https://github.com/Kitware/vtk-js/commit/4827304e96bae9e63a6f7353a1aadd514268933f, https://github.com/Kitware/vtk-js/commit/253e12e6e69b12334ffd4577d6d6e74fd0e3bf10, https://github.com/Kitware/vtk-js/commit/e130ed53e900bc7aa57b5e0e06bc39e9533dc2a2, https://github.com/Kitware/vtk-js/commit/0237ba19fe37a710371726a2ff5f32b6e16ea09f, https://github.com/Kitware/vtk-js/commit/836e331b463e78b8b050d4dba4ace5912273a580, https://github.com/Kitware/vtk-js/commit/2024be48e3429144f13869bda5f3ac54a608cd6f, https://github.com/Kitware/vtk-js/commit/5e6191aba3449ab3dbe5faee0a7c1577495ed38d, https://github.com/Kitware/vtk-js/commit/aad7a78adb65d24b914da2983d0ba1ba94bfeddf, https://github.com/Kitware/vtk-js/commit/e09614cffb9bdadff9c940dfa2b0c3860c8b1bd7, https://github.com/Kitware/vtk-js/commit/eae0fd55fc4fc844c9b773de75f60ded97b7dcde, https://github.com/Kitware/vtk-js/commit/10bca1b75e2b7a8415c9bd379ac4995d9fdd8508, https://github.com/Kitware/vtk-js/commit/6e242b106ebdf5a229d349fc2e8bd40edd0ec869, https://github.com/Kitware/vtk-js/commit/fbf49c6eac402221aef4c8928473bd3af637ed37, https://github.com/Kitware/vtk-js/commit/d5022def745b57ae750b37079c53fac8087e879c, https://github.com/Kitware/vtk-js/commit/14f518334a829eecf4279c7d756c462799b9d0c8, https://github.com/Kitware/vtk-js/commit/2663c24bb595f45d4c1f4794fe7d111b63f6de76, https://github.com/Kitware/vtk-js/tree/v28.13.0","metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.description, metadata.related_identifiers[0].identifier"
+10.5281/zenodo.10019134,https://github.com/formicidae-tracker/time/tree/v1.0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019135,https://github.com/formicidae-tracker/time/tree/v1.0.9,metadata.related_identifiers[0].identifier
+10.5281/zenodo.10019136,https://github.com/formicidae-tracker/zeus/tree/v0.4.0,metadata.related_identifiers[0].identifier

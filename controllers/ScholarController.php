@@ -489,11 +489,16 @@ class ScholarController extends BaseController
                 $result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
                     $accesses_for_list, $types_for_list,
-                    $sort_field_local, $pagination_enabled, $page_size_final, $top_k
+                    $sort_field_local, $pagination_enabled, $page_size_final, $top_k,
+                    'page_list_' . $element_id,
+                    'per-page_list_' . $element_id
                 );
+                
+                $result['selected_papers'] = [];
+                $result['selected_papers_num'] = 0;
 
-                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);
-        
+                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);          
+   
                 // Get ALL filtered papers for the modal (no pagination)
                 $all_papers_result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
@@ -506,60 +511,64 @@ class ScholarController extends BaseController
                     'papers' => $all_papers_result['papers']
                 ], $researcher->user_id)['papers'];
                 
-                $facet_field = Yii::$app->request->get('fct_field');
-                
-                $result['facets'] = $scholar->getFacets(
-                    $topics_for_list, $tags_for_list, $roles_for_list,
-                    $accesses_for_list, $types_for_list, $facet_field,
-                    $result['papers']
-                );
-
-                $result = Involvement::getInvolvement($result, $researcher->user_id); 
+                $result = Involvement::getInvolvement($result, $researcher->user_id);
 
                 if (is_array($selected_ids_for_list) && !empty($selected_ids_for_list)) {
-                    $result['papers'] = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
+                    $selected = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
                         return in_array($paper['internal_id'], $selected_ids_for_list);
                     });
-                    $result['papers_num'] = count($result['papers']);
-                    $pagination_enabled = false;
-                    $page_size_final = count($result['papers']);
+                    $result['selected_papers'] = $selected;
+                    $result['selected_papers_num'] = count($selected);
+                    $result['papers_num'] = $result['selected_papers_num']; 
+                    $selPagination = new \yii\data\Pagination([
+                        'pageSize'      => $page_size_final,                 
+                        'totalCount'    => $result['papers_num'],            
+                        'pageParam'     => 'page_list_' . $element_id,       
+                        'pageSizeParam' => 'per-page_list_' . $element_id,   
+                        'validatePage'  => true,
+                    ]);
 
-                    // Update pagination object to reflect new total
-                    if (isset($result['pagination'])) {
-                        $result['pagination']->totalCount = count($result['papers']);
-                    }
-                    $result['facets'] = $scholar->getFacets(
-                        $topics_for_list, $tags_for_list, $roles_for_list,
-                        $accesses_for_list, $types_for_list, $facet_field,
-                        $result['papers']
-                    );
+                    $cleanParams = Yii::$app->request->get();
+                    unset($cleanParams['page'], $cleanParams['per-page']);
+                    $selPagination->params = $cleanParams;
 
-                    $result['facets'] = $this->recountFacetsFromPapers($result['facets'], $result['papers']);
-                    $result['facets'] = $this->filterZeroFacets($result['facets']);
-
-                    // make sure the contributions list actually gets the full set
-                    $contributions_lists[$element_id] = $result;
+                    $result['pagination'] = $selPagination;
+                    $result['papers'] = array_slice($selected, $selPagination->offset, $selPagination->limit);        
                 }
+     
+                $all_papers_for_indicators = $result['all_papers'] ?? [];
+                $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers_for_indicators, $rag_data);
+                        
+                if ($pagination_enabled) {
+                    $result['papers'] = array_slice($result['papers'], 0, $page_size_final);
+                }
+                $has_selected    = !empty($result['selected_papers']);
+                $has_pagination  = isset($result['pagination'])
+                                && $pagination_enabled
+                                && method_exists($result['pagination'], 'getPageCount')
+                                && ($result['pagination']->getPageCount() > 1);
 
-                $all_papers = $scholar->indicators->papers;
-
-                if (!empty($selected_ids_for_list)) {
-                    // use only the selected works
-                    $contributions_indicators[$element_id] = $indicators_model->computeForPapers($result['papers'], $rag_data);
+                if ($has_pagination) {
+                    $dataset_for_facets = $has_selected
+                        ? $result['selected_papers']
+                        : ($result['all_papers'] ?? $result['papers']);
                 } else {
-                    // otherwise, use all filtered works (not just the first page)
-                    $all_papers = $scholar->indicators->papers;
-                    $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
-                }
-                
-                if (!$pagination_enabled && $top_k !== null) {
-                    $contributions_lists[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
-                    $contributions_lists[$element_id]['papers_num'] = min($top_k, count($result['papers']));
-                } else {
-                    $contributions_lists[$element_id]['papers'] = $result['papers'];
-                    $contributions_lists[$element_id]['papers_num'] = count($result['papers']);
+                    $dataset_for_facets = $result['papers'];
                 }
 
+
+                $facet_field = Yii::$app->request->get('fct_field');
+                $result['facets'] = $scholar->getFacets(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list, $facet_field
+                );
+                $result['facets'] = $this->recountFacetsFromPapers($result['facets'], $dataset_for_facets);
+                $result['facets'] = $this->filterZeroFacets($result['facets']);
+
+                // Use the final dataset also for indicators
+                $dataset_for_indicators = $dataset_for_facets;
+                $contributions_indicators[$element_id] =
+                    $indicators_model->computeForPapers($dataset_for_indicators, $rag_data);
                 $contributions_lists[$element_id] = $result;
                 if (Yii::$app->request->isAjax && $list_id_from_request) {
                     $list_result = $contributions_lists[$list_id_from_request] ?? [];
@@ -600,7 +609,6 @@ class ScholarController extends BaseController
                 }
             }
             
-
             foreach ($template_elements as $element) {
                 if ($element['type'] !== 'Facets') {
                     continue;
