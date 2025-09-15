@@ -4,7 +4,7 @@
 
 .swagger-ui .opblock.opblock-get {
     background-color: var(--main-color);
-    background-color: var(--lighter-color);
+    background-color: var(--transparent-color);
 }
 
 .swagger-ui .opblock.opblock-get {
