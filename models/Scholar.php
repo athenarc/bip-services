@@ -29,68 +29,45 @@ class Scholar extends Model
         
         $orcid_works = Orcid::get_works($this->researcher->orcid, $this->researcher->access_token);
 
-        $all_dois = array_filter(array_map(fn($w) => $w["doi"] ?? null, $orcid_works));
+        $all_orcid_dois = array_filter(array_map(fn($w) => $w["doi"] ?? null, $orcid_works));
 
-        $query = (new \yii\db\Query())
-            ->select("p.internal_id, pd.doi")
-            ->from("pmc_paper p")
-            ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
-            ->where(['doi' => $all_dois])
-            ->orderBy([Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC]);
 
+        // get dois in db
+        $this->found_ids_dois = (new \yii\db\Query())
+                            ->select('p.internal_id, pd.doi')
+                            ->from('pmc_paper p')
+                            ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
+                            ->where(['doi' => $all_orcid_dois])
+                            ->all();
+
+        // contains all dois, all versions of all papers.
+        $found_dois = array_map(function ($r) { return ['doi' => $r['doi']]; }, $this->found_ids_dois);
+
+        // contains one doi per paper
+        $dois_query = (new \yii\db\Query())
+            ->select('pmc_paper_pids.doi')
+            ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+            ->where(['doi' => $all_orcid_dois])
+            ->groupBy('internal_id');
+
+        // Apply ordering and limit if $top_k_config is set
         if ($top_k !== null) {
-            $query->limit($top_k);
+            $dois_query->orderBy([
+            Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC])
+            ->limit($top_k);
         }
 
-        $this->found_ids_dois = $query->all();
-        $this->dois = array_column($this->found_ids_dois, 'doi');
+        $this->dois = array_column($dois_query->all(), 'doi');
+           
 
-// --- BRANCH CODE
-//         $query = (new \yii\db\Query())
-//             ->select("internal_id, doi")
-//             ->from("pmc_paper")
-//             ->where(['doi' => $all_dois])
-//             ->orderBy([Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC]);
-
-//         if ($top_k !== null) {
-//             $query->limit($top_k);
-//         }
-
-//         $this->found_ids_dois = $query->all();
-//         $this->dois = array_column($this->found_ids_dois, 'doi');
-// ---- MAIN CODE
-//         // get dois in db
-//         $this->found_ids_dois = (new \yii\db\Query())
-//                             ->select('p.internal_id, pd.doi')
-//                             ->from('pmc_paper p')
-//                             ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
-//                             ->where(['doi' => $this->dois])
-//                             ->all();
-
-//         // contains all dois, all versions of all papers.
-//         $found_dois = array_map(function ($r) { return ['doi' => $r['doi']]; }, $this->found_ids_dois);
-
-//         // contains one doi per paper
-//         $dois_query = (new \yii\db\Query())
-//             ->select('pmc_paper_pids.doi')
-//             ->from('pmc_paper')
-//             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-//             ->where(['doi' => $this->dois])
-//             ->groupBy('internal_id');
-
-//         // Apply ordering and limit if $top_k_config is set
-//         if (isset($top_k_config)) {
-//             $dois_query->orderBy([
-//             Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC])
-//             ->limit($top_k_config);
-//         }
-
-//         $this->dois = array_column($dois_query->all(), 'doi');
-// -----
-        $found_dois_set = array_map(fn($r) => ['doi' => $r['doi']], $this->found_ids_dois);
-
-        $this->missing_papers = array_udiff($orcid_works, $found_dois_set, function($a, $b) {
-            return strcmp($a["doi"] ?? '', $b["doi"] ?? '');
+        $this->missing_papers = array_udiff($orcid_works, $found_dois, function($a, $b) {
+            if (!isset($a["doi"]))
+                return -1;
+            elseif (!isset($b["doi"]))
+                return 1;
+            else
+                return strcmp($a["doi"], $b["doi"]);
         });
     }
 
