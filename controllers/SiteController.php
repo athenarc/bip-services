@@ -374,7 +374,7 @@ class SiteController extends BaseController
         $doi = $id;
 
         $article = Article::find()
-            ->joinWith('pids p')
+            ->joinWith('pids p', true, 'INNER JOIN')
             ->where(['p.doi' => $doi])
             ->one();
 
