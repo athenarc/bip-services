@@ -291,8 +291,11 @@ class Scholar extends Model
             ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
             ->where(['doi' => $this->dois]);
 
-            if (!empty($topics) && strcmp($facet_field, "topic")) {
-                $topics_query->andWhere([ 'concepts.id' => $topics]);
+            // if (!empty($topics) && strcmp($facet_field, "topic")) {
+            //     $topics_query->andWhere([ 'concepts.id' => $topics]);
+            // }
+            if (!empty($topics) && !in_array($facet_field, ['topic','topics'], true)) {
+                $topics_query->andWhere(['concepts.id' => $topics]);
             }
 
             if (!empty($tags)) {
@@ -344,8 +347,8 @@ class Scholar extends Model
             ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
             ->where(['doi' => $this->dois]);
 
-            if (!empty($tags) && strcmp($facet_field, "tag")) {
-                $tags_query->andWhere([ 'tags.id' => $tags]);
+            if (!empty($tags) && !in_array($facet_field, ['tag','tags'], true)) {
+                $tags_query->andWhere(['tags.id' => $tags]);
             }
 
             if (!empty($topics)) {
@@ -395,7 +398,7 @@ class Scholar extends Model
                     AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
             ->where(['doi' => $this->dois]);
 
-        if (!empty($roles) && strcmp($facet_field, "role")) {
+        if (!empty($roles) && !in_array($facet_field, ['role','roles','credit','credit_roles'], true)) {
             $roles_query->andWhere(['involvement' => $roles]);
         }
 
@@ -445,7 +448,7 @@ class Scholar extends Model
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
-        if (!empty($accesses) && strcmp($facet_field, "access")) {
+        if (!empty($accesses) && !in_array($facet_field, ['access','accesses','availability','open_access','oa'], true)) {
             $accesses_query->andWhere(['is_oa' => $accesses]);
         }
 
@@ -504,7 +507,7 @@ class Scholar extends Model
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
-        if (!empty($types) && strcmp($facet_field, "type")) {
+        if (!empty($types) && !in_array($facet_field, ['type','types','work_type','work','publication','publications'], true)) {
             $types_query->andWhere(['type' => $types]);
         }
 

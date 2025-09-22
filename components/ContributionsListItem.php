@@ -42,6 +42,7 @@ class ContributionsListItem extends Widget
     public $selected_roles;
     public $selected_accesses;
     public $selected_types;
+    public $preHeaderHtml;
 
     // public $show;
 
@@ -80,6 +81,7 @@ class ContributionsListItem extends Widget
             'selected_roles' => $this->selected_roles,
             'selected_accesses' => $this->selected_accesses,
             'selected_types' => $this->selected_types,
+            'preHeaderHtml' => $this->preHeaderHtml,
         ];
 
 

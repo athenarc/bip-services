@@ -8,66 +8,83 @@ function submit_scholar_form() {
     $("#missing-publications-toggle").hide();
     $("#missing-publications").hide();
 
+    $('#scholar-form input[name="fct_field"], #scholar-form input[name="list_id"]').remove();
+    $('#scholar-form input[name^="lists"][name$="[fct_field]"]').each(function () {
+        if (!$(this).val()) $(this).remove();
+    });
+
     $("#scholar-form").submit();
 }
 
+function ensurePerListFacetField(listId, facet) {
+    var $form = $('#scholar-form');
+    var name = 'lists[' + listId + '][fct_field]';
+    // try by id first (if profile.php pre-renders it)
+    var $hid = $form.find('#lists-' + listId + '-fct_field');
+    if (!$hid.length) {
+        // fallback: find by name or create
+        $hid = $form.find('input[name="' + name + '"]');
+        if (!$hid.length) {
+            $hid = $('<input/>', { type: 'hidden', name: name, id: 'lists-' + listId + '-fct_field' })
+                .appendTo($form);
+        }
+    }
+    $hid.val(facet || '');
+}
 
 $(document).on('click', '.facet-item', function (e) {
     e.preventDefault();
 
-    let listId    = $(this).data('list-id');
-    let facet     = $(this).data('facet');
-    let elementId = $(this).attr('id');
-    let input     = $(`#${elementId}-i`);
+    var $btn     = $(this);
+    var listId   = $btn.data('list-id');
+    var elementId= this.id;
+    var facet = $btn.data('facet');
+    ensurePerListFacetField(listId, facet);
 
-    // Map facet → prefix used in DOM IDs
-    let prefixMap = {
-        topics: "topic",
-        roles: "role",
-        accesses: "access",
-        types: "type"
-    };
-    let facetIdPrefix = prefixMap[facet] || facet;
-
-    console.log("Click facet:", { listId, facet, elementId });
-
-    // Hide all buttons in this facet group for this list
-    $(`#${facetIdPrefix}-facet-items-${listId} .facet-item`)
-        .hide()
-        .find('input').prop('disabled', true);
-
-    // Just re-enable the clicked one; let the server apply btn-success
-    if (input.length) {
-        input.prop('disabled', false);
-        $(this).show();
-        console.log("Activated:", elementId);
+    // Locate the hidden input for this button (id pattern "...-i"; fallback to child query)
+    var $inp = $('#' + elementId + '-i');
+    if (!$inp.length) {
+        $inp = $btn.find('input[type="hidden"]');
     }
+
+    // Toggle only THIS option (multi-select within the same facet group)
+    // In markup: disabled => NOT selected; enabled => selected
+    var willSelect = $inp.prop('disabled') === true;
+
+    $inp.prop('disabled', !willSelect);
+    $btn
+      .toggleClass('btn-success', willSelect)
+      .toggleClass('btn-default', !willSelect)
+      .attr('aria-pressed', willSelect ? 'true' : 'false');
 
     submit_scholar_form();
 });
 
 function clearFacet(listId, facetName) {
-    // Re-enable all options (reset to full list) by clearing the filter
-    let prefixMap = {
+    // Map facet → prefix used in DOM IDs
+    var prefixMap = {
         topics: "topic",
         roles: "role",
         accesses: "access",
         types: "type"
     };
-    let facetIdPrefix = prefixMap[facetName] || facetName;
+    var facetIdPrefix = prefixMap[facetName] || facetName;
 
-    $(`#${facetIdPrefix}-facet-items-${listId} .facet-item`)
+    // Reset: show all, disable all inputs, remove selected styling
+    $('#'+facetIdPrefix+'-facet-items-'+listId+' .facet-item')
         .show()
         .find('input').prop('disabled', true)
-        .closest('button')
+        .end()
         .removeClass('btn-success')
-        .addClass('btn-default');
-
+        .addClass('btn-default')
+        .attr('aria-pressed', 'false');
+    
+    ensurePerListFacetField(listId, '');
     submit_scholar_form();
 }
 
 $(document).ready(function () {
-    let scrollPos = sessionStorage.getItem('scrollPos');
+    var scrollPos = sessionStorage.getItem('scrollPos');
     if (scrollPos !== null) {
         $(window).scrollTop(scrollPos);
     }
@@ -104,11 +121,12 @@ $(document).ready(function () {
     });
 
     $("#sort-dropdown").on('change', function(){
-        let selected_list_id = $('#scholar-form').attr('data-selected_list_id');
+        var selected_list_id = $('#scholar-form').attr('data-selected_list_id');
         if (selected_list_id){
-            let default_action = $('#scholar-form').attr('action');
+            var default_action = $('#scholar-form').attr('action');
             $('#scholar-form').attr('action', default_action + "/" + selected_list_id);
             $("#scholar-form").find("input").attr('disabled', 'disabled');
+            $('#active_list_id, [id^="lists-"][id$="-fct_field"], input[name="fct_field"]').prop('disabled', false);
         }
         submit_scholar_form();
     });

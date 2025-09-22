@@ -278,19 +278,7 @@ class ScholarController extends BaseController
 
         $auth_code = Yii::$app->request->get('code');
 
-        $topics = Yii::$app->request->get('topics');
-        $tags = Yii::$app->request->get('tags');
-        $roles = Yii::$app->request->get('roles');
-        $accesses = Yii::$app->request->get('accesses');
-
-        // replace empty access with null, indicating unknown
-        if (!empty($accesses)) {
-            $accesses = array_map(function($r) { return ($r === '') ? null : $r; }, $accesses);
-        }
-
-        $types = Yii::$app->request->get('types');
         $listsFilters = Yii::$app->request->get('lists', []);
-        $list_id_from_request = Yii::$app->request->get('list_id');
 
         // if auth_code is present, user has requested to link account with orcid profile
         if (isset($auth_code) && !isset($researcher->access_token)) {
@@ -467,15 +455,17 @@ class ScholarController extends BaseController
                 $pagination_enabled = isset($show_pagination) ? ((int)$show_pagination !== 0) : true;
                 $page_size_final = $page_size ?? 10;
 
-                $use_url_filters = ((int)$list_id_from_request === (int)$element_id);
-
-                $listFilters = Yii::$app->request->get('lists', []);
-                $topics_for_list   = $listFilters[$element_id]['topics']   ?? ($filters['topics'] ?? null);
-                $tags_for_list     = $listFilters[$element_id]['tags']     ?? ($filters['tags'] ?? null);
-                $roles_for_list    = $listFilters[$element_id]['roles']    ?? ($filters['roles'] ?? null);
-                $accesses_for_list = $listFilters[$element_id]['accesses'] ?? ($filters['accesses'] ?? null);
-                $types_for_list    = $listFilters[$element_id]['types']    ?? ($filters['types'] ?? null);
-                
+                $listsFilters = Yii::$app->request->get('lists', []);
+                $topics_for_list   = $listsFilters[$element_id]['topics']   ?? ($filters['topics'] ?? null);
+                $tags_for_list     = $listsFilters[$element_id]['tags']     ?? ($filters['tags'] ?? null);
+                $roles_for_list    = $listsFilters[$element_id]['roles']    ?? ($filters['roles'] ?? null);
+                $accesses_for_list = $listsFilters[$element_id]['accesses'] ?? ($filters['accesses'] ?? null);
+                $types_for_list    = $listsFilters[$element_id]['types']    ?? ($filters['types'] ?? null);                        
+                if (!empty($accesses_for_list)) {
+                    $accesses_for_list = array_map(function ($v) {
+                        return ($v === '') ? null : $v;
+                    }, (array) $accesses_for_list);
+                }
                 $contributions_selected_filters[$element_id] = [
                     'topics' => $topics_for_list,
                     'tags' => $tags_for_list,
@@ -503,7 +493,7 @@ class ScholarController extends BaseController
                 $all_papers_result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
                     $accesses_for_list, $types_for_list,
-                    $sort_field_local, false, 10000, $top_k // pagination disabled, large page size
+                    $sort_field_local, false, 10000, null // pagination disabled, large page size
                 );
 
                 // Now set all_papers to the full set
@@ -548,64 +538,146 @@ class ScholarController extends BaseController
                                 && method_exists($result['pagination'], 'getPageCount')
                                 && ($result['pagination']->getPageCount() > 1);
 
+                // Decide the natural dataset (what the list currently shows/represents)
                 if ($has_pagination) {
                     $dataset_for_facets = $has_selected
                         ? $result['selected_papers']
                         : ($result['all_papers'] ?? $result['papers']);
                 } else {
-                    $dataset_for_facets = $result['papers'];
+                    $dataset_for_facets = $has_selected ? $result['selected_papers'] : $result['papers'];
                 }
 
+                $facet_field_per_list = $listsFilters[$element_id]['fct_field'] ?? null;
+                $groupKey = !empty($facet_field_per_list) ? $this->mapFacetName($facet_field_per_list) : null;
 
-                $facet_field = Yii::$app->request->get('fct_field');
+                // Build raw facets from DB (Scholar already avoids self-filter for topics in getTopicFacets)
                 $result['facets'] = $scholar->getFacets(
                     $topics_for_list, $tags_for_list, $roles_for_list,
-                    $accesses_for_list, $types_for_list, $facet_field
+                    $accesses_for_list, $types_for_list, $facet_field_per_list
                 );
-                $result['facets'] = $this->recountFacetsFromPapers($result['facets'], $dataset_for_facets);
-                $result['facets'] = $this->filterZeroFacets($result['facets']);
 
-                // Use the final dataset also for indicators
-                $dataset_for_indicators = $dataset_for_facets;
-                $contributions_indicators[$element_id] =
-                    $indicators_model->computeForPapers($dataset_for_indicators, $rag_data);
-                $contributions_lists[$element_id] = $result;
-                if (Yii::$app->request->isAjax && $list_id_from_request) {
-                    $list_result = $contributions_lists[$list_id_from_request] ?? [];
+                $originalFacets = $result['facets'];
 
-                    // find element config for this list_id
-                    $element_config = [];
-                    foreach ($template_elements as $te) {
-                        if ($te['element_id'] == $list_id_from_request) {
-                            $element_config = $te['config'];
-                            break;
-                        }
+                // 2) Αν υπάρχει ενεργό facet group, χτίζουμε base dataset ΧΩΡΙΣ το φίλτρο αυτού του group
+                if (in_array($groupKey, ['topics','tags','roles','accesses','types'], true)) {
+
+                    // “μηδενίζουμε” μόνο το ενεργό group – κρατάμε όλα τα άλλα filters/limits όπως είναι
+                    $nullTopics   = ($groupKey === 'topics')   ? null : $topics_for_list;
+                    $nullTags     = ($groupKey === 'tags')     ? null : $tags_for_list;
+                    $nullRoles    = ($groupKey === 'roles')    ? null : $roles_for_list;
+                    $nullAccesses = ($groupKey === 'accesses') ? null : $accesses_for_list;
+                    $nullTypes    = ($groupKey === 'types')    ? null : $types_for_list;
+
+                    $baseResult = $scholar->getArticlesInPage(
+                        $nullTopics, $nullTags, $nullRoles, $nullAccesses, $nullTypes,
+                        $sort_field_local, false, /* no pagination */ 10000, $top_k
+                    );
+
+                    // Ενοποίηση involvement όπως στη λίστα
+                    $base_papers = Involvement::getInvolvement(['papers' => $baseResult['papers']], $researcher->user_id)['papers'];
+
+                    // Αν υπάρχει Selected subset, κρατάμε μόνο εκείνα τα IDs
+                    $selected_ids_for_list = \app\models\Scholar::getSelectedPapersForList($element_id);
+                    if (!empty($selected_ids_for_list)) {
+                        $idSet = array_flip($selected_ids_for_list);
+                        $base_papers = array_values(array_filter($base_papers, static function($p) use ($idSet) {
+                            return isset($idSet[(int)$p['internal_id']]);
+                        }));
                     }
 
-                    // make sure impact_indicators is defined
-                    $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+                    // 3) Recount πάνω σε αυτό το base (χωρίς self-filter)
+                    $recounted = $this->recountFacetsFromPapers($originalFacets, $base_papers);
 
-                    return $this->renderPartial('@app/components/views/contributions_list_item', [
-                        'impact_indicators'   => $impact_indicators,
-                        'edit_perm'           => $edit_perm,
-                        'result'              => $list_result,
-                        'papers'              => $list_result['papers'] ?? [],
-                        'works_num'           => $list_result['papers_num'] ?? 0,
-                        'missing_papers'      => $missing_papers,
-                        'missing_papers_num'  => count($missing_papers),
-                        'sort_field'          => $sort_field,
-                        'orderings'           => [
-                            'year'           => 'Publication year',
-                            'influence'      => 'Influence',
-                            'popularity'     => 'Popularity',
-                            'impulse'        => 'Impulse',
-                            'citation_count' => 'Citation Count',
-                        ],
-                        'formId'              => 'scholar-form',
-                        'element_config'      => $element_config,
-                        'facets_selected'     => $facets_selected,
-                        'current_cv_narrative'=> null,
-                    ]);
+                    // 4) Κράτα labels/options του ενεργού group (ώστε να μη χαλάσει σειρά/ονόματα)
+                    if (isset($originalFacets[$groupKey]['options'])) {
+                        $recounted[$groupKey]['options'] = $originalFacets[$groupKey]['options'];
+                    }
+
+                    // 5) Κόψε τα μηδενικά. Αν θες να τα κρύβεις ΚΑΙ στο ενεργό group:
+                    $result['facets'] = $this->filterZeroFacets($recounted);
+                    // …διαφορετικά (αν θέλεις να τα κρατάς στο ενεργό):
+                    // $result['facets'] = $this->filterZeroFacets($recounted, $groupKey);
+
+                } else {
+                    // Κανονική ροή όταν δεν υπάρχει active group
+                    $recounted = $this->recountFacetsFromPapers($originalFacets, $dataset_for_facets);
+                    $result['facets'] = $this->filterZeroFacets($recounted);
+                }
+
+                // 6) Διατήρησε μόνο τα ήδη επιλεγμένα στους ΜΗ-ενεργούς groups (ώστε να μην “ανοίγουν” ξανά)
+                $filteredAll = $result['facets'];
+
+                $selectedByGroup = [
+                    'topics'   => (array)$topics_for_list,
+                    'roles'    => (array)$roles_for_list,
+                    'accesses' => (array)$accesses_for_list,
+                    'types'    => (array)$types_for_list,
+                    'tags'     => (array)$tags_for_list,
+                ];
+
+                if ($groupKey) {
+                    $result['facets'] = $this->restrictNonActiveGroupsToSelected($filteredAll, $selectedByGroup, $groupKey);
+                } else {
+                    $result['facets'] = $filteredAll;
+                }
+
+                
+                $dataset_for_indicators                 = $dataset_for_facets;
+                $contributions_indicators[$element_id]  = $indicators_model->computeForPapers($dataset_for_indicators, $rag_data);
+
+                $result['selected_accesses'] = $accesses_for_list ?: [];
+                $result['selected_types']    = $types_for_list ?: [];
+
+                $contributions_lists[$element_id] = $result;
+                if (!isset($facets_linked_to_lists[$element_id])) {
+                    $facets_linked_to_lists[$element_id] = [];
+                }
+                $facets_linked_to_lists[$element_id]['facets_from_list'] = $result['facets'];
+               
+                if (Yii::$app->request->isAjax) {
+                    $lf = Yii::$app->request->get('lists', []);
+                    $ajax_list_id = null;
+                    if (is_array($lf) && count($lf) === 1) {
+                        $ajax_list_id = (int) array_key_first($lf);
+                    }
+                
+                    if ($ajax_list_id) {
+                        $list_result = $contributions_lists[$ajax_list_id] ?? [];
+                
+                        $element_config = [];
+                        foreach ($template_elements as $te) {
+                            if ($te['element_id'] == $ajax_list_id) {
+                                $element_config = $te['config'];
+                                break;
+                            }
+                        }
+                
+                        $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+               
+                        return $this->renderPartial('@app/components/views/contributions_list_item', [
+                            'impact_indicators'   => $impact_indicators,
+                            'edit_perm'           => $edit_perm,
+                            'result'              => $list_result,
+                            'papers'              => $list_result['papers'] ?? [],
+                            'works_num'           => $list_result['papers_num'] ?? 0,
+                            'missing_papers'      => $missing_papers,
+                            'missing_papers_num'  => count($missing_papers),
+                            'sort_field'          => $sort_field,
+                            'orderings'           => [
+                                'year'           => 'Publication year',
+                                'influence'      => 'Influence',
+                                'popularity'     => 'Popularity',
+                                'impulse'        => 'Impulse',
+                                'citation_count' => 'Citation Count',
+                            ],
+                            'formId'              => 'scholar-form',
+                            'element_config'      => $element_config,
+                            'facets_selected'     => $facets_selected,
+                            'current_cv_narrative'=> null,
+                            'selected_accesses'   => $list_result['selected_accesses'] ?? [],
+                            'selected_types'      => $list_result['selected_types'] ?? [],
+                        ]);
+                    }
                 }
             }
             
@@ -737,10 +809,7 @@ class ScholarController extends BaseController
             // }
         }
 
-        $selected_topics   = $listsFilters[$list_id_from_request]['topics']   ?? [];
-        $selected_roles    = $listsFilters[$list_id_from_request]['roles']    ?? [];
-        $selected_accesses = $listsFilters[$list_id_from_request]['accesses'] ?? [];
-        $selected_types    = $listsFilters[$list_id_from_request]['types']    ?? [];
+        $selected_topics = $selected_roles = $selected_accesses = $selected_types = [];
         $listsFilters = Yii::$app->request->get('lists', []);
 
         // prepare a mapping for selected filters per list
@@ -792,7 +861,6 @@ class ScholarController extends BaseController
             'selected_roles'    => $selected_roles,
             'selected_accesses' => $selected_accesses,
             'selected_types'    => $selected_types,
-            'selected_tags' => $tags,
             'facets_selected' => $facets_selected,
             'sort_field' => $sort_field,
             // 'is_cv_narrative_pjax' => $is_cv_narrative_pjax,
@@ -838,6 +906,7 @@ class ScholarController extends BaseController
         $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
         // calculate and return scholar indicators
+        $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
         return $scholar->indicators->compute($rag_data);
     }
 
@@ -1208,7 +1277,7 @@ class ScholarController extends BaseController
         }
     }
 
-   private function recountFacetsFromPapers($facets, $papers) {
+    private function recountFacetsFromPapers($facets, $papers) {
         $newCounts = [
             'topics'   => [],
             'roles'    => [],
@@ -1222,11 +1291,30 @@ class ScholarController extends BaseController
             // Topics from concepts
             if (!empty($paper['concepts'])) {
                 foreach ($paper['concepts'] as $concept) {
-                    $topicId = $concept['id'];
-                    if (!isset($newCounts['topics'][$topicId])) {
-                        $newCounts['topics'][$topicId] = 0;
+                    // Accept several possible shapes
+                    $raw = $concept['id']
+                        ?? $concept['concept_id']
+                        ?? ($concept['concept']['id'] ?? null)
+                        ?? ($concept['openalex_id'] ?? null);
+
+                    if ($raw === null) {
+                        continue;
                     }
-                    $newCounts['topics'][$topicId]++;
+
+                    $raw = (string)$raw;
+
+                    if (preg_match('~(?:/)?(C?\d+)$~', $raw, $m)) {
+                        $raw = $m[1];
+                    }
+
+                    if (ctype_digit($raw)) {
+                        $raw = 'C' . $raw;
+                    }
+
+                    if (!isset($newCounts['topics'][$raw])) {
+                        $newCounts['topics'][$raw] = 0;
+                    }
+                    $newCounts['topics'][$raw]++;
                 }
             }
 
@@ -1241,7 +1329,7 @@ class ScholarController extends BaseController
             }
 
             // Accesses
-            if (isset($paper['is_oa'])) {
+            if (array_key_exists('is_oa', $paper)) {
                 $accessId = $paper['is_oa'];
                 if (!isset($newCounts['accesses'][$accessId])) {
                     $newCounts['accesses'][$accessId] = 0;
@@ -1259,33 +1347,127 @@ class ScholarController extends BaseController
             }
         }
 
-        // Reset counts
+        // Reset counts to "0"
         foreach ($facets as $facetType => &$facetData) {
-            foreach ($facetData['counts'] as $id => &$oldCount) {
-                $oldCount = "0";
+            if (isset($facetData['counts']) && is_array($facetData['counts'])) {
+                foreach ($facetData['counts'] as $id => &$oldCount) {
+                    $oldCount = "0";
+                }
             }
         }
 
-        // Apply new counts
         foreach ($newCounts as $facetType => $counts) {
             foreach ($counts as $id => $count) {
                 if (isset($facets[$facetType]['counts'][$id])) {
                     $facets[$facetType]['counts'][$id] = (string)$count;
+                } elseif ($facetType === 'topics') {
+                    $alt = ltrim($id, 'C');
+                    if (isset($facets['topics']['counts'][$alt])) {
+                        $facets['topics']['counts'][$alt] = (string)$count;
+                    }
+                }
+            }
+        }
+
+        return $facets;
+    }
+
+    private function filterZeroFacets($facets, $exceptKey = null) {
+        foreach ($facets as $facetType => &$facetData) {
+            if ($exceptKey && strtolower($facetType) === strtolower($exceptKey)) {
+                continue;
+            }
+            if (!isset($facetData['counts']) || !is_array($facetData['counts'])) {
+                continue;
+            }
+            foreach ($facetData['counts'] as $id => $count) {
+                if ($count === "0" || $count === 0) {
+                    unset($facetData['counts'][$id]);
+                    if (isset($facetData['options'][$id])) {
+                        unset($facetData['options'][$id]);
+                    }
                 }
             }
         }
         return $facets;
     }
-    
-    private function filterZeroFacets($facets) {
-        foreach ($facets as $facetType => &$facetData) {
-            foreach ($facetData['counts'] as $id => $count) {
-                if ($count === "0") {
-                    unset($facetData['counts'][$id]);
-                    unset($facetData['options'][$id]);
+
+    private function mapFacetName($name) {
+        $n = strtolower((string)$name);
+
+        if ($n === 'topic' || $n === 'topics') return 'topics';
+        if ($n === 'tag'   || $n === 'tags')   return 'tags';
+        if ($n === 'role'  || $n === 'roles' || $n === 'credit' || $n === 'credit_roles') return 'roles';
+        if (in_array($n, ['access', 'accesses', 'availability', 'open_access', 'oa'], true)) return 'accesses';
+        if (in_array($n, ['type', 'types', 'work_type', 'work', 'publication', 'publications'], true)) return 'types';
+        return $n;
+    }
+
+        /**
+     * For every facet group EXCEPT the active one, if the user has selections,
+     * keep only those selected options (hide the rest), preserving updated counts.
+     */
+    private function restrictNonActiveGroupsToSelected(array $facets, array $selectedByGroup, ?string $activeGroup): array
+    {
+        $active = $activeGroup ? $this->mapFacetName($activeGroup) : null;
+
+        foreach ($selectedByGroup as $group => $ids) {
+            $g = $this->mapFacetName($group);
+
+            if ($active && $g === $active) {
+                continue;
+            }
+
+            if (empty($ids) || !isset($facets[$g]) || !is_array($facets[$g])) {
+                continue;
+            }
+
+            $normIds = array_map(function ($id) use ($g) {
+                $id = (string)$id;
+
+                if (preg_match('~(?:/)?(C?\d+)$~', $id, $m)) {
+                    $id = $m[1];
+                }
+
+                if ($g === 'topics' && ctype_digit($id)) {
+                    $id = 'C' . $id;
+                }
+                return $id;
+            }, (array)$ids);
+
+            $oldCounts  = $facets[$g]['counts']  ?? [];
+            $oldOptions = $facets[$g]['options'] ?? [];
+
+            $newCounts  = [];
+            $newOptions = [];
+
+            foreach ($normIds as $id) {
+                if (isset($oldCounts[$id])) {
+                    $newCounts[$id] = $oldCounts[$id];
+                    if (isset($oldOptions[$id])) {
+                        $newOptions[$id] = $oldOptions[$id];
+                    }
+                    continue;
+                }
+
+                if ($g === 'topics') {
+                    $alt = ltrim($id, 'C');
+                    if (isset($oldCounts[$alt])) {
+                        $newCounts[$alt] = $oldCounts[$alt];
+                    }
+                    if (isset($oldOptions[$alt])) {
+                        $newOptions[$alt] = $oldOptions[$alt];
+                    }
                 }
             }
+
+            $facets[$g]['counts'] = $newCounts;
+
+            if (!empty($oldOptions)) {
+                $facets[$g]['options'] = $newOptions;
+            }
         }
+
         return $facets;
     }
 

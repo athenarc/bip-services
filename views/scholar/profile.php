@@ -113,8 +113,28 @@ use yii\bootstrap\NavBar;
         if (true): ?>
 
         <div class="container-fluid">
-            <?php ActiveForm::begin(['id' => 'scholar-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'GET', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])]); ?>
-            <?php ActiveForm::end(); ?>
+        <?php ActiveForm::begin([
+            'id' => 'scholar-form',
+            'options' => ['style' => 'display: inline-block;'],
+            'method' => 'GET',
+            'action' => Url::to(['scholar/profile/' . $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])
+        ]); ?>
+
+        <?= Html::hiddenInput('list_id', '', ['id' => 'active_list_id']) ?>
+        <?php
+        // Pre-generate a hidden fct_field for each Contributions List so JS can set it on click
+        if (!empty($template_elements)) {
+            foreach ($template_elements as $te) {
+                if (($te['type'] ?? null) === 'Contributions List') {
+                    $lid = $te['element_id'];
+                    echo Html::hiddenInput("lists[$lid][fct_field]", '', ['id' => "lists-{$lid}-fct_field"]);
+                }
+            }
+        }
+        ?>
+
+        <?php ActiveForm::end(); ?>
+
             <div class="row">
                 <div class="col-xs-12">
                     <h1>
@@ -214,6 +234,31 @@ use yii\bootstrap\NavBar;
                             }
 
                             $selected = $contributions_selected_filters[$linked_id] ?? [];
+                        
+                            $isLinkedUserDefined = false;
+                            foreach ($template_elements as $te2) {
+                                if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_id) {
+                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    break;
+                                }
+                            }
+
+                            $lr = $contributions_lists[$linked_id] ?? null;
+                            $hasLinkedSelection = $lr && (
+                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (!empty($lr['selected_papers_num']) && $lr['selected_papers_num'] > 0)
+                            );
+
+                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                                $contributions_lists[$linked_id]['facets'] = [
+                                    'topics'   => ['counts' => [], 'options' => []],
+                                    'roles'    => ['counts' => [], 'options' => []],
+                                    'accesses' => ['counts' => [], 'options' => []],
+                                    'types'    => ['counts' => [], 'options' => []],
+                                ];
+                                $contributions_lists[$linked_id]['papers'] = [];
+                                $contributions_lists[$linked_id]['papers_num'] = 0;
+                            }
 
                             echo FacetsItem::widget([
                                 'edit_perm' => $edit_perm,
@@ -226,7 +271,8 @@ use yii\bootstrap\NavBar;
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
                                 'element_config' => $element["config"],
-                                'selected_per_list' => $selected_per_list, 
+                                'selected_per_list' => $selected_per_list,
+                                'facets_linked_to_lists' => $facets_linked_to_lists,
                             ]);
                             break;
 
@@ -241,6 +287,50 @@ use yii\bootstrap\NavBar;
                             }
 
                             $indicators_local = $contributions_indicators[$linked_list_id];
+                            
+                            // Check if the linked Contributions List is user-defined
+                            $isLinkedUserDefined = false;
+                            foreach ($template_elements as $te2) {
+                                if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
+                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    break;
+                                }
+                            }
+
+                            // See if that list already has saved selections
+                            $lr = $contributions_lists[$linked_list_id] ?? null;
+                            $hasLinkedSelection = $lr && (
+                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (!empty($lr['selected_papers_num']) && (int)$lr['selected_papers_num'] > 0)
+                            );
+
+                            // If user-defined and no selection → use an "empty" indicators payload
+                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                                $indicators_local = [
+                                    'works_num' => 0,
+                                    'missing_papers_num' => 0,
+                                    'popular_works_count' => 0,
+                                    'influential_works_count' => 0,
+                                    'citations_num' => 0,
+                                    'popularity' => ['number' => 0, 'exponent' => 'e0'],
+                                    'influence'  => ['number' => 0, 'exponent' => 'e0'],
+                                    'impulse' => 0,
+                                    'h_index' => 0,
+                                    'i10_index' => 0,
+                                    'academic_age' => '-',
+                                    'responsible_academic_age' => '-',
+                                    'paper_min_year' => 0,
+                                    'work_types_num' => [
+                                        'papers'   => 0,
+                                        'datasets' => 0,
+                                        'software' => 0,
+                                        'other'    => 0,
+                                    ],
+                                    'openness' => [],
+                                ];
+                            } else {
+                                $indicators_local = $contributions_indicators[$linked_list_id];
+                            }                            
 
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
@@ -277,82 +367,154 @@ use yii\bootstrap\NavBar;
                                 'papers_num' => 0,
                                 'facets' => [],
                             ];
-                            // Add Select Works button and modal trigger
-                            echo Html::button('<i class="fa fa-check-square-o"></i> Select Works', [
-                                'class' => 'btn btn-custom-color',
-                                'style' => 'margin-bottom:10px;',
-                                'data-toggle' => 'modal',
-                                'data-target' => '#select-works-modal-' . $list_id
-                            ]);
+                            // decide if user can select works for this list
+                            $canUserSelect = !empty($element['config']['user_defined']) && (int)$element['config']['user_defined'] === 1; //&& $edit_perm;
+                            $maxUserSelect = isset($element['config']['user_defined_max']) && $element['config']['user_defined_max'] !== ''
+                                ? (int)$element['config']['user_defined_max']
+                                : null;
+                            // Always define a default for visible_papers
+                            $visible_papers = $list_result['papers'] ?? [];
 
-                            $footer = '
-                                <button class="btn btn-success save-selected-works" 
-                                        data-list-id="' . $list_id . '">Save</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            ';
+                            // If it's user-defined and there is no saved selection, hide the list contents
+                            if ($canUserSelect) {
+                                $hasUserSelection = (
+                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
+                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                );
+                                if (!$hasUserSelection) {
+                                    $visible_papers = [];
+                                }
+                            }
+                    
+                            if ($canUserSelect) {
+                                // Add Select Works button and modal trigger
+                                
+                                $selectWorksBtnHtml = Html::button('<i class="fa fa-check-square-o"></i> Select Works', [
+                                    'class' => 'btn btn-custom-color',
+                                    'style' => 'margin-bottom:10px;',
+                                    'data-toggle' => 'modal',
+                                    'data-target' => '#select-works-modal-' . $list_id,
+                                    'data-max' => $maxUserSelect,
+                                ]);
 
-                            Modal::begin([
-                                'header' => "<h4>Select Works for This List</h4>",
-                                'id' => 'select-works-modal-' . $list_id,
-                                'size' => 'modal-lg',
-                                'footer' => $footer
-                            ]);
-                            ?>
+                                $footer = '
+                                    <button class="btn btn-success save-selected-works" 
+                                            data-list-id="' . $list_id . '">Save</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                ';
 
-                                <?= Html::hiddenInput('selected_papers_' . $list_id, '', [
-                                    'id' => 'selected_papers_' . $list_id,
-                                    'required' => true
-                                ]) ?>
-
-                                <?php
-                                // Use GridView like in CV Narrative, but with your papers
-                                echo GridView::widget([
-                                    'id' => 'papers-selection-grid-' . $list_id,
-                                    'dataProvider' => new yii\data\ArrayDataProvider([
-                                        'allModels' => $list_result['all_papers'] ?? $list_result['papers'],
-                                        'pagination' => false,
-                                    ]),
-                                    'layout' => "<div style='overflow-y:auto; max-height:500px'>{items}</div>",
-                                    'tableOptions' => [
-                                        'class' => 'table table-striped'
-                                    ],
-                                    'columns' => [
-                                        [
-                                            'class' => 'yii\grid\CheckboxColumn',
-                                            'name' => 'papers-selection[]',
-                                            'contentOptions' => ['class' => 'papers-checkbox-column'],
-                                            'headerOptions' => ['class' => 'papers-checkbox-column'],
-                                            'checkboxOptions' => function ($model) {
-                                                return [
-                                                    'class' => 'papers-selection-checkbox green-checkbox',
-                                                    'data-key' => $model['internal_id']
-                                                ];
-                                            },
-                                            'header' => Html::checkbox('select-all', false, [
-                                                'class' => 'papers-select-on-check-all'
-                                            ]),
-                                        ],
-
-                                        [
-                                            'label' => Html::tag('span', 'Select All', ['class' => 'text-muted', 'style' => 'font-weight: normal;']),
-                                            'encodeLabel' => false,
-                                            'format' => 'raw',
-                                            'value' => function ($data) {
-                                                $row  = Html::beginTag('div', ['class' => 'article-info']);
-                                                $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? "N/A" : $data['title']));
-                                                $row .= Html::beginTag('div');
-                                                $row .= Html::tag('i', (empty($data['journal']) ? "N/A" : $data['journal']) . ' · ');
-                                                $row .= Html::tag('i', empty($data['year']) ? "N/A" : $data['year']);
-                                                $row .= Html::endTag('div');
-                                                $row .= Html::endTag('div');
-                                                return $row;
-                                            },
-                                        ],
-                                    ],
+                                Modal::begin([
+                                    'header' => '
+                                        <div class="clearfix">
+                                            <h4 class="modal-title pull-left">Select Works for This List</h4>
+                                            <div class="pull-right">
+                                                <small class="text-muted selection-counter"
+                                                    id="selection-counter-' . $list_id . '"
+                                                    data-list-id="' . $list_id . '"
+                                                    style="display:none;"></small>
+                                                <span aria-hidden="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                            </div>
+                                        </div>
+                                    ',
+                                    'id' => 'select-works-modal-' . $list_id,
+                                    'size' => 'modal-lg',
+                                    'footer' => $footer
                                 ]);
                                 ?>
+                                    <?php
+                                    // collect already-saved IDs for this list
+                                    $serverSelectedIds = [];
+                                    if (!empty($list_result['selected_papers']) && is_array($list_result['selected_papers'])) {
+                                        foreach ($list_result['selected_papers'] as $item) {
+                                            if (is_array($item)) {
+                                                $id = $item['internal_id'] ?? $item['id'] ?? null;
+                                                if ($id === null) {
+                                                    foreach ($item as $v) { if (!is_array($v)) { $id = $v; break; } }
+                                                }
+                                            } else {
+                                                $id = $item;
+                                            }
+                                            if ($id !== null && $id !== '') {
+                                                $serverSelectedIds[] = (string)$id;
+                                            }
+                                        }
+                                    }
+                                    ?>
 
-                            <?php Modal::end(); ?>
+                                    <?= Html::hiddenInput('selected_papers_' . $list_id, implode(',', $serverSelectedIds), [
+                                        'id' => 'selected_papers_' . $list_id,
+                                        'required' => true
+                                    ]) ?>
+
+                                    <?php
+                                    // Use GridView like in CV Narrative, but with your papers
+                                    echo GridView::widget([
+                                        'id' => 'papers-selection-grid-' . $list_id,
+                                        'dataProvider' => new yii\data\ArrayDataProvider([
+                                            'allModels' => $list_result['all_papers'] ?? $list_result['papers'],
+                                            'pagination' => false,
+                                        ]),
+                                        'layout' => "<div style='overflow-y:auto; max-height:500px'>{items}</div>",
+                                        'tableOptions' => [
+                                            'class' => 'table table-striped'
+                                        ],
+                                        'columns' => [
+                                            [
+                                                'class' => 'yii\grid\CheckboxColumn',
+                                                'name' => 'papers-selection[]',
+                                                'contentOptions' => ['class' => 'papers-checkbox-column'],
+                                                'headerOptions' => ['class' => 'papers-checkbox-column'],
+                                                'checkboxOptions' => function ($model) use ($serverSelectedIds){
+                                                    $id = $model['internal_id'];
+                                                    return [
+                                                        'class' => 'papers-selection-checkbox green-checkbox',
+                                                        'data-key' => $id,
+                                                        'checked'  => in_array($id, $serverSelectedIds, true),
+                                                    ];
+                                                },
+                                                'header' => Html::checkbox('select-all', false, [
+                                                    'class' => 'papers-select-on-check-all'
+                                                ]),
+                                            ],
+
+                                            [
+                                                'label' => Html::tag('span', 'Select All', ['class' => 'text-muted select-all-toggle-label','data-list-id' => $list_id, 'style' => 'font-weight: normal;']),
+                                                'encodeLabel' => false,
+                                                'format' => 'raw',
+                                                'value' => function ($data) {
+                                                    $row  = Html::beginTag('div', ['class' => 'article-info']);
+                                                    $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? "N/A" : $data['title']));
+                                                    $row .= Html::beginTag('div');
+                                                    $row .= Html::tag('i', (empty($data['journal']) ? "N/A" : $data['journal']) . ' · ');
+                                                    $row .= Html::tag('i', empty($data['year']) ? "N/A" : $data['year']);
+                                                    $row .= Html::endTag('div');
+                                                    $row .= Html::endTag('div');
+                                                    return $row;
+                                                },
+                                            ],
+                                        ],
+                                    ]);
+                                    ?>
+
+                                <?php Modal::end(); ?>
+                                <?php
+                                $hasUserSelection = (
+                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
+                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                );
+
+                                $shouldHidePapers = ($canUserSelect && !$hasUserSelection);
+                                $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []);
+
+                                if ($shouldHidePapers) {
+                                    echo '<div class="alert alert-info">
+                                            No works selected yet for this list. Use <b>Select Works</b> to add them in your list.
+                                        </div>';
+                                }
+                                ?>
+                            <?php
+                            }
+                            ?>
                         <?php
                             $selected = $contributions_selected_filters[$list_id] ?? [];
                             $facets_for_this_list = $facets_linked_to_lists[$element_id] ?? null;
@@ -364,8 +526,8 @@ use yii\bootstrap\NavBar;
                                         'edit_perm' => $edit_perm,
                                         'facets_selected' => !empty($list_result['facets']),
                                         'result' => $list_result,
-                                        'papers' => $list_result["papers"],
-                                        'works_num' => count($list_result["papers"]),
+                                        'papers' => $visible_papers,
+                                        'works_num' => count($visible_papers),
                                         'missing_papers' => $missing_papers,
                                         'missing_papers_num' => count($missing_papers),
                                         'sort_field' => $element['config']['sort'] ?? 'year',
@@ -385,6 +547,7 @@ use yii\bootstrap\NavBar;
                                         'selected_roles' => $selected['roles'] ?? [],
                                         'selected_accesses' => $selected['accesses'] ?? [],
                                         'selected_types' => $selected['types'] ?? [],
+                                        'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
                                     ]);
                                 ?>
                             </div>

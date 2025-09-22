@@ -135,4 +135,18 @@ $(document).ready(function(){
       var status = $(this).val();
       $(this).closest(".semantics-group").find(".indicator-container select").val(status).change();
   });
+  (function ($) {
+    function toggleUserDefinedMax() {
+        var on = $('#contrib-user-defined').is(':checked');
+        // hide/show the whole form-group without changing your view markup
+        var $group = $('#contrib-user-defined-max').closest('.form-group');
+        $group.toggle(on);
+        $('#contrib-user-defined-max').prop('disabled', !on);
+        if (!on) $('#contrib-user-defined-max').val('');
+    }
+
+    $(document).on('change', '#contrib-user-defined', toggleUserDefinedMax);
+    $(document).ready(toggleUserDefinedMax);
+    $(document).on('pjax:end', toggleUserDefinedMax);
+    })(jQuery);
 });

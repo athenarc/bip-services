@@ -36,6 +36,7 @@ class FacetsItem extends Widget
     public $element_config;
     public $for_print;
     public $selected_per_list;
+    public $facets_linked_to_lists;
 
 
     /*

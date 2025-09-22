@@ -28,87 +28,103 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
     </div>
 </div>
 
-<?php if ($works_num > 0): ?>
-    <div id="publications">
-        <div class='row'>
-            <div class='col-md-4 text-left results-header'>
-                <?php if (!empty($element_config['top_k'])): ?>
+<div id="publications">
+    <div class='row' style="align-items:center;">
+        <div class='col-md-4 text-left results-header' style="display:flex;align-items:center;flex-wrap:nowrap;">
+            <?php if (!empty($preHeaderHtml)): ?>
+                <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
+            <?php endif; ?>
+
+            <?php if (!empty($element_config['top_k'])): ?>
+                <span style="white-space:nowrap;">
                     Top <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
-                    sorted by <?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
-                <?php else: ?>
+                    &nbsp;sorted by&nbsp;<?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
+                </span>
+            <?php else: ?>
+                <span style="white-space:nowrap;">
                     <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
                     <?php if ($result['pagination']->pageCount > 1): ?>
-                        (<?=  Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
+                        (<?= Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
                     <?php endif; ?>
-                <?php endif; ?>
-            </div>
+                </span>
+            <?php endif; ?>
+        </div>
 
-            <div class='col-md-4 text-center'><?= LinkPager::widget([
+        <div class='col-md-4 text-center'>
+            <?= LinkPager::widget([
                 'pagination' => $result['pagination'],
                 'maxButtonCount' => 5,
                 'options' => ['class' => 'pagination bip-link-pager']
-            ]); ?></div>
-
-            <?php if (empty($element_config['top_k'])): ?>
-                <div class="col-md-4 text-right" style="margin-top:5px">
-                    <i class="fa-solid fa-arrow-down-wide-short"></i> <?= Html::dropDownList('sort', $sort_field, $orderings, ['id' => 'sort-dropdown', 'form' => $formId , 'onchange' => 'submit_scholar_form();']) ?>
-            </div>
-            <?php endif; ?>
+            ]); ?>
         </div>
-        <div id='results_tbl' class='row'>
-            <div class="col-xs-12">
-                <?php
-                try{
-                    foreach ($papers as $paper) {
-                        echo ResultItem::widget([
-                            "impact_indicators" => $impact_indicators,
-                            "internal_id" => $paper["internal_id"],
-                            "edit_perm" => $edit_perm,
-                            "doi" => $paper["doi"],
-                            "dois_num" => $paper["dois_num"],
-                            "openaire_id" => $paper["openaire_id"],
-                            "title" => $paper["title"],
-                            "authors" => $paper["authors"],
-                            "journal" => $paper["journal"],
-                            "year" => $paper["year"],
-                            "concepts" => $paper["concepts"],
-                            "relations" => $paper["relations"],
-                            "tags" => $paper["tags"],
-                            "involvements" => Yii::$app->params['involvement_fields'],
-                            "involved" => $paper["involvement"],
-                            "pop_score" => $paper["attrank"],
-                            "inf_score" => $paper["pagerank"],
-                            "imp_score" => $paper["3y_cc"],
-                            "cc_score" => $paper["citation_count"],
-                            "pop_class" => $paper["pop_class"],
-                            "inf_class" => $paper["inf_class"],
-                            "imp_class" => $paper["imp_class"],
-                            "cc_class" => $paper["cc_class"],
-                            "is_oa" => $paper["is_oa"],
-                            "type" => $paper["type"],
-                            "show" => [
-                                "concepts" => true,
-                                "relations" => true,
-                                "tags" => false,
-                                "involvement" => true,
-                            ]
-                        ]);
-                    }
-                } catch (\Throwable $e) {
-                    var_dump('Error inside ResultItem', $e->getMessage());
-                    exit;
-                }   
-                ?>
 
+        <?php if (empty($element_config['top_k'])): ?>
+            <div class="col-md-4 text-right" style="margin-top:5px">
+                <i class="fa-solid fa-arrow-down-wide-short"></i>
+                <?= Html::dropDownList('sort', $sort_field, $orderings, [
+                    'id' => 'sort-dropdown',
+                    'form' => $formId,
+                    'onchange' => 'submit_scholar_form();'
+                ]) ?>
             </div>
-        </div>
+        <?php else: ?>
+            <div class="col-md-4"></div>
+        <?php endif; ?>
+    </div>
+        <?php if ($works_num > 0): ?>
+            <div id='results_tbl' class='row'>
+                <div class="col-xs-12">
+                    <?php
+                    try{
+                        foreach ($papers as $paper) {
+                            echo ResultItem::widget([
+                                "impact_indicators" => $impact_indicators,
+                                "internal_id" => $paper["internal_id"],
+                                "edit_perm" => $edit_perm,
+                                "doi" => $paper["doi"],
+                                "dois_num" => $paper["dois_num"],
+                                "openaire_id" => $paper["openaire_id"],
+                                "title" => $paper["title"],
+                                "authors" => $paper["authors"],
+                                "journal" => $paper["journal"],
+                                "year" => $paper["year"],
+                                "concepts" => $paper["concepts"],
+                                "relations" => $paper["relations"],
+                                "tags" => $paper["tags"],
+                                "involvements" => Yii::$app->params['involvement_fields'],
+                                "involved" => $paper["involvement"],
+                                "pop_score" => $paper["attrank"],
+                                "inf_score" => $paper["pagerank"],
+                                "imp_score" => $paper["3y_cc"],
+                                "cc_score" => $paper["citation_count"],
+                                "pop_class" => $paper["pop_class"],
+                                "inf_class" => $paper["inf_class"],
+                                "imp_class" => $paper["imp_class"],
+                                "cc_class" => $paper["cc_class"],
+                                "is_oa" => $paper["is_oa"],
+                                "type" => $paper["type"],
+                                "show" => [
+                                    "concepts" => true,
+                                    "relations" => true,
+                                    "tags" => false,
+                                    "involvement" => true,
+                                ]
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        var_dump('Error inside ResultItem', $e->getMessage());
+                        exit;
+                    }   
+                    ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
     <?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
     <?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
-<?php else: ?>
+<?php if ($works_num === 0): ?>
     <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
 <?php endif; ?>
-
 
 
 <?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>

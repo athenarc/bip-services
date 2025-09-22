@@ -540,6 +540,65 @@ $section_profiles = ($section === "profiles");
 
                 <?= $form->field($elementContributionsModel, 'show_header')->checkbox(['class' => ['green-checkbox']]) ?>
                 <?= $form->field($elementContributionsModel, 'show_pagination')->checkbox(['class' => ['green-checkbox']]) ?>
+                <?= $form->field($elementContributionsModel, 'user_defined')->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-user-defined']) ?>
+                
+                <div id="user-defined-max-wrap">
+                    <?= $form->field($elementContributionsModel, 'user_defined_max')->input('number', [
+                        'min' => 0,
+                        'placeholder' => 'Unlimited if empty',
+                        'id' => 'contrib-user-defined-max'
+                    ]) ?>
+                </div>
+                <?php
+                // Build checkbox label arrays from params
+                $openness = Yii::$app->params['openness'] ?? [];
+                $workTypes = Yii::$app->params['work_types'] ?? [];
+
+                $opennessOptions = [];
+                foreach ($openness as $k => $def) {
+                    // keys: '1','0',''  ('' means Unknown)
+                    $opennessOptions[(string)$k] = $def['name'];
+                }
+
+                $workTypeOptions = [];
+                foreach ($workTypes as $k => $def) {
+                    // keys: '0','1','2','3'
+                    $workTypeOptions[(string)$k] = $def['name'];
+                }
+                ?>
+
+                <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Pre-applied filters</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <label class="control-label">Availability</label>
+                        <?= $form->field($elementContributionsModel, 'filters_accesses')
+                            ->checkboxList(
+                                $opennessOptions,
+                                [
+                                    'separator' => '<br>',
+                                    'itemOptions' => ['class' => 'green-checkbox'],
+                                ]
+                            )->label(false) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="control-label">Work type</label>
+                        <?= $form->field($elementContributionsModel, 'filters_types')
+                            ->checkboxList(
+                                $workTypeOptions,
+                                [
+                                    'separator' => '<br>',
+                                    'itemOptions' => ['class' => 'green-checkbox'],
+                                ]
+                            )->label(false) ?>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             </div>
         <?php endif ?>
         <?php if ($elementModel->isNewRecord || $elementModel->type == "Dropdown"): ?>
