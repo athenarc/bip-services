@@ -43,6 +43,7 @@ class ContributionsListItem extends Widget
     public $selected_accesses;
     public $selected_types;
     public $preHeaderHtml;
+    public $show_pagination = true;
 
     // public $show;
 
@@ -82,6 +83,7 @@ class ContributionsListItem extends Widget
             'selected_accesses' => $this->selected_accesses,
             'selected_types' => $this->selected_types,
             'preHeaderHtml' => $this->preHeaderHtml,
+            'show_pagination' => $this->show_pagination,
         ];
 
 

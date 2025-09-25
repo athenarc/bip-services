@@ -507,9 +507,10 @@ use yii\bootstrap\NavBar;
                                 $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []);
 
                                 if ($shouldHidePapers) {
-                                    echo '<div class="alert alert-info">
-                                            No works selected yet for this list. Use <b>Select Works</b> to add them in your list.
-                                        </div>';
+                                    echo Html::tag('div', 'No works selected yet for this list.', [
+                                        'class' => 'alert alert-warning text-center no-works-alert',
+                                        'role'  => 'alert',
+                                    ]);
                                 }
                                 ?>
                             <?php
@@ -548,6 +549,7 @@ use yii\bootstrap\NavBar;
                                         'selected_accesses' => $selected['accesses'] ?? [],
                                         'selected_types' => $selected['types'] ?? [],
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
+                                        'show_pagination' => !empty($element['config']['show_pagination']),
                                     ]);
                                 ?>
                             </div>

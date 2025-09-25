@@ -29,48 +29,103 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
 </div>
 
 <div id="publications">
+    <?php
+    $showPager = !empty($element_config['show_pagination'])
+            && ($works_num ?? 0) > 0
+            && !empty($result['pagination']);
+
+    $hideMeta = !empty($element_config['user_defined'])
+        && (int)$element_config['user_defined'] === 1
+        && (int)($result['selected_papers_num'] ?? 0) === 0;
+
+    $rightShown  = !$hideMeta && empty($element_config['top_k']);
+    ?>
     <div class='row' style="align-items:center;">
-        <div class='col-md-4 text-left results-header' style="display:flex;align-items:center;flex-wrap:nowrap;">
-            <?php if (!empty($preHeaderHtml)): ?>
-                <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
-            <?php endif; ?>
-
-            <?php if (!empty($element_config['top_k'])): ?>
-                <span style="white-space:nowrap;">
-                    Top <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
-                    &nbsp;sorted by&nbsp;<?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
-                </span>
-            <?php else: ?>
-                <span style="white-space:nowrap;">
-                    <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
-                    <?php if ($result['pagination']->pageCount > 1): ?>
-                        (<?= Yii::$app->formatter->asDecimal($result['pagination']->pageCount,0) ?> pages)
+        <?php if ($showPager): ?>
+            <div class="col-md-4 text-left results-header"
+                style="display:flex;align-items:center;flex-wrap:nowrap;">
+                <?php if (!empty($preHeaderHtml)): ?>
+                    <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
+                <?php endif; ?>
+                <?php if (!$hideMeta): ?>
+                    <?php
+                    $hasPager     = !empty($result['pagination']);
+                    $totalResults = $hasPager
+                        ? (int)$result['pagination']->totalCount
+                        : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
+                    $pageCount = $hasPager ? (int)$result['pagination']->pageCount : 1;
+                    $topK      = isset($element_config['top_k']) ? (int)$element_config['top_k'] : 0;
+                    ?>
+                    <?php if (!empty($element_config['top_k'])): ?>
+                        <span style="white-space:nowrap;">
+                            Top <?= Yii::$app->formatter->asDecimal(min($topK, $totalResults), 0) ?> results
+                            &nbsp;sorted by&nbsp;<?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
+                        </span>
+                    <?php else: ?>
+                        <span style="white-space:nowrap;">
+                            <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results
+                            <?php if ($hasPager && $pageCount > 1): ?>
+                            (<?= Yii::$app->formatter->asDecimal($pageCount, 0) ?> pages)
+                            <?php endif; ?>
+                        </span>
                     <?php endif; ?>
-                </span>
-            <?php endif; ?>
-        </div>
+                <?php endif; ?>
+            </div>
 
-        <div class='col-md-4 text-center'>
+            <div class='col-md-4 text-center'>
             <?= LinkPager::widget([
                 'pagination' => $result['pagination'],
                 'maxButtonCount' => 5,
                 'options' => ['class' => 'pagination bip-link-pager']
             ]); ?>
-        </div>
+            </div>
 
-        <?php if (empty($element_config['top_k'])): ?>
-            <div class="col-md-4 text-right" style="margin-top:5px">
-                <i class="fa-solid fa-arrow-down-wide-short"></i>
-                <?= Html::dropDownList('sort', $sort_field, $orderings, [
+            <?php if ($rightShown): ?>
+                <div class="col-md-4 text-right" style="margin-top:5px">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                    <?= Html::dropDownList('sort', $sort_field, $orderings, [
                     'id' => 'sort-dropdown',
                     'form' => $formId,
                     'onchange' => 'submit_scholar_form();'
-                ]) ?>
-            </div>
+                    ]) ?>
+                </div>
+            <?php else: ?>
+                <div class="col-md-4"></div>
+            <?php endif; ?>
+
         <?php else: ?>
-            <div class="col-md-4"></div>
-        <?php endif; ?>
+            <div class="col-md-8 text-left results-header"
+                style="display:flex;align-items:center;flex-wrap:nowrap;">
+                <?php if (!empty($preHeaderHtml)): ?>
+                    <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
+                <?php endif; ?>
+
+                <?php if (!$hideMeta): ?>
+                    <?php
+                    $hasPager     = !empty($result['pagination']);
+                    $totalResults = $hasPager
+                        ? (int)$result['pagination']->totalCount
+                        : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
+                    ?>
+                    <span style="white-space:nowrap;">
+                        <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results
+                    </span>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($rightShown): ?>
+                <div class="col-md-4 text-right" style="margin-top:5px">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                    <?= Html::dropDownList('sort', $sort_field, $orderings, [
+                    'id' => 'sort-dropdown',
+                    'form' => $formId,
+                    'onchange' => 'submit_scholar_form();'
+                    ]) ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?> 
     </div>
+</div>
         <?php if ($works_num > 0): ?>
             <div id='results_tbl' class='row'>
                 <div class="col-xs-12">

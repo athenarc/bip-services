@@ -26,6 +26,7 @@ class ElementContributions extends \yii\db\ActiveRecord
 {
     public $filters_accesses = []; // '1','0',''  ('' means Unknown)
     public $filters_types    = []; // '0','1','2','3'
+    public $top_k_toggle = 0;
 
     /**
      * {@inheritdoc}
@@ -69,6 +70,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             ['filters_accesses', 'each', 'rule' => ['in', 'range' => ['', '0', '1']]],
             ['filters_types',    'each', 'rule' => ['in', 'range' => ['0','1','2','3']]],
             [['prefilter_accesses', 'prefilter_types'], 'string'],
+            [['top_k_toggle'], 'boolean'],
         ];
     }
 
@@ -87,10 +89,11 @@ class ElementContributions extends \yii\db\ActiveRecord
             'top_k' => 'Top K',
             'page_size' => 'Page size',
             'heading_type' => 'Header size',
-            'user_defined'        => 'User defined',
+            'user_defined'        => 'Researcher selection',
             'user_defined_max'    => 'Max user-selected works',
             'filters_accesses' => 'Availability (default filters)',
             'filters_types'    => 'Work type (default filters)',
+            'top_k_toggle' => 'Top-K',
         ];
     }
 
@@ -111,6 +114,7 @@ class ElementContributions extends \yii\db\ActiveRecord
         // Force string keys as we use '' / '0' / '1', etc.
         $this->filters_accesses = array_map('strval', (array)$acc);
         $this->filters_types    = array_map('strval', (array)$typ);
+        $this->top_k_toggle = ($this->top_k !== null && $this->top_k !== '');
     }
 
     public function beforeValidate()
@@ -121,6 +125,9 @@ class ElementContributions extends \yii\db\ActiveRecord
         if ((int)$this->user_defined !== 1) {
             // Clear on server if toggle is off
             $this->user_defined_max = null;
+        }
+        if (!$this->top_k_toggle) {
+            $this->top_k = null;
         }
         return parent::beforeValidate();
     }

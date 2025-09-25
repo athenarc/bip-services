@@ -483,51 +483,75 @@ class ScholarController extends BaseController
                     'page_list_' . $element_id,
                     'per-page_list_' . $element_id
                 );
+
+                $all_papers_result = $scholar->getArticlesInPage(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list,
+                    $sort_field_local, false, 10000, null // no pagination, large limit
+                );
+
+                $result['all_papers'] = \app\models\Involvement::getInvolvement(
+                    ['papers' => $all_papers_result['papers']],
+                    $researcher->user_id
+                )['papers'];
+
+                // If pagination is OFF, force showing all rows for the current filters (respect Top-K)
+                if (!$pagination_enabled) {
+                    // If Top-K is set, getArticlesInPage already uses it; but to be explicit:
+                    if (!empty($top_k)) {
+                        $result['papers'] = array_slice($result['papers'], 0, (int)$top_k);
+                    } else {
+                        // Ensure we truly have *all* rows (some implementations still limit silently)
+                        if (!empty($result['all_papers'])) {
+                            $result['papers'] = $result['all_papers'];
+                        }
+                    }
+                    $result['papers_num'] = count($result['papers']);
+                    $result['pagination'] = null; // no pager in data layer when pagination is off
+                }
                 
                 $result['selected_papers'] = [];
                 $result['selected_papers_num'] = 0;
 
-                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);          
-   
-                // Get ALL filtered papers for the modal (no pagination)
-                $all_papers_result = $scholar->getArticlesInPage(
-                    $topics_for_list, $tags_for_list, $roles_for_list,
-                    $accesses_for_list, $types_for_list,
-                    $sort_field_local, false, 10000, null // pagination disabled, large page size
-                );
-
-                // Now set all_papers to the full set
-                $result['all_papers'] = Involvement::getInvolvement([
-                    'papers' => $all_papers_result['papers']
-                ], $researcher->user_id)['papers'];
-                
-                $result = Involvement::getInvolvement($result, $researcher->user_id);
+                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);
 
                 if (is_array($selected_ids_for_list) && !empty($selected_ids_for_list)) {
                     $selected = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
                         return in_array($paper['internal_id'], $selected_ids_for_list);
                     });
-                    $result['selected_papers'] = $selected;
+                    $selected = array_values($selected); // reindex
+
+                    // Respect Top-K if set
+                    if (!empty($top_k)) {
+                        $selected = array_slice($selected, 0, (int)$top_k);
+                    }
+
+                    $result['selected_papers']     = $selected;
                     $result['selected_papers_num'] = count($selected);
-                    $result['papers_num'] = $result['selected_papers_num']; 
-                    $selPagination = new \yii\data\Pagination([
-                        'pageSize'      => $page_size_final,                 
-                        'totalCount'    => $result['papers_num'],            
-                        'pageParam'     => 'page_list_' . $element_id,       
-                        'pageSizeParam' => 'per-page_list_' . $element_id,   
-                        'validatePage'  => true,
-                    ]);
 
-                    $cleanParams = Yii::$app->request->get();
-                    unset($cleanParams['page'], $cleanParams['per-page']);
-                    $selPagination->params = $cleanParams;
+                    if ($pagination_enabled) {
+                        $result['papers_num'] = $result['selected_papers_num'];
+                        $selPagination = new \yii\data\Pagination([
+                            'pageSize'      => $page_size_final,
+                            'totalCount'    => $result['papers_num'],
+                            'pageParam'     => 'page_list_' . $element_id,
+                            'pageSizeParam' => 'per-page_list_' . $element_id,
+                            'validatePage'  => true,
+                        ]);
 
-                    $result['pagination'] = $selPagination;
-                    $result['papers'] = array_slice($selected, $selPagination->offset, $selPagination->limit);        
+                        $cleanParams = Yii::$app->request->get();
+                        unset($cleanParams['page'], $cleanParams['per-page']);
+                        $selPagination->params = $cleanParams;
+
+                        $result['pagination'] = $selPagination;
+                        $result['papers']     = array_slice($selected, $selPagination->offset, $selPagination->limit);
+                    } else {
+                        // NO pagination → show ALL selected (still respects Top-K above)
+                        $result['pagination'] = null;
+                        $result['papers']     = $selected;
+                        $result['papers_num'] = count($selected);
+                    }
                 }
-     
-                $all_papers_for_indicators = $result['all_papers'] ?? [];
-                $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers_for_indicators, $rag_data);
                         
                 if ($pagination_enabled) {
                     $result['papers'] = array_slice($result['papers'], 0, $page_size_final);
@@ -550,7 +574,6 @@ class ScholarController extends BaseController
                 $facet_field_per_list = $listsFilters[$element_id]['fct_field'] ?? null;
                 $groupKey = !empty($facet_field_per_list) ? $this->mapFacetName($facet_field_per_list) : null;
 
-                // Build raw facets from DB (Scholar already avoids self-filter for topics in getTopicFacets)
                 $result['facets'] = $scholar->getFacets(
                     $topics_for_list, $tags_for_list, $roles_for_list,
                     $accesses_for_list, $types_for_list, $facet_field_per_list
@@ -558,10 +581,9 @@ class ScholarController extends BaseController
 
                 $originalFacets = $result['facets'];
 
-                // 2) Αν υπάρχει ενεργό facet group, χτίζουμε base dataset ΧΩΡΙΣ το φίλτρο αυτού του group
                 if (in_array($groupKey, ['topics','tags','roles','accesses','types'], true)) {
+                    $recount_others = $this->recountFacetsFromPapers($originalFacets, $dataset_for_facets);
 
-                    // “μηδενίζουμε” μόνο το ενεργό group – κρατάμε όλα τα άλλα filters/limits όπως είναι
                     $nullTopics   = ($groupKey === 'topics')   ? null : $topics_for_list;
                     $nullTags     = ($groupKey === 'tags')     ? null : $tags_for_list;
                     $nullRoles    = ($groupKey === 'roles')    ? null : $roles_for_list;
@@ -570,13 +592,11 @@ class ScholarController extends BaseController
 
                     $baseResult = $scholar->getArticlesInPage(
                         $nullTopics, $nullTags, $nullRoles, $nullAccesses, $nullTypes,
-                        $sort_field_local, false, /* no pagination */ 10000, $top_k
+                        $sort_field_local, false, 10000, $top_k
                     );
 
-                    // Ενοποίηση involvement όπως στη λίστα
                     $base_papers = Involvement::getInvolvement(['papers' => $baseResult['papers']], $researcher->user_id)['papers'];
 
-                    // Αν υπάρχει Selected subset, κρατάμε μόνο εκείνα τα IDs
                     $selected_ids_for_list = \app\models\Scholar::getSelectedPapersForList($element_id);
                     if (!empty($selected_ids_for_list)) {
                         $idSet = array_flip($selected_ids_for_list);
@@ -585,26 +605,57 @@ class ScholarController extends BaseController
                         }));
                     }
 
-                    // 3) Recount πάνω σε αυτό το base (χωρίς self-filter)
-                    $recounted = $this->recountFacetsFromPapers($originalFacets, $base_papers);
+                    $onlyActive = [
+                        $groupKey => $originalFacets[$groupKey] ?? ['counts' => [], 'options' => []]
+                    ];
+                    $recount_active = $this->recountFacetsFromPapers($onlyActive, $base_papers);
 
-                    // 4) Κράτα labels/options του ενεργού group (ώστε να μη χαλάσει σειρά/ονόματα)
+                    $merged = $recount_others;
+                    $merged[$groupKey] = $recount_active[$groupKey] ?? ($merged[$groupKey] ?? []);
+
                     if (isset($originalFacets[$groupKey]['options'])) {
-                        $recounted[$groupKey]['options'] = $originalFacets[$groupKey]['options'];
+                        $merged[$groupKey]['options'] = $originalFacets[$groupKey]['options'];
                     }
 
-                    // 5) Κόψε τα μηδενικά. Αν θες να τα κρύβεις ΚΑΙ στο ενεργό group:
-                    $result['facets'] = $this->filterZeroFacets($recounted);
-                    // …διαφορετικά (αν θέλεις να τα κρατάς στο ενεργό):
-                    // $result['facets'] = $this->filterZeroFacets($recounted, $groupKey);
+                    $preAppliedByGroup = [
+                        'topics'   => (array)($filters['topics'] ?? []),
+                        'tags'     => (array)($filters['tags'] ?? []),
+                        'roles'    => (array)($filters['roles'] ?? []),
+                        'accesses' => (array)($filters['accesses'] ?? $filters['availability'] ?? []),
+                        'types'    => (array)($filters['types'] ?? $filters['work-type'] ?? []),
+                    ];
+
+                    $active  = $groupKey;
+                    $allowed = $preAppliedByGroup[$active] ?? [];
+
+                    if (!empty($allowed) && isset($merged[$active]['counts']) && is_array($merged[$active]['counts'])) {
+                        $normalizeId = function ($id) use ($active) {
+                            $id = (string)$id;
+                            if (preg_match('~(?:/)?(C?\d+)$~', $id, $m)) {
+                                $id = $m[1];
+                            }
+                            if ($active === 'topics' && ctype_digit($id)) {
+                                $id = 'C' . $id;
+                            }
+                            return $id;
+                        };
+
+                        $allowedNorm = array_flip(array_map($normalizeId, $allowed));
+
+                        $merged[$active]['counts'] = array_intersect_key($merged[$active]['counts'], $allowedNorm);
+
+                        if (isset($merged[$active]['options']) && is_array($merged[$active]['options'])) {
+                            $merged[$active]['options'] = array_intersect_key($merged[$active]['options'], $allowedNorm);
+                        }
+                    }
+
+                    $result['facets'] = $this->filterZeroFacets($merged);
 
                 } else {
-                    // Κανονική ροή όταν δεν υπάρχει active group
                     $recounted = $this->recountFacetsFromPapers($originalFacets, $dataset_for_facets);
                     $result['facets'] = $this->filterZeroFacets($recounted);
                 }
 
-                // 6) Διατήρησε μόνο τα ήδη επιλεγμένα στους ΜΗ-ενεργούς groups (ώστε να μην “ανοίγουν” ξανά)
                 $filteredAll = $result['facets'];
 
                 $selectedByGroup = [

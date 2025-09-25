@@ -136,17 +136,99 @@ $(document).ready(function(){
       $(this).closest(".semantics-group").find(".indicator-container select").val(status).change();
   });
   (function ($) {
+    // ---------- Helpers ----------
+    function bool(v){ return !!v; }
+
+    function toggleHeaderSize() {
+        var on = $('#elementcontributions-show_header').is(':checked');
+        $('#contrib-heading-wrap').toggle(on);
+    }
+
+    function togglePagination() {
+        var on = $('#elementcontributions-show_pagination').is(':checked');
+        $('#contrib-pagesize-wrap').toggle(on);
+        $('#elementcontributions-page_size').prop('disabled', !on);
+        if (!on) $('#elementcontributions-page_size').val('');
+    }
+
+    function toggleTopKUI() {
+        var on = $('#contrib-use-topk').is(':checked');
+        $('#contrib-topk-wrap').toggle(on);
+        $('#elementcontributions-top_k').prop('disabled', !on);
+        if (!on) $('#elementcontributions-top_k').val('');
+    }
+
     function toggleUserDefinedMax() {
         var on = $('#contrib-user-defined').is(':checked');
-        // hide/show the whole form-group without changing your view markup
         var $group = $('#contrib-user-defined-max').closest('.form-group');
         $group.toggle(on);
         $('#contrib-user-defined-max').prop('disabled', !on);
         if (!on) $('#contrib-user-defined-max').val('');
     }
 
-    $(document).on('change', '#contrib-user-defined', toggleUserDefinedMax);
-    $(document).ready(toggleUserDefinedMax);
-    $(document).on('pjax:end', toggleUserDefinedMax);
+    // Mutual exclusion: Top-K  <->  Researcher selection
+    function enforceMutualExclusion(from) {
+        var topkOn = $('#contrib-use-topk').is(':checked');
+        var userSelOn = $('#contrib-user-defined').is(':checked');
+
+        if (from === 'topk' && topkOn) {
+        // disable Researcher selection
+        $('#contrib-user-defined').prop('checked', false).prop('disabled', true).trigger('change');
+        } else if (from === 'usersel' && userSelOn) {
+        // disable Top-K
+        $('#contrib-use-topk').prop('checked', false).prop('disabled', true).trigger('change');
+        }
+
+        // re-enable the opposite if this one is OFF
+        if (!topkOn) $('#contrib-user-defined').prop('disabled', false);
+        if (!userSelOn) $('#contrib-use-topk').prop('disabled', false);
+    }
+
+    // ---------- Init (on load) ----------
+    $(document).ready(function () {
+        // Initial visibility states
+        toggleHeaderSize();
+        togglePagination();
+        toggleUserDefinedMax();
+
+        // Auto-check Top-K checkbox if K already has a value
+        var kVal = $('#elementcontributions-top_k').val();
+        $('#contrib-use-topk').prop('checked', bool(kVal));
+        toggleTopKUI();
+
+        // If user_defined is on at load, mutually exclude Top-K
+        enforceMutualExclusion();
+
+        // ---------- Events ----------
+        $(document).on('change', '#elementcontributions-show_header', toggleHeaderSize);
+        $(document).on('change', '#elementcontributions-show_pagination', togglePagination);
+
+        $(document).on('change', '#contrib-use-topk', function(){
+        toggleTopKUI();
+        enforceMutualExclusion('topk');
+        });
+
+        $(document).on('change', '#contrib-user-defined', function(){
+        toggleUserDefinedMax();
+        enforceMutualExclusion('usersel');
+        });
+
+        // Before submit, clear values of disabled/hidden fields
+        $('#element-form').on('submit', function(){
+        if (!$('#contrib-use-topk').is(':checked')) {
+            $('#elementcontributions-top_k').val('');
+        }
+        if (!$('#elementcontributions-show_pagination').is(':checked')) {
+            $('#elementcontributions-page_size').val('');
+        }
+        if (!$('#elementcontributions-show_header').is(':checked')) {
+            // keep heading_type if you want; or blank it:
+            // $('#contrib-heading-size').val('');
+        }
+        if (!$('#contrib-user-defined').is(':checked')) {
+            $('#contrib-user-defined-max').val('');
+        }
+        });
+    });
     })(jQuery);
 });

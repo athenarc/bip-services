@@ -513,42 +513,69 @@ $section_profiles = ($section === "profiles");
                 <div class="divider-header" style="display: flex; align-items: center">
                     <h1><?= Html::encode('Contributions List') ?></h1>
                 </div>
-                <?= $form->field($elementContributionsModel, 'heading_type')->dropDownList([
-                    'h1' => 'H1',
-                    'h2' => 'H2',
-                    'h3' => 'H3',
-                    'h4' => 'H4',
-                    'h5' => 'H5',
-                    'h6' => 'H6',
-                ], ['prompt' => 'Select header size']) ?>
-                <?= $form->field($elementContributionsModel, 'sort')->dropDownList(array_combine(array_keys(Yii::$app->params['impact_fields']), array_keys(Yii::$app->params['impact_fields']))) ?>
-                <?= $form->field($elementContributionsModel, 'top_k')->textInput([
-                    'type' => 'number',
-                    'class' => 'search-box form-control',
-                    'min' => 1,
-                    'step' => 1,
-                    'placeholder' => 'Enter a positive integer'
-                    ]) ?>
 
-                <?= $form->field($elementContributionsModel, 'page_size')->textInput([
-                    'type' => 'number',
-                    'class' => 'search-box form-control',
-                    'min' => 1,
-                    'step' => 1,
-                    'placeholder' => 'Enter a positive integer'
-                ]) ?>
+                <!-- 1) Sort (kept outside the expandable pairs) -->
+                <?= $form->field($elementContributionsModel, 'sort')->dropDownList(
+                    array_combine(
+                        array_keys(Yii::$app->params['impact_fields']),
+                        array_keys(Yii::$app->params['impact_fields'])
+                    )
+                ) ?>
 
-                <?= $form->field($elementContributionsModel, 'show_header')->checkbox(['class' => ['green-checkbox']]) ?>
-                <?= $form->field($elementContributionsModel, 'show_pagination')->checkbox(['class' => ['green-checkbox']]) ?>
-                <?= $form->field($elementContributionsModel, 'user_defined')->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-user-defined']) ?>
-                
+                <!-- 2) Show header -->
+                <?= $form->field($elementContributionsModel, 'show_header')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_header'])
+                     ?>
+
+                <!-- expands when 'Show header' is ticked -->
+                <div id="contrib-heading-wrap">
+                    <?= $form->field($elementContributionsModel, 'heading_type')->dropDownList(
+                        ['h1'=>'H1','h2'=>'H2','h3'=>'H3','h4'=>'H4','h5'=>'H5','h6'=>'H6'],
+                        ['prompt' => 'Select header size', 'id' => 'contrib-heading-size']
+                    )->label('Header size') ?>
+                </div>
+
+                <!-- 3) Show pagination -->
+                <?= $form->field($elementContributionsModel, 'show_pagination')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_pagination'])
+                    ?>
+
+                <!-- expands when 'Show pagination' is ticked -->
+                <div id="contrib-pagesize-wrap">
+                    <?= $form->field($elementContributionsModel, 'page_size')->textInput([
+                        'type' => 'number','class' => 'search-box form-control',
+                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'id' => 'elementcontributions-page_size'
+                    ])->label('Page size') ?>
+                </div>
+
+                <!-- 4) Top-K (mutually exclusive with Researcher selection) -->
+                <?= $form->field($elementContributionsModel, 'top_k_toggle')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-use-topk'])
+                    ?>
+
+                <!-- expands when 'Top-K' is ticked -->
+                <div id="contrib-topk-wrap">
+                    <?= $form->field($elementContributionsModel, 'top_k')->textInput([
+                        'type' => 'number','class' => 'search-box form-control',
+                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'id' => 'elementcontributions-top_k'
+                    ])->label('K') ?>
+                </div>
+
+                <!-- 5) Researcher selection (mutually exclusive with Top-K) -->
+                <?= $form->field($elementContributionsModel, 'user_defined')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-user-defined'])
+                    ?>
+
+                <!-- expands when 'Researcher selection' is ticked -->
                 <div id="user-defined-max-wrap">
                     <?= $form->field($elementContributionsModel, 'user_defined_max')->input('number', [
-                        'min' => 0,
-                        'placeholder' => 'Unlimited if empty',
-                        'id' => 'contrib-user-defined-max'
-                    ]) ?>
+                        'min' => 0, 'placeholder' => 'Unlimited if empty', 'id' => 'contrib-user-defined-max'
+                    ])->label('Max selection') ?>
                 </div>
+               
+                <!-- 6) Pre-applied filters -->
                 <?php
                 // Build checkbox label arrays from params
                 $openness = Yii::$app->params['openness'] ?? [];
