@@ -82,7 +82,7 @@ class ApiController extends Controller
         $scholar = new Scholar($researcher);
 
         // fetch scholar's works for ORCiD
-        $scholar->fetchWorks(null, null);
+        $scholar->fetchWorksLimited(null, null);
 
         $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
