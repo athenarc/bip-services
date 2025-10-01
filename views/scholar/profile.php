@@ -378,7 +378,7 @@ use yii\bootstrap\NavBar;
                                 'facets' => [],
                             ];
                             // decide if user can select works for this list
-                            $canUserSelect = !empty($element['config']['user_defined']) && (int)$element['config']['user_defined'] === 1; //&& $edit_perm;
+                            $canUserSelect = !empty($element['config']['user_defined']) && (int)$element['config']['user_defined'] === 1 && $edit_perm;
                             $maxUserSelect = isset($element['config']['user_defined_max']) && $element['config']['user_defined_max'] !== ''
                                 ? (int)$element['config']['user_defined_max']
                                 : null;
