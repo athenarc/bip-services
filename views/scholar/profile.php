@@ -306,9 +306,18 @@ use yii\bootstrap\NavBar;
 
                             // If user-defined and no selection → use an "empty" indicators payload
                             if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                                // find the linked Contributions List config to respect its admin toggles
+                                $linkedListShowMissing = true;
+                                foreach ($template_elements as $te2) {
+                                    if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
+                                        $linkedListShowMissing = isset($te2['config']['show_missing_papers']) ? (bool)$te2['config']['show_missing_papers'] : true;
+                                        break;
+                                    }
+                                }
                                 $indicators_local = [
                                     'works_num' => 0,
-                                    'missing_papers_num' => 0,
+                                    'missing_papers_num' => count($missing_papers ?: []),
+                                    'show_missing_papers' => $linkedListShowMissing,
                                     'popular_works_count' => 0,
                                     'influential_works_count' => 0,
                                     'citations_num' => 0,
@@ -329,13 +338,14 @@ use yii\bootstrap\NavBar;
                                     'openness' => [],
                                 ];
                             } else {
-                                $indicators_local = $contributions_indicators[$linked_list_id];
+                            $indicators_local = $contributions_indicators[$linked_list_id];
                             }                            
 
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
                                 'works_num' => $indicators_local['works_num'] ?? 0,
                                 'missing_papers_num' => $indicators_local['missing_papers_num'] ?? 0,
+                                'show_missing_works' => $indicators_local['show_missing_papers'] ?? true,
                                 'popular_works_count' => $indicators_local['popular_works_count'] ?? 0,
                                 'influential_works_count' => $indicators_local['influential_works_count'] ?? 0,
                                 'citations' => $indicators_local['citations_num'] ?? 0,
@@ -505,13 +515,6 @@ use yii\bootstrap\NavBar;
 
                                 $shouldHidePapers = ($canUserSelect && !$hasUserSelection);
                                 $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []);
-
-                                if ($shouldHidePapers) {
-                                    echo Html::tag('div', 'No works selected yet for this list.', [
-                                        'class' => 'alert alert-warning text-center no-works-alert',
-                                        'role'  => 'alert',
-                                    ]);
-                                }
                                 ?>
                             <?php
                             }
@@ -519,6 +522,16 @@ use yii\bootstrap\NavBar;
                         <?php
                             $selected = $contributions_selected_filters[$list_id] ?? [];
                             $facets_for_this_list = $facets_linked_to_lists[$element_id] ?? null;
+
+                            // Create no-works message if user can select but hasn't selected any works
+                            $noWorksMessage = '';
+                            if ($canUserSelect && !$hasUserSelection) {
+                                $noWorksMessage = Html::tag('div', 'No works selected yet for this list.', [
+                                    'class' => 'alert alert-warning text-center no-works-alert',
+                                    'role'  => 'alert',
+                                ]);
+                            }
+
                         ?>
                             <div id="contributions-list-<?= $list_id ?>">
                                 <?php
@@ -530,7 +543,9 @@ use yii\bootstrap\NavBar;
                                         'papers' => $visible_papers,
                                         'works_num' => count($visible_papers),
                                         'missing_papers' => $missing_papers,
-                                        'missing_papers_num' => count($missing_papers),
+                                        'missing_papers_num' => count($missing_papers ?: []),
+                                        'list_id' => $list_id,
+                                        'show_missing_works' => $element['config']['show_missing_papers'] ?? true,
                                         'sort_field' => $element['config']['sort'] ?? 'year',
                                         'orderings' => [
                                             'year' => 'Publication year',
@@ -550,6 +565,7 @@ use yii\bootstrap\NavBar;
                                         'selected_types' => $selected['types'] ?? [],
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
                                         'show_pagination' => !empty($element['config']['show_pagination']),
+                                        'noWorksMessage' => $noWorksMessage,
                                     ]);
                                 ?>
                             </div>

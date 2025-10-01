@@ -55,6 +55,10 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                         : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
                     $pageCount = $hasPager ? (int)$result['pagination']->pageCount : 1;
                     $topK      = isset($element_config['top_k']) ? (int)$element_config['top_k'] : 0;
+                    $isUserDefined = !empty($element_config['user_defined']) && (int)$element_config['user_defined'] === 1;
+                    $maxSelection = (isset($element_config['user_defined_max']) && $element_config['user_defined_max'] !== '')
+                        ? (int)$element_config['user_defined_max']
+                        : null;
                     ?>
                     <?php if (!empty($element_config['top_k'])): ?>
                         <span style="white-space:nowrap;">
@@ -63,7 +67,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                         </span>
                     <?php else: ?>
                         <span style="white-space:nowrap;">
-                            <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results
+                            <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results<?= ($isUserDefined && $maxSelection !== null) ? ' out of ' . Yii::$app->formatter->asDecimal($maxSelection, 0) . ' available' : '' ?>
                             <?php if ($hasPager && $pageCount > 1): ?>
                             (<?= Yii::$app->formatter->asDecimal($pageCount, 0) ?> pages)
                             <?php endif; ?>
@@ -106,9 +110,13 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                     $totalResults = $hasPager
                         ? (int)$result['pagination']->totalCount
                         : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
+                    $isUserDefined = !empty($element_config['user_defined']) && (int)$element_config['user_defined'] === 1;
+                    $maxSelection = (isset($element_config['user_defined_max']) && $element_config['user_defined_max'] !== '')
+                        ? (int)$element_config['user_defined_max']
+                        : null;
                     ?>
                     <span style="white-space:nowrap;">
-                        <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results
+                        <?= Yii::$app->formatter->asDecimal($totalResults, 0) ?> results<?= ($isUserDefined && $maxSelection !== null) ? ' out of ' . Yii::$app->formatter->asDecimal($maxSelection, 0) . ' available' : '' ?>
                     </span>
                 <?php endif; ?>
             </div>
@@ -177,19 +185,24 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
     </div>
     <?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
     <?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
+    
+<?php if (!empty($noWorksMessage)): ?>
+    <?= $noWorksMessage ?>
+<?php endif; ?>
+
 <?php if ($works_num === 0): ?>
     <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
 <?php endif; ?>
 
 
-<?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>
-    <div id="missing-publications-toggle" class="col-md-12 text-center">
+<?php if ($missing_papers_num > 0 && !isset($current_cv_narrative) && $show_missing_works): ?>
+    <div id="missing-publications-toggle-<?= $list_id ?>" class="col-md-12 text-center">
         <button type="button" class="btn btn-link missing-publications-toggle main-green"
-        data-toggle="collapse" data-target="#missing-publications">
+        data-toggle="collapse" data-target="#missing-publications-<?= $list_id ?>">
             <b>Missing works (<?= $missing_papers_num ?>)</b> </i>
         </button>
     </div>
-    <div id="missing-publications" class="collapse">
+    <div id="missing-publications-<?= $list_id ?>" class="collapse">
         <div class="row" >
             <div class="col-md-8">
                 <h3>

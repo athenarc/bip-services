@@ -418,6 +418,7 @@ class ScholarController extends BaseController
         if(isset($researcher->access_token)) {
 
             $scholar = new Scholar($researcher);
+            $missing_papers_initialized = false;
 
             // avoid calculation of redundant information, when the request is not coming from cv-narratives modal.
             // proper modifications were made in the profile view also.
@@ -476,6 +477,12 @@ class ScholarController extends BaseController
 
                 $scholar->fetchWorksLimited($sort_field_local, $top_k);
 
+                // Initialize missing papers after first fetchWorksLimited call
+                if (!$missing_papers_initialized) {
+                    $missing_papers = $scholar->missing_papers;
+                    $missing_papers_initialized = true;
+                }
+
                 $result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
                     $accesses_for_list, $types_for_list,
@@ -483,6 +490,14 @@ class ScholarController extends BaseController
                     'page_list_' . $element_id,
                     'per-page_list_' . $element_id
                 );
+
+                // Add involvement data to papers from getArticlesInPage
+                if (!empty($result['papers'])) {
+                    $result['papers'] = \app\models\Involvement::getInvolvement(
+                        ['papers' => $result['papers']],
+                        $researcher->user_id
+                    )['papers'];
+                }
 
                 $all_papers_result = $scholar->getArticlesInPage(
                     $topics_for_list, $tags_for_list, $roles_for_list,
@@ -506,6 +521,15 @@ class ScholarController extends BaseController
                             $result['papers'] = $result['all_papers'];
                         }
                     }
+                    
+                    // Add involvement data for Top-K papers
+                    if (!empty($result['papers'])) {
+                        $result['papers'] = \app\models\Involvement::getInvolvement(
+                            ['papers' => $result['papers']],
+                            $researcher->user_id
+                        )['papers'];
+                    }
+                    
                     $result['papers_num'] = count($result['papers']);
                     $result['pagination'] = null; // no pager in data layer when pagination is off
                 }
@@ -524,6 +548,14 @@ class ScholarController extends BaseController
                     // Respect Top-K if set
                     if (!empty($top_k)) {
                         $selected = array_slice($selected, 0, (int)$top_k);
+                    }
+
+                    // Add involvement data for selected papers
+                    if (!empty($selected)) {
+                        $selected = \app\models\Involvement::getInvolvement(
+                            ['papers' => $selected],
+                            $researcher->user_id
+                        )['papers'];
                     }
 
                     $result['selected_papers']     = $selected;
@@ -673,9 +705,9 @@ class ScholarController extends BaseController
                 }
 
                 
-                $dataset_for_indicators                 = $dataset_for_facets;
-                $contributions_indicators[$element_id]  = $indicators_model->computeForPapers($dataset_for_indicators, $rag_data);
-
+                $dataset_for_indicators = $dataset_for_facets;
+                $contributions_indicators[$element_id]  = $indicators_model->computeForPapers($dataset_for_indicators, $rag_data, count($missing_papers ?: []));
+                $contributions_indicators[$element_id]['show_missing_papers'] = isset($config['show_missing_papers']) ? (bool)$config['show_missing_papers'] : true;
                 $result['selected_accesses'] = $accesses_for_list ?: [];
                 $result['selected_types']    = $types_for_list ?: [];
 
@@ -826,8 +858,6 @@ class ScholarController extends BaseController
 
             //         }
             //     }
-
-            $missing_papers = $scholar->missing_papers;
 
             // calculate scholar indicators
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);

@@ -91,7 +91,7 @@ class Indicators extends \yii\db\ActiveRecord
         return [];
     }
     
-    public function computeForPapers(array $papers, $rag_data = [])
+    public function computeForPapers(array $papers, $rag_data = [], $missing_papers_num = 0)
     {
         $indicators = [];
 
@@ -130,7 +130,7 @@ class Indicators extends \yii\db\ActiveRecord
         $scholar_indicators = new \app\models\ScholarIndicators($impact_fields, $impact_classes, $work_types_num, $papers);
 
         $indicators['works_num'] = count($papers);
-        $indicators['missing_papers_num'] = 0;
+        $indicators['missing_papers_num'] = $missing_papers_num;
 
         rsort($citations);
         $h = $i10 = 0;

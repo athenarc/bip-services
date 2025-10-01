@@ -288,7 +288,7 @@ use kartik\date\DatePicker;
                     </div>
                 <?php endforeach; ?>
                 <div class="col-md-12 col-xs-12 grey-text text-justify">
-                    <?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>
+                    <?php if ($missing_papers_num > 0 && !isset($current_cv_narrative) && $show_missing_works): ?>
                         <div class="row">
                             <div class="col-md-12 col-xs-12">
                                 <span class="grey-text">

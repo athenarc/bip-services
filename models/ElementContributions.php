@@ -12,6 +12,7 @@ use Yii;
  * @property string $heading_type
  * @property int|null $show_header
  * @property int|null $show_pagination
+ * @property int|null $show_missing_papers
  * @property string|null $sort
  * @property int|null $top_k
  * @property int|null $page_size
@@ -48,7 +49,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
 
-            [['show_header', 'show_pagination'], 'boolean'],
+            [['show_header', 'show_pagination', 'show_missing_papers'], 'boolean'],
             [['sort'], 'in', 'range' => array_keys(Yii::$app->params['impact_fields'])],
             [['top_k', 'page_size'], 'integer', 'min' => 1, 'message' => 'Please enter a positive integer.'],
             [['top_k', 'page_size'], 'default', 'value' => null],
@@ -85,6 +86,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             'element_id' => 'Element ID',
             'show_header' => 'Show header',
             'show_pagination' => 'Show pagination',
+            'show_missing_papers' => 'Show missing papers',
             'sort' => 'Sort',
             'top_k' => 'Top K',
             'page_size' => 'Page size',
@@ -160,10 +162,11 @@ class ElementContributions extends \yii\db\ActiveRecord
             'heading_type'     => $model->heading_type,
             'show_header'      => $model->show_header,
             'show_pagination'  => $model->show_pagination,
+            'show_missing_papers' => $model->show_missing_papers,
             'sort'             => $model->sort,
             'top_k'            => $model->top_k,
             'page_size'        => $model->page_size,
-            'user_defined'     => (int)$model->user_defined,
+            'user_defined'     => $model->user_defined,
             'user_defined_max' => $model->user_defined ? $model->user_defined_max : null,
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],

@@ -529,10 +529,20 @@ $section_profiles = ($section === "profiles");
 
                 <!-- expands when 'Show header' is ticked -->
                 <div id="contrib-heading-wrap">
-                    <?= $form->field($elementContributionsModel, 'heading_type')->dropDownList(
+                    <?= $form->field($elementContributionsModel, 'heading_type', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->dropDownList(
                         ['h1'=>'H1','h2'=>'H2','h3'=>'H3','h4'=>'H4','h5'=>'H5','h6'=>'H6'],
-                        ['prompt' => 'Select header size', 'id' => 'contrib-heading-size']
-                    )->label('Header size') ?>
+                        ['prompt' => 'Select header size', 'id' => 'contrib-heading-size', 'class' => 'form-control']
+                    ) ?>
                 </div>
 
                 <!-- 3) Show pagination -->
@@ -542,8 +552,18 @@ $section_profiles = ($section === "profiles");
 
                 <!-- expands when 'Show pagination' is ticked -->
                 <div id="contrib-pagesize-wrap">
-                    <?= $form->field($elementContributionsModel, 'page_size')->textInput([
-                        'type' => 'number','class' => 'search-box form-control',
+                    <?= $form->field($elementContributionsModel, 'page_size', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->textInput([
+                        'type' => 'number','class' => 'form-control',
                         'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
                         'id' => 'elementcontributions-page_size'
                     ])->label('Page size') ?>
@@ -556,8 +576,18 @@ $section_profiles = ($section === "profiles");
 
                 <!-- expands when 'Top-K' is ticked -->
                 <div id="contrib-topk-wrap">
-                    <?= $form->field($elementContributionsModel, 'top_k')->textInput([
-                        'type' => 'number','class' => 'search-box form-control',
+                    <?= $form->field($elementContributionsModel, 'top_k', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->textInput([
+                        'type' => 'number','class' => 'form-control',
                         'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
                         'id' => 'elementcontributions-top_k'
                     ])->label('K') ?>
@@ -570,12 +600,30 @@ $section_profiles = ($section === "profiles");
 
                 <!-- expands when 'Researcher selection' is ticked -->
                 <div id="user-defined-max-wrap">
-                    <?= $form->field($elementContributionsModel, 'user_defined_max')->input('number', [
-                        'min' => 0, 'placeholder' => 'Unlimited if empty', 'id' => 'contrib-user-defined-max'
+                    <?= $form->field($elementContributionsModel, 'user_defined_max', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->input('number', [
+                        'min' => 0,
+                        'placeholder' => 'Unlimited if empty',
+                        'id' => 'contrib-user-defined-max',
+                        'class' => 'form-control'
                     ])->label('Max selection') ?>
                 </div>
-               
-                <!-- 6) Pre-applied filters -->
+
+                <!-- 6) Show missing papers -->
+                <?= $form->field($elementContributionsModel, 'show_missing_papers')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_missing_papers'])
+                    ?>
+
+                <!-- 7) Pre-applied filters -->
                 <?php
                 // Build checkbox label arrays from params
                 $openness = Yii::$app->params['openness'] ?? [];

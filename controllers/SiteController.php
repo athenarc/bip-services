@@ -2322,6 +2322,10 @@ class SiteController extends BaseController
                         break;
                     case 'Contributions List':
                         if ($elementContributionsModel->load($this->request->post())) {
+                            // Clear selected papers whenever the element is updated
+                            // This ensures a fresh start when switching between Top-K and Researcher selection
+                            \app\models\Scholar::saveSelectedPapersForList($id, []);
+                            
                             $elementContributionsModel->save();
                         }
                         break;

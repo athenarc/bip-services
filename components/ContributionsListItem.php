@@ -43,7 +43,11 @@ class ContributionsListItem extends Widget
     public $selected_accesses;
     public $selected_types;
     public $preHeaderHtml;
-    public $show_pagination = true;
+    public $show_pagination;
+    public $list_id;
+    public $show_missing_works;
+    public $noWorksMessage;
+
 
     // public $show;
 
@@ -84,6 +88,9 @@ class ContributionsListItem extends Widget
             'selected_types' => $this->selected_types,
             'preHeaderHtml' => $this->preHeaderHtml,
             'show_pagination' => $this->show_pagination,
+            'list_id' => $this->list_id,
+            'show_missing_works' => $this->show_missing_works,
+            'noWorksMessage' => $this->noWorksMessage,
         ];
 
 
