@@ -165,7 +165,7 @@ if($session->has('no_results') && $session->get('no_results') == true){
                                         <input type="checkbox" name="selected_papers" value="<?= $row['internal_id'] ?>" onclick='handleCheckboxClick(this);' />
                                     <?php } ?>
 									</td>
-                                    <td id="res_<?= $row['internal_id'] ?>_t"><?= Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($row['title'],90)) ?></td>
+                                    <td id="res_<?= $row['internal_id'] ?>_t"><?= Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($row['title'],180)) ?></td>
                                     <td>    
                                         <a class="context-popup-link" data-target="#context-modal" data-toggle="modal" href="#modal" title='Show keyword context'><span class='context'>context </span><i class="fa fa-eye" aria-hidden="true"></i></a>
                                     </td>                                                
