@@ -68,7 +68,7 @@ use app\components\ResultItem;
                         <td>
                             <!-- title -->
                             <div <?php if (isset($paper["title"]) && strlen($paper["title"]) > 90) { ?> title="<?= $paper['title'] ?>" <?php } ?>>
-                                <?= (!isset($paper["title"])) ? 'N/A' : Yii::$app->bipstring->shortenString($paper["title"], 90) ?>
+                                <?= (!isset($paper["title"])) ? 'N/A' : Yii::$app->bipstring->shortenString($paper["title"], 180) ?>
                             </div>
 
                             <div>
