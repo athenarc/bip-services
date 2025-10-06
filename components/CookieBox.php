@@ -21,7 +21,7 @@ class CookieBox
 	public static function show()
 	{
 		$cssFile='@web/css/components/cookieBox.css';
-		$jsFile='@web/js/components/cookieBox.js';
+		$jsFile='@web/js/components/ckBox.js';
 
 		$cookies = Yii::$app->request->cookies;
 
