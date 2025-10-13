@@ -27,6 +27,7 @@ use app\models\SearchForm;
 use app\models\SurveyForm;
 use app\models\FeedbackForm;
 use app\models\Article;
+use app\models\PmcPaperPids;
 use app\models\Journal;
 use app\models\DoiToPmc;
 use app\models\UsersLikes;
@@ -70,10 +71,12 @@ use app\models\ElementNarrativesSearch;
 use app\models\Facets;
 use app\models\GraphConnectionFactory;
 use app\models\Orcid;
+use app\models\SummaryUsage;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
 use app\models\ChangePasswordForm;
+use app\models\AdminOptions;
 
 class SiteController extends BaseController
 {
@@ -139,7 +142,6 @@ class SiteController extends BaseController
 
             // space
             $space_url_suffix = Yii::$app->request->post('space_url_suffix');
-
             $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
             $space_model->prepareForRequest();
 
@@ -190,6 +192,7 @@ class SiteController extends BaseController
             // append keywords and space
             $get_request_array['keywords'] = $keywords;
             $get_request_array['space_url_suffix'] = $space_url_suffix;
+            $get_request_array['provided_by'] = $post_data_all['provided_by'] ?? [];
 
             //Redirect to same action but with parameters in prettyURL format!
             return $this->redirect(Url::to(array_merge(['site/index'], $get_request_array)));
@@ -206,13 +209,24 @@ class SiteController extends BaseController
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+        $articlesCount = Article::find()->count();
+        $keywords = Yii::$app->request->get('keywords');
+
+        $researcher_count = 0;
+
+        if (!empty($keywords)) {
+            $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
+            $scholar_results = $search_model_researcher->search();
+            $researcher_count = count($scholar_results['rows']);
+        }
 
         return $this->render('index', [
             'model' => $search_model,
             'space_model' => $space_model,
             'results' => $results,
             'impact_indicators' => $impact_indicators,
-            // 'author_list' => $author_list,
+            'researcher_count' => $researcher_count,
+            'articlesCount' => $articlesCount,
         ]);
     }
 
@@ -251,6 +265,7 @@ class SiteController extends BaseController
             $search_params['impulse'], 
             $search_params['cc'], 
             $search_params['type'], 
+            $search_params['provided_by'],
             $space_model
         );
 
@@ -358,10 +373,17 @@ class SiteController extends BaseController
 
         $doi = $id;
 
-        $article = Article::find()->where(['doi' => $doi])->one();
+        $article = Article::find()
+            ->joinWith('pids p', true, 'INNER JOIN')
+            ->where(['p.doi' => $doi])
+            ->one();
+
+
         if (!$article) {
             throw new \yii\web\NotFoundHttpException("Article not found");
         }
+
+        $article->doi = $doi;
 
         // properly format article details (authors, journal, abstract etc)
         $article->formatDetails();
@@ -490,8 +512,10 @@ class SiteController extends BaseController
         $works = (new \yii\db\Query())
             ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
             ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['in', 'doi', $dois])
+            ->groupBy('internal_id')
             ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function($element) { return "\"$element\""; }, $dois)) . ')')])
             ->all();
 
@@ -973,7 +997,8 @@ class SiteController extends BaseController
         return $this->renderPartial('papers_list', [
             'warning' => 'This list contains duplicate records, as identified by the <a href="https://graph.openaire.eu/docs/graph-production-workflow/deduplication" class="main-green" target="_blank">OpenAIRE deduplication algorithm</a> based on metadata analysis.',
             'papers' => $versions,
-            'impact_indicators' => $impact_indicators
+            'impact_indicators' => $impact_indicators,
+            'hide_bookmark' => true
         ]);
     }
 
@@ -1222,16 +1247,10 @@ class SiteController extends BaseController
         $stats = new AdminStats();
         $stats->getStats();
 
-        $monthly_user_data = AdminStats::getMonthlyUserData();
-        $user_activity_data = AdminStats::getUserActivityData();
-
-
         return $this->render('admin/main', [
             'section' => $section,
             'overview_data' => [
                 'stats' => $stats,
-                'monthly_user_data' => $monthly_user_data,
-                'user_activity_data' => $user_activity_data
             ],
         ]);
     }
@@ -1368,6 +1387,31 @@ class SiteController extends BaseController
 
         return $this->redirect(['site/admin-spaces']);
 
+    }
+
+    public function actionAdminOptions()
+    {
+        $section = "thresholds";
+
+        if (!AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException("Page not Found");
+        }
+
+        $threshold = (int) AdminOptions::getValue('summarize_button_threshold');
+
+        if (Yii::$app->request->isPost) {
+            $newValue = (int) Yii::$app->request->post('threshold');
+            AdminOptions::setValue('summarize_button_threshold', $newValue);
+            Yii::$app->session->setFlash('success', 'Threshold updated successfully.');
+            return $this->redirect(['site/admin-options']);
+        }
+
+        return $this->render('admin/main', [
+            'section' => 'options',
+            'options_data' => [
+                'threshold' => $threshold,
+            ],
+        ]);
     }
 
     public function actionSettings() {
@@ -1997,7 +2041,7 @@ class SiteController extends BaseController
                                             }
                                         }
                                     }
-                
+
                                     if ($dropdownFlag) {
                                         $transaction->commit();
                                     }
@@ -2629,8 +2673,114 @@ class SiteController extends BaseController
         return $this->render('feedback', ['model' => $model]);
     }
 
-    public function actionChangePassword()
+    public function actionSummarize()
     {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        try {
+            if (Yii::$app->user->isGuest) {
+                throw new \Exception("You must be logged in to use summarization.");
+            }
+
+            $userId = Yii::$app->user->id;
+            $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
+
+            if (!SummaryUsage::logAndCheckQuota($userId)) {
+                throw new \Exception("You have reached your daily quota of {$threshold} summarizations.");
+            }
+
+            $paperIds = Yii::$app->request->post('paperIds');
+            $limit = Yii::$app->request->post('limit');
+            $keywords = Yii::$app->request->post('keywords');
+
+            if (empty($paperIds)) {
+                throw new \Exception("No papers provided");
+            }
+
+            $papers = (new \yii\db\Query())
+                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'])
+                ->from('pmc_paper')
+                ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+                ->where(['in', 'internal_id', $paperIds])
+                ->groupBy('internal_id')
+                ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
+                ->limit($limit)
+                ->all();
+
+            if (empty($papers)) {
+                throw new \Exception("No papers found");
+            }
+
+            $client = Yii::$app->httpClient;
+            $response = $client->createRequest()
+                ->setMethod('POST') 
+                ->setUrl(Yii::$app->params['summarizeService'] . '/summarize/')
+                ->addHeaders(['Content-Type' => 'application/json'])
+                ->setContent(Json::encode([
+                    'papers' => $papers,
+                    'topic_name' => $keywords,
+                ]))
+                ->send();
+            
+            if ($response->isOk) {
+                $summary = $response->data['summary'] ?? 'No summary available';
+                $plainSummary = $summary;
+
+                $referenceLines = [];
+
+                // replace the paper ids with the links
+                foreach ($papers as $i => $paper) {
+                    $id = $paper['id'];
+                    $index = $i + 1;
+                    $url = Url::to(['site/details', 'id' => $paper['doi']], true);
+                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
+                    $summary = str_replace($id, $link, $summary);
+                    $plainSummary = str_replace("$id", "[$index]", $plainSummary);
+                    // Build references line
+                    $title = $paper['title'] ?? 'Untitled';
+                    $journal = $paper['journal'] ?? 'Unknown Journal';
+                    $year = $paper['year'] ?? 'n.d.';
+                    $doi = $paper['doi'] ?? '';
+                    $doiUrl = $doi ? "https://doi.org/{$doi}" : '';
+                    $referenceLines[] = "[$index] $title. $journal, $year. $doiUrl";
+                }
+
+                if (!empty($referenceLines)) {
+                    $plainSummary .= "\n\nReferences:\n" . implode("\n", $referenceLines);
+                }
+
+                $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
+                $summary = nl2br($summary);
+                return [
+                    'html' => $summary,
+                    'plain' => $plainSummary,
+                ];
+
+            } else {
+                 throw new \Exception("Failed to summarize results.");
+            }
+
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function actionCheckSummaryQuota() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (Yii::$app->user->isGuest) {
+            return [
+                'quotaReached' => false,
+                'used' => 0,
+                'limit' => (int) (\app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20),
+            ]; //true to block guests
+        }
+
+        $userId = Yii::$app->user->id;
+        return \app\models\SummaryUsage::isQuotaReached($userId);
+    }
+
+    public function actionChangePassword() {
         // if not logged in, redirect to login page
         $user = Yii::$app->user->identity;
         if (!$user) {
@@ -2647,6 +2797,5 @@ class SiteController extends BaseController
         }
 
         return $this->render('change_password', ['model' => $model]);
-        
     }
 }

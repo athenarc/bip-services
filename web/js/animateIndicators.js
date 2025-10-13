@@ -10,7 +10,7 @@ function animateIndicators() {
     startVal: 0, // number to start at (0)
     decimalPlaces: 0, // number of decimal places (0)
     duration: 2, // animation duration in seconds (2)
-    useGrouping: false, // example: 1,000 vs 1000 (true)
+    useGrouping: true, // example: 1,000 vs 1000 (true)
     useEasing: true, // ease animation (true)
     separator: ',', // grouping separator (',')
     decimal: '.', // decimal ('.')

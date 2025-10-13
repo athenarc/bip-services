@@ -4,6 +4,8 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+
 $this->title = 'BIP! Services - Help';
 ?>
 

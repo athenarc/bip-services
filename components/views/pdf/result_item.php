@@ -26,7 +26,7 @@ $item = $this->context;
                 $url = Url::to(array_merge(['site/details'], $params));
             ?>
             <?= Html::a(
-                Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($item->title, 90)),
+                Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($item->title, 180)),
                 $url,
                 ['class' => 'main-green', 'title' => 'Show details', 'target' => '_blank']
             ); ?>

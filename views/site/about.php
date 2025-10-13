@@ -7,6 +7,7 @@ use yii\web\View;
 
 $this->title = 'BIP! Services - About';
 $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 ?>
 
@@ -16,7 +17,7 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
     </h1>
     <hr/>
 
-    <h3>BIP! Services</h3>
+	<a href="#bip-services" class="no-underline"><h3 id="bip-services">BIP! Services</h3></a>
     <div class="help-text">
         <p>
             <b>The suite</b>. BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines. The suite comprises four services, <a href='<?= Url::to(['/search']) ?>' class="main-green" target="_blank">Finder</a>, <a href='<?= Url::to(['/scholar']) ?>' class="main-green" target="_blank">Scholar</a>, <a href='<?= Url::to(['/readings']) ?>' class="main-green" target="_blank">Readings</a>, and <a href='<?= Url::to(['/spaces']) ?>' class="main-green" target="_blank">Spaces</a>, each offering unique functionalities addressed to all professionals conducting research. professionals, and technologists across all disciplines, fostering interdisciplinary cooperation. For more information regarding BIP! Services visit <a href='<?= Url::to(['/site/home']) ?>' class="main-green" target="_blank">here</a>.
@@ -38,7 +39,17 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
                             <div>
                                 <a href="<?= $member['link'] ?>" class="main-green" target="_blank"><?= $member['name'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                                 <?php if (!empty($member['role'])): ?>
-                                    <div class="team-member-role"><?= $member['role'] ?></div>
+                                    <?php
+                                        $roleParts = explode('&', $member['role']);
+                                        $primaryRole = trim($roleParts[0]);
+                                        $secondaryRole = isset($roleParts[1]) ? trim($roleParts[1]) : null;
+                                    ?>
+                                    <div class="team-member-role">
+                                        <?= $primaryRole ?>
+                                        <?php if ($secondaryRole): ?>
+                                            <span class="mobile-hidden-role"> & <?= $secondaryRole ?></span>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php endif; ?>
                                 <div><?= $member['email'] ?></div> 
                             </div>
@@ -48,7 +59,6 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
             </div>
         </div>
     </div>
-
 
     <h3>
         <a href="#former-team" data-toggle="collapse" class="custom-collapse text-decoration-none" 
@@ -77,7 +87,7 @@ $this->registerJsFile('@web/js/toggleCollapseArrow.js', ['position' => View::POS
         </div>
     </div>
     
-    <h3>How to cite</h3>
+	<a href="#how-to-cite" class="no-underline"><h3 id="how-to-cite">How to cite</h3></a>
 
     <div class="help-text">
 

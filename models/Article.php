@@ -17,6 +17,7 @@
          * the paper's position in the top-k most popular/influential
          * papers overall, or in the journal.
          */
+        public $doi;
         public $pop_journal;
         public $pop_journal_class;
         public $pop_total;
@@ -65,6 +66,8 @@
         public function attributeLabels()
         {
             return [
+                'internal_id' => 'Internal Id',
+                'openaire_id' => 'Openaire Id',
                 'journal' => 'Venue',
                 'title' => 'Title',
                 'pmc' => 'PMC id',
@@ -75,6 +78,16 @@
                 'abstract_score' => 'Readability score',
                 'pdf_link' => 'PDF Link'
             ];
+        }
+
+        /**
+        * Gets all related DOIs from pmc_paper_pids.
+        * One paper has many pids.
+        * @return \yii\db\ActiveQuery
+        */
+        public function getPids()
+        {
+            return $this->hasMany(PmcPaperPids::class, ['paper_id' => 'internal_id']);
         }
 
         /*
@@ -262,7 +275,9 @@
             ->from('pmc_paper')
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->innerJoin('pmc_paper_pids','pmc_paper.internal_id = pmc_paper_pids.paper_id' )
             ->where(['internal_id' => $cited])
+            ->groupBy('internal_id')
             ->all();
      }
 
@@ -270,11 +285,12 @@
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         return (new \yii\db\Query())
-            ->select('internal_id, doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count')
+            ->select('internal_id, pmc_paper_pids.doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count')
             ->from('pmc_paper')
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
-            ->where(['openaire_id' => $openaire_id])
+            ->innerJoin('pmc_paper_pids','pmc_paper.internal_id = pmc_paper_pids.paper_id' )
+            ->where(['pmc_paper.openaire_id' => $openaire_id])
             ->orderBy([ 'internal_id' => SORT_ASC ])
             ->all();
      }
@@ -283,13 +299,15 @@
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         return (new \yii\db\Query())
-            ->select('internal_id, doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count, relations.relation_name')
+            ->select('internal_id, pmc_paper_pids.doi, title, authors, journal, year, user_id, attrank, pagerank, 3y_cc, citation_count, relations.relation_name')
             ->from('pmc_paper')
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->innerJoin('pmc_paper_pids','pmc_paper.internal_id = pmc_paper_pids.paper_id' )
             ->innerJoin('relations', 'relations.target = pmc_paper.openaire_id')
             ->where(['doi' => $target_dois])
             ->andWhere(['relations.source' => $source_openaire_id])
+            ->groupBy('internal_id')
             ->orderBy([ 'internal_id' => SORT_ASC ])
             ->all();
      }
@@ -313,7 +331,9 @@
             ->from('pmc_paper')
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->innerJoin('pmc_paper_pids','pmc_paper.internal_id = pmc_paper_pids.paper_id' )
             ->where(['internal_id' => $citations])
+            ->groupBy('internal_id')
             ->all();
      }
 
@@ -589,9 +609,11 @@
             ->select(['internal_id', 'doi', 'pmc', 'title', 'authors', 'journal', 'year', 'user_id'])
             ->from('pmc_paper')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('papers_to_topics_new', 'papers_to_topics_new.paper_id = pmc_paper.internal_id')
             ->where(['in', 'internal_id', $paper_ids])
             ->andWhere(['topic_id' => $topic_id])
+            ->groupBy('internal_id')
             ->orderBy(['weight' => SORT_DESC])
             ->all();
      }

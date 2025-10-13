@@ -60,9 +60,10 @@ class Relations extends \yii\db\ActiveRecord
         $openaire_ids_target = array_unique(array_column($papers_relations, 'target'));
 
         $targets_data = (new \yii\db\Query())
-        ->select(['r.target', 'p.doi', 'p.type'])
+        ->select(['r.target', 'pid.doi', 'p.type'])
         ->from(['r' => 'relations'])
         ->innerJoin(['p' => 'pmc_paper'], 'p.openaire_id = r.target')
+        ->innerJoin(['pid' => 'pmc_paper_pids'],'p.internal_id = pid.paper_id')
         ->where(['p.openaire_id' => $openaire_ids_target])
         ->all();
 

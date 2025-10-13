@@ -16,6 +16,7 @@ use app\components\TopTopicsItem;
 use app\components\CustomBootstrapModal;
 use yii\helpers\ArrayHelper;
 use app\models\Indicators;
+use app\models\SummaryUsage;
 
 use Yii;
 
@@ -30,9 +31,14 @@ $this->registerJsFile('@web/js/beforeSearchFormSubmit.js', ['position' => View::
 $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 
+$this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexAnimation.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/indexCarousel.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/animateIndicators.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 // set vars to be used in the view
 $keywords = $model->keywords;
@@ -126,6 +132,9 @@ if ($in_space) {
 
                         <?= CustomFiltersCheckboxList::widget(['id' => 'type_filter', 'name' => 'type', 'model' => $model, 'form' => $form, 'items' => array_map(function ($value) {return $value['name'];}, Yii::$app->params['work_types']), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
 
+                        <?php if ($in_space): ?>
+                            <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+                        <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
                             <label>Start Year</label>
@@ -171,6 +180,21 @@ if ($in_space) {
                 </div>
             <?php } ?>
             <?php ActiveForm::end(); ?>
+
+            <?php if (!empty($researcher_count)): ?>
+                <div id="researcher_panel" class="panel-body text-left grey-text" style="font-size: 1.2em;">
+                    Searching for a researcher? Found
+                    <a class="main-green" href="<?= Url::to([
+                        '/scholar/search',
+                        'keywords' => $keywords,
+                        'ordering' => 'name'
+                    ]) ?>">
+                        <?= $researcher_count ?> researcher profile<?= $researcher_count > 1 ? 's' : '' ?>
+                    </a>
+                    matching this query.
+                </div>
+            <?php endif; ?>
+
             <a href='<?=Url::to(['site/comparison'])?>' target='_blank' id='comparison' class='btn btn-warning'></a>
             <div id='clear-comparison' onclick="clearSelected();">
                 Clear all<i class="fa fa-times" aria-hidden="true"></i>
@@ -189,14 +213,83 @@ if ($in_space) {
                     <?= TopTopicsItem::widget([]) ?>
 
                     <div id="results_hdr" class='row'>
-                        <div class='col-md-3 text-center results-header'><?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results (<?=  Yii::$app->formatter->asDecimal($results['pagination']->pageCount,0) ?> pages)</div>
-                        <div class='col-md-6 text-center'><?= LinkPager::widget(['pagination'=>$results['pagination'],
-                            'maxButtonCount'=>5,
-                            'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
-                            'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
+                        <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">
+                            <?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results (<?= Yii::$app->formatter->asDecimal($results['pagination']->pageCount,0) ?> pages)
+                        </div>
+                        <div class='col-sm-12 col-md-6 text-center' style="margin-bottom: 15px;">
+                            <?= LinkPager::widget(['pagination'=>$results['pagination'],
+                                'maxButtonCount'=>5,
+                                'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
+                                'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
+                            ?>
+                        </div>
+
+                        <?php
+                            $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
                         ?>
+
+                        <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
+                            <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                                <button id="summarizeBtn" class="btn btn-default btn-sm" 
+                                        data-paper-ids='<?= json_encode(array_map(function($result) { 
+                                            return $result['internal_id']; 
+                                        }, $results['rows'])) ?>'
+                                        data-keywords='<?= $keywords ?>'
+                                        data-threshold="<?= $threshold ?>"
+                                    >
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
+                                </button>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div id="summary_panel" class="collapse row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div id="summaryContent" class="grey-text">
+                                        <div class="summary-controls">
+                                            <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
+                                                <label for="summary-count" class="regenerate-label">Use top</label>
+                                                <input type="number" id="summary-count" class="regenerate-input" />
+                                                <label for="summary-count" class="regenerate-label">results.</label>
+                                                <span 
+                                                    role="button" 
+                                                    data-toggle="popover" 
+                                                    data-placement="auto" 
+                                                    title="AI Summary" 
+                                                    data-content="<p>The summary format will change based on the selected number of papers:</p>
+                                                    <ul>
+                                                        <li>1-5 papers: Produces a concise overview.</li>
+                                                        <li>6-20 papers: Creates a more detailed, literature review-style summary.</li>
+                                                    </ul>
+                                                    "
+                                                    style="cursor: pointer;"
+                                                > 
+                                                    <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small>
+                                                </span>
+
+                                                <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Summarize</button>
+                                            </div>
+                                            <div class="text-right" id="copy-summary-wrapper" style="display: none;">
+                                                <a id="copy-summary-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip">
+                                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div id="summaryLoading" class="text-center summary-loading-centered">
+                                            <i class="fa fa-spinner fa-spin"></i> Generating summary...
+                                        </div>
+
+                                        <div id="summaryText" style="text-align: justify; display: none;"></div>
+                                        <div id="summary-usage-info" class="summary-usage-info"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
                             <?php foreach($results['rows'] as $result ) {
@@ -249,24 +342,115 @@ if ($in_space) {
                         ?></div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <div id='results_set'>
-                    <?php if( $keywords!="" ) { ?>
-                        <p class="help-text" style="text-align: center;">No results found!<br/>
-                        Please check your spelling or try again with different input parameters</p>
                     <?php } else { ?>
-                        <br/><br/><br/>
-                        <p>More details about BIP! Finder can be found in our publication:</p>
-                        <div class="panel panel-default text-left">
-                            <div class="panel-body">
-                                T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> <i>In Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, Beijing, China, November 2019 <small><?= Html::a("(BibTeX)", "@web/files/bip-finder.bib", ["class" => "grey-link"] ) ?></small>
-                            </div>
+                        <div id='results_set'>
+                            <?php if( $keywords != "" ) { ?>
+                                <p class="help-text" style="text-align: center;">No results found!<br/>
+                                Please check your spelling or try again with different input parameters</p>
+                            <?php } else { ?>
+
+                                <!-- Layout Blocks Container -->
+                                <div class="container">
+                                    <div class="bip-home-layout bip-animate">
+
+                                        <!-- BIP info Panel -->
+                                        <div class="panel panel-default bip-animate bip-info-panel">
+                                            <div class="panel-body">
+                                            BIP! Services, is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
+                                            <a href="<?= Url::to(['site/about']) ?>" class="main-green">
+                                                Learn more <i class="fa fa-external-link-square" aria-hidden="true"></i>
+                                            </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="bip-main-grid">
+
+                                            <!-- Getting Started Panel -->
+                                            <div class="panel panel-default bip-animate bip-started">
+                                                <div class="panel-body">
+                                                    <h3>Getting started</h3>
+                                                    <ul>
+                                                        
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-services-account']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Services account?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/help', '#' => 'create-bip-scholar-academic-profile']) ?>" class="light-grey-link">
+                                                                How do I create a BIP! Scholar academic profile?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/indicators']) ?>" class="light-grey-link">
+                                                                What indicators are used in BIP! Services?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'downloads']) ?>" class="light-grey-link">
+                                                                Can I download the data?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/data', '#' => 'api']) ?>" class="light-grey-link">
+                                                                Is there a publicly accessible API?
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="<?= Url::to(['/site/about', '#' => 'how-to-cite']) ?>" class="light-grey-link">
+                                                                How do I cite BIP! Services?
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div class="bip-side-boxes bip-animate">
+                                                <!-- Research Works Counter -->
+                                                <div class="panel panel-default bip-counter bip-animate">
+                                                    <div class="panel-body text-center">
+                                                        <strong class="animate-indicator" id="counter-number" data-target="<?= $articlesCount ?>">0</strong><br/>
+                                                        Research works indexed
+                                                    </div>
+                                                </div>
+
+                                                <!-- Carousel -->
+                                                <div class="panel panel-default bip-animate">
+                                                    <div class="panel-body">
+                                                        <div class="bip-carousel">
+                                                            <div class="bip-carousel-inner">
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/scholar']) ?>" class="bip-slide-button">Scholar</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/spaces']) ?>" class="bip-slide-button">Spaces</a>
+                                                                </div>
+                                                                <div class="bip-carousel-item">
+                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="bip-dots">
+                                                                <span class="dot active" data-slide="0"></span>
+                                                                <span class="dot" data-slide="1"></span>
+                                                                <span class="dot" data-slide="2"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+ 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
-                        <p><small>We kindly ask that any published research that makes use of BIP! Finder or its data cites the paper above.</small></p>
                     <?php } ?>
                 </div>
-            <?php } ?>
-    </div>
 </div>
     <?php
         Modal::begin(['headerOptions' => ['id' => 'modalHeader'],

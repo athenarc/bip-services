@@ -5,6 +5,7 @@ use yii\helpers\Html;
 
 $this->registerJsFile('@web/js/fixed-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 $this->registerCssFile('@web/css/fixed-sidebar.css');
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->title = 'BIP! impact indicators';
 

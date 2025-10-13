@@ -12,8 +12,10 @@ $this->registerJsFile('@web/js/third-party/swagger/swagger-ui-bundle.js', ['posi
 $this->registerJsFile('@web/js/third-party/swagger/swagger-ui-standalone-preset.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/third-party/swagger/swagger-ui.css');
 $this->registerCssFile('@web/css/swagger.css');
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 ?>
+<script src="https://cdn.jsdelivr.net/gh/athenarc/bip-plugin@main/embed.min.js"></script>
     <div class="site-about help-text">
 
         <div class="data-section">
@@ -71,9 +73,13 @@ $this->registerCssFile('@web/css/swagger.css');
 
             <!-- Dataset Dumps -->
             <div class="dataset-dumps">
-                <h3>
-                    <i class="fa fa-download"></i> Downloads
-                </h3>
+
+                <a href="#downloads" class="no-underline" style="color: inherit;">
+                    <h2 id="downloads">
+                        <i class="fa fa-download"></i> Data downloads    
+                    </h2>
+                </a>
+
                 <p>
                     The latest dataset dump including all citation-based impact indicators is available at 
                     <a href="https://doi.org/10.5281/zenodo.4386934" class="main-green" target="_blank">
@@ -112,7 +118,11 @@ $this->registerCssFile('@web/css/swagger.css');
         </div>
 
         <p>
-            <h2>API</h2>
+            <a href="#api" class="no-underline" style="color: inherit;">
+                <h2 id="api">
+                    <i class="fa fa-share-alt"></i> Open API
+                </h2>
+            </a>
             All impact indicators calculated by BIP! can be retrieved via the interface below or via our <a href="https://bip-api.imsi.athenarc.gr/documentation" class="main-green" target="_blank">public API <i class='fa fa-external-link-square' aria-hidden='true'></i></a>.
         </p>
 
@@ -123,7 +133,7 @@ $this->registerCssFile('@web/css/swagger.css');
               const ui = SwaggerUIBundle({
                 url: "https://bip-api.imsi.athenarc.gr/swagger.json",
                 dom_id: '#swagger-ui',
-                deepLinking: true,
+                deepLinking: false,
 
                 presets: [
                   SwaggerUIBundle.presets.apis,
@@ -136,23 +146,48 @@ $this->registerCssFile('@web/css/swagger.css');
         </script>
 
         <p>
-            <h2>Terms of use</h2>
+            <h3>Terms of use</h3>
             The datasets and API are provided on an "as-is" basis, without any guarantees or warranties of any kind; they are made available under the terms of the <a href="https://creativecommons.org/public-domain/cc0/" target="blank" class="main-green">Creative Commons Zero License (CC0)</a>.
         </p>
 
         <p>
-            <h3>Code</h3>
-            BIP! currently maintains the following code repositories:
+            <a href="#code" class="no-underline" style="color: inherit;">
+                <h2 id="code">
+                    <i class="fa fa-code"></i> Code
+                </h2>
+            </a>
+            
+            BIP! Services provide open-source code and tools that make it easy to integrate our citation-based impact indicators into external platforms and applications. Below you can find the main libraries, plugins, and workflows developed and maintained by the BIP! team.
+
+            <a href="#badges" class="no-underline" style="color: inherit;">
+                <h3 id="badges">
+                    BIP! Badges
+                </h3>
+            </a>
+            A lightweight JavaScript library that provides an elegant way to display interactive badges that visualize citation-based impact indicators of research works. 
+            Please follow <a href="https://github.com/athenarc/bip-plugin?tab=readme-ov-file#quick-start" class="main-green" target="_blank">these instructions</a> to embed badges, like the one shown below, into your web page.
+            <br>
+            
+            <div class="bip-embed" data-doi="10.1093/nar/gkx1141"></div>
+
+            <br><br>
+
+            In addition to the badges library, BIP! currently maintains several other repositories that support research assessment:
             <ul>
                 <li>
-                    BIP! Ranker (<a href="https://github.com/athenarc/Bip-Ranker" class="main-green" target="_blank">repository</a>, <a href="https://doi.org/10.5281/zenodo.10564109" class="main-green" target="_blank">10.5281/zenodo.10564109<a>)
+                    <strong>BIP! Ranker</strong> – a framework for ranking reasearch works based on multiple citation-based impact indicators 
+                    (<a href="https://github.com/athenarc/Bip-Ranker" class="main-green" target="_blank">repository</a>, 
+                    <a href="https://doi.org/10.5281/zenodo.10564109" class="main-green" target="_blank">10.5281/zenodo.10564109</a>)
                 </li>
                 <li>
-                    <a href="https://github.com/athenarc/bip-scholar-indicators" class="main-green" target="_blank">BIP! Scholar Indicators</a>
+                    <strong>BIP! Scholar Indicators</strong> – a library to aggreagate bibliometric indicators for researchers:
+                    (<a href="https://github.com/athenarc/bip-scholar-indicators" class="main-green" target="_blank">repository</a>)
                 </li>
                 <li>
-                    <a href="https://github.com/athenarc/bip-ndr-workflow" class="main-green" target="_blank">BIP! NDR workflow</a>
+                    <strong>BIP! NDR Workflow</strong> – a workflow for updating the BIP! NDR (NoDoiRefs) dataset
+                    (<a href="https://github.com/athenarc/bip-ndr-workflow" class="main-green" target="_blank">repository</a>)
                 </li>
             </ul>
         </p>
+
     </div>

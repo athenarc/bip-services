@@ -92,7 +92,7 @@ $this->registerCssFile('@web/css/favorites.css');
                 <td class="col-xs-8">
                     <!-- title -->
                     <div id="res_<?= $cur_contents['internal_id'] ?>_t" <?php if (strlen($cur_contents['title']) > 90) { ?> title="<?= $cur_contents['title'] ?>" <?php } ?>>
-                        <?= Yii::$app->bipstring->shortenString($cur_contents['title'], 90) ?>
+                        <?= Yii::$app->bipstring->shortenString($cur_contents['title'], 180) ?>
                         <?= Html::a('<i class="fa fa-info-circle" aria-hidden="true"></i>', Url::to(['site/details', 'id' => $cur_contents['doi']]), ['class' => 'grey-link', 'id' => 'a_res_' . $cur_contents['internal_id'], 'title' => 'Show details', 'target' => '_blank']); ?>
                     </div>
 

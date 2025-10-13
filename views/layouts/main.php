@@ -75,7 +75,7 @@ AppAsset::register($this);
 
         $items = [
             ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Open data', 'url' => ['site/data']],
+            ['label' => 'Data & code', 'url' => ['site/data']],
             ['label' => 'Indicators', 'url' => ['site/indicators']],
             ['label' => 'Help', 'url' => ['/site/help']],
             [

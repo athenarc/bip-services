@@ -40,7 +40,7 @@ $item = $this->context;
                     $url = Url::to(array_merge(['site/details'], $params));
                 ?>
                 <?= Html::a(
-                    Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($item->title, 90)) . ' <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>',
+                    Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($item->title, 180)) . ' <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>',
                     $url,
                     ['class' => 'main-green', 'title' => 'Show details', 'target' => '_blank']
                 ); ?>
