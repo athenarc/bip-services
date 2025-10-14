@@ -762,7 +762,7 @@
         return "PubMed Id";
     }
 
-    public static function getCodeRepoUrlsByDois($internal_ids) {
+    public static function getCodeRepoUrls($internal_ids) {
         if (empty($internal_ids)) {
             return [];
         }
@@ -771,7 +771,6 @@
             ->select(['paper_id', 'code_url'])
             ->from('zenodo_code_repos')
             ->where(['paper_id' => $internal_ids])
-            ->andWhere(['not', ['code_url' => null]])
             ->all();
 
         return array_column($rows, 'code_url', 'paper_id');  // [paper_id => code_url]

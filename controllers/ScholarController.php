@@ -471,7 +471,7 @@ class ScholarController extends BaseController
             $indicators = $scholar->indicators->compute($rag_data);
             
             $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
-            $repoUrls = Article::getCodeRepoUrlsByDois($internal_ids);
+            $repoUrls = Article::getCodeRepoUrls($internal_ids);
 
             foreach ($result['papers'] as &$paper) {
                 $internal_id = $paper['internal_id'] ?? null;
