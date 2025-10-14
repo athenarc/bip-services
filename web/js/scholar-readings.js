@@ -120,7 +120,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#sort-dropdown").on('change', function(){
+    $(document).on('change', '[id^="sort-dropdown-"]', function(){
         var selected_list_id = $('#scholar-form').attr('data-selected_list_id');
         if (selected_list_id){
             var default_action = $('#scholar-form').attr('action');

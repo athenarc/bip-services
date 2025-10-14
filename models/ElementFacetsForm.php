@@ -24,4 +24,13 @@ class ElementFacetsForm extends Model
             // [['selected', 'visualize_opt, numbers_opt, border_opt'], 'default', 'value'=> false],
         ];
     }
+
+    public function validateRequired()
+    {
+        if (empty($this->linked_contribution_element_id)) {
+            $this->addError('linked_contribution_element_id', 'Please select a Contributions List to link.');
+            return false;
+        }
+        return true;
+    }
 }

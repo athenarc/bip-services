@@ -20,4 +20,13 @@ class ElementIndicatorsForm extends Model
             ['linked_contribution_element_id', 'integer']
         ];
     }
+
+    public function validateRequired()
+    {
+        if (empty($this->linked_contribution_element_id)) {
+            $this->addError('linked_contribution_element_id', 'Please select a Contributions List to link.');
+            return false;
+        }
+        return true;
+    }
 }

@@ -535,6 +535,11 @@ use yii\bootstrap\NavBar;
                         ?>
                             <div id="contributions-list-<?= $list_id ?>">
                                 <?php
+                                    // Determine sort field: if top_k is set, use config value; otherwise check GET parameter (list-specific)
+                                    $currentSortField = !empty($element['config']['top_k'])
+                                        ? ($element['config']['sort'] ?? 'year')
+                                        : Yii::$app->request->get('sort_' . $list_id, $element['config']['sort'] ?? 'year');
+                                    
                                     echo ContributionsListItem::widget([
                                         'impact_indicators' => $impact_indicators,
                                         'edit_perm' => $edit_perm,
@@ -546,7 +551,7 @@ use yii\bootstrap\NavBar;
                                         'missing_papers_num' => count($missing_papers ?: []),
                                         'list_id' => $list_id,
                                         'show_missing_works' => $element['config']['show_missing_papers'] ?? true,
-                                        'sort_field' => $element['config']['sort'] ?? 'year',
+                                        'sort_field' => $currentSortField,
                                         'orderings' => [
                                             'year' => 'Publication year',
                                             'influence' => 'Influence',

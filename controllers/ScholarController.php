@@ -414,6 +414,11 @@ class ScholarController extends BaseController
         $show_pagination_config = $show_pagination_config ?? null;
         $page_size_config = $page_size_config ?? null;
 
+        // Initialize variables that may or may not be populated depending on template elements
+        $contributions_lists = [];
+        $contributions_indicators = [];
+        $contributions_selected_filters = [];
+        $facets_linked_to_lists = [];
 
         if(isset($researcher->access_token)) {
 
@@ -433,10 +438,8 @@ class ScholarController extends BaseController
             //     }
 
             // fetch papers in current page
-            $contributions_lists= [];
             $indicators_model = new Indicators();
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
-            $facets_linked_to_lists = [];
             $facet_target_list_id = null;
 
             foreach ($template_elements as $element) {
@@ -448,8 +451,11 @@ class ScholarController extends BaseController
                 $config = $element['config'];
 
                 $filters = $config['filters'] ?? [];
-                $sort_field_local = $config['sort'] ?? 'year';
                 $top_k = $config['top_k'] ?? null;
+                // Determine sort field: if top_k is set, use config value; otherwise check GET parameter (list-specific)
+                $sort_field_local = !empty($top_k)
+                    ? ($config['sort'] ?? 'year')
+                    : Yii::$app->request->get('sort_' . $element_id, $config['sort'] ?? 'year');
                 $show_pagination = $config['show_pagination'] ?? null;
                 $page_size = $config['page_size'] ?? null;
 
@@ -862,7 +868,11 @@ class ScholarController extends BaseController
             // calculate scholar indicators
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
-            $indicators = $scholar->indicators->compute($rag_data);
+            // Only compute indicators if scholar->indicators exists (i.e., template has contribution lists)
+            if ($scholar->indicators !== null) {
+                $indicators = $scholar->indicators->compute($rag_data);
+            }
+            // Otherwise, $indicators keeps the default empty array initialized earlier
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();
@@ -956,6 +966,7 @@ class ScholarController extends BaseController
             'template_url_name' => $template_url_name,
             'contributions_lists' => $contributions_lists,
             'contributions_indicators' => $contributions_indicators,
+            'contributions_selected_filters' => $contributions_selected_filters,
             'facets_linked_to_lists' => $facets_linked_to_lists,
             'selected_per_list' => $selected_per_list,
         ];

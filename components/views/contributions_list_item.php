@@ -87,8 +87,9 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
             <?php if ($rightShown): ?>
                 <div class="col-md-4 text-right" style="margin-top:5px">
                     <i class="fa-solid fa-arrow-down-wide-short"></i>
-                    <?= Html::dropDownList('sort', $sort_field, $orderings, [
-                    'id' => 'sort-dropdown',
+                    <?= Html::dropDownList('sort_' . $list_id, $sort_field, $orderings, [
+                    'id' => 'sort-dropdown-' . $list_id,
+                    'class' => 'sort-dropdown',
                     'form' => $formId,
                     'onchange' => 'submit_scholar_form();'
                     ]) ?>
@@ -124,16 +125,17 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
             <?php if ($rightShown): ?>
                 <div class="col-md-4 text-right" style="margin-top:5px">
                     <i class="fa-solid fa-arrow-down-wide-short"></i>
-                    <?= Html::dropDownList('sort', $sort_field, $orderings, [
-                    'id' => 'sort-dropdown',
+                    <?= Html::dropDownList('sort_' . $list_id, $sort_field, $orderings, [
+                    'id' => 'sort-dropdown-' . $list_id,
+                    'class' => 'sort-dropdown',
                     'form' => $formId,
                     'onchange' => 'submit_scholar_form();'
                     ]) ?>
                 </div>
             <?php endif; ?>
-        <?php endif; ?> 
+            <?php endif; ?> 
     </div>
-</div>
+
         <?php if ($works_num > 0): ?>
             <div id='results_tbl' class='row'>
                 <div class="col-xs-12">
@@ -182,15 +184,13 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                 </div>
             </div>
         <?php endif; ?>
-    </div>
-    <?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
-    <?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
+</div>
+<?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
+<?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
     
 <?php if (!empty($noWorksMessage)): ?>
     <?= $noWorksMessage ?>
-<?php endif; ?>
-
-<?php if ($works_num === 0): ?>
+<?php elseif ($works_num === 0): ?>
     <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
 <?php endif; ?>
 
