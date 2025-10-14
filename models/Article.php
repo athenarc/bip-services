@@ -762,20 +762,7 @@
         return "PubMed Id";
     }
 
-    public static function getCodeRepoUrlByDoi($internal_id)
-    {
-        if (empty($internal_id)) {
-            return null;
-        }
-        return (new \yii\db\Query())
-            ->select('code_url')
-            ->from('zenodo_code_repos')
-            ->where(['paper_id' => $internal_id])
-            ->scalar();
-    }
-
-    public static function getCodeRepoUrlsByDois(array $internal_ids): array
-    {
+    public static function getCodeRepoUrlsByDois($internal_ids) {
         if (empty($internal_ids)) {
             return [];
         }
