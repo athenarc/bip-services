@@ -450,8 +450,8 @@ class SiteController extends BaseController
         //Render details page
 
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
-        // Attach code repository URL from zenodo_code_repos table based on article DOI
-        $article->repo_url = \app\models\Article::getCodeRepoUrlByDoi($article->doi);
+        // Attach code repository URL from zenodo_code_repos table based on article internal_id
+        $article->repo_url = \app\models\Article::getCodeRepoUrlByDoi($article->internal_id);
 
         return $this->render('details', [
             'article' => $article,

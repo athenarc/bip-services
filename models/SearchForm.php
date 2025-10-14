@@ -863,25 +863,25 @@ class SearchForm extends Model
         // get relations
         $rows = Relations::getRelations($rows);
         // attach zenodo code repo URLs in one query
-        $dois = array_filter(array_column($rows, 'doi'));
-        $doi_to_url = [];
+        $internal_ids = array_filter(array_column($rows, 'internal_id'));
+        $id_to_url = [];
 
-        if (!empty($dois)) {
+        if (!empty($internal_ids)) {
             $result = (new \yii\db\Query())
-                ->select(['doi', 'code_url'])
+                ->select(['paper_id', 'code_url'])
                 ->from('zenodo_code_repos')
-                ->where(['doi' => array_map('strtolower', array_map('trim', $dois))])
-                ->indexBy('doi')
+                ->where(['paper_id' => $internal_ids])
+                ->indexBy('paper_id')
                 ->all();
 
-            foreach ($result as $doi => $row) {
-                    $doi_to_url[strtolower(trim($doi))] = $row['code_url'];
+            foreach ($result as $paper_id => $row) {
+                    $id_to_url[$paper_id] = $row['code_url'];
                 }
 
             foreach ($rows as &$row) {
-                $doi_key = strtolower(trim($row['doi'] ?? ''));
-                if (isset($doi_to_url[$doi_key])) {
-                    $row['zenodo_repo_url'] = $doi_to_url[$doi_key];
+                $internal_id = $row['internal_id'] ?? null;
+                if ($internal_id && isset($id_to_url[$internal_id])) {
+                    $row['zenodo_repo_url'] = $id_to_url[$internal_id];
                 }
             }
         }

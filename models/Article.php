@@ -762,36 +762,32 @@
         return "PubMed Id";
     }
 
-    public static function getCodeRepoUrlByDoi($doi)
+    public static function getCodeRepoUrlByDoi($internal_id)
     {
-        if (empty($doi)) {
+        if (empty($internal_id)) {
             return null;
         }
         return (new \yii\db\Query())
             ->select('code_url')
             ->from('zenodo_code_repos')
-            ->where(['doi' => strtolower(trim($doi))])
+            ->where(['paper_id' => $internal_id])
             ->scalar();
     }
 
-    public static function getCodeRepoUrlsByDois(array $dois): array
+    public static function getCodeRepoUrlsByDois(array $internal_ids): array
     {
-        if (empty($dois)) {
+        if (empty($internal_ids)) {
             return [];
         }
 
-        $normalized_dois = array_map(function ($doi) {
-            return strtolower(trim($doi));
-        }, $dois);
-
         $rows = (new \yii\db\Query())
-            ->select(['doi', 'code_url'])
+            ->select(['paper_id', 'code_url'])
             ->from('zenodo_code_repos')
-            ->where(['doi' => $normalized_dois])
+            ->where(['paper_id' => $internal_ids])
             ->andWhere(['not', ['code_url' => null]])
             ->all();
 
-        return array_column($rows, 'code_url', 'doi');  // [doi => code_url]
+        return array_column($rows, 'code_url', 'paper_id');  // [paper_id => code_url]
     }
                 
 }

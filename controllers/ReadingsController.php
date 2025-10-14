@@ -166,13 +166,13 @@ class ReadingsController extends BaseController
         // fetch involvement
         $result = Involvement::getInvolvement($result, $user_id);
 
-        $dois = array_filter(array_column($result['papers'], 'doi'));
-        $repoUrls = Article::getCodeRepoUrlsByDois($dois);
+        $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
+        $repoUrls = Article::getCodeRepoUrlsByDois($internal_ids);
 
         foreach ($result['papers'] as &$paper) {
-            $doi = strtolower(trim($paper['doi'] ?? ''));
-            if (isset($repoUrls[$doi])) {
-                $paper['zenodo_repo_url'] = $repoUrls[$doi];
+            $internal_id = $paper['internal_id'] ?? null;
+            if ($internal_id && isset($repoUrls[$internal_id])) {
+                $paper['zenodo_repo_url'] = $repoUrls[$internal_id];
             }
         }
 
