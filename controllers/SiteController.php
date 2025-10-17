@@ -442,17 +442,20 @@ class SiteController extends BaseController
         // -returns null if user is not logged in or if paper was never liked (showit: 0 or 1)
         // -returns reading_status value (0,1,2) otherwise
         $user_like = $article->getUsersLikes()->where(['user_id' => Yii::$app->user->id])->one();
+        
         // if the article was never liked by user, initialize the value to 0
         $article_reading_status = (isset($user_like)) ? $user_like->reading_status : "0";
 
         $article->calculateChartData();
 
-        //Render details page
-
+        // get impact indicators
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
-        // Attach code repository URL from zenodo_code_repos table based on article internal_id
-        $article->repo_url = \app\models\Article::getCodeRepoUrlByDoi($article->internal_id);
 
+        // Attach code repository URL from zenodo_code_repos table based on article internal_id
+        $repoUrls = Article::getCodeRepoUrls([$article->internal_id]);
+        $article->repo_url = $repoUrls[$article->internal_id] ?? null;
+
+        //Render details page
         return $this->render('details', [
             'article' => $article,
             'liked' => $article_is_liked,
