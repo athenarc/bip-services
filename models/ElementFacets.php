@@ -68,13 +68,28 @@ class ElementFacets extends \yii\db\ActiveRecord
         return $this->hasOne(Facets::class, ['id' => 'facet_id']);
     }
 
-    public function getConfigFacet($element_id) {
+    public static function getConfigFacet($element_id) {
         $config = [];
-
-        $facets_config = ElementFacets::find()->where([ 'element_id' => $element_id ])->with('facet')->all();
+    
+        $facets_config = self::find()
+            ->where(['element_id' => $element_id])
+            ->with('facet')
+            ->all();
+    
         foreach ($facets_config as $f_config) {
-            $config[$f_config->facet->type] = $f_config->facet;
-        }
+            $type = $f_config->facet->type;
+            $facet_data = $f_config->facet->toArray();
+            $facet_data['linked_contribution_element_id'] = $f_config->linked_contribution_element_id;
+            $config[$type] = $facet_data;
+        }  
         return $config;
+    } 
+
+    public static function getLinkedContributionElementId($element_id)
+    {
+        return self::find()
+            ->select('linked_contribution_element_id')
+            ->where(['element_id' => $element_id])
+            ->scalar();
     }
 }

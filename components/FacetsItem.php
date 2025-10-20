@@ -35,6 +35,8 @@ class FacetsItem extends Widget
 
     public $element_config;
     public $for_print;
+    public $selected_per_list;
+    public $facets_linked_to_lists;
 
 
     /*
@@ -50,6 +52,18 @@ class FacetsItem extends Widget
      */
     public function run()
     {
+        // Check if this Facets box is linked to a specific Contributions List
+        $linked_id = $this->element_config['linked_contribution_element_id'] ?? null;
+
+        if ($linked_id && isset($this->result['contributions_lists'][$linked_id])) {
+            // Overwrite result to only use the specific contribution list works
+            $this->result['papers'] = $this->result['contributions_lists'][$linked_id]['works'] ?? [];
+            $this->result['topics'] = $this->result['contributions_lists'][$linked_id]['topics'] ?? [];
+            $this->result['roles'] = $this->result['contributions_lists'][$linked_id]['roles'] ?? [];
+            $this->result['accesses'] = $this->result['contributions_lists'][$linked_id]['accesses'] ?? [];
+            $this->result['types'] = $this->result['contributions_lists'][$linked_id]['types'] ?? [];
+        }
+
         $data =[
             'edit_perm' => $this->edit_perm,
             'result' => $this->result,
@@ -61,11 +75,12 @@ class FacetsItem extends Widget
             'current_cv_narrative' => $this->current_cv_narrative,
             'researcher' => $this->researcher,
             'element_config' => $this->element_config,
+            'selected_per_list' => $this->selected_per_list,
         ];
 
         if ($this->for_print) {
             return $this->render('pdf/facets_item', $data);
-        }
+        }      
         return $this->render('facets_item', $data);
     }
 

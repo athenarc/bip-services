@@ -72,7 +72,8 @@ span.tags
 
 
 select#templates-dropdown,
-select#sort-dropdown {
+select#sort-dropdown,
+select.sort-dropdown {
   padding: 1px 3px;
   height: 2em;
   background-color:rgb(255, 255, 255);
