@@ -30,8 +30,8 @@ class Scholar extends Model
         // get scholar's works from ORCiD
         $orcid_works = Orcid::get_works($this->researcher->orcid, $this->researcher->access_token);
 
-        // get dois from works (filter null or our empty dois)
-        $this->dois = array_map(function($w) { return (isset($w["doi"])) ? $w["doi"] : null; }, $orcid_works);
+        $all_orcid_dois = array_filter(array_map(function($w) { return $w["doi"] ?? null; }, $orcid_works));
+
 
         // get dois in db
         $this->found_ids_dois = (new \yii\db\Query())
