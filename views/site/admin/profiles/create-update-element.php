@@ -7,6 +7,8 @@ use yii\helpers\Url;
 use yii\jui\Accordion;
 use app\models\ElementNarratives;
 use wbraganca\dynamicform\DynamicFormWidget;
+use yii\helpers\ArrayHelper;
+use app\models\Elements;
 
 /** @var yii\web\View $this */
 /** @var app\models\Elements $elementModel */
@@ -130,6 +132,25 @@ $section_profiles = ($section === "profiles");
             <div class="facets-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Facets') ?></h1>
             </div>
+                <?php
+                if (!$elementModel->isNewRecord && isset($existing_facets[0]['linked_contribution_element_id'])) {
+                    $elementFacetsFormModel->linked_contribution_element_id = $existing_facets[0]['linked_contribution_element_id'];
+                }
+                $contributionsLists = Elements::find()
+                    ->where(['type' => 'Contributions List', 'template_id' => $template_id])
+                    ->all();
+                
+                $dropdownOptions = [];
+                foreach ($contributionsLists as $el) {
+                    $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
+                }
+                ?>
+
+                <?= $form->field($elementFacetsFormModel, 'linked_contribution_element_id')->dropDownList(
+                    $dropdownOptions,
+                    ['prompt' => 'Select a Contributions List to link']
+                )->label('Linked Contribution List') ?>
+            
 
             <?php $facetTypes = ["Topics", "Roles", "Availability", "Work type"]; ?>
 
@@ -211,6 +232,28 @@ $section_profiles = ($section === "profiles");
 
             <div class="indicators-header" style="display: flex; align-items: center">
                 <h1><?= Html::encode('Indicators') ?></h1>
+            </div>
+
+            <?php
+            if (!$elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
+                $elementIndicatorsFormModel->linked_contribution_element_id = $existing_indicators[0]['linked_contribution_element_id'];
+            }
+            $contributionsLists = \app\models\Elements::find()
+                ->where(['template_id' => $template_id, 'type' => 'Contributions List'])
+                ->all();
+
+                $dropdownOptions = [];
+                foreach ($contributionsLists as $el) {
+                    $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
+                }
+            ?>
+
+            <?= $form->field($elementIndicatorsFormModel, 'linked_contribution_element_id')->dropDownList(
+                $dropdownOptions,
+                ['prompt' => 'Select a Contributions List to link']
+            )->label("Linked Contribution List") ?>
+            
+            <div style="margin-top:10px; display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="toggle-all-indicators">Collapse All</button>
                 <select class="global-status-combobox">
                     <option value="" disabled selected>Group Actions</option>
@@ -232,7 +275,7 @@ $section_profiles = ($section === "profiles");
                 // Default semantics order for new records
                 $defaultSemanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
 
-                if (!$elementModel->isNewRecord) {
+                if (!$elementModel->isNewRecord ) {
                     if (!empty($existing_indicators)) {
                         $semanticsOrderCombined = [];
                         foreach ($existing_indicators as $existing_indicator) {
@@ -470,33 +513,167 @@ $section_profiles = ($section === "profiles");
                 <div class="divider-header" style="display: flex; align-items: center">
                     <h1><?= Html::encode('Contributions List') ?></h1>
                 </div>
-                <?= $form->field($elementContributionsModel, 'heading_type')->dropDownList([
-                    'h1' => 'H1',
-                    'h2' => 'H2',
-                    'h3' => 'H3',
-                    'h4' => 'H4',
-                    'h5' => 'H5',
-                    'h6' => 'H6',
-                ], ['prompt' => 'Select header size']) ?>
-                <?= $form->field($elementContributionsModel, 'sort')->dropDownList(array_combine(array_keys(Yii::$app->params['impact_fields']), array_keys(Yii::$app->params['impact_fields']))) ?>
-                <?= $form->field($elementContributionsModel, 'top_k')->textInput([
-                    'type' => 'number',
-                    'class' => 'search-box form-control',
-                    'min' => 1,
-                    'step' => 1,
-                    'placeholder' => 'Enter a positive integer'
-                    ]) ?>
 
-                <?= $form->field($elementContributionsModel, 'page_size')->textInput([
-                    'type' => 'number',
-                    'class' => 'search-box form-control',
-                    'min' => 1,
-                    'step' => 1,
-                    'placeholder' => 'Enter a positive integer'
-                ]) ?>
+                <!-- 1) Sort (kept outside the expandable pairs) -->
+                <?= $form->field($elementContributionsModel, 'sort')->dropDownList(
+                    array_combine(
+                        array_keys(Yii::$app->params['impact_fields']),
+                        array_keys(Yii::$app->params['impact_fields'])
+                    )
+                ) ?>
 
-                <?= $form->field($elementContributionsModel, 'show_header')->checkbox(['class' => ['green-checkbox']]) ?>
-                <?= $form->field($elementContributionsModel, 'show_pagination')->checkbox(['class' => ['green-checkbox']]) ?>
+                <!-- 2) Show header -->
+                <?= $form->field($elementContributionsModel, 'show_header')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_header'])
+                     ?>
+
+                <!-- expands when 'Show header' is ticked -->
+                <div id="contrib-heading-wrap">
+                    <?= $form->field($elementContributionsModel, 'heading_type', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->dropDownList(
+                        ['h1'=>'H1','h2'=>'H2','h3'=>'H3','h4'=>'H4','h5'=>'H5','h6'=>'H6'],
+                        ['prompt' => 'Select header size', 'id' => 'contrib-heading-size', 'class' => 'form-control']
+                    ) ?>
+                </div>
+
+                <!-- 3) Show pagination -->
+                <?= $form->field($elementContributionsModel, 'show_pagination')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_pagination'])
+                    ?>
+
+                <!-- expands when 'Show pagination' is ticked -->
+                <div id="contrib-pagesize-wrap">
+                    <?= $form->field($elementContributionsModel, 'page_size', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->textInput([
+                        'type' => 'number','class' => 'form-control',
+                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'id' => 'elementcontributions-page_size'
+                    ])->label('Page size') ?>
+                </div>
+
+                <!-- 4) Top-K (mutually exclusive with Researcher selection) -->
+                <?= $form->field($elementContributionsModel, 'top_k_toggle')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-use-topk'])
+                    ?>
+
+                <!-- expands when 'Top-K' is ticked -->
+                <div id="contrib-topk-wrap">
+                    <?= $form->field($elementContributionsModel, 'top_k', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->textInput([
+                        'type' => 'number','class' => 'form-control',
+                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'id' => 'elementcontributions-top_k'
+                    ])->label('K') ?>
+                </div>
+
+                <!-- 5) Researcher selection (mutually exclusive with Top-K) -->
+                <?= $form->field($elementContributionsModel, 'user_defined')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'contrib-user-defined'])
+                    ?>
+
+                <!-- expands when 'Researcher selection' is ticked -->
+                <div id="user-defined-max-wrap">
+                    <?= $form->field($elementContributionsModel, 'user_defined_max', [
+                        'template' => '
+                            <div class="form-group row">
+                                <div class="col-sm-3 text-right">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{label}:
+                                </div>
+                                <div class="col-sm-3">{input}</div>
+                                {error}{hint}
+                            </div>',
+                        'labelOptions' => ['class' => 'col-form-label'],
+                    ])->input('number', [
+                        'min' => 0,
+                        'placeholder' => 'Unlimited if empty',
+                        'id' => 'contrib-user-defined-max',
+                        'class' => 'form-control'
+                    ])->label('Max selection') ?>
+                </div>
+
+                <!-- 6) Show missing papers -->
+                <?= $form->field($elementContributionsModel, 'show_missing_papers')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_missing_papers'])
+                    ?>
+
+                <!-- 7) Pre-applied filters -->
+                <?php
+                // Build checkbox label arrays from params
+                $openness = Yii::$app->params['openness'] ?? [];
+                $workTypes = Yii::$app->params['work_types'] ?? [];
+
+                $opennessOptions = [];
+                foreach ($openness as $k => $def) {
+                    // keys: '1','0',''  ('' means Unknown)
+                    $opennessOptions[(string)$k] = $def['name'];
+                }
+
+                $workTypeOptions = [];
+                foreach ($workTypes as $k => $def) {
+                    // keys: '0','1','2','3'
+                    $workTypeOptions[(string)$k] = $def['name'];
+                }
+                ?>
+
+                <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Pre-applied filters</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <label class="control-label">Availability</label>
+                        <?= $form->field($elementContributionsModel, 'filters_accesses')
+                            ->checkboxList(
+                                $opennessOptions,
+                                [
+                                    'separator' => '<br>',
+                                    'itemOptions' => ['class' => 'green-checkbox'],
+                                ]
+                            )->label(false) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="control-label">Work type</label>
+                        <?= $form->field($elementContributionsModel, 'filters_types')
+                            ->checkboxList(
+                                $workTypeOptions,
+                                [
+                                    'separator' => '<br>',
+                                    'itemOptions' => ['class' => 'green-checkbox'],
+                                ]
+                            )->label(false) ?>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             </div>
         <?php endif ?>
         <?php if ($elementModel->isNewRecord || $elementModel->type == "Dropdown"): ?>

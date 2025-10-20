@@ -110,7 +110,7 @@ class ScholarIndicators
      * @return int Number of popular works.
      */
     public function popular_works_count($all_works)
-    {
+    {      
         $pop_class_field = 'pop_class';
         $last_impact_class = end($this->impact_classes);
 
@@ -140,6 +140,7 @@ class ScholarIndicators
             }
         );
     }
+
 
     /**
      * Calculates the sum of popularity scores.
@@ -190,7 +191,8 @@ class ScholarIndicators
      * @return array Open access statistics.
      */
     public function open_papers_percentage()
-    {
+    {  
+            
         $open_papers_array = array_filter($this->papers, function ($item) {
             return $item['is_oa'] == 1;
         });
@@ -268,7 +270,7 @@ class ScholarIndicators
 
         if (empty($rag_data)) {
             return $academic_age;
-        }
+        }        
 
         // Combine overlapping inactivity date ranges
         $rag_data_ranges = self::mergeDateRanges($rag_data);
@@ -312,7 +314,7 @@ class ScholarIndicators
             ? 0
             : number_format(($total_remaining_interval / 365), 2);
 
-        return $total_remaining_interval;
+        return (float)$total_remaining_interval;        
     }
 
     /**
@@ -414,7 +416,7 @@ class ScholarIndicators
             'openness' => $openness,
             'paper_min_year' => intval($paper_min_year),
             'academic_age' => $academic_age,
-            'responsible_academic_age' => floatval($responsible_academic_age),
+            'responsible_academic_age' => $responsible_academic_age,
         ];
     }
 

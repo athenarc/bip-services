@@ -140,8 +140,7 @@ use kartik\date\DatePicker;
                                                             case "Fair Academic Age":
                                                                 $responsible_academic_age_value = (isset($responsible_academic_age) && (!empty($academic_age) || $academic_age === 0)) ? $responsible_academic_age : "-";
                                                                 $data_target = $responsible_academic_age_value;
-                                                                $custom_logic = '<span role="button" data-toggle="modal" data-target="#academic-age-datepicker-modal"><i class="fa-solid ' . ($edit_perm ? 'fa-pen-to-square' : 'fa-eye') . ' fa-xs"></i></span>';
-                                                                break;
+                                                                $custom_logic = '<span role="button" data-toggle="modal" data-target="#academic-age-datepicker-modal"><i class="fa-solid ' . ($edit_perm ? 'fa-pen-to-square' : 'fa-eye') . ' fa-xs"></i></span>';                                                                break;
                                                         }
                                                     ?>
 
@@ -289,7 +288,7 @@ use kartik\date\DatePicker;
                     </div>
                 <?php endforeach; ?>
                 <div class="col-md-12 col-xs-12 grey-text text-justify">
-                    <?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>
+                    <?php if ($missing_papers_num > 0 && !isset($current_cv_narrative) && $show_missing_works): ?>
                         <div class="row">
                             <div class="col-md-12 col-xs-12">
                                 <span class="grey-text">
@@ -315,7 +314,16 @@ use kartik\date\DatePicker;
             </div>
         </div>
 
-        <?php if(isset($element_config['Fair Academic Age'])): ?>
+        <?php
+        $has_fair_academic_age = false;
+        foreach ($element_config as $config) {
+            if (($config['indicator']['name'] ?? '') === 'Fair Academic Age') {
+                $has_fair_academic_age = true;
+                break;
+            }
+        }
+        ?>
+        <?php if ($has_fair_academic_age): ?>
             <?php
                 Modal::begin([
                     'header' => '<h4>Fair Academic Age</h4><p> Fair academic age considers parental leaves, career changes and other inactive periods in your academic career. You can determine such periods using this form and you fair academic age will be revised accordingly.</p>',
