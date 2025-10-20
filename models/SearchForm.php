@@ -862,6 +862,16 @@ class SearchForm extends Model
         $rows = Spaces::fetchAnnotations($rows, $this->space_model);
         // get relations
         $rows = Relations::getRelations($rows);
+        // attach zenodo code repo URLs
+        $internal_ids = array_filter(array_column($rows, 'internal_id'));
+        $id_to_url = Article::getCodeRepoUrls($internal_ids);
+
+        foreach ($rows as &$row) {
+            $internal_id = $row['internal_id'] ?? null;
+            if ($internal_id && isset($id_to_url[$internal_id])) {
+                $row['zenodo_repo_url'] = $id_to_url[$internal_id];
+            }
+        }
 
         return $rows;
     }

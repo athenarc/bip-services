@@ -217,7 +217,7 @@ class Scholar extends Model
 
         // fetch details (and order) for paper in current page
         $papers_query = (new \yii\db\Query())
-            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
+            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags, zenodo_code_repos.code_url')
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
@@ -225,6 +225,7 @@ class Scholar extends Model
             ->leftJoin('tags', 'tags.id = tags_to_papers.tag_id')
             ->leftJoin('notes_to_papers', 'pmc_paper.internal_id = notes_to_papers.paper_id
                 AND notes_to_papers.user_id = ' . $this->researcher->user_id)
+            ->leftJoin('zenodo_code_repos', 'pmc_paper.internal_id = zenodo_code_repos.paper_id')
             ->where(['internal_id' => $ids_subquery])
             ->groupBy('internal_id')
             ->orderBy($orderByClause)

@@ -42,6 +42,7 @@ use app\models\ElementBulletedList;
 use app\models\ElementBulletedListItem;
 use app\models\ElementTable;
 use app\models\ElementTableInstances;
+use app\models\Article;
 use app\components\common\CommonUtils;
 
 class ScholarController extends BaseController
@@ -868,11 +869,22 @@ class ScholarController extends BaseController
             // calculate scholar indicators
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
-            // Only compute indicators if scholar->indicators exists (i.e., template has contribution lists)
-            if ($scholar->indicators !== null) {
+           // Only compute indicators if scholar->indicators exists (i.e., template has contribution lists)
+           if ($scholar->indicators !== null) {
                 $indicators = $scholar->indicators->compute($rag_data);
             }
             // Otherwise, $indicators keeps the default empty array initialized earlier
+            
+            $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
+            $repoUrls = Article::getCodeRepoUrls($internal_ids);
+
+            foreach ($result['papers'] as &$paper) {
+                $internal_id = $paper['internal_id'] ?? null;
+                if ($internal_id && isset($repoUrls[$internal_id])) {
+                    $paper['zenodo_repo_url'] = $repoUrls[$internal_id];
+                }
+            } // break reference
+            
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();

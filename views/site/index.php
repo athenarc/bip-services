@@ -318,6 +318,7 @@ if ($in_space) {
                                     "is_oa" => $result["is_oa"],
                                     "type" => $result["type"],
                                     "search_context" =>  $result["search_context"],
+                                    "repo_url" => $result["zenodo_repo_url"] ?? null,
                                     "show" => [
                                         "concepts" => true,
                                         "annotations" => true,

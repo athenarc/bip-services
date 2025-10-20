@@ -41,6 +41,8 @@
         public $concepts;
         public $relations;
         public $chart_data = [];
+        public $repo_url;
+
 
         /**
          * It returns the minimum percentile in which the paper belongs (based on its score).
@@ -759,5 +761,19 @@
             return "DOI";
         return "PubMed Id";
     }
-    
+
+    public static function getCodeRepoUrls($internal_ids) {
+        if (empty($internal_ids)) {
+            return [];
+        }
+
+        $rows = (new \yii\db\Query())
+            ->select(['paper_id', 'code_url'])
+            ->from('zenodo_code_repos')
+            ->where(['paper_id' => $internal_ids])
+            ->all();
+
+        return array_column($rows, 'code_url', 'paper_id');  // [paper_id => code_url]
+    }
+                
 }

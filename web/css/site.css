@@ -856,8 +856,8 @@ body {
 .citation-impact-icons {
     
     position: relative;
-    top: -3px;   /* move upward */
-    left: -4px;  /* move slightly left */
+    top: -3px;   
+    left: -4px;  
     display: flex;
     justify-content: flex-end;
     gap: 12px; 
@@ -884,6 +884,10 @@ body {
     font-family: 'Nunito', sans-serif;
     color: #808080;
     margin-right: 8px;
+}
+
+.tag.label > span[role="button"] {
+    line-height: 1;
 }
 
 .team-member-role {
@@ -937,8 +941,10 @@ body {
     border-radius: 4px;
     padding-left: 18px; 
     text-align: left;
+
     vertical-align: middle;
 }
+
 .regenerate-button {
     height: 20px;
     padding: 0px 10px;
@@ -1130,6 +1136,10 @@ body {
     display: inline-block;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.version-code-repo {
+    margin-left: 3px; 
 }
 
 .bip-dots .dot.active {

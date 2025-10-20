@@ -167,7 +167,6 @@ if ($in_space) {
                 <div class='article-info'>
                     
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
-
                     <b>External links:</b>
                     <?php if(!empty($article->doi) && $article->getPidName() === 'DOI'){ ?>
                         <a href="https://search.crossref.org/search/works?q=<?= $article->doi ?>&from_ui=yes" target='_blank' class="main-green">Crossref <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
@@ -227,7 +226,12 @@ if ($in_space) {
                     <a id="pdf_button" href="#" class="btn btn-sm btn-custom-color disabled" target='_blank' onclick="getPDFLink('<?= Url::to(['site/get-pdf-link']) ?>', '<?= $article->doi ?>');">
                         <i class="fa fa-download" aria-hidden="true"></i> PDF
                     </a>
-
+                    
+                    <?php if (!empty($article->repo_url)): ?>
+                        <a href="<?= Html::encode($article->repo_url) ?>" class="btn btn-sm btn-custom-color "target="_blank">
+                            <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i> Code
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class='col-xs-12'>

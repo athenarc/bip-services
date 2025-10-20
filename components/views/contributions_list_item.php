@@ -168,6 +168,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                                 "cc_class" => $paper["cc_class"],
                                 "is_oa" => $paper["is_oa"],
                                 "type" => $paper["type"],
+                                "repo_url" => $paper["code_url"] ?? null,
                                 "show" => [
                                     "concepts" => true,
                                     "relations" => true,

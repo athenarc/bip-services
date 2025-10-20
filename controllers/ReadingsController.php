@@ -25,6 +25,7 @@ use app\models\Readings;
 use app\models\ResponsibleAcadAge;
 use app\models\ReadingList;
 use app\models\ScholarIndicators;
+use app\models\Article;
 
 class ReadingsController extends BaseController
 {
@@ -164,6 +165,16 @@ class ReadingsController extends BaseController
 
         // fetch involvement
         $result = Involvement::getInvolvement($result, $user_id);
+
+        $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
+        $repoUrls = Article::getCodeRepoUrls($internal_ids);
+
+        foreach ($result['papers'] as &$paper) {
+            $internal_id = $paper['internal_id'] ?? null;
+            if ($internal_id && isset($repoUrls[$internal_id])) {
+                $paper['zenodo_repo_url'] = $repoUrls[$internal_id];
+            }
+        }
 
         // find all reading lists of the user
         $reading_lists = ReadingList::find()->where([ 'user_id' => $user_id ])->all();
