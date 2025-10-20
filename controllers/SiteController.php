@@ -1956,9 +1956,11 @@ class SiteController extends BaseController
 
                 $elementModel->order = $lastOrder ? $lastOrder + 1 : 1;
 
+                $validationPassed = true;
+
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post())) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
                             if (is_string($semanticsOrder)) {
@@ -1986,10 +1988,15 @@ class SiteController extends BaseController
                                         $semantics = strtolower($elementIndicators->indicator->semantics);
                                         $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                         $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
+                                        $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
         
                                         $elementIndicators->save();
                                 }
                             }
+                        } else if ($elementIndicatorsFormModel->load($this->request->post())) {
+                            // Validation failed
+                            $elementIndicatorsFormModel->validateRequired();
+                            $validationPassed = false;
                         }
                         break;
                     case 'Narrative':
@@ -2101,7 +2108,7 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post())) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $facets = [];
@@ -2145,8 +2152,13 @@ class SiteController extends BaseController
                                 $elementFacets = new ElementFacets();
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
+                                $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
                                 $elementFacets->save();
                             }
+                        } else if ($elementFacetsFormModel->load($this->request->post())) {
+                            // Validation failed
+                            $elementFacetsFormModel->validateRequired();
+                            $validationPassed = false;
                         }
                         break;
                     case 'Bulleted List':
@@ -2157,10 +2169,13 @@ class SiteController extends BaseController
                         break;
                 }
 
-                // update elementModel->order
-                if ($elementModel->save()) {
+                // update elementModel->order and redirect only if validation passed
+                if ($validationPassed && $elementModel->save()) {
                     return $this->redirect(['update-template', 'id' => $elementModel->template_id,
                                             'profile_template_category_id' => $profile_template_category_id]);
+                } else if (!$validationPassed) {
+                    // Delete the element if validation failed
+                    $elementModel->delete();
                 }
             }
         } else {
@@ -2236,6 +2251,7 @@ class SiteController extends BaseController
                     'visualize_opt' => $element_facet->facet->visualize_opt,
                     'numbers_opt' => $element_facet->facet->numbers_opt,
                     'border_opt' => $element_facet->facet->border_opt,
+                    'linked_contribution_element_id' => $element_facet->linked_contribution_element_id,
                 ];
             }
         }
@@ -2248,7 +2264,8 @@ class SiteController extends BaseController
                     'status' => $element_indicator->status,
                     'semantics_order' => $element_indicator->semantics_order,
                     'semantics' => $element_indicator->indicator->semantics,
-                    'indicator_order' => $element_indicator->indicator_order
+                    'indicator_order' => $element_indicator->indicator_order,
+                    'linked_contribution_element_id' => $element_indicator->linked_contribution_element_id,
                 ];
             }
         }
@@ -2256,9 +2273,11 @@ class SiteController extends BaseController
         if ($this->request->isPost) {
             if ($elementModel->load($this->request->post()) && $elementModel->save()) {
 
+                $validationPassed = true;
+
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post())) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
@@ -2286,10 +2305,14 @@ class SiteController extends BaseController
                                     $semantics = strtolower($elementIndicators->indicator->semantics);
                                     $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                     $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
-
+                                    $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
                                     $elementIndicators->save();
                                 }
                             }
+                        } else if ($elementIndicatorsFormModel->load($this->request->post())) {
+                            // Validation failed
+                            $elementIndicatorsFormModel->validateRequired();
+                            $validationPassed = false;
                         }
                         break;
                     case 'Narrative':
@@ -2318,6 +2341,22 @@ class SiteController extends BaseController
                         break;
                     case 'Contributions List':
                         if ($elementContributionsModel->load($this->request->post())) {
+                            // Only clear selected papers when switching between Top-K and Researcher selection modes
+                            $oldUserDefined = (int)$elementContributionsModel->getOldAttribute('user_defined');
+                            $oldTopK = $elementContributionsModel->getOldAttribute('top_k');
+                            $newUserDefined = (int)$elementContributionsModel->user_defined;
+                            $newTopK = $elementContributionsModel->top_k;
+                            
+                            // Determine if we're switching modes:
+                            // - user_defined changed (researcher selection toggled on/off)
+                            // - top_k changed from null to value or vice versa (top-k mode toggled)
+                            $userDefinedChanged = ($oldUserDefined !== $newUserDefined);
+                            $topKModeChanged = (($oldTopK === null) !== ($newTopK === null));
+                            
+                            if ($userDefinedChanged || $topKModeChanged) {
+                                \app\models\Scholar::saveSelectedPapersForList($id, []);
+                            }
+                            
                             $elementContributionsModel->save();
                         }
                         break;
@@ -2406,7 +2445,7 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post())) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $elementFacetsModel = $elementModel->elementFacets;
@@ -2458,9 +2497,14 @@ class SiteController extends BaseController
                                 $elementFacets = new ElementFacets();
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
+                                $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
                                 $elementFacets->save();
                             }
-                       }
+                       } else if ($elementFacetsFormModel->load($this->request->post())) {
+                            // Validation failed
+                            $elementFacetsFormModel->validateRequired();
+                            $validationPassed = false;
+                        }
                         break;
                     case 'Bulleted List':
                         if ($elementBulletedListModel->load($this->request->post())) {
@@ -2470,8 +2514,11 @@ class SiteController extends BaseController
                 }  
             }
 
-            return $this->redirect(['update-template', 'id' => $template_id,
-            'profile_template_category_id' => $profile_template_category_id]);
+            // Only redirect if validation passed
+            if ($validationPassed) {
+                return $this->redirect(['update-template', 'id' => $template_id,
+                'profile_template_category_id' => $profile_template_category_id]);
+            }
         }
 
         return $this->render('admin/profiles/create-update-element', [

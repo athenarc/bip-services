@@ -1,79 +1,106 @@
 function submit_scholar_form() {
+
+    sessionStorage.setItem('scrollPos', $(window).scrollTop());
+
     $("#loading_results").show();
 
     $("#publications").hide();
     $("#missing-publications-toggle").hide();
     $("#missing-publications").hide();
 
+    $('#scholar-form input[name="fct_field"], #scholar-form input[name="list_id"]').remove();
+    $('#scholar-form input[name^="lists"][name$="[fct_field]"]').each(function () {
+        if (!$(this).val()) $(this).remove();
+    });
+
     $("#scholar-form").submit();
 }
 
-function updateFacet(facet_type, id, name, selected) {
-    let roleElem = $(`#${facet_type}-facet-items > #${facet_type}-${id}`);
-    if (roleElem.length > 0) {
-        let countElem = roleElem.children('span')
-        let count = parseInt(countElem.html());
-        count = (selected) ? count + 1 : count - 1;
-
-        if (count == 0) {
-            roleElem.remove();
-        } else {
-            countElem.html(count);
-        }
-    } else {
-        let newFacet = $(`<button id='${facet_type}-${id}' type="button" class="btn btn-xs btn-default facet-item">`
-            + `<input id="${facet_type}-${id}-i" name="${facet_type}s[]" value="${id}" type="hidden" disabled="disabled"/>`
-            + `${name} <span class="badge badge-primary">1</span>`
-        + '</button>');
-
-        // check if this is the first facet item to be inserted
-        if ($(`#${facet_type}-facet-items > .facet-item`).length == 0) {
-            $(`#${facet_type}-facet-items`).html(newFacet);
-
-        // if not, append current facet item at the end
-        } else {
-            $(`#${facet_type}-facet-items`).append("\n").append(newFacet);
+function ensurePerListFacetField(listId, facet) {
+    var $form = $('#scholar-form');
+    var name = 'lists[' + listId + '][fct_field]';
+    // try by id first (if profile.php pre-renders it)
+    var $hid = $form.find('#lists-' + listId + '-fct_field');
+    if (!$hid.length) {
+        // fallback: find by name or create
+        $hid = $form.find('input[name="' + name + '"]');
+        if (!$hid.length) {
+            $hid = $('<input/>', { type: 'hidden', name: name, id: 'lists-' + listId + '-fct_field' })
+                .appendTo($form);
         }
     }
+    $hid.val(facet || '');
 }
 
-function clearFacet(facetName) {
-    $(`input[name="${facetName}"]`).attr("disabled", "disabled");
+$(document).on('click', '.facet-item', function (e) {
+    e.preventDefault();
+
+    var $btn     = $(this);
+    var listId   = $btn.data('list-id');
+    var elementId= this.id;
+    var facet = $btn.data('facet');
+    ensurePerListFacetField(listId, facet);
+
+    // Locate the hidden input for this button (id pattern "...-i"; fallback to child query)
+    var $inp = $('#' + elementId + '-i');
+    if (!$inp.length) {
+        $inp = $btn.find('input[type="hidden"]');
+    }
+
+    // Toggle only THIS option (multi-select within the same facet group)
+    // In markup: disabled => NOT selected; enabled => selected
+    var willSelect = $inp.prop('disabled') === true;
+
+    $inp.prop('disabled', !willSelect);
+    $btn
+      .toggleClass('btn-success', willSelect)
+      .toggleClass('btn-default', !willSelect)
+      .attr('aria-pressed', willSelect ? 'true' : 'false');
+
+    submit_scholar_form();
+});
+
+function clearFacet(listId, facetName) {
+    // Map facet → prefix used in DOM IDs
+    var prefixMap = {
+        topics: "topic",
+        roles: "role",
+        accesses: "access",
+        types: "type"
+    };
+    var facetIdPrefix = prefixMap[facetName] || facetName;
+
+    // Reset: show all, disable all inputs, remove selected styling
+    $('#'+facetIdPrefix+'-facet-items-'+listId+' .facet-item')
+        .show()
+        .find('input').prop('disabled', true)
+        .end()
+        .removeClass('btn-success')
+        .addClass('btn-default')
+        .attr('aria-pressed', 'false');
+    
+    ensurePerListFacetField(listId, '');
     submit_scholar_form();
 }
 
-$(document).on('click', '.facet-item', function () {
-
-        let elementId = $(this).attr('id');
-        let input = $(`#${elementId}-i`);
-
-        // toggle disabled prop for input
-        if (input.attr('disabled')) input.removeAttr('disabled');
-        else input.attr('disabled', 'disabled');
-
-        let [facetName, facetId] = elementId.split('-');
-
-        $('#fct_field').val(facetName);
-
-        submit_scholar_form();
-});
-
-$(document).ready(function() {
+$(document).ready(function () {
+    var scrollPos = sessionStorage.getItem('scrollPos');
+    if (scrollPos !== null) {
+        $(window).scrollTop(scrollPos);
+    }
 
     $('#reading-list-public-switch').click(function(event) {
-        var websiteRoot = window.location.origin;
-
         var csrfToken = $('meta[name="csrf-token"]').attr("content");
         var is_public = (event.target.checked) ? 1 : 0;
         var current_reading_list_id = $('#current_reading_list_id').val();
 
         if(is_public) {
-            if(!confirm('You are about to make your reading list publicly accessible through BIP! Scholar’s UI. Are you sure that you want to allow BIP! Scholar to publicly share the papers in your reading list and the connected tags you have assigned?')){
+            if(!confirm('You are about to make your reading list publicly accessible through BIP! Scholar’s UI. Are you sure?')){
                 event.preventDefault();
                 return;
             }
         } else {
-            if (!confirm('Are you sure that you want to make your reading list private? This will remove access rights to the list to anyone that has saved the URL in the past for future use.')){
+            if (!confirm('Are you sure you want to make your reading list private?')){
                 event.preventDefault();
                 return;
             }
@@ -87,29 +114,20 @@ $(document).ready(function() {
                 'reading_list_id': current_reading_list_id,
                 _csrf : csrfToken
             },
-            success: function() {
-            },
-            error: function(e) {
+            error: function() {
                 alert("There was an error processing your request!");
             }
         });
     });
 
-
-    $("#sort-dropdown").on('change', function(){
-
-        // if a reading list was selected, sort the current reading list without exiting from it
-        let selected_list_id = $('#scholar-form').attr('data-selected_list_id');
+    $(document).on('change', '[id^="sort-dropdown-"]', function(){
+        var selected_list_id = $('#scholar-form').attr('data-selected_list_id');
         if (selected_list_id){
-            let default_action = $('#scholar-form').attr('action')
+            var default_action = $('#scholar-form').attr('action');
             $('#scholar-form').attr('action', default_action + "/" + selected_list_id);
-
-            // do not send input facets in the get request
             $("#scholar-form").find("input").attr('disabled', 'disabled');
-
+            $('#active_list_id, [id^="lists-"][id$="-fct_field"], input[name="fct_field"]').prop('disabled', false);
         }
-
         submit_scholar_form();
-
     });
 });

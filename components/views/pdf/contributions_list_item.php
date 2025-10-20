@@ -56,7 +56,7 @@ use app\components\ResultItem;
 <?php endif; ?>
 
 
-<?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative)): ?>
+<?php if ($missing_papers_num > 0 && $facets_selected == false && !isset($current_cv_narrative) && $show_missing_works): ?>
     <div id="missing-publications">
         <h3>
             <span role="button" title="Missing works" data-content="<div><span class='green-bip'></span><?= "This list contains works retrieved from ORCiD that BIP! software do not contain in its database" ?></div>">Missing works</span>

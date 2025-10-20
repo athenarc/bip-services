@@ -6,6 +6,7 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use app\models\ElementNarratives;
+use app\models\Elements;
 use yii\widgets\ListView;
 
 /** @var yii\web\View $this */
@@ -69,14 +70,26 @@ $heading_type_view = [
         ]) ?>
     </p>
 
+    <?php
+        $linkedElementName = null;
+        if ($elementModel->type === 'Facets' && isset($elementModel->elementFacets[0])) {
+            $linked = Elements::findOne($elementModel->elementFacets[0]->linked_contribution_element_id);
+            $linkedElementName = $linked ? $linked->name : null;
+        } elseif ($elementModel->type === 'Indicators' && isset($elementModel->elementIndicators[0])) {
+            $linked = Elements::findOne($elementModel->elementIndicators[0]->linked_contribution_element_id);
+            $linkedElementName = $linked ? $linked->name : null;
+        }
+    ?>
+
     <?= DetailView::widget([
         'model' => $elementModel,
         'attributes' => [
-            // 'id',
-            // 'template_id',
             'name',
             'type',
-            // 'order',
+            [
+                'label' => 'Linked Contribution List',
+                'value' => $linkedElementName ?: '—'
+            ],
         ],
     ]) ?>
     

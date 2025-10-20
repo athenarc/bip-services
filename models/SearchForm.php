@@ -280,7 +280,7 @@ class SearchForm extends Model
             return array_merge($kwds, $stemmed_keywords);
         }
 
-        private static function assignClass($paper, $score, $scores_levels, $impact_type) {
+        public static function assignClass($paper, $score, $scores_levels, $impact_type) {
 
             // papers with no scores (eg datasets)
             if( !isset($paper[$score]) )

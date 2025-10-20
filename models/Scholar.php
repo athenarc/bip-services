@@ -18,27 +18,26 @@ class Scholar extends Model
     public $dois;
     public $found_ids_dois;
     public $indicators;
-    public $missing_papers;
+    public $missing_papers; 
 
     public function __construct($researcher){
         parent::__construct();
         $this->researcher = $researcher;
     }
 
-    public function fetchWorks($sort_field, $top_k_config) {
-
-        // get scholar's works from ORCiD
+    public function fetchWorksLimited($sort_field, $top_k = null) {
+        
         $orcid_works = Orcid::get_works($this->researcher->orcid, $this->researcher->access_token);
 
-        // get dois from works (filter null or our empty dois)
-        $this->dois = array_map(function($w) { return (isset($w["doi"])) ? $w["doi"] : null; }, $orcid_works);
+        $all_orcid_dois = array_filter(array_map(fn($w) => $w["doi"] ?? null, $orcid_works));
+
 
         // get dois in db
         $this->found_ids_dois = (new \yii\db\Query())
                             ->select('p.internal_id, pd.doi')
                             ->from('pmc_paper p')
                             ->innerJoin('pmc_paper_pids pd', 'p.internal_id = pd.paper_id')
-                            ->where(['doi' => $this->dois])
+                            ->where(['doi' => $all_orcid_dois])
                             ->all();
 
         // contains all dois, all versions of all papers.
@@ -49,20 +48,19 @@ class Scholar extends Model
             ->select('pmc_paper_pids.doi')
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-            ->where(['doi' => $this->dois])
+            ->where(['doi' => $all_orcid_dois])
             ->groupBy('internal_id');
 
         // Apply ordering and limit if $top_k_config is set
-        if (isset($top_k_config)) {
+        if ($top_k !== null) {
             $dois_query->orderBy([
             Yii::$app->params['impact_fields'][$sort_field] => SORT_DESC])
-            ->limit($top_k_config);
+            ->limit($top_k);
         }
 
         $this->dois = array_column($dois_query->all(), 'doi');
+           
 
-
-        // find missing papers, comparing $works received from orcid with papers found in our database
         $this->missing_papers = array_udiff($orcid_works, $found_dois, function($a, $b) {
             if (!isset($a["doi"]))
                 return -1;
@@ -71,8 +69,8 @@ class Scholar extends Model
             else
                 return strcmp($a["doi"], $b["doi"]);
         });
-
     }
+
 
     public function fetchCvNarrativeDois($cv_narrative_ids){
 
@@ -103,8 +101,8 @@ class Scholar extends Model
         return $papers;
     }
 
-    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config) {
-
+    public function getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config, $top_k = null, $page_param = 'page', $page_size_param = 'per-page') {
+        Yii::debug("TOP_K received in getArticlesInPage(): " . var_export($top_k, true), __METHOD__);
         $impact_fields = Yii::$app->params['impact_fields'];
         $orderByClause = [
             $impact_fields[$sort_field] => SORT_DESC
@@ -147,7 +145,12 @@ class Scholar extends Model
         $base_query->groupBy('internal_id');
         $papers_num = $base_query->count();
 
-        // calculate impact data
+        // subquery to get internal_ids of papers in result set
+        $ids_subquery = (new \yii\db\Query())
+            ->from(['bq' => $base_query])
+            ->select('internal_id');
+
+        // fetch impact scores for papers in result set
         $select_clause = 'doi, is_oa, type, '
             . $impact_fields["popularity"] . ', '
             . $impact_fields["influence"] . ', '
@@ -155,7 +158,12 @@ class Scholar extends Model
             . $impact_fields["citation_count"] . ', '
             . $impact_fields["year"];
 
-        $impact_data = $base_query->select($select_clause)->all();
+        $impact_data = (new \yii\db\Query())
+            ->select($select_clause)
+            ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+            ->where(['internal_id' => $ids_subquery])
+            ->all();
         
         // add impact classes
         $impact_data = SearchForm::get_impact_class($impact_data);
@@ -174,13 +182,41 @@ class Scholar extends Model
 
         // paginated query to retrieve all paper details
         // if page_size_config is not set, default to one page
-        $pagination = new Pagination([
-            'pageSize' => (isset($show_pagination_config) && $show_pagination_config == 0) ? $papers_num : ($page_size_config ?? $papers_num),
-            'totalCount' => $papers_num,
-        ]);
+        // paginated query to retrieve all paper details
+        $pagination = null;
+        $offset = 0;
+
+        if ($show_pagination_config) {
+
+            $effective_page_size = ($page_size_config !== null)
+                ? max(1, (int)$page_size_config)
+                : $papers_num;
+
+            $total_for_pagination = ($top_k !== null)
+                ? min($papers_num, (int)$top_k)
+                : $papers_num;
+
+            $pagination = new Pagination([
+                'pageSize'      => $effective_page_size,
+                'totalCount'    => $total_for_pagination,
+                'pageParam'     => $page_param,
+                'pageSizeParam' => $page_size_param,
+                'validatePage'  => true,
+            ]);
+
+            $cleanParams = Yii::$app->request->get();
+            unset($cleanParams['page'], $cleanParams['per-page']);
+            $pagination->params = $cleanParams;
+
+            $offset = $pagination->offset;
+            $limit  = $pagination->limit;
+        } else {
+            $offset = 0;
+            $limit  = ($top_k !== null) ? (int)$top_k : null;
+        }
 
         // fetch details (and order) for paper in current page
-        $papers = (new \yii\db\Query())
+        $papers_query = (new \yii\db\Query())
             ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
@@ -189,12 +225,14 @@ class Scholar extends Model
             ->leftJoin('tags', 'tags.id = tags_to_papers.tag_id')
             ->leftJoin('notes_to_papers', 'pmc_paper.internal_id = notes_to_papers.paper_id
                 AND notes_to_papers.user_id = ' . $this->researcher->user_id)
-            ->where(['internal_id' => $base_query->select('internal_id')])
+            ->where(['internal_id' => $ids_subquery])
             ->groupBy('internal_id')
             ->orderBy($orderByClause)
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
+            ->offset($offset)
+            ->limit($limit);
+
+        $papers = $papers_query->all();
+
 
         // get impact scores
         $papers = SearchForm::get_impact_class($papers);
@@ -205,11 +243,18 @@ class Scholar extends Model
         // get relations
         $papers = Relations::getRelations($papers);
 
+        if ($top_k !== null && !$show_pagination_config) {
+            $papers = array_slice($papers, 0, $top_k);
+        }
+
         return [
             'pagination' => $pagination,
             'papers' => $papers,
-            'papers_num' => $papers_num,
+            'papers_num' => $show_pagination_config
+                ? ($top_k !== null ? min($papers_num, (int)$top_k) : $papers_num)
+                : count($papers),
         ];
+
     }
 
     public function getTopicFacets($topics, $tags, $roles, $accesses, $types, $facet_field) {
@@ -222,8 +267,11 @@ class Scholar extends Model
             ->innerJoin('concepts', 'concepts.id = concepts_to_papers.concept_id')
             ->where(['doi' => $this->dois]);
 
-            if (!empty($topics) && strcmp($facet_field, "topic")) {
-                $topics_query->andWhere([ 'concepts.id' => $topics]);
+            // if (!empty($topics) && strcmp($facet_field, "topic")) {
+            //     $topics_query->andWhere([ 'concepts.id' => $topics]);
+            // }
+            if (!empty($topics) && !in_array($facet_field, ['topic','topics'], true)) {
+                $topics_query->andWhere(['concepts.id' => $topics]);
             }
 
             if (!empty($tags)) {
@@ -275,8 +323,8 @@ class Scholar extends Model
             ->innerJoin('tags', 'tags.id = tags_to_papers.tag_id')
             ->where(['doi' => $this->dois]);
 
-            if (!empty($tags) && strcmp($facet_field, "tag")) {
-                $tags_query->andWhere([ 'tags.id' => $tags]);
+            if (!empty($tags) && !in_array($facet_field, ['tag','tags'], true)) {
+                $tags_query->andWhere(['tags.id' => $tags]);
             }
 
             if (!empty($topics)) {
@@ -326,7 +374,7 @@ class Scholar extends Model
                     AND involvement_to_papers.user_id = ' . $this->researcher->user_id)
             ->where(['doi' => $this->dois]);
 
-        if (!empty($roles) && strcmp($facet_field, "role")) {
+        if (!empty($roles) && !in_array($facet_field, ['role','roles','credit','credit_roles'], true)) {
             $roles_query->andWhere(['involvement' => $roles]);
         }
 
@@ -376,7 +424,7 @@ class Scholar extends Model
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
-        if (!empty($accesses) && strcmp($facet_field, "access")) {
+        if (!empty($accesses) && !in_array($facet_field, ['access','accesses','availability','open_access','oa'], true)) {
             $accesses_query->andWhere(['is_oa' => $accesses]);
         }
 
@@ -435,7 +483,7 @@ class Scholar extends Model
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['doi' => $this->dois]);
 
-        if (!empty($types) && strcmp($facet_field, "type")) {
+        if (!empty($types) && !in_array($facet_field, ['type','types','work_type','work','publication','publications'], true)) {
             $types_query->andWhere(['type' => $types]);
         }
 
@@ -517,4 +565,62 @@ class Scholar extends Model
             ],
         ];
     }
+
+    public static function getSelectedPapersForList($list_id) {
+        
+        $list_id = (int)$list_id;
+    
+        $json_ids = Yii::$app->db->createCommand("
+            SELECT selected_papers
+            FROM contributions_list_selections
+            WHERE list_id = :lid
+            LIMIT 1
+        ")
+        ->bindValue(':lid', $list_id)
+        ->queryScalar();
+    
+        if (!$json_ids) {
+            return [];
+        }
+    
+        $arr = json_decode($json_ids, true);
+        if (!is_array($arr)) {
+            return [];
+        }
+    
+        return array_map('intval', $arr);
+    }
+    
+    public static function saveSelectedPapersForList($list_id, $paper_ids) {
+        $list_id   = (int)$list_id;
+        $paper_ids = array_values(array_unique(array_map('intval', (array)$paper_ids)));
+
+        if (empty($paper_ids)) {
+            
+            $json_ids = json_encode([]);
+        } else {
+            $json_ids  = json_encode($paper_ids);
+        }
+
+        try {
+            return Yii::$app->db->createCommand("
+                INSERT INTO contributions_list_selections (list_id, selected_papers, created_by)
+                VALUES (:lid, :json, :uid)
+                ON DUPLICATE KEY UPDATE
+                    selected_papers = VALUES(selected_papers),
+                    created_by      = VALUES(created_by),
+                    updated_at      = CURRENT_TIMESTAMP()
+            ")
+            ->bindValues([
+                ':lid'  => $list_id,
+                ':json' => $json_ids,
+                ':uid'  => Yii::$app->user->id ?? null,
+            ])
+            ->execute();
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+            return 0;
+        }
+    }
+    
 }

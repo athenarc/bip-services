@@ -278,17 +278,7 @@ class ScholarController extends BaseController
 
         $auth_code = Yii::$app->request->get('code');
 
-        $topics = Yii::$app->request->get('topics');
-        $tags = Yii::$app->request->get('tags');
-        $roles = Yii::$app->request->get('roles');
-        $accesses = Yii::$app->request->get('accesses');
-
-        // replace empty access with null, indicating unknown
-        if (!empty($accesses)) {
-            $accesses = array_map(function($r) { return ($r === '') ? null : $r; }, $accesses);
-        }
-
-        $types = Yii::$app->request->get('types');
+        $listsFilters = Yii::$app->request->get('lists', []);
 
         // if auth_code is present, user has requested to link account with orcid profile
         if (isset($auth_code) && !isset($researcher->access_token)) {
@@ -332,10 +322,9 @@ class ScholarController extends BaseController
         $rag_data = '';
         $missing_papers = [];
         $work_types_num = ['papers' => 0, 'datasets' => 0];
-        // $cv_narrative_works = [];
+    // $cv_narrative_works = [];
         // $cv_narratives = [];
         // $public_cv_narratives_count = '';
-        
         $template_elements = [];
         if ($template !== null && isset($template->elements)) {
             foreach($template->elements as $element) {
@@ -353,11 +342,6 @@ class ScholarController extends BaseController
 
                     case "Contributions List":
                         $config = ElementContributions::getConfigContributions($element->id);
-                        // sort parameter from Contributions List config
-                        $sort_config = $config["sort"] ?? null;
-                        $show_pagination_config = $config["show_pagination"] ?? null;
-                        $top_k_config = $config["top_k"] ?? null;
-                        $page_size_config = $config["page_size"] ?? null;
                         break;
 
                     case "Section Divider":
@@ -412,6 +396,8 @@ class ScholarController extends BaseController
                             'count' => $count_msg ?? '',
                         ]
                     ];
+                }else{
+                     Yii::debug("No config found for element ID {$element->id}, type {$element->type}", __METHOD__);
                 }
             }
         }
@@ -428,13 +414,16 @@ class ScholarController extends BaseController
         $show_pagination_config = $show_pagination_config ?? null;
         $page_size_config = $page_size_config ?? null;
 
+        // Initialize variables that may or may not be populated depending on template elements
+        $contributions_lists = [];
+        $contributions_indicators = [];
+        $contributions_selected_filters = [];
+        $facets_linked_to_lists = [];
 
         if(isset($researcher->access_token)) {
 
             $scholar = new Scholar($researcher);
-
-            // fetch scholar's works for ORCiD
-            $scholar->fetchWorks($sort_field, $top_k_config);
+            $missing_papers_initialized = false;
 
             // avoid calculation of redundant information, when the request is not coming from cv-narratives modal.
             // proper modifications were made in the profile view also.
@@ -449,25 +438,441 @@ class ScholarController extends BaseController
             //     }
 
             // fetch papers in current page
-            $result = $scholar->getArticlesInPage($topics, $tags, $roles, $accesses, $types, $sort_field, $show_pagination_config, $page_size_config);
+            $indicators_model = new Indicators();
+            $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
+            $facet_target_list_id = null;
 
-            // true if at least a facet is selected
-            $facets_selected = !empty($tags) || !empty($accesses) || !empty($rd_status) || !empty($types) || !empty($topics);
+            foreach ($template_elements as $element) {
+                if ($element['type'] !== 'Contributions List') {
+                    continue;
+                }
 
-            // get last selected facet field and its value
-            $facet_field = Yii::$app->request->get('fct_field');
+                $element_id = $element['element_id'];
+                $config = $element['config'];
 
-            $result["facets"] = $scholar->getFacets($topics, $tags, $roles, $accesses, $types, $facet_field);
+                $filters = $config['filters'] ?? [];
+                $top_k = $config['top_k'] ?? null;
+                // Determine sort field: if top_k is set, use config value; otherwise check GET parameter (list-specific)
+                $sort_field_local = !empty($top_k)
+                    ? ($config['sort'] ?? 'year')
+                    : Yii::$app->request->get('sort_' . $element_id, $config['sort'] ?? 'year');
+                $show_pagination = $config['show_pagination'] ?? null;
+                $page_size = $config['page_size'] ?? null;
 
-            // fetch involvement
-            $result = Involvement::getInvolvement($result, $researcher->user_id);
+                $pagination_enabled = isset($show_pagination) ? ((int)$show_pagination !== 0) : true;
+                $page_size_final = $page_size ?? 10;
 
-            $missing_papers = $scholar->missing_papers;
+                $listsFilters = Yii::$app->request->get('lists', []);
+                $topics_for_list   = $listsFilters[$element_id]['topics']   ?? ($filters['topics'] ?? null);
+                $tags_for_list     = $listsFilters[$element_id]['tags']     ?? ($filters['tags'] ?? null);
+                $roles_for_list    = $listsFilters[$element_id]['roles']    ?? ($filters['roles'] ?? null);
+                $accesses_for_list = $listsFilters[$element_id]['accesses'] ?? ($filters['accesses'] ?? null);
+                $types_for_list    = $listsFilters[$element_id]['types']    ?? ($filters['types'] ?? null);                        
+                if (!empty($accesses_for_list)) {
+                    $accesses_for_list = array_map(function ($v) {
+                        return ($v === '') ? null : $v;
+                    }, (array) $accesses_for_list);
+                }
+                $contributions_selected_filters[$element_id] = [
+                    'topics' => $topics_for_list,
+                    'tags' => $tags_for_list,
+                    'roles' => $roles_for_list,
+                    'accesses' => $accesses_for_list,
+                    'types' => $types_for_list
+                ];
+
+                $scholar->fetchWorksLimited($sort_field_local, $top_k);
+
+                // Initialize missing papers after first fetchWorksLimited call
+                if (!$missing_papers_initialized) {
+                    $missing_papers = $scholar->missing_papers;
+                    $missing_papers_initialized = true;
+                }
+
+                $result = $scholar->getArticlesInPage(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list,
+                    $sort_field_local, $pagination_enabled, $page_size_final, $top_k,
+                    'page_list_' . $element_id,
+                    'per-page_list_' . $element_id
+                );
+
+                // Add involvement data to papers from getArticlesInPage
+                if (!empty($result['papers'])) {
+                    $result['papers'] = \app\models\Involvement::getInvolvement(
+                        ['papers' => $result['papers']],
+                        $researcher->user_id
+                    )['papers'];
+                }
+
+                $all_papers_result = $scholar->getArticlesInPage(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list,
+                    $sort_field_local, false, 10000, null // no pagination, large limit
+                );
+
+                $result['all_papers'] = \app\models\Involvement::getInvolvement(
+                    ['papers' => $all_papers_result['papers']],
+                    $researcher->user_id
+                )['papers'];
+
+                // If pagination is OFF, force showing all rows for the current filters (respect Top-K)
+                if (!$pagination_enabled) {
+                    // If Top-K is set, getArticlesInPage already uses it; but to be explicit:
+                    if (!empty($top_k)) {
+                        $result['papers'] = array_slice($result['papers'], 0, (int)$top_k);
+                    } else {
+                        // Ensure we truly have *all* rows (some implementations still limit silently)
+                        if (!empty($result['all_papers'])) {
+                            $result['papers'] = $result['all_papers'];
+                        }
+                    }
+                    
+                    // Add involvement data for Top-K papers
+                    if (!empty($result['papers'])) {
+                        $result['papers'] = \app\models\Involvement::getInvolvement(
+                            ['papers' => $result['papers']],
+                            $researcher->user_id
+                        )['papers'];
+                    }
+                    
+                    $result['papers_num'] = count($result['papers']);
+                    $result['pagination'] = null; // no pager in data layer when pagination is off
+                }
+                
+                $result['selected_papers'] = [];
+                $result['selected_papers_num'] = 0;
+
+                $selected_ids_for_list = $scholar->getSelectedPapersForList($element_id);
+
+                if (is_array($selected_ids_for_list) && !empty($selected_ids_for_list)) {
+                    $selected = array_filter($result['all_papers'], function($paper) use ($selected_ids_for_list) {
+                        return in_array($paper['internal_id'], $selected_ids_for_list);
+                    });
+                    $selected = array_values($selected); // reindex
+
+                    // Respect Top-K if set
+                    if (!empty($top_k)) {
+                        $selected = array_slice($selected, 0, (int)$top_k);
+                    }
+
+                    // Add involvement data for selected papers
+                    if (!empty($selected)) {
+                        $selected = \app\models\Involvement::getInvolvement(
+                            ['papers' => $selected],
+                            $researcher->user_id
+                        )['papers'];
+                    }
+
+                    $result['selected_papers']     = $selected;
+                    $result['selected_papers_num'] = count($selected);
+
+                    if ($pagination_enabled) {
+                        $result['papers_num'] = $result['selected_papers_num'];
+                        $selPagination = new \yii\data\Pagination([
+                            'pageSize'      => $page_size_final,
+                            'totalCount'    => $result['papers_num'],
+                            'pageParam'     => 'page_list_' . $element_id,
+                            'pageSizeParam' => 'per-page_list_' . $element_id,
+                            'validatePage'  => true,
+                        ]);
+
+                        $cleanParams = Yii::$app->request->get();
+                        unset($cleanParams['page'], $cleanParams['per-page']);
+                        $selPagination->params = $cleanParams;
+
+                        $result['pagination'] = $selPagination;
+                        $result['papers']     = array_slice($selected, $selPagination->offset, $selPagination->limit);
+                    } else {
+                        // NO pagination → show ALL selected (still respects Top-K above)
+                        $result['pagination'] = null;
+                        $result['papers']     = $selected;
+                        $result['papers_num'] = count($selected);
+                    }
+                }
+                        
+                if ($pagination_enabled) {
+                    $result['papers'] = array_slice($result['papers'], 0, $page_size_final);
+                }
+                $has_selected    = !empty($result['selected_papers']);
+                $has_pagination  = isset($result['pagination'])
+                                && $pagination_enabled
+                                && method_exists($result['pagination'], 'getPageCount')
+                                && ($result['pagination']->getPageCount() > 1);
+
+                // Decide the natural dataset (what the list currently shows/represents)
+                if ($has_pagination) {
+                    $dataset_for_facets = $has_selected
+                        ? $result['selected_papers']
+                        : ($result['all_papers'] ?? $result['papers']);
+                } else {
+                    $dataset_for_facets = $has_selected ? $result['selected_papers'] : $result['papers'];
+                }
+
+                $facet_field_per_list = $listsFilters[$element_id]['fct_field'] ?? null;
+                $groupKey = !empty($facet_field_per_list) ? $this->mapFacetName($facet_field_per_list) : null;
+
+                $result['facets'] = $scholar->getFacets(
+                    $topics_for_list, $tags_for_list, $roles_for_list,
+                    $accesses_for_list, $types_for_list, $facet_field_per_list
+                );
+
+                $originalFacets = $result['facets'];
+
+                if (in_array($groupKey, ['topics','tags','roles','accesses','types'], true)) {
+                    $recount_others = $this->recountFacetsFromPapers($originalFacets, $dataset_for_facets);
+
+                    $nullTopics   = ($groupKey === 'topics')   ? null : $topics_for_list;
+                    $nullTags     = ($groupKey === 'tags')     ? null : $tags_for_list;
+                    $nullRoles    = ($groupKey === 'roles')    ? null : $roles_for_list;
+                    $nullAccesses = ($groupKey === 'accesses') ? null : $accesses_for_list;
+                    $nullTypes    = ($groupKey === 'types')    ? null : $types_for_list;
+
+                    $baseResult = $scholar->getArticlesInPage(
+                        $nullTopics, $nullTags, $nullRoles, $nullAccesses, $nullTypes,
+                        $sort_field_local, false, 10000, $top_k
+                    );
+
+                    $base_papers = Involvement::getInvolvement(['papers' => $baseResult['papers']], $researcher->user_id)['papers'];
+
+                    $selected_ids_for_list = \app\models\Scholar::getSelectedPapersForList($element_id);
+                    if (!empty($selected_ids_for_list)) {
+                        $idSet = array_flip($selected_ids_for_list);
+                        $base_papers = array_values(array_filter($base_papers, static function($p) use ($idSet) {
+                            return isset($idSet[(int)$p['internal_id']]);
+                        }));
+                    }
+
+                    $onlyActive = [
+                        $groupKey => $originalFacets[$groupKey] ?? ['counts' => [], 'options' => []]
+                    ];
+                    $recount_active = $this->recountFacetsFromPapers($onlyActive, $base_papers);
+
+                    $merged = $recount_others;
+                    $merged[$groupKey] = $recount_active[$groupKey] ?? ($merged[$groupKey] ?? []);
+
+                    if (isset($originalFacets[$groupKey]['options'])) {
+                        $merged[$groupKey]['options'] = $originalFacets[$groupKey]['options'];
+                    }
+
+                    $preAppliedByGroup = [
+                        'topics'   => (array)($filters['topics'] ?? []),
+                        'tags'     => (array)($filters['tags'] ?? []),
+                        'roles'    => (array)($filters['roles'] ?? []),
+                        'accesses' => (array)($filters['accesses'] ?? $filters['availability'] ?? []),
+                        'types'    => (array)($filters['types'] ?? $filters['work-type'] ?? []),
+                    ];
+
+                    $active  = $groupKey;
+                    $allowed = $preAppliedByGroup[$active] ?? [];
+
+                    if (!empty($allowed) && isset($merged[$active]['counts']) && is_array($merged[$active]['counts'])) {
+                        $normalizeId = function ($id) use ($active) {
+                            $id = (string)$id;
+                            if (preg_match('~(?:/)?(C?\d+)$~', $id, $m)) {
+                                $id = $m[1];
+                            }
+                            if ($active === 'topics' && ctype_digit($id)) {
+                                $id = 'C' . $id;
+                            }
+                            return $id;
+                        };
+
+                        $allowedNorm = array_flip(array_map($normalizeId, $allowed));
+
+                        $merged[$active]['counts'] = array_intersect_key($merged[$active]['counts'], $allowedNorm);
+
+                        if (isset($merged[$active]['options']) && is_array($merged[$active]['options'])) {
+                            $merged[$active]['options'] = array_intersect_key($merged[$active]['options'], $allowedNorm);
+                        }
+                    }
+
+                    $result['facets'] = $this->filterZeroFacets($merged);
+
+                } else {
+                    $recounted = $this->recountFacetsFromPapers($originalFacets, $dataset_for_facets);
+                    $result['facets'] = $this->filterZeroFacets($recounted);
+                }
+
+                $filteredAll = $result['facets'];
+
+                $selectedByGroup = [
+                    'topics'   => (array)$topics_for_list,
+                    'roles'    => (array)$roles_for_list,
+                    'accesses' => (array)$accesses_for_list,
+                    'types'    => (array)$types_for_list,
+                    'tags'     => (array)$tags_for_list,
+                ];
+
+                if ($groupKey) {
+                    $result['facets'] = $this->restrictNonActiveGroupsToSelected($filteredAll, $selectedByGroup, $groupKey);
+                } else {
+                    $result['facets'] = $filteredAll;
+                }
+
+                
+                $dataset_for_indicators = $dataset_for_facets;
+                $contributions_indicators[$element_id]  = $indicators_model->computeForPapers($dataset_for_indicators, $rag_data, count($missing_papers ?: []));
+                $contributions_indicators[$element_id]['show_missing_papers'] = isset($config['show_missing_papers']) ? (bool)$config['show_missing_papers'] : true;
+                $result['selected_accesses'] = $accesses_for_list ?: [];
+                $result['selected_types']    = $types_for_list ?: [];
+
+                $contributions_lists[$element_id] = $result;
+                if (!isset($facets_linked_to_lists[$element_id])) {
+                    $facets_linked_to_lists[$element_id] = [];
+                }
+                $facets_linked_to_lists[$element_id]['facets_from_list'] = $result['facets'];
+               
+                if (Yii::$app->request->isAjax) {
+                    $lf = Yii::$app->request->get('lists', []);
+                    $ajax_list_id = null;
+                    if (is_array($lf) && count($lf) === 1) {
+                        $ajax_list_id = (int) array_key_first($lf);
+                    }
+                
+                    if ($ajax_list_id) {
+                        $list_result = $contributions_lists[$ajax_list_id] ?? [];
+                
+                        $element_config = [];
+                        foreach ($template_elements as $te) {
+                            if ($te['element_id'] == $ajax_list_id) {
+                                $element_config = $te['config'];
+                                break;
+                            }
+                        }
+                
+                        $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
+               
+                        return $this->renderPartial('@app/components/views/contributions_list_item', [
+                            'impact_indicators'   => $impact_indicators,
+                            'edit_perm'           => $edit_perm,
+                            'result'              => $list_result,
+                            'papers'              => $list_result['papers'] ?? [],
+                            'works_num'           => $list_result['papers_num'] ?? 0,
+                            'missing_papers'      => $missing_papers,
+                            'missing_papers_num'  => count($missing_papers),
+                            'sort_field'          => $sort_field,
+                            'orderings'           => [
+                                'year'           => 'Publication year',
+                                'influence'      => 'Influence',
+                                'popularity'     => 'Popularity',
+                                'impulse'        => 'Impulse',
+                                'citation_count' => 'Citation Count',
+                            ],
+                            'formId'              => 'scholar-form',
+                            'element_config'      => $element_config,
+                            'facets_selected'     => $facets_selected,
+                            'current_cv_narrative'=> null,
+                            'selected_accesses'   => $list_result['selected_accesses'] ?? [],
+                            'selected_types'      => $list_result['selected_types'] ?? [],
+                        ]);
+                    }
+                }
+            }
+            
+            foreach ($template_elements as $element) {
+                if ($element['type'] !== 'Facets') {
+                    continue;
+                }
+
+                $facet_element_id = $element['element_id'];
+                $facet_config = ElementFacets::getConfigFacet($facet_element_id);
+
+                foreach ($facet_config as $facet_type => $facet_data) {
+                    $linked_list_id = $facet_data['linked_contribution_element_id'] ?? null;
+                    if (!$linked_list_id) continue;
+
+                    if (!isset($facets_linked_to_lists[$linked_list_id])) {
+                        $facets_linked_to_lists[$linked_list_id] = [];
+                    }
+
+                    $facets_linked_to_lists[$linked_list_id][$facet_type] = $facet_data;
+                }
+            }
+
+
+
+            // foreach ($template_elements as $element) {
+            //     if ($element['type'] === 'Contributions List') {
+            //         $element_id = $element['element_id'];
+            //         $config = $element['config'];
+
+            //         $filters = $config['filters'] ?? [];
+            //         $sort_field_local = $config['sort'] ?? 'year';
+            //         $top_k = $config['top_k'] ?? null;
+            //         $show_pagination = $config['show_pagination'] ?? null;
+            //         $page_size = $config['page_size'] ?? null;
+
+            //         $pagination_enabled = isset($show_pagination) ? ((int)$show_pagination !== 0) : true;
+            //         $page_size_final = $page_size ?? 10;
+
+            //         //$use_url_filters = $config['use_url_filters'] ?? false;
+            //         $use_url_filters = ((int)$list_id_from_request === (int)$element_id);
+
+
+            //         $topics_for_list = $use_url_filters ? Yii::$app->request->get('topics', $filters['topics'] ?? null) : ($filters['topics'] ?? null);
+            //         $tags_for_list = $use_url_filters ? Yii::$app->request->get('tags', $filters['tags'] ?? null) : ($filters['tags'] ?? null);
+            //         $roles_for_list = $use_url_filters ? Yii::$app->request->get('roles', $filters['roles'] ?? null) : ($filters['roles'] ?? null);
+            //         $accesses_for_list = $use_url_filters ? Yii::$app->request->get('accesses', $filters['accesses'] ?? null) : ($filters['accesses'] ?? null);
+            //         $types_for_list = $use_url_filters ? Yii::$app->request->get('types', $filters['types'] ?? null) : ($filters['types'] ?? null);
+
+
+            //         $contributions_selected_filters[$element_id] = [
+            //             'topics' => $topics,
+            //             'tags' => $tags,
+            //             'roles' => $roles,
+            //             'accesses' => $accesses,
+            //             'types' => $types
+            //         ];
+
+            //         $scholar->fetchWorksLimited($sort_field_local, $top_k);
+            //         $result = $scholar->getArticlesInPage($topics_for_list, $tags_for_list, $roles_for_list, $accesses_for_list, $types_for_list, $sort_field_local, $pagination_enabled, $page_size_final, $top_k);
+
+            //         $facet_field = Yii::$app->request->get('fct_field');
+            //         $result['facets'] = $scholar->getFacets($topics_for_list, $tags_for_list, $roles_for_list, $accesses_for_list, $types_for_list, $facet_field);
+             
+
+            //         $result = Involvement::getInvolvement($result, $researcher->user_id);
+
+            //         $contributions_lists_results[$element_id] = $result;
+
+            //         $all_papers = $scholar->indicators->papers;
+                    
+            //         $contributions_indicators[$element_id] = $indicators_model->computeForPapers($all_papers, $rag_data);
+
+
+            //         if (!$pagination_enabled && $top_k !== null) {
+            //             $contributions_lists_results[$element_id]['papers'] = array_slice($result['papers'], 0, $top_k);
+            //             $contributions_lists_results[$element_id]['papers_num'] = min($top_k, count($result['papers']));
+            //         }
+            //     }
+
+            //     if ($element['type'] === 'Facets') {
+            //         $facet_element_id = $element['element_id'];
+            //         $facet_config = ElementFacets::getConfigFacet($facet_element_id);
+                    
+            //         foreach ($facet_config as $facet_type => $facet_data) {
+            //             $linked_list_id = $facet_data['linked_contribution_element_id'] ?? null;
+
+            //             if (!$linked_list_id) continue;
+
+            //             if (!isset($facets_linked_to_lists[$linked_list_id])) {
+            //                 $facets_linked_to_lists[$linked_list_id] = [];
+            //             }
+
+            //             $facets_linked_to_lists[$linked_list_id][$facet_type] = $facet_data;
+
+            //         }
+            //     }
 
             // calculate scholar indicators
             $rag_data = ResponsibleAcadAge::get_responsible_academic_age_data($researcher->orcid);
 
-            $indicators = $scholar->indicators->compute($rag_data);
+            // Only compute indicators if scholar->indicators exists (i.e., template has contribution lists)
+            if ($scholar->indicators !== null) {
+                $indicators = $scholar->indicators->compute($rag_data);
+            }
+            // Otherwise, $indicators keeps the default empty array initialized earlier
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();
@@ -493,6 +898,21 @@ class ScholarController extends BaseController
             //     ]);
 
             // }
+        }
+
+        $selected_topics = $selected_roles = $selected_accesses = $selected_types = [];
+        $listsFilters = Yii::$app->request->get('lists', []);
+
+        // prepare a mapping for selected filters per list
+        $selected_per_list = [];
+
+        foreach ($listsFilters as $listId => $filters) {
+            $selected_per_list[$listId] = [
+                'topics'   => $filters['topics']   ?? [],
+                'roles'    => $filters['roles']    ?? [],
+                'accesses' => $filters['accesses'] ?? [],
+                'types'    => $filters['types']    ?? [],
+            ];
         }
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
@@ -528,11 +948,10 @@ class ScholarController extends BaseController
                 'impulse' => 'Impulse',
                 'citation_count' => 'Citation Count'
             ],
-            'selected_topics' => $topics,
-            'selected_tags' => $tags,
-            'selected_roles' => $roles,
-            'selected_accesses' => $accesses,
-            'selected_types' => $types,
+            'selected_topics'   => $selected_topics,
+            'selected_roles'    => $selected_roles,
+            'selected_accesses' => $selected_accesses,
+            'selected_types'    => $selected_types,
             'facets_selected' => $facets_selected,
             'sort_field' => $sort_field,
             // 'is_cv_narrative_pjax' => $is_cv_narrative_pjax,
@@ -545,6 +964,11 @@ class ScholarController extends BaseController
             'template' => $template,
             'templateDropdownData' => ProfileTemplateCategories::getTemplateDropdownData(),
             'template_url_name' => $template_url_name,
+            'contributions_lists' => $contributions_lists,
+            'contributions_indicators' => $contributions_indicators,
+            'contributions_selected_filters' => $contributions_selected_filters,
+            'facets_linked_to_lists' => $facets_linked_to_lists,
+            'selected_per_list' => $selected_per_list,
         ];
 
         if ($for_print) {
@@ -570,9 +994,6 @@ class ScholarController extends BaseController
         }
 
         $scholar = new Scholar($researcher);
-
-        // fetch scholar's works for ORCiD
-        $scholar->fetchWorks(null, null);
 
         $result = $scholar->getArticlesInPage([], [], [], [], [], 'year', null, null);
 
@@ -945,6 +1366,223 @@ class ScholarController extends BaseController
             return $response->content;
         } else {
             return "Failed to generate PDF.";
+        }
+    }
+
+    private function recountFacetsFromPapers($facets, $papers) {
+        $newCounts = [
+            'topics'   => [],
+            'roles'    => [],
+            'accesses' => [],
+            'types'    => [],
+            'tags'     => [],
+        ];
+
+        foreach ($papers as $paper) {
+
+            // Topics from concepts
+            if (!empty($paper['concepts'])) {
+                foreach ($paper['concepts'] as $concept) {
+                    // Accept several possible shapes
+                    $raw = $concept['id']
+                        ?? $concept['concept_id']
+                        ?? ($concept['concept']['id'] ?? null)
+                        ?? ($concept['openalex_id'] ?? null);
+
+                    if ($raw === null) {
+                        continue;
+                    }
+
+                    $raw = (string)$raw;
+
+                    if (preg_match('~(?:/)?(C?\d+)$~', $raw, $m)) {
+                        $raw = $m[1];
+                    }
+
+                    if (ctype_digit($raw)) {
+                        $raw = 'C' . $raw;
+                    }
+
+                    if (!isset($newCounts['topics'][$raw])) {
+                        $newCounts['topics'][$raw] = 0;
+                    }
+                    $newCounts['topics'][$raw]++;
+                }
+            }
+
+            // Roles from involvement
+            if (!empty($paper['involvement'])) {
+                foreach ($paper['involvement'] as $roleId) {
+                    if (!isset($newCounts['roles'][$roleId])) {
+                        $newCounts['roles'][$roleId] = 0;
+                    }
+                    $newCounts['roles'][$roleId]++;
+                }
+            }
+
+            // Accesses
+            if (array_key_exists('is_oa', $paper)) {
+                $accessId = $paper['is_oa'];
+                if (!isset($newCounts['accesses'][$accessId])) {
+                    $newCounts['accesses'][$accessId] = 0;
+                }
+                $newCounts['accesses'][$accessId]++;
+            }
+
+            // Types
+            if (isset($paper['type'])) {
+                $typeId = $paper['type'];
+                if (!isset($newCounts['types'][$typeId])) {
+                    $newCounts['types'][$typeId] = 0;
+                }
+                $newCounts['types'][$typeId]++;
+            }
+        }
+
+        // Reset counts to "0"
+        foreach ($facets as $facetType => &$facetData) {
+            if (isset($facetData['counts']) && is_array($facetData['counts'])) {
+                foreach ($facetData['counts'] as $id => &$oldCount) {
+                    $oldCount = "0";
+                }
+            }
+        }
+
+        foreach ($newCounts as $facetType => $counts) {
+            foreach ($counts as $id => $count) {
+                if (isset($facets[$facetType]['counts'][$id])) {
+                    $facets[$facetType]['counts'][$id] = (string)$count;
+                } elseif ($facetType === 'topics') {
+                    $alt = ltrim($id, 'C');
+                    if (isset($facets['topics']['counts'][$alt])) {
+                        $facets['topics']['counts'][$alt] = (string)$count;
+                    }
+                }
+            }
+        }
+
+        return $facets;
+    }
+
+    private function filterZeroFacets($facets, $exceptKey = null) {
+        foreach ($facets as $facetType => &$facetData) {
+            if ($exceptKey && strtolower($facetType) === strtolower($exceptKey)) {
+                continue;
+            }
+            if (!isset($facetData['counts']) || !is_array($facetData['counts'])) {
+                continue;
+            }
+            foreach ($facetData['counts'] as $id => $count) {
+                if ($count === "0" || $count === 0) {
+                    unset($facetData['counts'][$id]);
+                    if (isset($facetData['options'][$id])) {
+                        unset($facetData['options'][$id]);
+                    }
+                }
+            }
+        }
+        return $facets;
+    }
+
+    private function mapFacetName($name) {
+        $n = strtolower((string)$name);
+
+        if ($n === 'topic' || $n === 'topics') return 'topics';
+        if ($n === 'tag'   || $n === 'tags')   return 'tags';
+        if ($n === 'role'  || $n === 'roles' || $n === 'credit' || $n === 'credit_roles') return 'roles';
+        if (in_array($n, ['access', 'accesses', 'availability', 'open_access', 'oa'], true)) return 'accesses';
+        if (in_array($n, ['type', 'types', 'work_type', 'work', 'publication', 'publications'], true)) return 'types';
+        return $n;
+    }
+
+        /**
+     * For every facet group EXCEPT the active one, if the user has selections,
+     * keep only those selected options (hide the rest), preserving updated counts.
+     */
+    private function restrictNonActiveGroupsToSelected(array $facets, array $selectedByGroup, ?string $activeGroup): array
+    {
+        $active = $activeGroup ? $this->mapFacetName($activeGroup) : null;
+
+        foreach ($selectedByGroup as $group => $ids) {
+            $g = $this->mapFacetName($group);
+
+            if ($active && $g === $active) {
+                continue;
+            }
+
+            if (empty($ids) || !isset($facets[$g]) || !is_array($facets[$g])) {
+                continue;
+            }
+
+            $normIds = array_map(function ($id) use ($g) {
+                $id = (string)$id;
+
+                if (preg_match('~(?:/)?(C?\d+)$~', $id, $m)) {
+                    $id = $m[1];
+                }
+
+                if ($g === 'topics' && ctype_digit($id)) {
+                    $id = 'C' . $id;
+                }
+                return $id;
+            }, (array)$ids);
+
+            $oldCounts  = $facets[$g]['counts']  ?? [];
+            $oldOptions = $facets[$g]['options'] ?? [];
+
+            $newCounts  = [];
+            $newOptions = [];
+
+            foreach ($normIds as $id) {
+                if (isset($oldCounts[$id])) {
+                    $newCounts[$id] = $oldCounts[$id];
+                    if (isset($oldOptions[$id])) {
+                        $newOptions[$id] = $oldOptions[$id];
+                    }
+                    continue;
+                }
+
+                if ($g === 'topics') {
+                    $alt = ltrim($id, 'C');
+                    if (isset($oldCounts[$alt])) {
+                        $newCounts[$alt] = $oldCounts[$alt];
+                    }
+                    if (isset($oldOptions[$alt])) {
+                        $newOptions[$alt] = $oldOptions[$alt];
+                    }
+                }
+            }
+
+            $facets[$g]['counts'] = $newCounts;
+
+            if (!empty($oldOptions)) {
+                $facets[$g]['options'] = $newOptions;
+            }
+        }
+
+        return $facets;
+    }
+
+    public function actionSaveSelectedWorks() {
+        
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $list_id   = (int)Yii::$app->request->post('list_id');
+        $paper_ids = array_map('intval', (array)Yii::$app->request->post('paper_ids', []));
+
+        if (!$list_id) {
+            return ['status' => 'error', 'message' => 'Invalid list_id'];
+        }
+
+        try {
+            $affected = \app\models\Scholar::saveSelectedPapersForList($list_id, $paper_ids);
+            if ($affected > 0) {
+                return ['status' => 'success', 'message' => 'Works saved successfully'];
+            }
+            return ['status' => 'error', 'message' => 'Nothing was saved'];
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+            return ['status' => 'error', 'message' => 'DB error'];
         }
     }
 }

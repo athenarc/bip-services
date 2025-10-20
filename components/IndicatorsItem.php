@@ -25,6 +25,7 @@ class IndicatorsItem extends Widget
     public $works_num;
     public $missing_papers_num;
     public $facets_selected;
+    public $show_missing_works = true;
 
     public $popular_works_count;
     public $influential_works_count;
@@ -79,6 +80,7 @@ class IndicatorsItem extends Widget
             'works_num' => $this->works_num,
             'missing_papers_num' => $this->missing_papers_num,
             'facets_selected' => $this->facets_selected,
+            'show_missing_works' => $this->show_missing_works,
             'popular_works_count' => $this->popular_works_count,
             'influential_works_count' => $this->influential_works_count,
             'citations' => $this->citations,

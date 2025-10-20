@@ -39,6 +39,7 @@ $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'd
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -112,8 +113,28 @@ use yii\bootstrap\NavBar;
         if (true): ?>
 
         <div class="container-fluid">
-            <?php ActiveForm::begin(['id' => 'scholar-form', 'options' => ['style' => 'display: inline-block;'], 'method'=>'GET', 'action'=> Url::to(['scholar/profile/'. $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])]); ?>
-            <?php ActiveForm::end(); ?>
+        <?php ActiveForm::begin([
+            'id' => 'scholar-form',
+            'options' => ['style' => 'display: inline-block;'],
+            'method' => 'GET',
+            'action' => Url::to(['scholar/profile/' . $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])
+        ]); ?>
+
+        <?= Html::hiddenInput('list_id', '', ['id' => 'active_list_id']) ?>
+        <?php
+        // Pre-generate a hidden fct_field for each Contributions List so JS can set it on click
+        if (!empty($template_elements)) {
+            foreach ($template_elements as $te) {
+                if (($te['type'] ?? null) === 'Contributions List') {
+                    $lid = $te['element_id'];
+                    echo Html::hiddenInput("lists[$lid][fct_field]", '', ['id' => "lists-{$lid}-fct_field"]);
+                }
+            }
+        }
+        ?>
+
+        <?php ActiveForm::end(); ?>
+
             <div class="row">
                 <div class="col-xs-12">
                     <h1>
@@ -192,71 +213,368 @@ use yii\bootstrap\NavBar;
 
             <?php
                 echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
+                $indicatorIndex = 0;
+                $listIds = array_keys($contributions_indicators);
                 foreach ($template_elements as $index => $element) {
 
                     switch ($element["type"]) {
                         case "Facets":
+                            // optionally pick a contributions list's facets (first one, or match by element ID if needed)
+                            //$linked_id = $element['config']['linked_contribution_element_id'] ?? null;
+                            $linked_id = null;
+                            foreach ($element['config'] as $section) {
+                                if (is_array($section) && isset($section['linked_contribution_element_id'])) {
+                                    $linked_id = $section['linked_contribution_element_id'];
+                                    break;
+                                }
+                            }
+                            if (!isset($contributions_lists[$linked_id])) {
+                                echo "<div class='text-danger'>Missing result for linked list ID: $linked_id</div>";
+                                break;
+                            }
+
+                            $selected = $contributions_selected_filters[$linked_id] ?? [];
+                        
+                            $isLinkedUserDefined = false;
+                            foreach ($template_elements as $te2) {
+                                if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_id) {
+                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    break;
+                                }
+                            }
+
+                            $lr = $contributions_lists[$linked_id] ?? null;
+                            $hasLinkedSelection = $lr && (
+                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (!empty($lr['selected_papers_num']) && $lr['selected_papers_num'] > 0)
+                            );
+
+                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                                $contributions_lists[$linked_id]['facets'] = [
+                                    'topics'   => ['counts' => [], 'options' => []],
+                                    'roles'    => ['counts' => [], 'options' => []],
+                                    'accesses' => ['counts' => [], 'options' => []],
+                                    'types'    => ['counts' => [], 'options' => []],
+                                ];
+                                $contributions_lists[$linked_id]['papers'] = [];
+                                $contributions_lists[$linked_id]['papers_num'] = 0;
+                            }
+
                             echo FacetsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'result' => $result,
+                                'result' =>  $contributions_lists[$linked_id],
                                 'formId' => 'scholar-form',
-                                'selected_topics' => $selected_topics,
-                                'selected_roles' => $selected_roles,
-                                'selected_accesses' => $selected_accesses,
-                                'selected_types' => $selected_types,
+                                'selected_topics' => $selected['topics'] ?? [],
+                                'selected_roles' => $selected['roles'] ?? [],
+                                'selected_accesses' => $selected['accesses'] ?? [],
+                                'selected_types' => $selected['types'] ?? [],
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
-                                'element_config' => $element["config"]
+                                'element_config' => $element["config"],
+                                'selected_per_list' => $selected_per_list,
+                                'facets_linked_to_lists' => $facets_linked_to_lists,
                             ]);
-
                             break;
 
                         case "Indicators":
+                            
+                            $indicator_items = $element['config'];
+                            $linked_list_id = $indicator_items[0]['linked_contribution_element_id'] ?? null;
+
+                            if (!$linked_list_id || !isset($contributions_indicators[$linked_list_id])) {
+                                echo "<div class='text-danger'> No indicators found for linked list ID: $linked_list_id</div>";
+                                break;
+                            }
+
+                            $indicators_local = $contributions_indicators[$linked_list_id];
+                            
+                            // Check if the linked Contributions List is user-defined
+                            $isLinkedUserDefined = false;
+                            foreach ($template_elements as $te2) {
+                                if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
+                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    break;
+                                }
+                            }
+
+                            // See if that list already has saved selections
+                            $lr = $contributions_lists[$linked_list_id] ?? null;
+                            $hasLinkedSelection = $lr && (
+                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (!empty($lr['selected_papers_num']) && (int)$lr['selected_papers_num'] > 0)
+                            );
+
+                            // If user-defined and no selection → use an "empty" indicators payload
+                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                                // find the linked Contributions List config to respect its admin toggles
+                                $linkedListShowMissing = true;
+                                foreach ($template_elements as $te2) {
+                                    if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
+                                        $linkedListShowMissing = isset($te2['config']['show_missing_papers']) ? (bool)$te2['config']['show_missing_papers'] : true;
+                                        break;
+                                    }
+                                }
+                                $indicators_local = [
+                                    'works_num' => 0,
+                                    'missing_papers_num' => count($missing_papers ?: []),
+                                    'show_missing_papers' => $linkedListShowMissing,
+                                    'popular_works_count' => 0,
+                                    'influential_works_count' => 0,
+                                    'citations_num' => 0,
+                                    'popularity' => ['number' => 0, 'exponent' => 'e0'],
+                                    'influence'  => ['number' => 0, 'exponent' => 'e0'],
+                                    'impulse' => 0,
+                                    'h_index' => 0,
+                                    'i10_index' => 0,
+                                    'academic_age' => '-',
+                                    'responsible_academic_age' => '-',
+                                    'paper_min_year' => 0,
+                                    'work_types_num' => [
+                                        'papers'   => 0,
+                                        'datasets' => 0,
+                                        'software' => 0,
+                                        'other'    => 0,
+                                    ],
+                                    'openness' => [],
+                                ];
+                            } else {
+                            $indicators_local = $contributions_indicators[$linked_list_id];
+                            }                            
+
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'works_num' => $result["papers_num"],
-                                'missing_papers_num' => count($missing_papers),
+                                'works_num' => $indicators_local['works_num'] ?? 0,
+                                'missing_papers_num' => $indicators_local['missing_papers_num'] ?? 0,
+                                'show_missing_works' => $indicators_local['show_missing_papers'] ?? true,
+                                'popular_works_count' => $indicators_local['popular_works_count'] ?? 0,
+                                'influential_works_count' => $indicators_local['influential_works_count'] ?? 0,
+                                'citations' => $indicators_local['citations_num'] ?? 0,
+                                'popularity' => $indicators_local['popularity'] ?? ['number' => 0, 'exponent' => 'e0'],
+                                'influence' => $indicators_local['influence'] ?? ['number' => 0, 'exponent' => 'e0'],
+                                'impulse' => $indicators_local['impulse'] ?? 0,
+                                'h_index' => $indicators_local['h_index'] ?? 0,
+                                'i10_index' => $indicators_local['i10_index'] ?? 0,
+                                'academic_age' => $indicators_local['academic_age'] ?? '',
+                                'responsible_academic_age' => $indicators_local['responsible_academic_age'] ?? '',
+                                'paper_min_year' => $indicators_local['paper_min_year'] ?? 0,
+                                'papers_num' => $indicators_local['work_types_num']['papers'] ?? 0,
+                                'datasets_num' => $indicators_local['work_types_num']['datasets'] ?? 0,
+                                'software_num' => $indicators_local['work_types_num']['software'] ?? 0,
+                                'other_num' => $indicators_local['work_types_num']['other'] ?? 0,
+                                'openness' => $indicators_local['openness'] ?? [],
                                 'facets_selected' => $facets_selected,
-                                'popular_works_count' => $popular_works_count,
-                                'influential_works_count' => $influential_works_count,
-                                'citations' => $citations,
-                                'popularity' => $popularity,
-                                'influence' => $influence,
-                                'impulse' => $impulse,
-                                'h_index' => $h_index,
-                                'i10_index' => $i10_index,
-                                'academic_age' => $academic_age,
-                                'paper_min_year' => $paper_min_year,
-                                'responsible_academic_age' => $responsible_academic_age,
                                 'rag_data' => $rag_data,
-                                'papers_num' => $papers_num,
-                                'datasets_num' => $datasets_num,
-                                'software_num' => $software_num,
-                                'other_num' => $other_num,
-                                'openness' => $openness,
-                                'current_cv_narrative' => null,
                                 'element_config' => $element["config"],
                             ]);
-
                             break;
 
                         case "Contributions List":
-                            echo ContributionsListItem::widget([
-                                'impact_indicators' => $impact_indicators,
-                                'edit_perm' => $edit_perm,
-                                'facets_selected' => $facets_selected,
-                                'result' => $result,
-                                'papers' => $result["papers"],
-                                'works_num' => $result["papers_num"],
-                                'missing_papers' => $missing_papers,
-                                'missing_papers_num' => count($missing_papers),
-                                'sort_field' => $sort_field,
-                                'orderings' => $orderings,
-                                'formId' => 'scholar-form',
-                                'current_cv_narrative' => null,
-                                'element_config' => $element["config"]
-                            ]);
+                            $list_id = $element["element_id"];
+                            $element_id = $element['element_id'];
+                            
+                            $list_result = $contributions_lists[$list_id] ?? [
+                                'papers' => [],
+                                'papers_num' => 0,
+                                'facets' => [],
+                            ];
+                            // decide if user can select works for this list
+                            $canUserSelect = !empty($element['config']['user_defined']) && (int)$element['config']['user_defined'] === 1 && $edit_perm;
+                            $maxUserSelect = isset($element['config']['user_defined_max']) && $element['config']['user_defined_max'] !== ''
+                                ? (int)$element['config']['user_defined_max']
+                                : null;
+                            // Always define a default for visible_papers
+                            $visible_papers = $list_result['papers'] ?? [];
 
+                            // If it's user-defined and there is no saved selection, hide the list contents
+                            if ($canUserSelect) {
+                                $hasUserSelection = (
+                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
+                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                );
+                                if (!$hasUserSelection) {
+                                    $visible_papers = [];
+                                }
+                            }
+                    
+                            if ($canUserSelect) {
+                                // Add Select Works button and modal trigger
+                                
+                                $selectWorksBtnHtml = Html::button('<i class="fa fa-check-square-o"></i> Select Works', [
+                                    'class' => 'btn btn-custom-color',
+                                    'style' => 'margin-bottom:10px;',
+                                    'data-toggle' => 'modal',
+                                    'data-target' => '#select-works-modal-' . $list_id,
+                                    'data-max' => $maxUserSelect,
+                                ]);
+
+                                $footer = '
+                                    <button class="btn btn-success save-selected-works" 
+                                            data-list-id="' . $list_id . '">Save</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                ';
+
+                                Modal::begin([
+                                    'header' => '
+                                        <div class="clearfix">
+                                            <h4 class="modal-title pull-left">Select Works for This List</h4>
+                                            <div class="pull-right">
+                                                <small class="text-muted selection-counter"
+                                                    id="selection-counter-' . $list_id . '"
+                                                    data-list-id="' . $list_id . '"
+                                                    style="display:none;"></small>
+                                                <span aria-hidden="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                            </div>
+                                        </div>
+                                    ',
+                                    'id' => 'select-works-modal-' . $list_id,
+                                    'size' => 'modal-lg',
+                                    'footer' => $footer
+                                ]);
+                                ?>
+                                    <?php
+                                    // collect already-saved IDs for this list
+                                    $serverSelectedIds = [];
+                                    if (!empty($list_result['selected_papers']) && is_array($list_result['selected_papers'])) {
+                                        foreach ($list_result['selected_papers'] as $item) {
+                                            if (is_array($item)) {
+                                                $id = $item['internal_id'] ?? $item['id'] ?? null;
+                                                if ($id === null) {
+                                                    foreach ($item as $v) { if (!is_array($v)) { $id = $v; break; } }
+                                                }
+                                            } else {
+                                                $id = $item;
+                                            }
+                                            if ($id !== null && $id !== '') {
+                                                $serverSelectedIds[] = (string)$id;
+                                            }
+                                        }
+                                    }
+                                    ?>
+
+                                    <?= Html::hiddenInput('selected_papers_' . $list_id, implode(',', $serverSelectedIds), [
+                                        'id' => 'selected_papers_' . $list_id,
+                                        'required' => true
+                                    ]) ?>
+
+                                    <?php
+                                    // Use GridView like in CV Narrative, but with your papers
+                                    echo GridView::widget([
+                                        'id' => 'papers-selection-grid-' . $list_id,
+                                        'dataProvider' => new yii\data\ArrayDataProvider([
+                                            'allModels' => $list_result['all_papers'] ?? $list_result['papers'],
+                                            'pagination' => false,
+                                        ]),
+                                        'layout' => "<div style='overflow-y:auto; max-height:500px'>{items}</div>",
+                                        'tableOptions' => [
+                                            'class' => 'table table-striped'
+                                        ],
+                                        'columns' => [
+                                            [
+                                                'class' => 'yii\grid\CheckboxColumn',
+                                                'name' => 'papers-selection[]',
+                                                'contentOptions' => ['class' => 'papers-checkbox-column'],
+                                                'headerOptions' => ['class' => 'papers-checkbox-column'],
+                                                'checkboxOptions' => function ($model) use ($serverSelectedIds){
+                                                    $id = $model['internal_id'];
+                                                    return [
+                                                        'class' => 'papers-selection-checkbox green-checkbox',
+                                                        'data-key' => $id,
+                                                        'checked'  => in_array($id, $serverSelectedIds, true),
+                                                    ];
+                                                },
+                                                'header' => Html::checkbox('select-all', false, [
+                                                    'class' => 'papers-select-on-check-all'
+                                                ]),
+                                            ],
+
+                                            [
+                                                'label' => Html::tag('span', 'Select All', ['class' => 'text-muted select-all-toggle-label','data-list-id' => $list_id, 'style' => 'font-weight: normal;']),
+                                                'encodeLabel' => false,
+                                                'format' => 'raw',
+                                                'value' => function ($data) {
+                                                    $row  = Html::beginTag('div', ['class' => 'article-info']);
+                                                    $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? "N/A" : $data['title']));
+                                                    $row .= Html::beginTag('div');
+                                                    $row .= Html::tag('i', (empty($data['journal']) ? "N/A" : $data['journal']) . ' · ');
+                                                    $row .= Html::tag('i', empty($data['year']) ? "N/A" : $data['year']);
+                                                    $row .= Html::endTag('div');
+                                                    $row .= Html::endTag('div');
+                                                    return $row;
+                                                },
+                                            ],
+                                        ],
+                                    ]);
+                                    ?>
+
+                                <?php Modal::end(); ?>
+                                <?php
+                                $hasUserSelection = (
+                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
+                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                );
+
+                                $shouldHidePapers = ($canUserSelect && !$hasUserSelection);
+                                $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []);
+                                ?>
+                            <?php
+                            }
+                            ?>
+                        <?php
+                            $selected = $contributions_selected_filters[$list_id] ?? [];
+                            $facets_for_this_list = $facets_linked_to_lists[$element_id] ?? null;
+
+                            // Create no-works message if user can select but hasn't selected any works
+                            $noWorksMessage = '';
+                            if ($canUserSelect && !$hasUserSelection) {
+                                $noWorksMessage = Html::tag('div', 'No works selected yet for this list.', [
+                                    'class' => 'alert alert-warning text-center no-works-alert',
+                                    'role'  => 'alert',
+                                ]);
+                            }
+
+                        ?>
+                            <div id="contributions-list-<?= $list_id ?>">
+                                <?php
+                                    // Determine sort field: if top_k is set, use config value; otherwise check GET parameter (list-specific)
+                                    $currentSortField = !empty($element['config']['top_k'])
+                                        ? ($element['config']['sort'] ?? 'year')
+                                        : Yii::$app->request->get('sort_' . $list_id, $element['config']['sort'] ?? 'year');
+                                    
+                                    echo ContributionsListItem::widget([
+                                        'impact_indicators' => $impact_indicators,
+                                        'edit_perm' => $edit_perm,
+                                        'facets_selected' => !empty($list_result['facets']),
+                                        'result' => $list_result,
+                                        'papers' => $visible_papers,
+                                        'works_num' => count($visible_papers),
+                                        'missing_papers' => $missing_papers,
+                                        'missing_papers_num' => count($missing_papers ?: []),
+                                        'list_id' => $list_id,
+                                        'show_missing_works' => $element['config']['show_missing_papers'] ?? true,
+                                        'sort_field' => $currentSortField,
+                                        'orderings' => [
+                                            'year' => 'Publication year',
+                                            'influence' => 'Influence',
+                                            'popularity' => 'Popularity',
+                                            'impulse' => 'Impulse',
+                                            'citation_count' => 'Citation Count'
+                                        ],
+                                        'formId' => 'scholar-form',
+                                        'current_cv_narrative' => null,
+                                        'element_config' => $element["config"],
+                                        'facets_for_this_list' => $facets_for_this_list,
+                                        'selected_topics' => $selected['topics'] ?? [],
+                                        'selected_tags' => $selected['tags'] ?? [],
+                                        'selected_roles' => $selected['roles'] ?? [],
+                                        'selected_accesses' => $selected['accesses'] ?? [],
+                                        'selected_types' => $selected['types'] ?? [],
+                                        'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
+                                        'show_pagination' => !empty($element['config']['show_pagination']),
+                                        'noWorksMessage' => $noWorksMessage,
+                                    ]);
+                                ?>
+                            </div>
+                        <?php
                             break;
 
                         case "Narrative":

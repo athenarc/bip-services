@@ -164,4 +164,22 @@ class Elements extends \yii\db\ActiveRecord
         return $this->hasOne(ElementTable::class, ['element_id' => 'id']);
     }
 
+    public function getLinkedContributionElement()
+    {
+        if ($this->type === 'Facets') {
+            $relation = $this->elementFacets[0] ?? null;
+        } elseif ($this->type === 'Indicators') {
+            $relation = $this->elementIndicators[0] ?? null;
+        } else {
+            return null;
+        }
+
+        if ($relation && $relation->linked_contribution_element_id) {
+            return Elements::findOne($relation->linked_contribution_element_id);
+        }
+
+        return null;
+    }
+
+
 }
