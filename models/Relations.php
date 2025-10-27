@@ -52,19 +52,18 @@ class Relations extends \yii\db\ActiveRecord
         $papers_relations = (new \yii\db\Query())
         ->select(['p.internal_id', 'r.source', 'r.target'])
         ->from(['p' => 'pmc_paper'])
-        ->innerJoin(['r' => 'relations'], 'p.openaire_id = r.source')
+        ->innerJoin(['r' => 'relations'], 'p.internal_id = r.source')
         ->where(['p.internal_id' => $internal_ids])
         ->all();
 
-
-        $openaire_ids_target = array_unique(array_column($papers_relations, 'target'));
+        $internal_ids_target = array_unique(array_column($papers_relations, 'target'));
 
         $targets_data = (new \yii\db\Query())
         ->select(['r.target', 'pid.doi', 'p.type'])
         ->from(['r' => 'relations'])
-        ->innerJoin(['p' => 'pmc_paper'], 'p.openaire_id = r.target')
+        ->innerJoin(['p' => 'pmc_paper'], 'p.internal_id = r.target')
         ->innerJoin(['pid' => 'pmc_paper_pids'],'p.internal_id = pid.paper_id')
-        ->where(['p.openaire_id' => $openaire_ids_target])
+        ->where(['p.internal_id' => $internal_ids_target])
         ->all();
 
 

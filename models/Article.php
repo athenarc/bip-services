@@ -293,7 +293,7 @@
             ->all();
      }
 
-     public static function getRelationsData($target_dois, $source_openaire_id) {
+     public static function getRelationsData($target_dois, $source_internal_id) {
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         return (new \yii\db\Query())
@@ -302,9 +302,9 @@
             // needed to show if already bookmarked
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->innerJoin('pmc_paper_pids','pmc_paper.internal_id = pmc_paper_pids.paper_id' )
-            ->innerJoin('relations', 'relations.target = pmc_paper.openaire_id')
+            ->innerJoin('relations', 'relations.target = pmc_paper.internal_id')
             ->where(['doi' => $target_dois])
-            ->andWhere(['relations.source' => $source_openaire_id])
+            ->andWhere(['relations.source' => $source_internal_id])
             ->groupBy('internal_id')
             ->orderBy([ 'internal_id' => SORT_ASC ])
             ->all();

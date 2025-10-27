@@ -999,9 +999,9 @@ class SiteController extends BaseController
     }
 
     public function actionGetRelationsData() {
-        $source_openaire_id = Yii::$app->request->get('source_openaire_id');
+        $source_internal_id = Yii::$app->request->get('source_internal_id');
         $target_dois = Yii::$app->request->get('target_dois');
-        $relations = Article::getRelationsData($target_dois, $source_openaire_id);
+        $relations = Article::getRelationsData($target_dois, $source_internal_id);
         $relations = SearchForm::get_impact_class($relations); 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
