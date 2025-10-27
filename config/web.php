@@ -108,8 +108,8 @@ $config = [
                 'search/<space_url_suffix>' => 'site/index',
                 'search' => 'site/index',
                 'compare' => 'site/comparison',
-                'details/<id:[0-9a-zA-Z]+>' => 'site/details',
-                'details/<doipart1>/<doipart2>' => 'site/details',
+                'details/<local_identifier>' => 'site/details-by-local-id',
+                'details' => 'site/details',
 
                 // Rewrite rules for author page
                 'author/<author>/<ordering>/<page:\d+>' => 'site/author',  
