@@ -1,7 +1,5 @@
 function submit_scholar_form() {
 
-    sessionStorage.setItem('scrollPos', $(window).scrollTop());
-
     $("#loading_results").show();
 
     $("#publications").hide();
@@ -84,10 +82,6 @@ function clearFacet(listId, facetName) {
 }
 
 $(document).ready(function () {
-    var scrollPos = sessionStorage.getItem('scrollPos');
-    if (scrollPos !== null) {
-        $(window).scrollTop(scrollPos);
-    }
 
     $('#reading-list-public-switch').click(function(event) {
         var csrfToken = $('meta[name="csrf-token"]').attr("content");

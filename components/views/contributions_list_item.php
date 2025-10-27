@@ -38,7 +38,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         && (int)$element_config['user_defined'] === 1
         && (int)($result['selected_papers_num'] ?? 0) === 0;
 
-    $rightShown  = !$hideMeta && empty($element_config['top_k']);
+    $rightShown  = !$hideMeta && empty($element_config['top_k']) && ($works_num ?? 0) > 0;
     ?>
     <div class='row' style="align-items:center;">
         <?php if ($showPager): ?>
@@ -47,7 +47,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                 <?php if (!empty($preHeaderHtml)): ?>
                     <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
                 <?php endif; ?>
-                <?php if (!$hideMeta): ?>
+                <?php if (!$hideMeta && ($works_num ?? 0) > 0): ?>
                     <?php
                     $hasPager     = !empty($result['pagination']);
                     $totalResults = $hasPager
@@ -105,7 +105,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                     <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
                 <?php endif; ?>
 
-                <?php if (!$hideMeta): ?>
+                <?php if (!$hideMeta && ($works_num ?? 0) > 0): ?>
                     <?php
                     $hasPager     = !empty($result['pagination']);
                     $totalResults = $hasPager
