@@ -475,6 +475,32 @@ class SiteController extends BaseController
         ]);
     }
     /**
+     * Redirects from local_identifier to details using DOI
+     */
+    public function actionDetailsByLocalId($local_identifier)
+    {
+        // Find article by local identifier
+        $article = Article::find()
+            ->joinWith('pids p', true, 'INNER JOIN')
+            ->where(['internal_id' => $local_identifier])
+            ->one();
+
+        if (!$article) {
+            throw new \yii\web\NotFoundHttpException("Article not found");
+        }
+
+        // Get the DOI from pids
+        $doi = $article->getDoiFromPids();
+
+        if (!$doi) {
+            throw new \yii\web\NotFoundHttpException("DOI not found for this article");
+        }
+
+        // Redirect to actionDetails with the DOI
+        return $this->redirect(['details', 'id' => $doi]);
+    }
+
+    /**
      * Displays the articles of a particular annotation.
      */
     public function actionAnnotation()

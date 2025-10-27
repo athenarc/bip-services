@@ -762,6 +762,21 @@
         return "PubMed Id";
     }
 
+    /**
+     * Get the DOI from the pids relationship
+     * @return string|null The DOI value or null if not found
+     */
+    public function getDoiFromPids() {
+        if ($this->pids) {
+            foreach ($this->pids as $pid) {
+                if ($pid->pid_type === 'doi') {
+                    return $pid->doi;
+                }
+            }
+        }
+        return null;
+    }
+
     public static function getCodeRepoUrls($internal_ids) {
         if (empty($internal_ids)) {
             return [];
