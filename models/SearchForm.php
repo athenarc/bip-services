@@ -30,6 +30,7 @@ class SearchForm extends Model
     public $impulse;
     public $cc;
     public $type;
+    public $is_oa;
     public $space_model;
     public $provided_by;
 
@@ -41,7 +42,7 @@ class SearchForm extends Model
      *
      * @author Ilias Kanellos
      */
-        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $provided_by = [], $space_model = null)
+        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $provided_by = [], $space_model = null)
         {
           parent::__construct();
           $this->ordering = $ordering;
@@ -78,6 +79,7 @@ class SearchForm extends Model
           $this->impulse = $impulse;
           $this->cc = $cc;
           $this->type = $type;
+          $this->is_oa = $is_oa;
           $this->provided_by = $provided_by;
           $this->space_model = $space_model;
         }
@@ -154,6 +156,7 @@ class SearchForm extends Model
             'location' => 'Search in:',
             'cc' => 'Citation Count',
             'provided_by' => 'Provided by',
+            'is_oa' => 'Availability'
         ];
     }
 
@@ -577,6 +580,20 @@ class SearchForm extends Model
             
         }
 
+        if ($this->is_oa) {
+            $is_oa_filter = [];
+
+            // escape is_oa names and prepend 'is_oa' field
+            foreach ($this->is_oa as $key => $is_oa_value) {
+                array_push($is_oa_filter, "is_oa:" . $query->getHelper()->escapePhrase($is_oa_value));
+            }
+
+            // join them with 'OR' opearator
+            $is_oa_filter = implode(" OR ", $is_oa_filter);
+            $query->createFilterQuery('is_oa_filter')->setQuery($is_oa_filter);
+            
+        }
+
         // get min impact scores to be added to query (set by impact category filter)
         $min_impact_scores = $this->getImpactScoreFilters();
 
@@ -989,6 +1006,7 @@ class SearchForm extends Model
         $count = 0;
         if (count($this->topics) > 0) $count++;
         if (count($this->type) > 0) $count++;
+        if (count($this->is_oa) > 0) $count++;
         if ($this->start_year != 0) $count++;
         if ($this->end_year != 0) $count++;
         if ($this->influence != 'all') $count++;

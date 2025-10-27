@@ -117,6 +117,14 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
         ]);
     ?>
 
+    <?=  CustomBootstrapCheckboxList::widget([
+            'name' => 'is_oa', 'model' => $model, 'form' => $form,
+            'items' => array_map(fn($value) => $value['name'], array_filter(Yii::$app->params['openness'], fn($key) => $key !== '', ARRAY_FILTER_USE_KEY)),
+            'item_class' => 'checkbox checkbox-custom checkbox-inline',
+            'unselect' => ''
+        ]);
+    ?>
+
 
     <?= $form->field($model, 'start_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
     <?= $form->field($model, 'end_year')->textInput(['type' => 'number','class' => 'search-box form-control']) ?>
