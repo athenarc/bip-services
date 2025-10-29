@@ -56,6 +56,7 @@ class ResultItem extends Widget
     public $space_url_suffix;
     public $space_annotation_db;
     public $for_print;
+    public $view_mode = 'full'; // 'full', 'compact', 'minimal'
     
     /*
      * Widget initialisation a.k.a. setting widget properties
@@ -73,7 +74,17 @@ class ResultItem extends Widget
         if ($this->for_print) {
             return $this->render('pdf/result_item');
         }
-        return $this->render('result_item');
+        
+        // Choose template based on view mode
+        switch ($this->view_mode) {
+            case 'compact':
+                return $this->render('result_item_compact');
+            case 'minimal':
+                return $this->render('result_item_minimal');
+            case 'full':
+            default:
+                return $this->render('result_item');
+        }
     }
 
 }
