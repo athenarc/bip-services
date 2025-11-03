@@ -263,6 +263,17 @@ $heading_type_view = [
                 'top_k:integer',
                 'show_pagination:boolean',
                 'page_size:integer',
+                [
+                    'attribute' => 'compact_view',
+                    'value' => function ($model) {
+                        $modes = [
+                            'full' => 'Full (Default)',
+                            'compact' => 'Compact',
+                            'minimal' => 'Minimal'
+                        ];
+                        return $modes[$model->compact_view] ?? 'Full (Default)';
+                    }
+                ],
             ],
         ]) ?>
     <?php elseif ($elementModel->type == "Bulleted List"): ?>

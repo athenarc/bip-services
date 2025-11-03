@@ -20,6 +20,7 @@ use Yii;
  * @property int|null    $user_defined_max
  * @property string|null $prefilter_types     JSON text (array)
  * @property string|null $prefilter_accesses  JSON text (array)
+ * @property string|null $compact_view        Display mode: 'full', 'compact', 'minimal'
  *
  * @property Elements $element
  */
@@ -28,6 +29,7 @@ class ElementContributions extends \yii\db\ActiveRecord
     public $filters_accesses = []; // '1','0',''  ('' means Unknown)
     public $filters_types    = []; // '0','1','2','3'
     public $top_k_toggle = 0;
+    public $compact_view = 'full'; // Virtual property
 
     /**
      * {@inheritdoc}
@@ -47,6 +49,8 @@ class ElementContributions extends \yii\db\ActiveRecord
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
+            [['compact_view'], 'in', 'range' => ['full', 'compact', 'minimal']],
+            [['compact_view'], 'default', 'value' => 'full'],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
 
             [['show_header', 'show_pagination', 'show_missing_papers'], 'boolean'],
@@ -67,7 +71,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             // when not user_defined, null it server-side so it’s ignored
             [['user_defined_max'], 'default', 'value' => null],
 
-            [['filters_accesses', 'filters_types'], 'safe'],
+            [['filters_accesses', 'filters_types', 'compact_view'], 'safe'],
             ['filters_accesses', 'each', 'rule' => ['in', 'range' => ['', '0', '1']]],
             ['filters_types',    'each', 'rule' => ['in', 'range' => ['0','1','2','3']]],
             [['prefilter_accesses', 'prefilter_types'], 'string'],
@@ -79,10 +83,17 @@ class ElementContributions extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public function attributes()
+    {
+        return array_merge(parent::attributes(), ['compact_view']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'element_id' => 'Element ID',
             'show_header' => 'Show header',
             'show_pagination' => 'Show pagination',
@@ -91,11 +102,13 @@ class ElementContributions extends \yii\db\ActiveRecord
             'top_k' => 'Top K',
             'page_size' => 'Page size',
             'heading_type' => 'Header size',
+            'compact_view' => 'Display Mode',
             'user_defined'        => 'Researcher selection',
             'user_defined_max'    => 'Max user-selected works',
             'filters_accesses' => 'Availability (default filters)',
             'filters_types'    => 'Work type (default filters)',
             'top_k_toggle' => 'Top-K',
+            'compact_view' => 'Display Mode',
         ];
     }
 
@@ -117,6 +130,9 @@ class ElementContributions extends \yii\db\ActiveRecord
         $this->filters_accesses = array_map('strval', (array)$acc);
         $this->filters_types    = array_map('strval', (array)$typ);
         $this->top_k_toggle = ($this->top_k !== null && $this->top_k !== '');
+        
+        // Load compact_view from database
+        $this->compact_view = $this->getAttribute('compact_view') ?: 'full';
     }
 
     public function beforeValidate()
@@ -139,6 +155,11 @@ class ElementContributions extends \yii\db\ActiveRecord
         // Persist the virtuals into JSON columns
         $this->prefilter_accesses = json_encode(array_values($this->filters_accesses ?: []), JSON_UNESCAPED_UNICODE);
         $this->prefilter_types    = json_encode(array_values($this->filters_types    ?: []), JSON_UNESCAPED_UNICODE);
+        
+        // Save compact_view to database
+        if (isset($this->compact_view)) {
+            $this->setAttribute('compact_view', $this->compact_view);
+        }
 
         return parent::beforeSave($insert);
     }
@@ -168,6 +189,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             'page_size'        => $model->page_size,
             'user_defined'     => $model->user_defined,
             'user_defined_max' => $model->user_defined ? $model->user_defined_max : null,
+            'compact_view'     => $model->compact_view ?: 'full',
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],
                 'types'    => $model->prefilter_types    ? (json_decode($model->prefilter_types, true)    ?: []) : [],
