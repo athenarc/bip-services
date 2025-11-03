@@ -20,6 +20,10 @@ use Yii;
  * @property int|null    $user_defined_max
  * @property string|null $prefilter_types     JSON text (array)
  * @property string|null $prefilter_accesses  JSON text (array)
+ * @property string|null $margin_top
+ * @property string|null $margin_right
+ * @property string|null $margin_bottom
+ * @property string|null $margin_left
  *
  * @property Elements $element
  */
@@ -72,6 +76,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             ['filters_types',    'each', 'rule' => ['in', 'range' => ['0','1','2','3']]],
             [['prefilter_accesses', 'prefilter_types'], 'string'],
             [['top_k_toggle'], 'boolean'],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
@@ -96,6 +101,10 @@ class ElementContributions extends \yii\db\ActiveRecord
             'filters_accesses' => 'Availability (default filters)',
             'filters_types'    => 'Work type (default filters)',
             'top_k_toggle' => 'Top-K',
+            'margin_top' => 'Top margin',
+            'margin_right' => 'Right margin',
+            'margin_bottom' => 'Bottom margin',
+            'margin_left' => 'Left margin',
         ];
     }
 
@@ -139,6 +148,13 @@ class ElementContributions extends \yii\db\ActiveRecord
         // Persist the virtuals into JSON columns
         $this->prefilter_accesses = json_encode(array_values($this->filters_accesses ?: []), JSON_UNESCAPED_UNICODE);
         $this->prefilter_types    = json_encode(array_values($this->filters_types    ?: []), JSON_UNESCAPED_UNICODE);
+        
+        // Add 'px' unit to margin values if they're just numbers
+        foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
+            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+                $this->$marginAttr = $this->$marginAttr . 'px';
+            }
+        }
 
         return parent::beforeSave($insert);
     }
@@ -168,6 +184,10 @@ class ElementContributions extends \yii\db\ActiveRecord
             'page_size'        => $model->page_size,
             'user_defined'     => $model->user_defined,
             'user_defined_max' => $model->user_defined ? $model->user_defined_max : null,
+            'margin_top'       => $model->margin_top,
+            'margin_right'     => $model->margin_right,
+            'margin_bottom'    => $model->margin_bottom,
+            'margin_left'      => $model->margin_left,
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],
                 'types'    => $model->prefilter_types    ? (json_decode($model->prefilter_types, true)    ?: []) : [],

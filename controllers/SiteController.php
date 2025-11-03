@@ -1977,6 +1977,9 @@ class SiteController extends BaseController
         $elementTableHeadersModels = [new ElementTableHeaders];
         $elementFacetsFormModel = new ElementFacetsForm();
         $elementBulletedListModel = new ElementBulletedList();
+        $elementNarrativesModel = new ElementNarratives();
+        $elementFacetsForMargins = new ElementFacets();
+        $elementIndicatorsForMargins = new ElementIndicators();
 
         $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
         $indicatorOrder = [];
@@ -2013,7 +2016,11 @@ class SiteController extends BaseController
 
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
+                            // Load margin data outside the loop
+                            $elementIndicatorsForMargins->load($this->request->post());
+
                             if (!empty($selectedIndicators)) {
+                                $firstIndicator = true;
                                 foreach ($selectedIndicators as $indicatorId => $status) {
                                         $elementIndicators = new ElementIndicators();
                                         $elementIndicators->element_id = $elementModel->id;
@@ -2024,6 +2031,15 @@ class SiteController extends BaseController
                                         $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                         $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
                                         $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
+                                        
+                                        // Store margins on the first ElementIndicators record only
+                                        if ($firstIndicator) {
+                                            $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
+                                            $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
+                                            $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
+                                            $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
+                                            $firstIndicator = false;
+                                        }
         
                                         $elementIndicators->save();
                                 }
@@ -2035,8 +2051,7 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Narrative':
-                        if ($elementNarrativesFormModel->load($this->request->post())) {
-                            $elementNarrativesModel = new ElementNarratives();
+                        if ($elementNarrativesFormModel->load($this->request->post()) && $elementNarrativesModel->load($this->request->post())) {
                             $elementNarrativesModel->element_id = $elementModel->id;
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
@@ -2162,6 +2177,7 @@ class SiteController extends BaseController
                                 }
                             }
 
+                            $firstFacet = true;
                             foreach ($facets as $facet_type => $opts) {
 
                                 $newFacet = new Facets();
@@ -2188,6 +2204,16 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
+                                
+                                // Store margins on the first ElementFacets record only
+                                if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
+                                    $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
+                                    $elementFacets->margin_right = $elementFacetsForMargins->margin_right;
+                                    $elementFacets->margin_bottom = $elementFacetsForMargins->margin_bottom;
+                                    $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
+                                    $firstFacet = false;
+                                }
+                                
                                 $elementFacets->save();
                             }
                         } else if ($elementFacetsFormModel->load($this->request->post())) {
@@ -2235,6 +2261,9 @@ class SiteController extends BaseController
             'elementTableModel' => $elementTableModel,
             'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementBulletedListModel' => $elementBulletedListModel,
+            'elementNarrativesModel' => $elementNarrativesModel,
+            'elementFacetsForMargins' => $elementFacetsForMargins,
+            'elementIndicatorsForMargins' => $elementIndicatorsForMargins,
             'elementModel' => $elementModel,
             'semanticsOrder' => $semanticsOrder,
             'indicatorOrder' => $indicatorOrder,
@@ -2273,6 +2302,20 @@ class SiteController extends BaseController
         $elementNarrativesFormModel = new ElementNarrativesForm();
         $elementDividersFormModel = new ElementDividersForm();
         $elementFacetsFormModel = new ElementFacetsForm();
+        
+        // For margins: use first ElementFacets record if exists
+        $elementFacetsForMargins = ($elementFacetsModel && count($elementFacetsModel) > 0) ? $elementFacetsModel[0] : new ElementFacets();
+        
+        // For indicators margins: use first ElementIndicators record that has margins, if exists
+        $elementIndicatorsForMargins = new ElementIndicators();
+        if ($elementIndicatorsModel && count($elementIndicatorsModel) > 0) {
+            foreach ($elementIndicatorsModel as $ei) {
+                if (!empty($ei->margin_top) || !empty($ei->margin_right) || !empty($ei->margin_bottom) || !empty($ei->margin_left)) {
+                    $elementIndicatorsForMargins = $ei;
+                    break;
+                }
+            }
+        }
 
         $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
         $indicatorOrder = [];
@@ -2329,8 +2372,12 @@ class SiteController extends BaseController
                             $indicatorOrder = is_array($indicatorOrder) ? array_map('strtolower', $indicatorOrder) : [];
                             $indicatorOrderIndex = array_flip($indicatorOrder);
 
+                            // Load margin data outside the loop
+                            $elementIndicatorsForMargins->load($this->request->post());
+
                             ElementIndicators::deleteAll(['element_id' => $id]);
                             if (!empty($selectedIndicators)) {
+                                $firstIndicator = true;
                                 foreach ($selectedIndicators as $indicatorId => $status) {
                                     $elementIndicators = new ElementIndicators();
                                     $elementIndicators->element_id = $id;
@@ -2341,6 +2388,16 @@ class SiteController extends BaseController
                                     $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                     $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
                                     $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
+                                    
+                                    // Store margins on the first ElementIndicators record only
+                                    if ($firstIndicator) {
+                                        $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
+                                        $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
+                                        $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
+                                        $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
+                                        $firstIndicator = false;
+                                    }
+                                    
                                     $elementIndicators->save();
                                 }
                             }
@@ -2351,7 +2408,7 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Narrative':
-                        if ($elementNarrativesFormModel->load($this->request->post())) {
+                        if ($elementNarrativesFormModel->load($this->request->post()) && $elementNarrativesModel->load($this->request->post())) {
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
@@ -2507,6 +2564,7 @@ class SiteController extends BaseController
                                 }
                             }
 
+                            $firstFacet = true;
                             foreach ($facets as $facet_type => $opts) {
 
                                 $newFacet = new Facets();
@@ -2533,6 +2591,16 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
+                                
+                                // Store margins on the first ElementFacets record only
+                                if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
+                                    $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
+                                    $elementFacets->margin_right = $elementFacetsForMargins->margin_right;
+                                    $elementFacets->margin_bottom = $elementFacetsForMargins->margin_bottom;
+                                    $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
+                                    $firstFacet = false;
+                                }
+                                
                                 $elementFacets->save();
                             }
                        } else if ($elementFacetsFormModel->load($this->request->post())) {
@@ -2574,6 +2642,8 @@ class SiteController extends BaseController
             'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementFacetsFormModel' => $elementFacetsFormModel,
             'elementBulletedListModel' => $elementBulletedListModel,
+            'elementFacetsForMargins' => $elementFacetsForMargins,
+            'elementIndicatorsForMargins' => $elementIndicatorsForMargins,
             'indicatorList' => $indicatorList,
             'existing_indicators' => $existing_indicators,
             'existing_facets' => $existing_facets,

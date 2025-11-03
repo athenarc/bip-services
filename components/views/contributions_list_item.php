@@ -192,7 +192,9 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
 <?php if (!empty($noWorksMessage)): ?>
     <?= $noWorksMessage ?>
 <?php elseif ($works_num === 0): ?>
-    <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
+    <div class="alert alert-warning text-center" role="alert">
+        No research products of this type were found in the public works of the respective ORCID profile.
+    </div>
 <?php endif; ?>
 
 

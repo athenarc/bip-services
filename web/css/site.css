@@ -971,6 +971,20 @@ body {
     .mobile-hidden-role {
         display: none;
     }
+    
+    /* Remove margins from all element types on mobile */
+    [id^="contributions-list-"],
+    [id^="bulleted-list-"],
+    [id^="dropdown-"],
+    [id^="table-"],
+    [id^="narrative-"],
+    [id^="facets-"],
+    [id^="indicators-list-"] {
+        margin-top: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+    }
 }
 
 .bip-home-layout {

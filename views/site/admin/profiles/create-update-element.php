@@ -14,6 +14,7 @@ use app\models\Elements;
 /** @var app\models\Elements $elementModel */
 /** @var app\models\ElementIndicators $elementIndicatorsModel */
 /** @var app\models\ElementIndicatorsForm $elementIndicatorsFormModel */
+/** @var app\models\ElementIndicators $elementIndicatorsForMargins */
 /** @var app\models\Indicators $indicatorList */
 /** @var yii\widgets\ActiveForm $form */
 
@@ -123,6 +124,31 @@ $section_profiles = ($section === "profiles");
                 'placeholder' => 'Enter a positive integer'
             ])->hint('Leave empty to allow for dynamic additions and removals.') ?>
 
+            <!-- Margin settings -->
+            <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementBulletedListModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementBulletedListModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementBulletedListModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementBulletedListModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
         <?php endif; ?>
 
         </div>
@@ -225,6 +251,31 @@ $section_profiles = ($section === "profiles");
                         <?php endforeach; ?>
                     </div>
                 <?php endforeach; ?>
+            </div>
+            
+            <!-- Margin settings -->
+            <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementFacetsForMargins, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementFacetsForMargins, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementFacetsForMargins, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementFacetsForMargins, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -392,6 +443,31 @@ $section_profiles = ($section === "profiles");
                     </div>
                 <?php endforeach; ?>
             </div>
+            
+            <!-- Margin settings -->
+            <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementIndicatorsForMargins, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementIndicatorsForMargins, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementIndicatorsForMargins, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementIndicatorsForMargins, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -418,6 +494,31 @@ $section_profiles = ($section === "profiles");
                     'checked' => false,
                     'class' => ['green-checkbox', 'hide-when-empty-checkbox'],
                 ])->label(false) ?>
+                
+                <!-- Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <strong>Margins</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementNarrativesModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementNarrativesModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementNarrativesModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementNarrativesModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                    </div>
+                </div>
             <?php else: ?>
                 <?php if ($elementModel->type == "Narrative"): ?>
                     <?= $form->field($elementNarrativesFormModel, 'title')->textInput(['value' => $elementNarrativesModel->title, 'maxlength' => true]); ?>
@@ -442,6 +543,31 @@ $section_profiles = ($section === "profiles");
                         'checked' => $isCheckedHideNarrative,
                         'class' => ['green-checkbox', 'hide-when-empty-checkbox'],
                     ])->label(false) ?>
+                    
+                    <!-- Margin settings -->
+                    <div class="panel panel-default" style="margin-top: 20px;">
+                        <div class="panel-heading">
+                            <strong>Margins</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                            <div class="col-sm-6">
+                                <?= $form->field($elementNarrativesModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <?= $form->field($elementNarrativesModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                            </div>
+                            </div>
+                            <div class="row">
+                            <div class="col-sm-6">
+                                <?= $form->field($elementNarrativesModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <?= $form->field($elementNarrativesModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 <?php endif ?>
             <?php endif ?>
 
@@ -674,6 +800,31 @@ $section_profiles = ($section === "profiles");
                 </div>
                 </div>
 
+                <!-- 8) Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementContributionsModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementContributionsModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementContributionsModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementContributionsModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             </div>
         <?php endif ?>
         <?php if ($elementModel->isNewRecord || $elementModel->type == "Dropdown"): ?>
@@ -749,6 +900,31 @@ $section_profiles = ($section === "profiles");
                         <?php endforeach; ?>
                     </div>
                 <?php DynamicFormWidget::end(); ?>
+                
+                <!-- Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <strong>Margins</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDropdownModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDropdownModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDropdownModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDropdownModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         <?php endif ?>
         <?php if ($elementModel->isNewRecord || $elementModel->type == "Table"): ?>
@@ -840,6 +1016,31 @@ $section_profiles = ($section === "profiles");
                         <?php endforeach; ?>
                     </div>
                 <?php DynamicFormWidget::end(); ?>
+                
+                <!-- Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <strong>Margins</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementTableModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementTableModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementTableModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementTableModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         <?php endif ?>
 
@@ -853,3 +1054,19 @@ $section_profiles = ($section === "profiles");
     </div>
 
 </div>
+
+<?php
+// JavaScript to auto-append 'px' to margin inputs when user enters only numbers
+$this->registerJs("
+$(document).ready(function() {
+    // Handle margin fields on blur (when user leaves the field)
+    $('input[id*=\"margin_top\"], input[id*=\"margin_right\"], input[id*=\"margin_bottom\"], input[id*=\"margin_left\"]').on('blur', function() {
+        var value = $(this).val().trim();
+        // If the value is a number (with or without decimal), append 'px'
+        if (value && /^\\d+(\\.\\d+)?$/.test(value)) {
+            $(this).val(value + 'px');
+        }
+    });
+});
+", View::POS_READY);
+?>

@@ -9,7 +9,11 @@ use kartik\date\DatePicker;
 <?php
     $indicator_semantics = [];
     $indicator_status = [];
-    foreach ($element_config as $config) {
+    foreach ($element_config as $key => $config) {
+        // Skip the _margins key
+        if ($key === '_margins') {
+            continue;
+        }
         $indicator_semantics[] = $config['indicator']['semantics'];
         $indicator_status[] = $config['status'];
         $semantics_order[] = $config['semantics_order'];
@@ -17,7 +21,11 @@ use kartik\date\DatePicker;
 
     // Reorder the array by 'indicator_order'
     uasort($element_config, function($a, $b) {
-        return $a['indicator_order'] <=> $b['indicator_order'];
+        // Skip _margins when sorting
+        if (isset($a['indicator'])) {
+            return $a['indicator_order'] <=> $b['indicator_order'];
+        }
+        return 0;
     });
 
     array_multisort($semantics_order, SORT_ASC, $indicator_semantics);
@@ -28,6 +36,10 @@ use kartik\date\DatePicker;
     foreach ($indicator_semantics as $i_sem) {
         $hasVisibleIndicators = false;
         foreach ($element_config as $indicator_item) {
+            // Skip _margins key
+            if (!isset($indicator_item['indicator'])) {
+                continue;
+            }
             if ($indicator_item['indicator']['semantics'] == $i_sem && $indicator_item['status'] != 'Disabled') {
                 $hasVisibleIndicators = true;
                 break;
@@ -52,6 +64,10 @@ use kartik\date\DatePicker;
                             <?php 
                                 $hasHiddenIndicators = false;
                                 foreach ($element_config as $indicator_item): 
+                                    // Skip _margins key
+                                    if (!isset($indicator_item['indicator'])) {
+                                        continue;
+                                    }
                                     if ($indicator_item['indicator']['semantics'] == $i_sem): 
                                         if ($indicator_item['status'] != 'Hidden'): ?>
                                             <?php if ($indicator_item['status'] != 'Disabled'): ?>
@@ -317,6 +333,10 @@ use kartik\date\DatePicker;
         <?php
         $has_fair_academic_age = false;
         foreach ($element_config as $config) {
+            // Skip _margins key
+            if (!isset($config['indicator'])) {
+                continue;
+            }
             if (($config['indicator']['name'] ?? '') === 'Fair Academic Age') {
                 $has_fair_academic_age = true;
                 break;
