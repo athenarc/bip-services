@@ -38,20 +38,26 @@ class ScholarSearchForm extends Model {
         $query = Researcher::find()->andFilterWhere([ 'is_public' => true ]);
         
         if (!empty($this->keywords)) {
-            
-            $keywordsArray = explode(' ', $this->keywords);
 
-            // initialize the condition array
-            $conditions = ['OR'];
+            // split by whitespace and filter out tokens shorter than 3 characters
+            $keywordsArray = preg_split('/\s+/', trim($this->keywords));
+            $keywordsArray = array_values(array_filter($keywordsArray, function ($token) {
+                return mb_strlen($token) >= 3;
+            }));
 
-            // loop through each token and add a LIKE condition for each column
-            foreach ($keywordsArray as $keyword) {
-                $conditions[] = ['LIKE', 'name', $keyword];
-                $conditions[] = ['LIKE', 'orcid', $keyword];
+            if (!empty($keywordsArray)) {
+                // initialize the condition array
+                $conditions = ['OR'];
+
+                // loop through each token and add a LIKE condition for each column
+                foreach ($keywordsArray as $keyword) {
+                    $conditions[] = ['LIKE', 'name', $keyword];
+                    $conditions[] = ['LIKE', 'orcid', $keyword];
+                }
+
+                // build the final query condition
+                $query->andFilterWhere($conditions);
             }
-
-            // build the final query condition
-            $query->andFilterWhere($conditions);
 
         }
 
