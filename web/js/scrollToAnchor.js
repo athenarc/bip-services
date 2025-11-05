@@ -1,13 +1,39 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const OFFSET = 70; // Adjust this value to your needs
+    // Different offsets for different pages
+    const OFFSET_INDICATORS = 60; // For indicators page
+    const OFFSET_PROFILE = 100; // For profile TOC - adjust this to change where profile anchors stop
 
-    function scrollToTarget(hash) {
+    var isScrolling = false; // Flag to prevent double scrolling
+
+    function getOffsetForTarget(target) {
+        // Check if target is inside profile-content (profile TOC)
+        if (target && target.closest('#profile-content')) {
+            return OFFSET_PROFILE;
+        }
+        // Default to indicators offset
+        return OFFSET_INDICATORS;
+    }
+
+    function scrollToTarget(hash, preventHashUpdate) {
+        if (isScrolling) return; // Prevent double scroll
+        
         var target = document.querySelector(hash);
         if (target) {
-            setTimeout(function () {
-                const top = target.getBoundingClientRect().top + window.pageYOffset - OFFSET;
-                window.scrollTo({ top, behavior: "smooth" });
-            }, 300); // Add delay to ensure Swagger UI is loaded
+            isScrolling = true;
+            const offset = getOffsetForTarget(target);
+            const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            
+            window.scrollTo({ top, behavior: "smooth" });
+            
+            // Reset flag after scroll completes (smooth scroll takes ~500ms)
+            setTimeout(function() {
+                isScrolling = false;
+            }, 600);
+            
+            // Update URL without triggering native scroll (only if not prevented)
+            if (!preventHashUpdate && history.pushState) {
+                history.pushState(null, null, hash);
+            }
         }
     }
 
@@ -18,27 +44,20 @@ document.addEventListener("DOMContentLoaded", function () {
             var hash = this.hash;
 
             if (hash) {
-                scrollToTarget(hash);
-
-                // Update URL without triggering scroll
-                if (history.pushState) {
-                    history.pushState(null, null, hash);
-                } else {
-                    location.hash = hash;
-                }
+                scrollToTarget(hash, false); // false = allow hash update
             }
         });
     });
 
     // Handle initial page load with hash
     if (window.location.hash) {
-        scrollToTarget(window.location.hash);
+        scrollToTarget(window.location.hash, true); // true = prevent hash update on initial load
     }
 
-    // Listen for hash changes
+    // Listen for hash changes (but only if not already scrolling)
     window.addEventListener('hashchange', function () {
-        if (window.location.hash) {
-            scrollToTarget(window.location.hash);
+        if (window.location.hash && !isScrolling) {
+            scrollToTarget(window.location.hash, true); // true = hash already updated
         }
     });
 });

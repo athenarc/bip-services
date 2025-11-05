@@ -40,11 +40,16 @@ $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Use the generic smooth-scroll handler
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Build/update TOC for Section Divider headings
+$this->registerJsFile('@web/js/profile-toc.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
 $this->registerCssFile('@web/css/scholar-profile.css');
 $this->registerCssFile('@web/css/missing-works.css');
+$this->registerCssFile('@web/css/profile-toc.css');
 
 $this->title = 'BIP! Services - Scholar';
 
@@ -215,6 +220,11 @@ use yii\bootstrap\NavBar;
                 echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
                 $indicatorIndex = 0;
                 $listIds = array_keys($contributions_indicators);
+                echo "<div id=\"scholar-profile\">";
+                echo "<div id=\"profile-toc-wrap\">";
+                echo "<div class=\"sidebar\"><div class=\"sidebar-body\"><ul id=\"profile-toc\"></ul></div></div>";
+                echo "<div class=\"main-content\" id=\"profile-content\">";
+
                 foreach ($template_elements as $index => $element) {
 
                     switch ($element["type"]) {
@@ -655,6 +665,9 @@ use yii\bootstrap\NavBar;
                             break;
                     }
                 }
+                echo "</div>"; // end main-content
+                echo "</div>"; // end profile-toc-wrap
+                echo "</div>"; // end scholar-profile
             ?>
         </div>
 
