@@ -648,6 +648,13 @@ $section_profiles = ($section === "profiles");
                     )
                 ) ?>
 
+                <!-- Display Mode (between Sort and Show header) -->
+                <?= $form->field($elementContributionsModel, 'compact_view')->dropDownList([
+                    'full' => 'Full',
+                    'compact' => 'Compact',
+                    'minimal' => 'Minimal'
+                ]) ?>
+
                 <!-- 2) Show header -->
                 <?= $form->field($elementContributionsModel, 'show_header')
                     ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_header'])
@@ -749,7 +756,9 @@ $section_profiles = ($section === "profiles");
                     ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_missing_papers'])
                     ?>
 
-                <!-- 7) Pre-applied filters -->
+                
+
+                <!-- 8) Pre-applied filters -->
                 <?php
                 // Build checkbox label arrays from params
                 $openness = Yii::$app->params['openness'] ?? [];

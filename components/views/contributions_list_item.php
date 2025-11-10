@@ -7,6 +7,9 @@ use yii\widgets\LinkPager;
 use app\components\ResultItem;
 use app\components\CustomBootstrapModal;
 
+// Register compact views CSS
+$this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
+
 $headingType = !empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
 
 ?>
@@ -169,6 +172,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                                 "is_oa" => $paper["is_oa"],
                                 "type" => $paper["type"],
                                 "repo_url" => $paper["code_url"] ?? null,
+                                "view_mode" => $element_config['compact_view'] ?? 'full',
                                 "show" => [
                                     "concepts" => true,
                                     "relations" => true,

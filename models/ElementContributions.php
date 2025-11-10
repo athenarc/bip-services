@@ -24,6 +24,7 @@ use Yii;
  * @property string|null $margin_right
  * @property string|null $margin_bottom
  * @property string|null $margin_left
+ * @property string|null $compact_view        Display mode: 'full', 'compact', 'minimal'
  *
  * @property Elements $element
  */
@@ -32,6 +33,7 @@ class ElementContributions extends \yii\db\ActiveRecord
     public $filters_accesses = []; // '1','0',''  ('' means Unknown)
     public $filters_types    = []; // '0','1','2','3'
     public $top_k_toggle = 0;
+    public $compact_view = 'full'; // Virtual property
 
     /**
      * {@inheritdoc}
@@ -51,6 +53,8 @@ class ElementContributions extends \yii\db\ActiveRecord
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
+            [['compact_view'], 'in', 'range' => ['full', 'compact', 'minimal']],
+            [['compact_view'], 'default', 'value' => 'full'],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
 
             [['show_header', 'show_pagination', 'show_missing_papers'], 'boolean'],
@@ -71,7 +75,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             // when not user_defined, null it server-side so it’s ignored
             [['user_defined_max'], 'default', 'value' => null],
 
-            [['filters_accesses', 'filters_types'], 'safe'],
+            [['filters_accesses', 'filters_types', 'compact_view'], 'safe'],
             ['filters_accesses', 'each', 'rule' => ['in', 'range' => ['', '0', '1']]],
             ['filters_types',    'each', 'rule' => ['in', 'range' => ['0','1','2','3']]],
             [['prefilter_accesses', 'prefilter_types'], 'string'],
@@ -84,10 +88,17 @@ class ElementContributions extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public function attributes()
+    {
+        return array_merge(parent::attributes(), ['compact_view']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'element_id' => 'Element ID',
             'show_header' => 'Show header',
             'show_pagination' => 'Show pagination',
@@ -96,6 +107,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             'top_k' => 'Top K',
             'page_size' => 'Page size',
             'heading_type' => 'Header size',
+            'compact_view' => 'Display Mode',
             'user_defined'        => 'Researcher selection',
             'user_defined_max'    => 'Max user-selected works',
             'filters_accesses' => 'Availability (default filters)',
@@ -105,6 +117,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             'margin_right' => 'Right margin',
             'margin_bottom' => 'Bottom margin',
             'margin_left' => 'Left margin',
+            'compact_view' => 'Display Mode',
         ];
     }
 
@@ -126,6 +139,9 @@ class ElementContributions extends \yii\db\ActiveRecord
         $this->filters_accesses = array_map('strval', (array)$acc);
         $this->filters_types    = array_map('strval', (array)$typ);
         $this->top_k_toggle = ($this->top_k !== null && $this->top_k !== '');
+        
+        // Load compact_view from database
+        $this->compact_view = $this->getAttribute('compact_view') ?: 'full';
     }
 
     public function beforeValidate()
@@ -154,6 +170,11 @@ class ElementContributions extends \yii\db\ActiveRecord
             if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
                 $this->$marginAttr = $this->$marginAttr . 'px';
             }
+        }
+      
+        // Save compact_view to database
+        if (isset($this->compact_view)) {
+            $this->setAttribute('compact_view', $this->compact_view);
         }
 
         return parent::beforeSave($insert);
@@ -188,6 +209,7 @@ class ElementContributions extends \yii\db\ActiveRecord
             'margin_right'     => $model->margin_right,
             'margin_bottom'    => $model->margin_bottom,
             'margin_left'      => $model->margin_left,
+            'compact_view'     => $model->compact_view ?: 'full',
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],
                 'types'    => $model->prefilter_types    ? (json_decode($model->prefilter_types, true)    ?: []) : [],

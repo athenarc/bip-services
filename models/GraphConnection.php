@@ -16,7 +16,15 @@ abstract class GraphConnection {
     public function connect($annotation_db) {
 
         // Create connection class and specify target host and port
-        $conn = new \Bolt\connection\Socket($annotation_db['host'], $annotation_db['port']);
+        // TODO: changed Socket to StreamSocket to support SSL - CHECK IF AVANTGRAPH WORKS WITH THIS
+        $conn = new \Bolt\connection\StreamSocket($annotation_db['host'], $annotation_db['port']);
+
+        // If SSL is enabled, set the SSL context options
+        if ($annotation_db['ssl']) {
+            $conn->setSslContextOptions([
+                'verify_peer' => true
+            ]);
+        }
 
         // Create new Bolt instance and provide connection object
         $bolt = new \Bolt\Bolt($conn);

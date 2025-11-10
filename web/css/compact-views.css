@@ -1,0 +1,290 @@
+/* Compact View Styles */
+.compact-view {
+    margin-bottom: 15px;
+}
+
+.compact-view .panel-body {
+    padding: 15px;
+}
+
+.compact-view .compact-meta {
+    margin-top: 8px;
+}
+
+.compact-view .compact-meta .small {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.compact-view .compact-concepts {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.compact-view .concept-tag {
+    display: inline-block;
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    margin: 2px 4px 2px 0;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #666;
+}
+
+.compact-view .concept-more {
+    color: #999;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.compact-view .compact-involvement {
+    margin-top: 6px;
+}
+
+.compact-view .involvement-tag {
+    display: inline-block;
+    background-color: #f5f5f5; /* align with other tags */
+    padding: 2px 6px;
+    margin: 2px 4px 2px 0;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #666; /* neutral text color like other tags */
+}
+
+.compact-view .involvement-more {
+    color: #999;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.compact-view .compact-footer {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+/* Compact view: involvement region inline with blocks */
+.compact-view .compact-involvement {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+}
+
+.compact-view .compact-involvement > i {
+    flex-shrink: 0;
+    line-height: calc(1em + 4px); /* match concept-tag: font-height + padding */
+    font-size: inherit;
+    display: inline-block;
+    vertical-align: middle;
+    height: calc(1em + 4px); /* match concept-tag visual height */
+    margin-top: 2px; /* nudge icon slightly down to align with first tag */
+}
+
+/* Compact view: involvement region inline with blocks */
+.compact-view .compact-involvement {
+    display: flex;
+    flex-wrap: nowrap; /* icon never wraps */
+    align-items: flex-start; /* align icon with first row */
+    gap: 2px;
+}
+
+.compact-view .compact-involvement > i {
+    flex-shrink: 0;
+    line-height: calc(1em + 4px); /* match concept-tag: font-height + padding */
+    font-size: inherit;
+    display: inline-block;
+    vertical-align: middle;
+    height: calc(1em + 4px); /* match concept-tag visual height */
+}
+
+.compact-view .compact-involvement .tags-wrapper {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    vertical-align: middle;
+    flex: 1;
+    min-width: 0;
+}
+
+.compact-view .compact-involvement .tags-wrapper .involvement-region {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    height: calc(1em + 4px); /* match concept-tag visual height */
+    min-height: calc(1em + 4px);
+}
+
+.compact-view .compact-involvement span[id$="_involvement_tags"] {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    vertical-align: middle;
+    line-height: calc(1em + 4px); /* match concept-tag visual height */
+}
+.compact-view .compact-involvement span[id$="_involvement_tags"]:empty {
+    display: inline-flex;
+    width: auto;
+    min-width: 0;
+    min-height: calc(1em + 4px); /* maintain same height as when tag is present */
+}
+.compact-view .compact-involvement span[id$="_involvement_tags"] .concept-tag {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* Compact view: show only the '+' caret next to the icon */
+.compact-view .compact-involvement .involvement-region .bootstrap-select {
+    width: 20px !important; /* keep tiny, caret-only */
+    vertical-align: middle;
+}
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle.btn-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 1em;
+    min-height: 1em;
+    line-height: 1em;
+    vertical-align: middle;
+}
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle .bs-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle .add-involvement {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+}
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle .filter-option,
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle .filter-option-inner,
+.compact-view .compact-involvement .involvement-region .bootstrap-select > .dropdown-toggle .filter-option-inner-inner {
+    display: none !important; /* hide text so no 'N selected' appears */
+}
+/* Make dropdown menu wider to accommodate longer text and checkmarks */
+.compact-view .compact-involvement .involvement-region .bootstrap-select .dropdown-menu {
+    min-width: 280px !important;
+}
+
+/* Compact view: make dropdown items look like grey role blocks */
+.compact-view .involvement-dropdown .dropdown-menu > .inner a .label.involvement {
+    background-color: #f5f5f5; /* same as .concept-tag */
+    color: #666;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: normal;
+    padding: 2px 6px;
+    display: inline-block;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Remove default label styling artifacts inside dropdown */
+.compact-view .involvement-dropdown .dropdown-menu > .inner a .label.involvement:hover,
+.compact-view .involvement-dropdown .dropdown-menu > .inner a:focus .label.involvement {
+    background-color: #ececec;
+    color: #666;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Remove border from dropdown list items */
+.compact-view .involvement-dropdown .dropdown-menu > .inner li a {
+    border: none !important;
+    outline: none !important;
+    padding: 4px 8px; /* reduce padding */
+}
+
+.compact-view .involvement-dropdown .dropdown-menu > .inner li a:hover,
+.compact-view .involvement-dropdown .dropdown-menu > .inner li a:focus {
+    border: none !important;
+    outline: none !important;
+}
+
+.compact-view .involvement-dropdown .dropdown-menu > .inner a {
+    padding-right: 25px; /* reduce right padding to bring checkmark closer */
+}
+
+/* Keep checkmark aligned on the right */
+.compact-view .involvement-dropdown .dropdown-menu > .inner a .check-mark {
+    right: 6px; /* closer to labels */
+}
+
+.compact-view .involvement-dropdown .dropdown-menu > .inner a .label.involvement {
+    margin-right: 0; /* remove margin between label and checkmark */
+}
+
+/* Minimal View Styles */
+.minimal-view-item {
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.minimal-view-item:last-child {
+    border-bottom: none;
+}
+
+.minimal-view-item .minimal-meta {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.minimal-view-item .minimal-meta span {
+    margin-right: 5px;
+}
+
+.minimal-view-item .openness-minimal {
+    margin-left: 8px;
+}
+
+.minimal-view-item .minimal-impact {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.minimal-view-item .versions-minimal {
+    color: #666;
+    font-size: 11px;
+}
+
+/* Minimal view: versions link hover should turn green without underline */
+.minimal-view-item a.versions-minimal {
+    text-decoration: none;
+}
+.minimal-view-item a.versions-minimal:hover,
+.minimal-view-item a.versions-minimal:focus {
+    color: var(--main-color);
+    text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .compact-view .col-md-8,
+    .compact-view .col-md-4 {
+        margin-bottom: 10px;
+    }
+    
+    .minimal-view-item .col-md-9,
+    .minimal-view-item .col-md-3 {
+        margin-bottom: 5px;
+    }
+    
+    .minimal-view-item .minimal-impact {
+        justify-content: flex-start;
+        margin-top: 5px;
+    }
+}
+
