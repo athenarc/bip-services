@@ -49,6 +49,7 @@ class ElementNarratives extends \yii\db\ActiveRecord
             [['limit_value'], 'integer', 'min' => 0],
             [['limit_type'], 'in', 'range' => [self::TYPE_WORDS, self::TYPE_CHARACTERS]],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
