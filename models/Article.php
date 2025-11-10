@@ -40,6 +40,7 @@
         public $cc_class;
         public $concepts;
         public $relations;
+        public $annotations;
         public $chart_data = [];
         public $repo_url;
 

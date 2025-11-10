@@ -410,6 +410,8 @@ class SiteController extends BaseController
         // get relations
         [ $article ] = Relations::getRelations([ $article ]);
 
+        [ $article ] = Spaces::fetchAnnotations([ $article ], $space_model);
+
         // // Do not calculate pyramidStatistics for articles with NULL scores
         // if(isset($article['pagerank'])){
         //     // calculate statistics needed for pyramid charts
