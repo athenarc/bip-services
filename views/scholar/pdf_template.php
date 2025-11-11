@@ -215,6 +215,52 @@ use yii\helpers\ArrayHelper;
             text-decoration: none;
         }
 
+        /* table */
+        .table-element {
+            page-break-inside: avoid;
+            margin-top: 8mm;
+        }
+
+        .table-element-title {
+            margin-bottom: 2mm;
+        }
+
+        .table-element-description {
+            font-style: italic;
+            margin-bottom: 3mm;
+            color: #555;
+        }
+
+        .table-element-empty {
+            padding: 3mm;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        table.table-element-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2mm;
+            font-size: 10pt;
+        }
+
+        table.table-element-table th,
+        table.table-element-table td {
+            border: 1px solid #dcdcdc;
+            padding: 2.5mm 3mm;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        table.table-element-table th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: 600;
+        }
+
         .main-green {
             color: var(--main-color);
         }
@@ -378,74 +424,190 @@ use yii\helpers\ArrayHelper;
 
             switch ($element["type"]) {
                 case "Facets":?>
+                    <?php
+                        $linkedListId = null;
+                        if (is_array($element["config"])) {
+                            foreach ($element["config"] as $facetConfig) {
+                                if (is_array($facetConfig) && isset($facetConfig['linked_contribution_element_id'])) {
+                                    $linkedListId = $facetConfig['linked_contribution_element_id'];
+                                    break;
+                                }
+                            }
+                        }
+
+                        if ($linkedListId !== null && isset($contributions_lists[$linkedListId])) {
+                            $facetsResult = $contributions_lists[$linkedListId];
+                        } elseif (!empty($contributions_lists)) {
+                            $facetsResult = reset($contributions_lists);
+                        } else {
+                            $facetsResult = ['facets' => []];
+                        }
+
+                        $selectedFilters = $linkedListId !== null && isset($contributions_selected_filters[$linkedListId])
+                            ? $contributions_selected_filters[$linkedListId]
+                            : ['topics' => [], 'roles' => [], 'accesses' => [], 'types' => []];
+                    ?>
                     <div class="facets">
                         <?php
                             echo FacetsItem::widget([
                                 'for_print' => true,
-                                'result' => $result,
+                                'edit_perm' => false,
+                                'result' => $facetsResult,
                                 'formId' => 'scholar-form',
-                                'selected_topics' => $selected_topics,
-                                'selected_roles' => $selected_roles,
-                                'selected_accesses' => $selected_accesses,
-                                'selected_types' => $selected_types,
+                                'selected_topics' => $selectedFilters['topics'] ?? [],
+                                'selected_roles' => $selectedFilters['roles'] ?? [],
+                                'selected_accesses' => $selectedFilters['accesses'] ?? [],
+                                'selected_types' => $selectedFilters['types'] ?? [],
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
-                                'element_config' => $element["config"]
-                            ]);
-                    ?>
-                    </div>
-                    <?php break;
-
-                case "Indicators":
-                    echo IndicatorsItem::widget([
-                        'works_num' => $result["papers_num"],
-                        'missing_papers_num' => count($missing_papers),
-                        'facets_selected' => $facets_selected,
-                        'popular_works_count' => $popular_works_count,
-                        'influential_works_count' => $influential_works_count,
-                        'citations' => $citations,
-                        'popularity' => $popularity,
-                        'influence' => $influence,
-                        'impulse' => $impulse,
-                        'h_index' => $h_index,
-                        'i10_index' => $i10_index,
-                        'academic_age' => $academic_age,
-                        'paper_min_year' => $paper_min_year,
-                        'responsible_academic_age' => $responsible_academic_age,
-                        'rag_data' => $rag_data,
-                        'papers_num' => $papers_num,
-                        'datasets_num' => $datasets_num,
-                        'software_num' => $software_num,
-                        'other_num' => $other_num,
-                        'openness' => $openness,
-                        'current_cv_narrative' => null,
-                        'element_config' => $element["config"],
-                        'for_print'=> true
-                    ]);
-
-                    break;
-
-                case "Contributions List":?>
-                    <div class="contributions">
-                        <?php
-                            echo ContributionsListItem::widget([
-                                'for_print' => true,
-                                'impact_indicators' => $impact_indicators,
-                                'facets_selected' => $facets_selected,
-                                'result' => $result,
-                                'papers' => $result["papers"],
-                                'works_num' => $result["papers_num"],
-                                'missing_papers' => $missing_papers,
-                                'missing_papers_num' => count($missing_papers),
-                                'sort_field' => $sort_field,
-                                'orderings' => $orderings,
-                                'formId' => 'scholar-form',
-                                'current_cv_narrative' => null,
-                                'element_config' => $element["config"]
+                                'element_config' => $element["config"],
+                                'selected_per_list' => $selected_per_list,
+                                'facets_linked_to_lists' => $facets_linked_to_lists,
                             ]);
                         ?>
                     </div>
                     <?php break;
+
+                case "Indicators":
+                    $indicatorItems = $element['config'];
+                    $linkedListId = $indicatorItems[0]['linked_contribution_element_id'] ?? null;
+
+                    $indicatorsLocal = $linkedListId !== null && isset($contributions_indicators[$linkedListId])
+                        ? $contributions_indicators[$linkedListId]
+                        : [];
+
+                    $listResult = $linkedListId !== null && isset($contributions_lists[$linkedListId])
+                        ? $contributions_lists[$linkedListId]
+                        : null;
+
+                    $isLinkedUserDefined = false;
+                    if ($linkedListId !== null) {
+                        foreach ($template_elements as $te2) {
+                            if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linkedListId) {
+                                $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                break;
+                            }
+                        }
+                    }
+
+                    $hasLinkedSelection = false;
+                    if ($listResult) {
+                        $hasLinkedSelection = (
+                            (!empty($listResult['selected_papers']) && count($listResult['selected_papers']) > 0) ||
+                            (!empty($listResult['selected_papers_num']) && (int)$listResult['selected_papers_num'] > 0)
+                        );
+                    }
+
+                    if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                        $indicatorsLocal = [
+                            'works_num' => 0,
+                            'missing_papers_num' => count($missing_papers ?? []),
+                            'show_missing_papers' => $listResult['show_missing_papers'] ?? true,
+                            'popular_works_count' => 0,
+                            'influential_works_count' => 0,
+                            'citations_num' => 0,
+                            'popularity' => ['number' => 0, 'exponent' => 'e0'],
+                            'influence' => ['number' => 0, 'exponent' => 'e0'],
+                            'impulse' => 0,
+                            'h_index' => 0,
+                            'i10_index' => 0,
+                            'academic_age' => '-',
+                            'responsible_academic_age' => '-',
+                            'paper_min_year' => 0,
+                            'work_types_num' => [
+                                'papers' => 0,
+                                'datasets' => 0,
+                                'software' => 0,
+                                'other' => 0,
+                            ],
+                            'openness' => [],
+                        ];
+                    }
+
+                    echo IndicatorsItem::widget([
+                        'works_num' => $indicatorsLocal['works_num'] ?? 0,
+                        'missing_papers_num' => $indicatorsLocal['missing_papers_num'] ?? 0,
+                        'show_missing_works' => $indicatorsLocal['show_missing_papers'] ?? true,
+                        'facets_selected' => $facets_selected,
+                        'popular_works_count' => $indicatorsLocal['popular_works_count'] ?? 0,
+                        'influential_works_count' => $indicatorsLocal['influential_works_count'] ?? 0,
+                        'citations' => $indicatorsLocal['citations_num'] ?? 0,
+                        'popularity' => $indicatorsLocal['popularity'] ?? ['number' => 0, 'exponent' => 'e0'],
+                        'influence' => $indicatorsLocal['influence'] ?? ['number' => 0, 'exponent' => 'e0'],
+                        'impulse' => $indicatorsLocal['impulse'] ?? 0,
+                        'h_index' => $indicatorsLocal['h_index'] ?? 0,
+                        'i10_index' => $indicatorsLocal['i10_index'] ?? 0,
+                        'academic_age' => $indicatorsLocal['academic_age'] ?? '',
+                        'paper_min_year' => $indicatorsLocal['paper_min_year'] ?? 0,
+                        'responsible_academic_age' => $indicatorsLocal['responsible_academic_age'] ?? '',
+                        'rag_data' => $rag_data,
+                        'papers_num' => $indicatorsLocal['work_types_num']['papers'] ?? 0,
+                        'datasets_num' => $indicatorsLocal['work_types_num']['datasets'] ?? 0,
+                        'software_num' => $indicatorsLocal['work_types_num']['software'] ?? 0,
+                        'other_num' => $indicatorsLocal['work_types_num']['other'] ?? 0,
+                        'openness' => $indicatorsLocal['openness'] ?? [],
+                        'current_cv_narrative' => null,
+                        'element_config' => $element['config'],
+                        'for_print' => true,
+                    ]);
+
+                    break;
+
+                case "Contributions List":
+                    $listId = $element["element_id"];
+                    $listResult = $contributions_lists[$listId] ?? [
+                        'papers' => [],
+                        'papers_num' => 0,
+                        'selected_papers' => [],
+                        'selected_papers_num' => 0,
+                        'all_papers' => [],
+                        'selected_accesses' => [],
+                        'selected_types' => [],
+                    ];
+
+                    $topK = isset($element['config']['top_k']) && $element['config']['top_k'] !== ''
+                        ? (int)$element['config']['top_k']
+                        : null;
+
+                    $papersForPrint = [];
+
+                    if (!empty($listResult['selected_papers'])) {
+                        $papersForPrint = $listResult['selected_papers'];
+                    } elseif (!empty($listResult['all_papers'])) {
+                        $papersForPrint = $listResult['all_papers'];
+                    } elseif (!empty($listResult['papers'])) {
+                        $papersForPrint = $listResult['papers'];
+                    }
+
+                    if ($topK !== null && $topK > 0 && !empty($papersForPrint)) {
+                        $papersForPrint = array_slice($papersForPrint, 0, $topK);
+                    }
+
+                    $worksNum = count($papersForPrint);
+
+                    $showMissingWorks = $listResult['show_missing_papers'] ?? true;
+
+                    echo ContributionsListItem::widget([
+                        'for_print' => true,
+                        'impact_indicators' => $impact_indicators,
+                        'facets_selected' => $facets_selected,
+                        'result' => $listResult,
+                        'papers' => $papersForPrint,
+                        'works_num' => $worksNum,
+                        'missing_papers' => $missing_papers,
+                        'missing_papers_num' => count($missing_papers),
+                        'sort_field' => $element['config']['sort'] ?? 'year',
+                        'orderings' => $orderings,
+                        'formId' => 'scholar-form',
+                        'current_cv_narrative' => null,
+                        'element_config' => $element['config'],
+                        'selected_accesses' => $listResult['selected_accesses'] ?? [],
+                        'selected_types' => $listResult['selected_types'] ?? [],
+                        'show_missing_works' => $showMissingWorks,
+                        'list_id' => $listId,
+                    ]);
+
+                    break;
 
                 case "Narrative":?>
 
@@ -502,6 +664,58 @@ use yii\helpers\ArrayHelper;
                         'last_updated' => $element["config"]->last_updated,
                         'for_print' => true,
                     ]);
+                    break;
+
+                case "Table":
+                    $headingType = isset($element["config"]->heading_type) && preg_match('/^h[1-6]$/i', $element["config"]->heading_type)
+                        ? strtolower($element["config"]->heading_type)
+                        : 'h3';
+                    $tableHeaders = [];
+                    if (!empty($element["config"]->elementTableHeaders)) {
+                        $tableHeaders = ArrayHelper::map($element["config"]->elementTableHeaders, 'header_name', 'header_width');
+                    }
+                    $tableData = $element["config"]->table_data ?? [];
+                    $hasTableData = is_array($tableData) && count($tableData) > 0;
+                    ?>
+                    <div class="table-element">
+                        <?php if ($hasTableData || !$element["config"]->hide_when_empty): ?>
+                            <<?= $headingType ?> class="table-element-title">
+                                <?= Html::encode($element["config"]->title) ?>
+                            </<?= $headingType ?>>
+                            <?php if (!empty($element["config"]->description)): ?>
+                                <div class="table-element-description">
+                                    <?= Html::encode($element["config"]->description) ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php if ($hasTableData): ?>
+                            <table class="table-element-table">
+                                <thead>
+                                    <tr>
+                                        <?php foreach ($tableHeaders as $header => $width): ?>
+                                            <?php $widthAttr = ($width !== null && $width !== '') ? ' style="width: ' . Html::encode($width) . '%;"' : ''; ?>
+                                            <th<?= $widthAttr ?>><?= Html::encode($header) ?></th>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($tableData as $row): ?>
+                                        <tr>
+                                            <?php foreach ($row as $cell): ?>
+                                                <td><?= nl2br(Html::encode($cell)) ?></td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php elseif (!$element["config"]->hide_when_empty): ?>
+                            <div class="table-element-empty">
+                                The researcher has not yet provided input for this element.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php
                     break;
 
                 default:

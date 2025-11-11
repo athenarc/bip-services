@@ -2,10 +2,15 @@
 
 use yii\helpers\Html;
 
-function renderSection($title, $facetKey, $result, $icon) {
-    if (isset($result["facets"][$facetKey])) {
+if (!function_exists('renderFacetSectionPdf')) {
+    function renderFacetSectionPdf($title, $facetKey, $result, $icon) {
+        if (!isset($result["facets"][$facetKey])) {
+            return;
+        }
+
         $counts = $result["facets"][$facetKey]["counts"];
         $options = $result["facets"][$facetKey]["options"];
+
         echo "<div class='section'>";
         echo "<div class='title'><i class='$icon' aria-hidden='true'></i> $title</div>";
         echo "<ul>";
@@ -40,7 +45,7 @@ function renderSection($title, $facetKey, $result, $icon) {
             ];
             foreach ($sections as $title => $data) {
                 if (isset($element_config[$title])) {
-                    renderSection($title, $data['facetKey'], $result, $data['icon']);
+                    renderFacetSectionPdf($title, $data['facetKey'], $result, $data['icon']);
                 }
             }
             ?>

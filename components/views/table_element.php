@@ -7,6 +7,7 @@ use kartik\builder\TabularForm;
 use kartik\grid\GridView;
 use yii\data\ArrayDataProvider;
 use app\components\common\CommonUtils;
+$this->registerJsFile('@web/js/utils.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tableElement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $elem = $this->context;
