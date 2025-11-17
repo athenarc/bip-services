@@ -16,6 +16,10 @@ class ElementDividersForm extends Model
     public $bottom_padding;
     public $show_top_hr;
     public $show_bottom_hr;
+    public $margin_top;
+    public $margin_right;
+    public $margin_bottom;
+    public $margin_left;
 
     public function rules()
     {
@@ -25,6 +29,7 @@ class ElementDividersForm extends Model
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['top_padding', 'bottom_padding'], 'string', 'max' => 5],
             [['show_top_hr', 'show_bottom_hr', 'show_description_tooltip'], 'boolean'],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
@@ -39,6 +44,10 @@ class ElementDividersForm extends Model
             'show_top_hr' => 'Show top rule',
             'show_bottom_hr' => 'Show bottom rule',
             'show_description_tooltip' => 'Show description as tooltip',
+            'margin_top' => 'Top margin',
+            'margin_right' => 'Right margin',
+            'margin_bottom' => 'Bottom margin',
+            'margin_left' => 'Left margin',
         ];
     }
 }

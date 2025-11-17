@@ -598,6 +598,31 @@ $section_profiles = ($section === "profiles");
                 <?= $form->field($elementDividersFormModel, 'show_top_hr')->checkbox() ?>
                 <?= $form->field($elementDividersFormModel, 'show_bottom_hr')->checkbox() ?>
 
+                <!-- Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             <?php else: ?>
                 <?php if ($elementModel->type == "Section Divider"): ?>
                     <?= $form->field($elementDividersFormModel, 'title')->textInput(['value' => $elementDividersModel->title, 'maxlength' => true]); ?>
@@ -631,6 +656,31 @@ $section_profiles = ($section === "profiles");
                     <?= $form->field($elementDividersFormModel, 'show_bottom_hr')->checkbox([
                         'checked' => $elementDividersModel->show_bottom_hr ? true : false,
                     ]) ?>
+
+                    <!-- Margin settings -->
+                    <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <strong>Margins</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_top')->textInput(['value' => $elementDividersModel->margin_top, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_right')->textInput(['value' => $elementDividersModel->margin_right, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_bottom')->textInput(['value' => $elementDividersModel->margin_bottom, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_left')->textInput(['value' => $elementDividersModel->margin_left, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
                 <?php endif ?>
             <?php endif ?>
         </div>

@@ -2154,6 +2154,10 @@ class SiteController extends BaseController
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
                             $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->margin_top = $elementDividersFormModel->margin_top;
+                            $elementDividersModel->margin_right = $elementDividersFormModel->margin_right;
+                            $elementDividersModel->margin_bottom = $elementDividersFormModel->margin_bottom;
+                            $elementDividersModel->margin_left = $elementDividersFormModel->margin_left;
                             $elementDividersModel->save();
                         }
                         break;
@@ -2428,6 +2432,10 @@ class SiteController extends BaseController
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
                             $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->margin_top = $elementDividersFormModel->margin_top;
+                            $elementDividersModel->margin_right = $elementDividersFormModel->margin_right;
+                            $elementDividersModel->margin_bottom = $elementDividersFormModel->margin_bottom;
+                            $elementDividersModel->margin_left = $elementDividersFormModel->margin_left;
                             $elementDividersModel->save();
                         }
                         break;
