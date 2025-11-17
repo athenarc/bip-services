@@ -48,6 +48,21 @@
     scroll-margin-top: 140px; /* Match OFFSET_PROFILE in scrollToAnchor.js - adjust together */
 }
 
+/* Hide TOC sidebar when viewport is narrow to prevent overlap with profile content */
+/* This handles zoom scenarios where the sidebar would crash into the content */
+@media (max-width: 1400px) {
+    #profile-toc-wrap .sidebar { 
+        display: none; 
+    }
+    
+    /* Ensure main content takes full width when sidebar is hidden */
+    #profile-toc-wrap .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* Also hide at the original breakpoint for mobile */
 @media (max-width: 992px) {
     #profile-toc-wrap .sidebar { display: none; }
 }
