@@ -44,6 +44,8 @@ use app\models\ElementTable;
 use app\models\ElementTableInstances;
 use app\models\Article;
 use app\components\common\CommonUtils;
+use app\models\ProfileReportForm;
+use app\models\ProfileReport;
 
 class ScholarController extends BaseController
 {
@@ -1026,6 +1028,78 @@ class ScholarController extends BaseController
         return [
             'orcid' => $researcher->orcid,
         ];
+    }
+
+    public function actionReportProfile() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $user_id = Yii::$app->user->id;
+        if (!$user_id) {
+            return [
+                'status' => 'error',
+                'message' => 'You must be logged in to report a profile.'
+            ];
+        }
+
+        $model = new ProfileReportForm();
+        $model->reported_orcid = Yii::$app->request->post('reported_orcid');
+        $model->reason = Yii::$app->request->post('reason');
+        $model->description = Yii::$app->request->post('description');
+
+        if ($model->save()) {
+            // Send email notification to admins
+            try {
+                $reported_researcher = Researcher::findOne(['orcid' => $model->reported_orcid]);
+                $reporter = User::findOne($user_id);
+                
+                $reported_profile_name = $reported_researcher ? $reported_researcher->name : 'Unknown';
+                $reporter_email = $reporter ? $reporter->email : 'Unknown';
+                $reporter_username = $reporter ? $reporter->username : 'Unknown';
+                
+                $email_body = "A profile has been reported on BIP! Scholar.\n\n";
+                $email_body .= "Reported Profile:\n";
+                $email_body .= "  Name: {$reported_profile_name}\n";
+                $email_body .= "  ORCID: {$model->reported_orcid}\n";
+                $email_body .= "  Profile URL: " . Url::to(['scholar/profile/' . $model->reported_orcid], true) . "\n\n";
+                
+                $email_body .= "Reporter Information:\n";
+                $email_body .= "  Username: {$reporter_username}\n";
+                $email_body .= "  Email: {$reporter_email}\n";
+                $email_body .= "  User ID: {$user_id}\n\n";
+                
+                $email_body .= "Reason: {$model->reason}\n\n";
+                
+                if (!empty($model->description)) {
+                    $email_body .= "Additional Details:\n";
+                    $email_body .= "{$model->description}\n\n";
+                }
+                
+                $report_id = $model->getSavedReportId();
+                if ($report_id) {
+                    $email_body .= "Report ID: {$report_id}\n";
+                }
+                
+                Yii::$app->mailer->compose()
+                    ->setTo(Yii::$app->params['adminEmail'])
+                    ->setFrom([Yii::$app->params['adminEmail'] => 'BIP! Services'])
+                    ->setSubject('Profile Report: ' . $reported_profile_name . ' (' . $model->reported_orcid . ')')
+                    ->setTextBody($email_body)
+                    ->send();
+            } catch (\Exception $e) {
+                // Log error but don't fail the report submission
+                Yii::error('Failed to send profile report email: ' . $e->getMessage());
+            }
+            
+            return [
+                'status' => 'success',
+                'message' => 'Thank you for your report. We will review it shortly.'
+            ];
+        } else {
+            return [
+                'status' => 'error',
+                'message' => !empty($model->errors) ? implode(' ', array_map(function($errors) { return implode(' ', $errors); }, $model->errors)) : 'An error occurred while submitting your report.'
+            ];
+        }
     }
 
     public function actionSaveCvNarrative() {
