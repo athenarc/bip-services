@@ -249,6 +249,10 @@ $heading_type_view = [
                 'bottom_padding:integer',
                 'show_top_hr:boolean',
                 'show_bottom_hr:boolean',
+                'margin_top',
+                'margin_right',
+                'margin_bottom',
+                'margin_left',
             ],
         ]) ?>
     <?php elseif ($elementModel->type == "Contributions List"): ?>
