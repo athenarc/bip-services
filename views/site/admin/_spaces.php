@@ -126,6 +126,15 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
     ?>
 
 
+    <label class="control-label">NLM Types</label>   
+    <?= $form->field($model, 'has_pubmed_types', [
+        'enableClientValidation' => false, 
+        'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}</div>\n{error}\n{hint}"
+        ])->checkbox([],
+                false // IMPORTANT: render input and label separately so template {input}{label} works
+            ) 
+    ?>
+
     <?= $form->field($model, 'start_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
     <?= $form->field($model, 'end_year')->textInput(['type' => 'number','class' => 'search-box form-control']) ?>
 
