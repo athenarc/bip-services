@@ -127,7 +127,26 @@ $item = $this->context;
                 </div>
             </div>
         <?php endif; ?>
-        
+        <?php if (isset($item->show["pubmed_types"]) && $item->show['pubmed_types']): ?>
+            <!-- pubmed_types -->
+                <div id="res_<?= $item->internal_id ?>_pub" class="tag-region grey-text">
+                    <div class="bootstrap-tagsinput">
+                    <i class="fa-solid fa-book-medical fa-fw" aria-hidden="true" title="NLM types"></i>
+
+                        <?php if (empty($item->pubmed_types)): ?>
+                            &nbspN/A
+                        <?php else: ?>
+                            <?php foreach ($item->pubmed_types as $pubmed_type) { ?>
+                                <span class="tag label">
+                                    <span ><?= $pubmed_type['name'] ?> </span>
+                                </span>
+                            <?php } ?>
+                        <?php endif; ?>
+
+
+                    </div>
+                </div>
+        <?php endif; ?>
         <?php if (!empty($item->repo_url)): ?>
             <div class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">

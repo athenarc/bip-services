@@ -319,10 +319,12 @@ if ($in_space) {
                                     "cc_class" => $result["cc_class"],
                                     "is_oa" => $result["is_oa"],
                                     "type" => $result["type"],
+                                    "pubmed_types" => $result["pubmed_types"],
                                     "search_context" =>  $result["search_context"],
                                     "repo_url" => $result["zenodo_repo_url"] ?? null,
                                     "show" => [
                                         "concepts" => true,
+                                        "pubmed_types" => !$in_space || $space_model->has_pubmed_types,
                                         "annotations" => true,
                                         "relations" => true,
                                         "open_access" => true,

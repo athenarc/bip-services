@@ -48,6 +48,7 @@ class ResultItem extends Widget
     public $involved;
     public $is_oa;
     public $type;
+    public $pubmed_types;
     public $search_context;
     public $repo_url;
     public $concepts;

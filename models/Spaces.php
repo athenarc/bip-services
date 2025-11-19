@@ -46,6 +46,8 @@ class Spaces extends \yii\db\ActiveRecord
             ['topics', 'default', 'value' => null],
             ['type', 'default', 'value' => null],
             ['is_oa', 'default', 'value' => null],
+            ['pubmed_types', 'default', 'value' => null],
+            [['has_pubmed_types'], 'boolean'],
 
             ['logo_upload', 'image', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 1024*1024, 'wrongExtension' => 'Allowed extensions {extensions}'],
 
@@ -83,6 +85,8 @@ class Spaces extends \yii\db\ActiveRecord
             'impulse' => 'Impulse',
             'topics' => 'Topics',
             'type' => 'Type',
+            'has_pubmed_types' => 'Enable Pubmed Types',
+            'pubmed_types' => 'Pubmed Types',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
