@@ -49,8 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Handle initial page load with hash
-    if (window.location.hash) {
+    // Handle initial page load with hash (skip for profile pages)
+    if (window.location.hash && !document.getElementById('profile-content')) {
         scrollToTarget(window.location.hash, true); // true = prevent hash update on initial load
     }
 

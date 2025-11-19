@@ -15,8 +15,14 @@
     padding-right: 12px;
 }
 
-#profile-toc-wrap .sidebar-body ul { list-style: none; padding-left: 0; }
-#profile-toc-wrap .sidebar-body ul li { padding-left: 20px; }
+#profile-toc-wrap .sidebar-body ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#profile-toc-wrap .sidebar-body ul li {
+    padding-left: 20px;
+}
 
 #profile-toc-wrap .toc-link {
     color: #666;
@@ -30,15 +36,20 @@
     line-height: 1.4;
 }
 
-#profile-toc-wrap .toc-item:hover { color: var(--main-color); }
-#profile-toc-wrap .toc-link:hover { color: var(--main-color); }
+#profile-toc-wrap .toc-item:hover,
+#profile-toc-wrap .toc-link:hover {
+    color: var(--main-color);
+}
 
 /* Indentation by heading level */
 #profile-toc-wrap .toc-item.level-1 { padding-left: 0; }
 #profile-toc-wrap .toc-item.level-2 { padding-left: 10px; }
 #profile-toc-wrap .toc-item.level-3 { padding-left: 20px; }
 
-#profile-toc-wrap .main-content { margin-left: 0; }
+/* Main content stays in place - no margin adjustment */
+#profile-toc-wrap .main-content {
+    margin-left: 0;
+}
 
 /* Ensure anchored headings sit below the fixed header/TOC on scroll */
 /* IMPORTANT: Keep this value matching OFFSET_PROFILE in scrollToAnchor.js */
@@ -49,22 +60,10 @@
 }
 
 /* Hide TOC sidebar when viewport is narrow to prevent overlap with profile content */
-/* This handles zoom scenarios where the sidebar would crash into the content */
-@media (max-width: 1400px) {
-    #profile-toc-wrap .sidebar { 
-        display: none; 
+@media (max-width: 1600px) {
+    #profile-toc-wrap .sidebar {
+        display: none;
     }
-    
-    /* Ensure main content takes full width when sidebar is hidden */
-    #profile-toc-wrap .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-}
-
-/* Also hide at the original breakpoint for mobile */
-@media (max-width: 992px) {
-    #profile-toc-wrap .sidebar { display: none; }
 }
 
 

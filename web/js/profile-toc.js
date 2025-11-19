@@ -1,93 +1,97 @@
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
 document.addEventListener('DOMContentLoaded', function () {
-    var container = document.getElementById('profile-content');
-    var tocRoot = document.getElementById('profile-toc');
-    if (!container || !tocRoot) { return; }
+    var profileContent = document.getElementById('profile-content');
+    var tocList = document.getElementById('profile-toc');
+    if (!profileContent || !tocList) return;
 
-    function slugify(text) {
-        return String(text || '')
-            .toLowerCase()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w\-]+/g, '')
-            .replace(/\-\-+/g, '-')
-            .replace(/^-+/, '')
-            .replace(/-+$/, '');
+    /**
+     * Handles responsive behavior for TOC sidebar
+     * Hides sidebar when window is too narrow to prevent overlap with content
+     */
+    function updateSidebarVisibility() {
+        var tocWrapper = document.getElementById('profile-toc-wrap');
+        var sidebar = tocWrapper && tocWrapper.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        var hasItems = tocList.querySelectorAll('li').length > 0;
+        var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+        var isWideEnough = windowWidth >= 1200;
+
+        sidebar.style.display = (hasItems && isWideEnough) ? '' : 'none';
     }
 
-    var idCounts = Object.create(null);
-    function ensureId(headingEl, titleText) {
-        if (headingEl.id) return headingEl.id;
-        var base = slugify(titleText || headingEl.textContent || 'section') || 'section';
-        var unique = base;
-        var i = 2;
-        while (document.getElementById(unique) || idCounts[unique]) {
-            unique = base + '-' + i++;
-        }
-        idCounts[unique] = true;
-        headingEl.id = unique;
-        return unique;
-    }
-
-    function levelFromTag(tagName) {
-        var n = parseInt(String(tagName).replace('H', ''), 10);
-        if (isNaN(n)) n = 1;
-        return Math.min(3, Math.max(1, n));
-    }
-
-    function getDividerTitle(h) {
-        // When tooltip is enabled, heading contains a span[role=button] with title attr
-        var span = h.querySelector('span[role="button"][data-toggle="popover"]');
-        var byAttr = span && span.getAttribute('title');
-        var text = (h.textContent || '').replace(/\s+/g,' ').trim();
-        return (byAttr && byAttr.trim()) || text;
-    }
-
+    /**
+     * Builds the table of contents from section divider headings
+     * Creates nested lists based on heading levels (h1, h2, h3)
+     */
     function buildProfileToc() {
-        tocRoot.innerHTML = '';
-        idCounts = Object.create(null);
-        var headings = container.querySelectorAll('.section-divider h1, .section-divider h2, .section-divider h3');
-        if (!headings.length) { return; }
+        tocList.innerHTML = '';
+        var headings = profileContent.querySelectorAll('.section-divider h1, .section-divider h2, .section-divider h3');
+        if (!headings.length) return;
 
         var currentLevel = 1;
-        var ulStack = [tocRoot];
+        var ulStack = [tocList];
 
-        headings.forEach(function(h) {
-            var title = getDividerTitle(h);
-            if (!title) return;
-            if (/\bmissing\s+works\b/i.test(title)) return;
+        headings.forEach(function(heading) {
+            var divider = heading.closest('.section-divider');
+            if (!divider || !divider.id) return;
 
-            var l = levelFromTag(h.tagName);
-            var id = ensureId(h, title);
+            // Extract title: prefer tooltip title, fallback to text content
+            var span = heading.querySelector('span[role="button"][data-toggle="popover"]');
+            var title = span ? (span.getAttribute('title') || '').trim() : '';
+            if (!title) title = (heading.textContent || '').replace(/\s+/g, ' ').trim();
+            if (!title || /\bmissing\s+works\b/i.test(title)) return;
 
-            while (currentLevel < l) {
-                var newUl = document.createElement('ul');
-                ulStack[ulStack.length - 1].appendChild(newUl);
-                ulStack.push(newUl);
+            // Calculate heading level (1-3, clamped)
+            var level = Math.min(3, Math.max(1, parseInt(heading.tagName.replace('H', ''), 10) || 1));
+
+            // Create nested <ul> elements when going deeper
+            while (currentLevel < level) {
+                var ul = document.createElement('ul');
+                ulStack[ulStack.length - 1].appendChild(ul);
+                ulStack.push(ul);
                 currentLevel++;
             }
-            while (currentLevel > l) {
+            // Close nested <ul> elements when going shallower
+            while (currentLevel > level) {
                 ulStack.pop();
                 currentLevel--;
             }
 
+            // Create TOC item with link
             var li = document.createElement('li');
-            li.className = 'toc-item level-' + l;
-            var a = document.createElement('a');
-            a.className = 'toc-link';
-            a.textContent = title;
-            a.href = '#' + id;
-            li.appendChild(a);
+            li.className = 'toc-item level-' + level;
+            var link = document.createElement('a');
+            link.className = 'toc-link';
+            link.textContent = title;
+            link.href = '#' + divider.id;
+            li.appendChild(link);
             ulStack[ulStack.length - 1].appendChild(li);
         });
     }
 
-    // Build now and on subsequent DOM changes
+    // Build TOC on page load
     buildProfileToc();
+    updateSidebarVisibility();
+
+    // Watch for DOM changes and rebuild TOC
     var scheduled = false;
     var observer = new MutationObserver(function() {
-        if (scheduled) return; scheduled = true;
-        setTimeout(function(){ scheduled = false; buildProfileToc(); }, 150);
+        if (scheduled) return;
+        scheduled = true;
+        setTimeout(function() {
+            scheduled = false;
+            buildProfileToc();
+            updateSidebarVisibility();
+        }, 150);
     });
-    observer.observe(container, { childList: true, subtree: true, characterData: true });
+    observer.observe(profileContent, { childList: true, subtree: true, characterData: true });
+
+    // Handle resize events with debouncing
+    var resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateSidebarVisibility, 100);
+    });
 });
-
-
