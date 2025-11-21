@@ -63,6 +63,8 @@ class Spaces extends \yii\db\ActiveRecord
             [['theme_color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['theme_color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
 
+            // Like/Dislike records feature 
+            ['enable_like_dislike_records', 'boolean'],           
         ];
     }
 
@@ -87,7 +89,8 @@ class Spaces extends \yii\db\ActiveRecord
             'logo_upload' => 'Logo',
             'logo_default' => '',
             'annotation_db' => 'Annotation Database',
-            'graph_db_system' => 'Graph Database System'
+            'graph_db_system' => 'Graph Database System',
+            'enable_like_dislike_records' => 'Enable Like/Dislike Records Feature',
         ];
     }
 

@@ -77,6 +77,7 @@ use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
 use app\models\ChangePasswordForm;
 use app\models\AdminOptions;
+use app\models\LikeDislikeRecords;
 
 class SiteController extends BaseController
 {
@@ -1420,6 +1421,126 @@ class SiteController extends BaseController
 
         return $this->redirect(['site/admin-spaces']);
 
+    }
+
+    /**
+     * Handles vote submission for papers
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionVotePaper()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // Check if user is logged in
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'message' => 'You must be logged in to vote',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $vote_type = Yii::$app->request->post('vote_type');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $query = Yii::$app->request->post('query');
+        $ordering = Yii::$app->request->post('ordering');
+        $paper_rank = Yii::$app->request->post('paper_rank') ? (int)Yii::$app->request->post('paper_rank') : null;
+        $remove = (int)Yii::$app->request->post('remove', 0);
+
+        // Validate vote_type
+        if (!in_array($vote_type, ['like', 'dislike'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid vote type',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
+        try {
+            if ($remove == 1) {
+                // Delete the vote
+                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix);
+                $message = 'Vote removed';
+            } else {
+                // Save or update vote
+                LikeDislikeRecords::saveVote($user_id, $paper_id, $space_url_suffix, $vote_type, $query, $ordering, $paper_rank);
+                $message = 'Vote saved';
+            }
+
+            // Get updated counts
+            $counts = LikeDislikeRecords::getVoteCounts($paper_id, $space_url_suffix);
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'like_count' => $counts['like_count'],
+                'dislike_count' => $counts['dislike_count'],
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error processing vote: ' . $e->getMessage(),
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+    }
+
+    /**
+     * Returns user's votes for multiple papers
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionGetUserVotes()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // If user is guest, return empty votes
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => true,
+                'votes' => [],
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_ids = Yii::$app->request->post('paper_ids', []);
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+
+        if (empty($paper_ids) || !is_array($paper_ids)) {
+            return [
+                'success' => true,
+                'votes' => [],
+            ];
+        }
+
+        // Convert paper_ids to integers
+        $paper_ids = array_map('intval', $paper_ids);
+
+        // Get all votes for these papers
+        $votes = LikeDislikeRecords::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_ids,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        // Build response array
+        $votes_array = [];
+        foreach ($votes as $vote) {
+            $votes_array[$vote->paper_id] = $vote->action;
+        }
+
+        return [
+            'success' => true,
+            'votes' => $votes_array,
+        ];
     }
 
     public function actionAdminOptions()

@@ -32,6 +32,7 @@ $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::P
 $this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 
@@ -294,7 +295,16 @@ if ($in_space) {
 
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
-                            <?php foreach($results['rows'] as $result ) {
+                            <?php 
+                            // Calculate paper_rank based on pagination
+                            $current_page = $results['pagination']->page + 1; // Pagination is 0-indexed
+                            $page_size = $results['pagination']->pageSize;
+                            $position_in_page = 0;
+                            
+                            foreach($results['rows'] as $result ) {
+                                $position_in_page++;
+                                $paper_rank = ($current_page - 1) * $page_size + $position_in_page;
+                                
                                 echo ResultItem::widget([
                                     "impact_indicators" => $impact_indicators,
                                     "internal_id" => $result["internal_id"],
@@ -331,7 +341,9 @@ if ($in_space) {
                                         "bookmark" => true,
                                     ],
                                     "space_url_suffix" => $space_model->url_suffix,
-                                    "space_annotation_db" => $space_model->annotation_db
+                                    "space_annotation_db" => $space_model->annotation_db,
+                                    "paper_rank" => $paper_rank,
+                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false
                                 ]);
                             } ?>
                         </div>

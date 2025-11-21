@@ -341,6 +341,31 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
 
+            <?php 
+            // Show like/dislike buttons if:
+            // 1. User is logged in
+            // 2. Feature is enabled for the space
+            // 3. Space is not in exclusion list
+            $excluded_spaces = ['mirpub', 'cancer-pilot-ag'];
+            $show_like_dislike = !Yii::$app->user->isGuest 
+                && isset($item->enable_like_dislike_records) 
+                && $item->enable_like_dislike_records 
+                && !in_array($item->space_url_suffix, $excluded_spaces);
+            ?>
+            <?php if ($show_like_dislike): ?>
+                <!-- like/dislike buttons -->
+                <div class="flex-b-18 no-white-space text-center">
+                    <div class="like-dislike-buttons" data-paper-id="<?= $item->internal_id ?>" data-paper-rank="<?= isset($item->paper_rank) ? $item->paper_rank : '' ?>">
+                        <button class="btn-like btn btn-default btn-xs fs-inherit grey-link" type="button" title="Like">
+                            <i class="fa-regular fa-thumbs-up"></i>
+                        </button>
+                        <button class="btn-dislike btn btn-default btn-xs fs-inherit grey-link" type="button" title="Dislike">
+                            <i class="fa-regular fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+            <?php endif; ?>
+
         </div>
     </div>
 </div>
