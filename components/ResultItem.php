@@ -59,6 +59,7 @@ class ResultItem extends Widget
     public $view_mode = 'full'; // 'full', 'compact', 'minimal'
     public $paper_rank;
     public $enable_like_dislike_records;
+    public $enable_like_dislike_annotations;
     
     /*
      * Widget initialisation a.k.a. setting widget properties

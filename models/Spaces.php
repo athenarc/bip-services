@@ -64,7 +64,9 @@ class Spaces extends \yii\db\ActiveRecord
             [['theme_color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
 
             // Like/Dislike records feature 
-            ['enable_like_dislike_records', 'boolean'],           
+            ['enable_like_dislike_records', 'boolean'],
+            // Like/Dislike annotations feature 
+            ['enable_like_dislike_annotations', 'boolean'],           
         ];
     }
 
@@ -91,6 +93,7 @@ class Spaces extends \yii\db\ActiveRecord
             'annotation_db' => 'Annotation Database',
             'graph_db_system' => 'Graph Database System',
             'enable_like_dislike_records' => 'Enable Like/Dislike Records Feature',
+            'enable_like_dislike_annotations' => 'Enable Like/Dislike Annotations Feature',
         ];
     }
 

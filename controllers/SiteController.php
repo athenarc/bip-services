@@ -78,6 +78,7 @@ use app\components\OrcidComponent;
 use app\models\ChangePasswordForm;
 use app\models\AdminOptions;
 use app\models\LikeDislikeRecords;
+use app\models\LikeDislikeAnnotations;
 
 class SiteController extends BaseController
 {
@@ -1535,6 +1536,143 @@ class SiteController extends BaseController
         $votes_array = [];
         foreach ($votes as $vote) {
             $votes_array[$vote->paper_id] = $vote->action;
+        }
+
+        return [
+            'success' => true,
+            'votes' => $votes_array,
+        ];
+    }
+
+    /**
+     * Handles vote submission for annotations
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionVoteAnnotation()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // Check if user is logged in
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'message' => 'You must be logged in to vote',
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $annotation_id = Yii::$app->request->post('annotation_id');
+        $annotation_name = Yii::$app->request->post('annotation_name');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $vote_type = Yii::$app->request->post('vote_type');
+        $remove = (int)Yii::$app->request->post('remove', 0);
+
+        // Validate inputs
+        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+            return [
+                'success' => false,
+                'message' => 'Missing required parameters',
+            ];
+        }
+
+        // Validate vote_type
+        if (!in_array($vote_type, ['like', 'dislike'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid vote type',
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+        if (!$space_model || !$space_model->enable_like_dislike_annotations) {
+            // Return success=false but don't show error message - buttons should be hidden
+            return [
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
+            ];
+        }
+
+        try {
+            if ($remove == 1) {
+                // Delete the vote
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                $message = 'Vote removed';
+            } else {
+                // Save or update vote
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                $message = 'Vote saved';
+            }
+
+            // Get updated user vote
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'user_vote' => $user_vote,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error processing vote: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Returns user's votes for annotations
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionGetUserAnnotationVotes()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // If user is guest, return empty votes
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => true,
+                'votes' => [],
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+
+        if (empty($paper_id) || empty($space_url_suffix)) {
+            return [
+                'success' => true,
+                'votes' => [],
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+        if (!$space_model || !$space_model->enable_like_dislike_annotations) {
+            return [
+                'success' => true,
+                'votes' => [],
+            ];
+        }
+
+        // Get all votes for this paper
+        $votes = LikeDislikeAnnotations::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_id,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        // Build response array: annotation_id => action
+        $votes_array = [];
+        foreach ($votes as $vote) {
+            $votes_array[$vote->annotation_id] = $vote->action;
         }
 
         return [

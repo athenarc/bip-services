@@ -34,6 +34,11 @@ $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
+// Register annotation like/dislike JS if enabled for this space
+if (isset($space_model) && $space_model->enable_like_dislike_annotations) {
+    $this->registerJsFile('@web/js/likeDislikeAnnotations.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+}
+
 $this->registerCssFile('@web/css/tags.css');
 
 $this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
@@ -343,7 +348,8 @@ if ($in_space) {
                                     "space_url_suffix" => $space_model->url_suffix,
                                     "space_annotation_db" => $space_model->annotation_db,
                                     "paper_rank" => $paper_rank,
-                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false
+                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false,
+                                    "enable_like_dislike_annotations" => $space_model->enable_like_dislike_annotations ?? false
                                 ]);
                             } ?>
                         </div>

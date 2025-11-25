@@ -356,6 +356,28 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
         </div>
     </div>
 
+    <div class="form-group">
+        <div class="flex-wrap items-center" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <label style="margin: 0;">Like/Dislike Annotations</label>
+            <div class="my-switch">
+                <?php
+                // Get the current value, default to 0 (false) if not set
+                $isEnabled = isset($model->enable_like_dislike_annotations) ? (bool)$model->enable_like_dislike_annotations : false;
+                ?>
+                <!-- Hidden input to store the actual value (0 or 1) -->
+                <input type="hidden" name="Spaces[enable_like_dislike_annotations]" id="enable-like-dislike-annotations-value" value="<?= $isEnabled ? '1' : '0' ?>">
+                <input 
+                    type="checkbox" 
+                    id="enable-like-dislike-annotations-toggle"
+                    class="my-switch-input" 
+                    <?= $isEnabled ? "checked" : "" ?>
+                    onchange="document.getElementById('enable-like-dislike-annotations-value').value = this.checked ? '1' : '0';"
+                >
+                <label for="enable-like-dislike-annotations-toggle" class="my-switch-slider"></label>
+            </div>
+        </div>
+    </div>
+
 
     <div class="form-group">
         <?php if($model->isNewRecord): ?>

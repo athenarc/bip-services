@@ -2,13 +2,22 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\models\LikeDislikeAnnotations;
 
 ?>
 
-<?php foreach($this->context->data as $annotation_data): ?>
-    <?php if ($annotation_data['label'] == 'id') {
-        $annotation_id = $annotation_data['value'];
-    } ?>
+<?php 
+// Use annotation_local_id if provided, otherwise try to find it in data array
+$annotation_id = $this->context->annotation_local_id ?? null;
+if ($annotation_id === null) {
+    foreach($this->context->data as $annotation_data) {
+        if ($annotation_data['label'] == 'id') {
+            $annotation_id = $annotation_data['value'];
+            break;
+        }
+    }
+}
+foreach($this->context->data as $annotation_data): ?>
     <div>
         <span class='green-bip'><?= ucfirst($annotation_data['label']) ?>:</span>
         <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace("\"", "'", $annotation_data['value'])) ?>
@@ -23,6 +32,42 @@ use yii\helpers\Url;
         <div>
             <span class='green-bip'> All relevant works:</span>
             <a href='<?= Url::to(['site/annotation', 'annotation_id' => $annotation_id, 'space_url_suffix' => $this->context->space_url_suffix, 'space_annotation_id' => $this->context->space_annotation_id]) ?>' target='_blank'><i class='fa-solid fa-arrow-up-right-from-square'></i></a>
+        </div>
+    <?php endif; ?>
+
+    <?php 
+    
+    // Show like/dislike buttons if enabled for this space
+    
+    $show_like_dislike = !Yii::$app->user->isGuest 
+        && isset($this->context->enable_like_dislike_annotations) 
+        && (bool)$this->context->enable_like_dislike_annotations
+        && isset($this->context->paper_id) 
+        && isset($this->context->annotation_name)
+        && isset($annotation_id);
+    
+    if ($show_like_dislike): 
+        $paper_id = $this->context->paper_id;
+        $annotation_name = $this->context->annotation_name;
+        $space_url_suffix = $this->context->space_url_suffix;
+        $theme_color = $this->context->theme_color ?? '#439d44'; // Default to green if not set
+        
+        // Always render buttons in empty state - JavaScript will load the correct state
+    ?>
+        <div style="margin-top: 5px; padding-top: 5px;">
+            <div class="like-dislike-annotation-buttons" style="text-align: right;"
+                 data-paper-id="<?= Html::encode($paper_id) ?>" 
+                 data-annotation-id="<?= Html::encode($annotation_id) ?>"
+                 data-annotation-name="<?= Html::encode($annotation_name) ?>"
+                 data-space-url-suffix="<?= Html::encode($space_url_suffix) ?>"
+                 data-theme-color="<?= Html::encode($theme_color) ?>">
+                <button class="btn-like-annotation btn btn-default grey-link btn-xs" type="button" title="Like">
+                    <i class="fa-regular fa-thumbs-up"></i>
+                </button>
+                <button class="btn-dislike-annotation btn btn-default grey-link btn-xs" type="button" title="Dislike">
+                    <i class="fa-regular fa-thumbs-down"></i>
+                </button>
+            </div>
         </div>
     <?php endif; ?>
 
