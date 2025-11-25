@@ -146,60 +146,6 @@ $(document).ready(function () {
         });
     }
     
-    /**
-     * Load initial vote states for all papers on the page
-     */
-    function loadInitialVoteStates() {
-        // Collect all paper IDs from like-dislike-buttons containers
-        const paperIds = [];
-        $('.like-dislike-buttons').each(function() {
-            const paperId = $(this).data('paper-id');
-            if (paperId) {
-                paperIds.push(paperId);
-            }
-        });
-        
-        if (paperIds.length === 0) {
-            return; // No buttons on page
-        }
-        
-        // Get space_url_suffix
-        const spaceUrlSuffix = $('#space_url_suffix').val() || '';
-        
-        if (!spaceUrlSuffix) {
-            return; // No space, can't load votes
-        }
-        
-        // Get CSRF token
-        const csrfToken = $('meta[name="csrf-token"]').attr("content");
-        
-        // Send AJAX request to get user votes
-        $.ajax({
-            url: `${appBaseUrl}/site/get-user-votes`,
-            type: 'POST',
-            data: {
-                paper_ids: paperIds,
-                space_url_suffix: spaceUrlSuffix,
-                _csrf: csrfToken
-            },
-            success: function(response) {
-                if (response.success && response.votes) {
-                    // Apply vote states to each container
-                    $('.like-dislike-buttons').each(function() {
-                        const container = $(this);
-                        const paperId = container.data('paper-id');
-                        const action = response.votes[paperId] || null;
-                        applyVoteState(container, action);
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error loading vote states:', error);
-                // Fail silently - buttons will just show as inactive
-            }
-        });
-    }
-    
     // Handle like button clicks
     $(document).on('click', '.btn-like', function(e) {
         e.preventDefault();
@@ -211,8 +157,5 @@ $(document).ready(function () {
         e.preventDefault();
         handleVote($(this), 'dislike');
     });
-    
-    // Load initial vote states on page load
-    loadInitialVoteStates();
 });
 

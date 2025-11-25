@@ -104,6 +104,36 @@ class LikeDislikeRecords extends ActiveRecord
     }
 
     /**
+     * Get user's votes for multiple papers in a space (batch query)
+     * 
+     * @param int $user_id
+     * @param array $paper_ids Array of paper IDs
+     * @param string $space_url_suffix
+     * @return array Associative array with paper_id as key and 'like'/'dislike' as value
+     */
+    public static function getUserVotesBatch($user_id, $paper_ids, $space_url_suffix)
+    {
+        if (empty($paper_ids) || !is_array($paper_ids)) {
+            return [];
+        }
+
+        $votes = self::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_ids,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        $result = [];
+        foreach ($votes as $vote) {
+            $result[$vote->paper_id] = $vote->action;
+        }
+
+        return $result;
+    }
+
+    /**
      * Save or update a vote
      * 
      * @param int $user_id

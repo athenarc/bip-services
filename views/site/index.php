@@ -301,6 +301,24 @@ if ($in_space) {
                             $page_size = $results['pagination']->pageSize;
                             $position_in_page = 0;
                             
+                            // Load user votes for all papers on this page (if feature is enabled and user is logged in)
+                            $user_votes = [];
+                            if (!Yii::$app->user->isGuest 
+                                && isset($space_model->enable_like_dislike_records) 
+                                && $space_model->enable_like_dislike_records) {
+                                $paper_ids = array_map(function($result) {
+                                    return $result['internal_id'];
+                                }, $results['rows']);
+                                
+                                if (!empty($paper_ids)) {
+                                    $user_votes = \app\models\LikeDislikeRecords::getUserVotesBatch(
+                                        Yii::$app->user->id,
+                                        $paper_ids,
+                                        $space_model->url_suffix
+                                    );
+                                }
+                            }
+                            
                             foreach($results['rows'] as $result ) {
                                 $position_in_page++;
                                 $paper_rank = ($current_page - 1) * $page_size + $position_in_page;
@@ -343,7 +361,8 @@ if ($in_space) {
                                     "space_url_suffix" => $space_model->url_suffix,
                                     "space_annotation_db" => $space_model->annotation_db,
                                     "paper_rank" => $paper_rank,
-                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false
+                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false,
+                                    "user_vote_record" => $user_votes[$result["internal_id"]] ?? null
                                 ]);
                             } ?>
                         </div>

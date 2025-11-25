@@ -356,11 +356,32 @@ $item = $this->context;
                 <!-- like/dislike buttons -->
                 <div class="flex-b-18 no-white-space text-center">
                     <div class="like-dislike-buttons" data-paper-id="<?= $item->internal_id ?>" data-paper-rank="<?= isset($item->paper_rank) ? $item->paper_rank : '' ?>">
-                        <button class="btn-like btn btn-default btn-xs fs-inherit grey-link" type="button" title="Like">
-                            <i class="fa-regular fa-thumbs-up"></i>
+                        <?php 
+                        // Determine button states based on user_vote_record
+                        $like_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $dislike_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $like_icon_class = 'fa-regular fa-thumbs-up';
+                        $dislike_icon_class = 'fa-regular fa-thumbs-down';
+                        $like_style = '';
+                        $dislike_style = '';
+                        
+                        if (isset($item->user_vote_record)) {
+                            if ($item->user_vote_record === 'like') {
+                                $like_class = 'btn btn-xs fs-inherit';
+                                $like_style = 'style="background-color: var(--main-color); color: white;"';
+                                $like_icon_class = 'fa-solid fa-thumbs-up';
+                            } elseif ($item->user_vote_record === 'dislike') {
+                                $dislike_class = 'btn btn-danger btn-xs fs-inherit';
+                                $dislike_style = 'style="color: white;"';
+                                $dislike_icon_class = 'fa-solid fa-thumbs-down';
+                            }
+                        }
+                        ?>
+                        <button class="btn-like <?= $like_class ?>" type="button" title="Like" <?= $like_style ?>>
+                            <i class="<?= $like_icon_class ?>"></i>
                         </button>
-                        <button class="btn-dislike btn btn-default btn-xs fs-inherit grey-link" type="button" title="Dislike">
-                            <i class="fa-regular fa-thumbs-down"></i>
+                        <button class="btn-dislike <?= $dislike_class ?>" type="button" title="Dislike" <?= $dislike_style ?>>
+                            <i class="<?= $dislike_icon_class ?>"></i>
                         </button>
                     </div>
                 </div>
