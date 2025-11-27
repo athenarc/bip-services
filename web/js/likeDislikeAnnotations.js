@@ -1,58 +1,53 @@
 /*
- * Like/Dislike Annotations Feature
- * Handles voting on annotations in popovers
+ * Confirm/Report Annotations Feature
+ * Handles user feedback on annotations in popovers
  */
 
 $(document).ready(function () {
     
     /**
      * Apply vote state to buttons
-     * @param {jQuery} container - The like-dislike-annotation-buttons container
-     * @param {string} action - 'like' or 'dislike' or null
+     * @param {jQuery} container - The confirm/report annotation buttons container
+     * @param {string} action - 'like' or 'dislike' or null (stored values)
      */
     function applyVoteState(container, action) {
         const $likeBtn = container.find('.btn-like-annotation');
         const $dislikeBtn = container.find('.btn-dislike-annotation');
-        const $likeIcon = $likeBtn.find('i');
-        const $dislikeIcon = $dislikeBtn.find('i');
         
-        // Reset both buttons to inactive state
-        $likeBtn.removeClass('btn-primary').addClass('btn-default grey-link');
+        // Reset both buttons to inactive state (only colors/classes, icons stay the same)
+        $likeBtn.removeClass('btn-primary active-like-annotation').addClass('btn-default grey-link');
         $likeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $likeIcon.removeClass('fa-solid').addClass('fa-regular');
         
-        $dislikeBtn.removeClass('btn-danger').addClass('btn-default grey-link');
+        $dislikeBtn.removeClass('btn-danger active-dislike-annotation').addClass('btn-default grey-link');
         $dislikeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $dislikeIcon.removeClass('fa-solid').addClass('fa-regular');
         
         // Apply active state if action is set
         if (action === 'like') {
             const themeColor = container.data('theme-color') || 'var(--main-color)';
-            $likeBtn.removeClass('btn-default grey-link');
+            $likeBtn.removeClass('btn-default grey-link').addClass('active-like-annotation');
             $likeBtn.css({
                 'background-color': themeColor,
                 'color': 'white'
             });
-            $likeIcon.removeClass('fa-regular').addClass('fa-solid');
         } else if (action === 'dislike') {
-            $dislikeBtn.removeClass('btn-default grey-link').addClass('btn-danger');
+            const themeColor = container.data('theme-color') || 'var(--main-color)';
+            $dislikeBtn.removeClass('btn-default grey-link').addClass('active-dislike-annotation');
             $dislikeBtn.css({
-                'background-color': '',
+                'background-color': themeColor,
                 'color': 'white'
             });
-            $dislikeIcon.removeClass('fa-regular').addClass('fa-solid');
         }
     }
     
     /**
      * Reset button states to default (inactive)
-     * @param {jQuery} container - The like-dislike-annotation-buttons container
+     * @param {jQuery} container - The confirm/report annotation buttons container
      */
     function resetButtonStates(container) {
         applyVoteState(container, null);
@@ -60,8 +55,8 @@ $(document).ready(function () {
     
     /**
      * Update button states after vote
-     * @param {jQuery} container - The like-dislike-annotation-buttons container
-     * @param {string} voteType - 'like' or 'dislike'
+     * @param {jQuery} container - The confirm/report annotation buttons container
+     * @param {string} voteType - 'like' or 'dislike' (stored values)
      * @param {Object} response - Server response
      */
     function updateButtonStates(container, voteType, response) {
@@ -91,9 +86,13 @@ $(document).ready(function () {
             return;
         }
         
-        // Check if this button is already active (icon has fa-solid class)
-        const icon = buttonElement.find('i');
-        const isActive = icon.hasClass('fa-solid');
+        // Check if this button is already active (based on custom active classes)
+        let isActive = false;
+        if (voteType === 'like') {
+            isActive = buttonElement.hasClass('active-like-annotation');
+        } else if (voteType === 'dislike') {
+            isActive = buttonElement.hasClass('active-dislike-annotation');
+        }
         
         // If active, remove vote; otherwise, save/update vote
         const remove = isActive ? 1 : 0;
@@ -155,7 +154,22 @@ $(document).ready(function () {
         handleVote($(this), 'dislike');
     });
     
-    // Load vote states when popover is shown
+    // Clean up state when popover is hidden so we don't see old selection flashing next time
+    $(document).on('hidden.bs.popover', function(e) {
+        const $trigger = $(e.target);
+        const popoverId = $trigger.attr('aria-describedby');
+        if (!popoverId) return;
+
+        const $popover = $('#' + popoverId);
+        if ($popover.length === 0) return;
+
+        const $container = $popover.find('.like-dislike-annotation-buttons');
+        if ($container.length === 0) return;
+
+        resetButtonStates($container);
+    });
+    
+    // Load vote states when popover is shown (to reflect latest DB state)
     $(document).on('shown.bs.popover', function(e) {
         const $trigger = $(e.target);
         const popoverId = $trigger.attr('aria-describedby');
@@ -197,7 +211,7 @@ $(document).ready(function () {
                 }
             },
             error: function() {
-                // Fail silently - buttons stay in empty state
+                // Fail silently - buttons stay in server-rendered state
             }
         });
     });

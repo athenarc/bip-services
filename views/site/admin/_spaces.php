@@ -358,7 +358,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <div class="form-group">
         <div class="flex-wrap items-center" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <label style="margin: 0;">Like/Dislike Annotations</label>
+            <label style="margin: 0;">Confirm/Report Annotations</label>
             <div class="my-switch">
                 <?php
                 // Get the current value, default to 0 (false) if not set

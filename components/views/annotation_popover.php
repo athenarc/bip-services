@@ -9,14 +9,14 @@ use app\models\LikeDislikeAnnotations;
 <?php 
 // Use annotation_local_id if provided, otherwise try to find it in data array
 $annotation_id = $this->context->annotation_local_id ?? null;
-if ($annotation_id === null) {
-    foreach($this->context->data as $annotation_data) {
-        if ($annotation_data['label'] == 'id') {
-            $annotation_id = $annotation_data['value'];
-            break;
+    if ($annotation_id === null) {
+        foreach($this->context->data as $annotation_data) {
+            if ($annotation_data['label'] == 'id') {
+                $annotation_id = $annotation_data['value'];
+                break;
+            }
         }
     }
-}
 foreach($this->context->data as $annotation_data): ?>
     <div>
         <span class='green-bip'><?= ucfirst($annotation_data['label']) ?>:</span>
@@ -50,9 +50,25 @@ foreach($this->context->data as $annotation_data): ?>
         $paper_id = $this->context->paper_id;
         $annotation_name = $this->context->annotation_name;
         $space_url_suffix = $this->context->space_url_suffix;
-        $theme_color = $this->context->theme_color ?? '#439d44'; // Default to green if not set
-        
-        // Always render buttons in empty state - JavaScript will load the correct state
+        $theme_color = $this->context->theme_color ?? 'var(--main-color)'; // Fallback to main color
+
+        // Get user vote (server-side) or use provided value
+        $user_vote_annotation = $this->context->user_vote_annotation 
+            ?? LikeDislikeAnnotations::getUserVote(Yii::$app->user->id, $paper_id, $annotation_id, $space_url_suffix);
+
+        // Determine button classes & styles based on user vote
+        $like_class = 'btn btn-default grey-link btn-xs';
+        $dislike_class = 'btn btn-default grey-link btn-xs';
+        $like_style = '';
+        $dislike_style = '';
+
+        if ($user_vote_annotation === 'like') {
+            $like_class = 'btn btn-xs';
+            $like_style = 'style="background-color: ' . Html::encode($theme_color) . '; color: white;"';
+        } elseif ($user_vote_annotation === 'dislike') {
+            $dislike_class = 'btn btn-xs';
+            $dislike_style = 'style="background-color: ' . Html::encode($theme_color) . '; color: white;"';
+        }
     ?>
         <div style="margin-top: 5px; padding-top: 5px;">
             <div class="like-dislike-annotation-buttons" style="text-align: right;"
@@ -61,11 +77,11 @@ foreach($this->context->data as $annotation_data): ?>
                  data-annotation-name="<?= Html::encode($annotation_name) ?>"
                  data-space-url-suffix="<?= Html::encode($space_url_suffix) ?>"
                  data-theme-color="<?= Html::encode($theme_color) ?>">
-                <button class="btn-like-annotation btn btn-default grey-link btn-xs" type="button" title="Like">
-                    <i class="fa-regular fa-thumbs-up"></i>
+                <button class="btn-like-annotation <?= $like_class ?>" type="button" title="Confirm this annotation" <?= $like_style ?>>
+                    <i class="fa-solid fa-check"></i>
                 </button>
-                <button class="btn-dislike-annotation btn btn-default grey-link btn-xs" type="button" title="Dislike">
-                    <i class="fa-regular fa-thumbs-down"></i>
+                <button class="btn-dislike-annotation <?= $dislike_class ?>" type="button" title="Report this annotation" <?= $dislike_style ?>>
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>

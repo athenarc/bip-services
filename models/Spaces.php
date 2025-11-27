@@ -65,7 +65,7 @@ class Spaces extends \yii\db\ActiveRecord
 
             // Like/Dislike records feature 
             ['enable_like_dislike_records', 'boolean'],
-            // Like/Dislike annotations feature 
+            // Confirm/Report annotations feature 
             ['enable_like_dislike_annotations', 'boolean'],           
         ];
     }
@@ -93,7 +93,7 @@ class Spaces extends \yii\db\ActiveRecord
             'annotation_db' => 'Annotation Database',
             'graph_db_system' => 'Graph Database System',
             'enable_like_dislike_records' => 'Enable Like/Dislike Records Feature',
-            'enable_like_dislike_annotations' => 'Enable Like/Dislike Annotations Feature',
+            'enable_like_dislike_annotations' => 'Enable Confirm/Report Annotations Feature',
         ];
     }
 

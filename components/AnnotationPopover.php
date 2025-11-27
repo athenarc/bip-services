@@ -31,6 +31,7 @@ class AnnotationPopover extends Widget
     public $annotation_local_id;
     public $enable_like_dislike_annotations;
     public $theme_color; // Space theme color for like button
+    public $user_vote_annotation; // 'like', 'dislike', or null
 
 
     /*
