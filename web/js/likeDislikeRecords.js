@@ -13,39 +13,33 @@ $(document).ready(function () {
     function applyVoteState(container, action) {
         const $likeBtn = container.find('.btn-like');
         const $dislikeBtn = container.find('.btn-dislike');
-        const $likeIcon = $likeBtn.find('i');
-        const $dislikeIcon = $dislikeBtn.find('i');
         
-        // Reset both buttons to inactive state
-        $likeBtn.removeClass('btn-danger').addClass('btn-default grey-link');
+        // Reset both buttons to inactive state (only colors, icons stay the same)
+        $likeBtn.removeClass('btn-danger active-like').addClass('btn-default grey-link');
         $likeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $likeIcon.removeClass('fa-solid').addClass('fa-regular');
         
-        $dislikeBtn.removeClass('btn-danger').addClass('btn-default grey-link');
+        $dislikeBtn.removeClass('btn-danger active-dislike').addClass('btn-default grey-link');
         $dislikeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $dislikeIcon.removeClass('fa-solid').addClass('fa-regular');
         
         // Apply active state if action is set
         if (action === 'like') {
-            $likeBtn.removeClass('btn-default grey-link');
+            $likeBtn.removeClass('btn-default grey-link').addClass('active-like');
             $likeBtn.css({
                 'background-color': 'var(--main-color)',
                 'color': 'white'
             });
-            $likeIcon.removeClass('fa-regular').addClass('fa-solid');
         } else if (action === 'dislike') {
-            $dislikeBtn.removeClass('btn-default grey-link').addClass('btn-danger');
+            $dislikeBtn.removeClass('btn-default grey-link').addClass('active-dislike');
             $dislikeBtn.css({
-                'background-color': '',
+                'background-color': 'var(--main-color)',
                 'color': 'white'
             });
-            $dislikeIcon.removeClass('fa-regular').addClass('fa-solid');
         }
     }
     
@@ -88,9 +82,13 @@ $(document).ready(function () {
             return;
         }
         
-        // Check if this button is already active (icon has fa-solid class)
-        const icon = buttonElement.find('i');
-        const isActive = icon.hasClass('fa-solid');
+        // Check if this button is already active (based on custom active classes)
+        let isActive = false;
+        if (voteType === 'like') {
+            isActive = buttonElement.hasClass('active-like');
+        } else if (voteType === 'dislike') {
+            isActive = buttonElement.hasClass('active-dislike');
+        }
         
         // If active, remove vote; otherwise, save/update vote
         const remove = isActive ? 1 : 0;
