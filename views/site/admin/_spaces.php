@@ -6,8 +6,10 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
+use yii\bootstrap\Modal;
 use app\components\CustomBootstrapRadioList;
 use app\components\CustomBootstrapCheckboxList;
+use app\components\PubmedTypesModal;
 use yii\jui\AutoComplete;
 use wbraganca\dynamicform\DynamicFormWidget;
 
@@ -126,14 +128,32 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
     ?>
 
 
-    <label class="control-label">NLM Types</label>   
+    <label class="control-label">NLM Types</label>
     <?= $form->field($model, 'has_pubmed_types', [
-        'enableClientValidation' => false, 
+        'enableClientValidation' => false,
         'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}</div>\n{error}\n{hint}"
         ])->checkbox([],
                 false // IMPORTANT: render input and label separately so template {input}{label} works
-            ) 
+            )
     ?>
+
+
+    <div id="spaces-pubmed-types-container" style="<?= (empty($model->has_pubmed_types)) ? 'display:none;' : ''?>">
+
+        <?= $form->field($model, 'pubmed_types')
+            ->hiddenInput([
+                'id' => 'spaces-pubmed-types-hidden',
+                'value' => implode(',', (array)$model->pubmed_types)
+            ])
+            ->label(false)
+        ?>
+
+
+        <button type="button" class="btn btn-custom-color" data-toggle="modal" data-target="#spacesPubmedTypesModal">
+            Edit NLM Types (<span id="spaces-pubmed-types-count"><?= count((array)$model->pubmed_types)?></span>)
+        </button>
+        <div class="help-block"></div>
+    </div>
 
     <?= $form->field($model, 'start_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
     <?= $form->field($model, 'end_year')->textInput(['type' => 'number','class' => 'search-box form-control']) ?>
@@ -251,7 +271,7 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
 
     ?>
 
-    <?php 
+    <?php
         DynamicFormWidget::begin([
             'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
             'widgetBody' => '.container-items', // required: css class selector
@@ -268,7 +288,7 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
                 'color',
                 'query',
             ],
-        ]); 
+        ]);
     ?>
     <div style = "margin-bottom:10px">
         <label class="pull-left" style="font-size: inherit;" >Annotation Data</label>
@@ -305,7 +325,7 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
                     <div class="col-sm-2">
                         <label class="control-label">Color picker</label>
                         <input type="color" class="search-box form-control" value="<?= $modelSpacesAnnotations->color ?>" style="width: 70px;" oninput="$(this).closest('.parent-color-annotation').find('.color-annotation').val($(this).val());">
-                        
+
                         <div class="help-block"></div>
                     </div>
                 </div>
@@ -356,3 +376,13 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
     <?php ActiveForm::end(); ?>
 
 </div>
+
+
+
+<?= PubmedTypesModal::widget([
+    'modalId' => 'spacesPubmedTypesModal',
+    'checkboxClass' => 'spaces-pubmed-type-checkbox',
+    'checkboxIdPrefix' => 'spaces_pubmed_type_',
+    'applyButtonId' => 'spacesSavePubmedTypes',
+    'selectedTypes' => $model->pubmed_types,
+]) ?>

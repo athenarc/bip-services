@@ -14,6 +14,7 @@ use app\components\CustomFiltersCheckboxList;
 use app\components\ResultItem;
 use app\components\TopTopicsItem;
 use app\components\CustomBootstrapModal;
+use app\components\PubmedTypesModal;
 use yii\helpers\ArrayHelper;
 use app\models\Indicators;
 use app\models\SummaryUsage;
@@ -133,6 +134,28 @@ if ($in_space) {
                         <?= CustomFiltersCheckboxList::widget(['id' => 'type_filter', 'name' => 'type', 'model' => $model, 'form' => $form, 'items' => array_map(function ($value) {return $value['name'];}, Yii::$app->params['work_types']), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
 
                         <?= CustomFiltersCheckboxList::widget(['id' => 'is_oa_filter', 'name' => 'is_oa', 'model' => $model, 'form' => $form, 'items' => array_map(function($v){ return $v['name']; }, array_filter(Yii::$app->params['openness'], function($k){ return $k !== ''; }, ARRAY_FILTER_USE_KEY)), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+
+                        <?php if (!$in_space || $space_model->has_pubmed_types): ?>
+
+                                <div class="form-group field-pubmed_types_filter" >
+                                    <label class="control-label">NLM Types</label>
+                                    <div id="filter-pubmed-types-container">
+                                        <?= Html::activeHiddenInput($model, 'pubmed_types', [
+                                            'id' => 'filter-pubmed-types-hidden',
+                                            'class' => 'form-control',
+                                            'value' => implode(',', (array)$model->pubmed_types)
+                                        ]) ?>
+                                        <button type="button" class="btn btn-default" style="color:unset" data-toggle="modal" data-target="#filterPubmedTypesModal">
+                                            Edit NLM Types (<span id="filter-pubmed-types-count"><?= count((array)$model->pubmed_types)?></span>)
+                                        </button>
+                                    </div>
+                                    <div class="help-block"></div>
+                                </div>
+
+                        <?php endif; ?>
+                        
+
+
 
                         <?php if ($in_space): ?>
                             <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
@@ -472,4 +495,17 @@ if ($in_space) {
         echo CustomBootstrapModal::widget(['id' => 'relations-modal']);
 
     ?>
+
+
+    <?php if (!$in_space || $space_model->has_pubmed_types): ?>
+                            
+        <?= PubmedTypesModal::widget([
+            'modalId' => 'filterPubmedTypesModal',
+            'checkboxClass' => 'filter-pubmed-type-checkbox',
+            'checkboxIdPrefix' => 'filter_pubmed_type_',
+            'applyButtonId' => 'filterApplyPubmedTypes',
+            'selectedTypes' => $model->pubmed_types,
+        ]) ?>
+
+    <?php endif; ?>
 

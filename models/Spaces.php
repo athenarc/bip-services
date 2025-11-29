@@ -85,7 +85,7 @@ class Spaces extends \yii\db\ActiveRecord
             'impulse' => 'Impulse',
             'topics' => 'Topics',
             'type' => 'Type',
-            'has_pubmed_types' => 'Enable Pubmed Types',
+            'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
@@ -105,16 +105,30 @@ class Spaces extends \yii\db\ActiveRecord
 
     }
 
+    public function convertToArray($attribute)
+    {
+        $this->$attribute = $this->$attribute !== null ? explode(',', $this->$attribute) : [];
+    }
+
     public function getTypeAsArray()
     {
         // Convert type to an array
-        $this->type = $this->type !== null ? explode(',', $this->type) : [];
+        $this->convertToArray('type');
+
     }
 
     public function getIsOaAsArray()
     {
-        // Convert type to an array
-        $this->is_oa = $this->is_oa !== null ? explode(',', $this->is_oa) : [];
+        // Convert is_oa to an array
+        $this->convertToArray('is_oa');
+
+    }
+
+    public function getPubmedTypesAsArray()
+    {
+        // Convert pubmed_types to an array
+        $this->convertToArray('pubmed_types');
+
     }
 
     public function beforeValidate()
@@ -123,17 +137,16 @@ class Spaces extends \yii\db\ActiveRecord
             return false;
         }
 
-        // if a checkbox for type is selected
-        if ($this->type !== '' ) {
-            // transform the array of types (from request) to string
-            $this->type = implode(",", $this->type);
+         // if a checkbox for type, is_oa, pubmed_types is selected
+        foreach (['type', 'is_oa'] as $attr) {
+
+            if ($this->$attr !== '' ) {
+            // transform the array (from request) to string
+            $this->$attr = implode(",", $this->$attr);
+            }
+
         }
 
-        // if a checkbox for is_oa is selected
-        if ($this->is_oa !== '' ) {
-            // transform the array of is_oa (from request) to string
-            $this->is_oa = implode(",", $this->is_oa);
-        }
         return true;
     }
 
@@ -150,6 +163,7 @@ class Spaces extends \yii\db\ActiveRecord
             $model->setLogoDefault();
             $model->getTypeAsArray();
             $model->getIsOaAsArray();
+            $model->getPubmedTypesAsArray();
 
         } else {
             // Create a new space model
@@ -254,7 +268,7 @@ class Spaces extends \yii\db\ActiveRecord
         foreach ($space_model->toArray() as $key => $value) {
             if (array_key_exists($key, $post_request_array)) {
                 // special handling for topics
-                if ($key === 'topics' or $key === 'type' or $key === 'is_oa') {
+                if ($key === 'topics' or $key === 'type' or $key === 'is_oa' or $key == 'pubmed_types') {
                     // sort arrays before comparison
                     $post_array = $post_request_array[$key];
                     sort($post_array);
@@ -301,10 +315,10 @@ class Spaces extends \yii\db\ActiveRecord
         // split the string into an array using ',' as the delimiter and trim each element to remove leading and trailing spaces
         $this->topics = $this->topics !== null ? array_filter(array_map('trim', explode(',', $this->topics))) : [];
 
-        // Convert type to an array
+        // Convert type, is_oa, pubmed_types to an array
         $this->getTypeAsArray();
-        // Convert is_oa to an array
         $this->getIsOaAsArray();
+        $this->getPubmedTypesAsArray();
 
         // convert null->'' and integer->string
         $this->start_year = ($this->start_year === null) ? '' : strval($this->start_year);
@@ -428,8 +442,8 @@ class Spaces extends \yii\db\ActiveRecord
         $space_model->setAttributes($get_data_all, false);
         $search_params = $space_model->toArray();
 
-        // revert topics, type, is_oa set in fetchGetRequestArray ([""] -> []) 
-        foreach (['topics', 'type', 'is_oa'] as $key) {
+        // revert topics, type, is_oa, pubmed_types set in fetchGetRequestArray ([""] -> []) 
+        foreach (['topics', 'type', 'is_oa', 'pubmed_types'] as $key) {
             if (array_key_exists($key, $search_params) && $search_params[$key] === [""]) {
                 $search_params[$key] = [];
             }
