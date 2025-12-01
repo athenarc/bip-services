@@ -44,6 +44,8 @@ $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END
 $this->registerJsFile('@web/js/scrollToAnchor.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 // Build/update TOC for Section Divider headings
 $this->registerJsFile('@web/js/profile-toc.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Report profile functionality
+$this->registerJsFile('@web/js/profile-report.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -942,4 +944,46 @@ use yii\bootstrap\NavBar;
         <?php endif; ?>
 
     */ ?>
+
+    <!-- Report Profile Modal -->
+    <?php if (!$edit_perm && !Yii::$app->user->isGuest): ?>
+        <?php
+        $footer = '
+            <button class="btn btn-custom-color" type="button" id="submit-report-btn">Submit Report</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        ';
+        Modal::begin([
+            'header' => '<h4>Report Profile</h4>',
+            'id' => 'reportProfileModal',
+            'size' => 'modal-md',
+            'footer' => $footer
+        ]);
+        ?>
+            <form id="report-profile-form" autocomplete="off">
+                <?= Html::hiddenInput('reported_orcid', $researcher->orcid, ['id' => 'report-profile-orcid']) ?>
+                
+                <div class="form-group">
+                    <label for="report-reason">Reason for Reporting <span class="text-danger">*</span></label>
+                    <select id="report-reason" name="reason" class="form-control" required>
+                        <option value="" disabled selected>-- Select a reason --</option>
+                        <option value="Inappropriate content">Inappropriate content</option>
+                        <option value="Fake or impersonation">Fake or impersonation</option>
+                        <option value="Spam or misleading">Spam or misleading</option>
+                        <option value="Copyright violation">Copyright violation</option>
+                        <option value="Harassment or abuse">Harassment or abuse</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <small class="form-text text-muted">Please select the reason for reporting this profile.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="report-description">Additional Details (optional)</label>
+                    <textarea id="report-description" name="description" class="form-control" rows="4" maxlength="1000" placeholder="Please provide any additional information that may help us review this report..."></textarea>
+                    <small class="form-text text-muted"><span id="report-description-count">0</span>/1000 characters</small>
+                </div>
+                
+                <div id="report-message" class="alert" style="display: none;"></div>
+            </form>
+        <?php Modal::end(); ?>
+    <?php endif; ?>
 <?php endif; ?>
