@@ -690,6 +690,9 @@ input[type="checkbox"].checkbox_filter:checked+label {
 .popover-content {
     text-align: justify;
     word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+
 }
 
 #results_tbl {
