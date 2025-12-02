@@ -1,0 +1,39 @@
+.annotation-content {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.3s ease-in-out;
+    margin-top: 0;
+}
+
+.annotation-content.show {
+    opacity: 1;
+    max-height: 2000px;
+    margin-top: 3px;
+    display: inline-block !important;
+}
+
+.annotation-tab {
+    transition: all 0.2s ease-in-out;
+}
+
+.annotation-tab:not(.active):not(:hover) {
+    background-color: unset !important;
+    border-color: unset !important;
+    color: unset !important;
+}
+
+.annotation-tab.active {
+    color: var(--main-color, #333) !important;
+    background-color: var(--lighter-color, #e6e6e6) !important;
+    border-color: var(--main-color, #adadad) !important;
+}
+
+.annotation-tab.active i.fa-tag {
+    color: var(--main-color, #333) !important;
+}
+
+.annotation-tab.active span {
+    color: var(--main-color, #333) !important;
+}
+

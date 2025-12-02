@@ -1,0 +1,67 @@
+<?php 
+
+/*
+ * Annotations view - displays annotations grouped by type
+ *
+ * (First Version: Dec 2024)
+ */
+
+use yii\helpers\Html;
+use app\components\AnnotationPopover;
+
+?>
+
+<div id="res_<?= $internal_id ?>_annot" class="tag-region grey-text">
+    <?php 
+    $tab_container_id = "res_{$internal_id}_annot_tabs";
+    ?>
+    
+    <!-- Tab Headers -->
+    <div class="annotation-tabs" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 3px;">
+        <?php foreach ($grouped_annotations as $annotation_id => $group): ?>
+            <?php 
+            $tab_id = "res_{$internal_id}_annot_tab_{$annotation_id}";
+            $content_id = "res_{$internal_id}_annot_content_{$annotation_id}";
+            ?>
+            <a class="annotation-tab btn btn-default btn-xs fs-inherit grey-link" 
+                 id="<?= $tab_id ?>"
+                 data-content-id="<?= $content_id ?>"
+                 data-tag-color="<?= Html::encode($group['type_color']) ?>"
+                 onclick="switchAnnotationTab('<?= $tab_container_id ?>', '<?= $tab_id ?>', '<?= $content_id ?>'); return false;"
+                 href="#"
+                 role="button"
+                 style="margin-right: 4px; text-decoration: none;">
+                <i class="fa-solid fa-tag" style="color: <?= Html::encode($group['type_color']) ?>; margin-right: 5px;"></i>
+                <?= Html::encode($group['type_name']) ?> <span style="color: #666;">(<?= count($group['items']) ?>)</span>
+            </a>
+        <?php endforeach; ?>
+    </div>
+    
+    <!-- Tab Content -->
+    <div id="<?= $tab_container_id ?>" class="annotation-tab-content">
+        <?php 
+        foreach ($grouped_annotations as $annotation_id => $group): 
+            $content_id = "res_{$internal_id}_annot_content_{$annotation_id}";
+        ?>
+            <div class="bootstrap-tagsinput annotation-content" 
+                 id="<?= $content_id ?>" 
+                 style="display: none; margin-left: 0;">
+                <?php foreach ($group['items'] as $annotation): ?>
+                    <span class="tag label">
+                        <?php $annotation_content = AnnotationPopover::widget([ 
+                            'data' => $annotation['data'], 
+                            'space_annotation_db' => $space_annotation_db, 
+                            'space_url_suffix' => $space_url_suffix, 
+                            'space_annotation_id' => $annotation['annotation_id'], 
+                            'has_reverse_annotation_query' => $annotation['has_reverse_query'] 
+                        ]); ?>
+                        <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
+                        <?php if (!empty($annotation['annotation_color'])):?>
+                            <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
+                        <?php endif; ?>
+                    </span>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
