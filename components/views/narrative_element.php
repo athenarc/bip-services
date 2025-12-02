@@ -28,7 +28,7 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
         <<?= $headingType ?>>
         <?= $elem->title ?>
         <?php if (!empty($elem->tip)): ?>
-            <span role="button" style="font-size: 80%;" data-toggle="popover" data-placement="auto"  data-content="<div style='text-align: justify; font-style: italic;'><?= Html::encode($elem->tip) ?></div>"><i class="fa-solid fa-lightbulb light-grey-link" aria-hidden="true"></i></span>
+            <span role="button" style="font-size: 80%;" data-toggle="popover" data-placement="auto"  title="Tips" data-content="<div style='text-align: justify; font-style: italic;'><?= Html::encode($elem->tip) ?></div>"><i class="fa-solid fa-lightbulb light-grey-link" aria-hidden="true"></i></span>
         <?php endif; ?>
         </<?= $headingType ?>>
     <?php endif; ?>
