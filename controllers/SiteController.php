@@ -2058,6 +2058,7 @@ class SiteController extends BaseController
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
+                            $elementNarrativesModel->tip = $elementNarrativesFormModel->tip;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
                             $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
                             $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;
@@ -2418,6 +2419,7 @@ class SiteController extends BaseController
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
+                            $elementNarrativesModel->tip = $elementNarrativesFormModel->tip;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
                             $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
                             $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;

@@ -668,6 +668,7 @@ use yii\bootstrap\NavBar;
                                         'title' => $element["config"]->title,
                                         'heading_type' => $element["config"]->heading_type,
                                         'description' => $element["config"]->description,    
+                                        'tip' => $element["config"]->tip,    
                                         'hide_when_empty' => $element["config"]->hide_when_empty,
                                         'edit_perm' => $edit_perm,
                                         'value' => $element["config"]->value,
