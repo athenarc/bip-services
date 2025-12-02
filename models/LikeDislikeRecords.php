@@ -68,17 +68,30 @@ class LikeDislikeRecords extends ActiveRecord
      */
     public static function getVoteCounts($paper_id, $space_url_suffix)
     {
-        $like_count = self::find()
-            ->where(['paper_id' => $paper_id, 'space_url_suffix' => $space_url_suffix, 'action' => 'like'])
-            ->count();
-        
-        $dislike_count = self::find()
-            ->where(['paper_id' => $paper_id, 'space_url_suffix' => $space_url_suffix, 'action' => 'dislike'])
-            ->count();
-        
+        $rows = self::find()
+            ->select(['action', 'cnt' => 'COUNT(*)'])
+            ->where([
+                'paper_id' => $paper_id,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->groupBy('action')
+            ->asArray()
+            ->all();
+
+        $like_count = 0;
+        $dislike_count = 0;
+
+        foreach ($rows as $row) {
+            if ($row['action'] === 'like') {
+                $like_count = (int)$row['cnt'];
+            } elseif ($row['action'] === 'dislike') {
+                $dislike_count = (int)$row['cnt'];
+            }
+        }
+
         return [
-            'like_count' => (int)$like_count,
-            'dislike_count' => (int)$dislike_count,
+            'like_count' => $like_count,
+            'dislike_count' => $dislike_count,
         ];
     }
 
@@ -161,7 +174,7 @@ class LikeDislikeRecords extends ActiveRecord
             $vote->query = $query;
             $vote->ordering = $ordering;
             $vote->paper_rank = $paper_rank;
-            return $vote->save(false);
+            return $vote->save();
         } else {
             // Create new vote
             $vote = new self();
@@ -172,7 +185,7 @@ class LikeDislikeRecords extends ActiveRecord
             $vote->query = $query;
             $vote->ordering = $ordering;
             $vote->paper_rank = $paper_rank;
-            return $vote->save(false);
+            return $vote->save();
         }
     }
 

@@ -299,29 +299,9 @@ if ($in_space) {
                             // Calculate paper_rank based on pagination
                             $current_page = $results['pagination']->page + 1; // Pagination is 0-indexed
                             $page_size = $results['pagination']->pageSize;
-                            $position_in_page = 0;
                             
-                            // Load user votes for all papers on this page (if feature is enabled and user is logged in)
-                            $user_votes = [];
-                            if (!Yii::$app->user->isGuest 
-                                && isset($space_model->enable_like_dislike_records) 
-                                && $space_model->enable_like_dislike_records) {
-                                $paper_ids = array_map(function($result) {
-                                    return $result['internal_id'];
-                                }, $results['rows']);
-                                
-                                if (!empty($paper_ids)) {
-                                    $user_votes = \app\models\LikeDislikeRecords::getUserVotesBatch(
-                                        Yii::$app->user->id,
-                                        $paper_ids,
-                                        $space_model->url_suffix
-                                    );
-                                }
-                            }
-                            
-                            foreach($results['rows'] as $result ) {
-                                $position_in_page++;
-                                $paper_rank = ($current_page - 1) * $page_size + $position_in_page;
+                            foreach($results['rows'] as $index => $result ) {
+                                $paper_rank = ($current_page - 1) * $page_size + ($index + 1);
                                 
                                 echo ResultItem::widget([
                                     "impact_indicators" => $impact_indicators,
