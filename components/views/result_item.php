@@ -360,6 +360,48 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
 
+            <?php 
+            // Show like/dislike buttons if:
+            // 1. User is logged in
+            // 2. Feature is enabled for the space
+            $show_like_dislike = !Yii::$app->user->isGuest 
+                && ($item->enable_like_dislike_records ?? false);
+            ?>
+            <?php if ($show_like_dislike): ?>
+                <!-- like/dislike (relevant/irrelevant) buttons -->
+                <div class="flex-b-18 no-white-space text-center">
+                    <div class="like-dislike-buttons" data-paper-id="<?= $item->internal_id ?>" data-paper-rank="<?= isset($item->paper_rank) ? $item->paper_rank : '' ?>">
+                        <?php 
+                        // Determine button states based on user_vote_record
+                        $base_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_style = 'style="background-color: var(--main-color); color: white;"';
+
+                        $like_class = $base_btn_class;
+                        $dislike_class = $base_btn_class;
+                        $like_style = '';
+                        $dislike_style = '';
+
+                        if (isset($item->user_vote_record)) {
+                            if ($item->user_vote_record === 'like') {
+                                $like_class = $active_btn_class;
+                                $like_style = $active_style;
+                            } elseif ($item->user_vote_record === 'dislike') {
+                                $dislike_class = $active_btn_class;
+                                $dislike_style = $active_style;
+                            }
+                        }
+                        ?>
+                        <button class="btn-like <?= $like_class ?>" type="button" title="This result is relevant to my search" <?= $like_style ?>>
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="btn-dislike <?= $dislike_class ?>" type="button" title="This result is irrelevant to my search" <?= $dislike_style ?>>
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            <?php endif; ?>
+
         </div>
     </div>
 </div>
