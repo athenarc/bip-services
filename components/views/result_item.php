@@ -50,12 +50,12 @@ $item = $this->context;
             </div>
 
             <div class="col-md-4 col-lg-3 text-right">
-                <div class="citation-impact-icons">
+                <div class="version-impact-icons-wrapper">
                     <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <div class="version-link-wrapper">
+                        <span class="version-link-wrapper">
                             <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
                                 Found <?= $item->dois_num ?> versions</a>
-                        </div>
+                        </span>
                     <?php endif; ?>
                     
                     <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -67,7 +67,6 @@ $item = $this->context;
                                         'impulse_score' => $item->imp_score,
                                         'cc_score' => $item->cc_score,
                                         'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                         ]);?>
                 </div>
             </div>
@@ -106,21 +105,18 @@ $item = $this->context;
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'],2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);"></i></span>
-                                <span class="concept-divider">
-                                    <span style="color: #808080;">|</span> 
-                                    <?= ImpactIcons::widget([
-                                        'popularity_class' => $concept['pop_class'],
-                                        'influence_class' => $concept['inf_class'],
-                                        'impulse_class' => $concept['imp_class'],
-                                        'cc_class' => $concept['cc_class'],
-                                        'popularity_score' => $item->pop_score,
-                                        'influence_score' => $item->inf_score,
-                                        'impulse_score' => $item->imp_score,
-                                        'cc_score' => $item->cc_score,
-                                        'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false],
-                                    ]);?>
-                                </span>
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
+                                    'popularity_class' => $concept['pop_class'],
+                                    'influence_class' => $concept['inf_class'],
+                                    'impulse_class' => $concept['imp_class'],
+                                    'cc_class' => $concept['cc_class'],
+                                    'popularity_score' => $item->pop_score,
+                                    'influence_score' => $item->inf_score,
+                                    'impulse_score' => $item->imp_score,
+                                    'cc_score' => $item->cc_score,
+                                    'impact_indicators' => $item->impact_indicators,
+                                ]);?>
                             </span>
                         <?php }
                     } ?>

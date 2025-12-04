@@ -92,7 +92,8 @@ $item = $this->context;
                                 <span class="concept-confidence-container">
                                     <span class="concept-confidence-fill" style="width: <?= $concept_score ?>%;"></span>
                                 </span>
-                                <span class= "concept-class"> | <?= ImpactIcons::widget([
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
                                     'popularity_class' => $concept['pop_class'],
                                     'influence_class' => $concept['inf_class'],
                                     'impulse_class' => $concept['imp_class'],
@@ -102,7 +103,7 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                    ]);?></span>
+                                ]);?>
                             </span>
                         <?php }
                     } ?>
