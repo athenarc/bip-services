@@ -1,28 +1,59 @@
 $(document).ready(function () {
-    const $summarizeBtn = $('#summarizeBtn');
-    const $summaryCount = $('#summary-count');
-    const $summaryText = $('#summaryText');
-    const $summaryPanel = $('#summary_panel');
-    const $summaryUsageInfo = $('#summary-usage-info');
-    const $summaryLoading = $('#summaryLoading');
-    const $copySummaryWrapper = $('#copy-summary-wrapper');
-    const $regenerateBox = $('#regenerate-summary-box');
-    const $copyBtn = $('#copy-summary-btn');
+    /**
+     * Initialize a single summary instance (Finder/Readings or Contributions List).
+     * Accepts a button element and optional listId (for per-list instances).
+     */
+    function initSummaryInstance($button, listId) {
+        const isPerList = !!listId;
+
+        // Resolve selectors depending on context (legacy single vs multi-list)
+        const $summaryPanel = isPerList
+            ? $(`#summary_panel_${listId}`)
+            : $('#summary_panel');
+        const $summaryCount = isPerList
+            ? $(`#summary-count-${listId}`)
+            : $('#summary-count');
+        const $summaryText = isPerList
+            ? $(`#summaryText-${listId}`)
+            : $('#summaryText');
+        const $summaryUsageInfo = isPerList
+            ? $(`#summary-usage-info-${listId}`)
+            : $('#summary-usage-info');
+        const $summaryLoading = isPerList
+            ? $(`#summaryLoading-${listId}`)
+            : $('#summaryLoading');
+        const $copySummaryWrapper = isPerList
+            ? $(`#copy-summary-wrapper-${listId}`)
+            : $('#copy-summary-wrapper');
+        const $regenerateBox = isPerList
+            ? $(`#regenerate-summary-box-${listId}`)
+            : $('#regenerate-summary-box');
+        const $copyBtn = isPerList
+            ? $summaryPanel.find('.copy-summary-btn')
+            : $('#copy-summary-btn');
+
+        if (!$button.length || !$summaryPanel.length) {
+            return;
+        }
 
     $copyBtn.tooltip();
 
-    const allPaperIds = JSON.parse($summarizeBtn.attr('data-paper-ids'));
-    const keywords = $summarizeBtn.attr('data-keywords');
+        const allPaperIds = JSON.parse($button.attr('data-paper-ids') || '[]');
+        const keywords = $button.attr('data-keywords') || '';
     const maxAvailable = allPaperIds.length;
-    const defaultLimit = Math.min(5, maxAvailable);
-    const summarizeThreshold = $summarizeBtn.data('threshold') || 20;
+        const defaultLimit = Math.min(5, maxAvailable || 0);
+        const summarizeThreshold = $button.data('threshold') || 20;
 
     let quotaReached = false;
 
-    $summaryCount.attr({
+        if (maxAvailable > 0) {
+            $summaryCount
+                .attr({
         min: 1,
         max: Math.min(20, maxAvailable)
-    }).val(Math.min(6, maxAvailable));
+                })
+                .val(Math.min(6, maxAvailable));
+        }
 
     checkQuotaOnLoad();
 
@@ -30,7 +61,7 @@ $(document).ready(function () {
         $.get(`${appBaseUrl}/site/check-summary-quota`, function (response) {
             if (response.quotaReached) {
                 quotaReached = true;
-                $summarizeBtn
+                    $button
                     .prop('disabled', true)
                     .addClass('disabled')
                     .off('click')
@@ -51,6 +82,10 @@ $(document).ready(function () {
     }
 
     function generateSummary(limit) {
+            if (!allPaperIds.length) {
+                return;
+            }
+
         const paperIds = allPaperIds.slice(0, Math.min(limit, maxAvailable));
 
         $copySummaryWrapper.hide();
@@ -67,12 +102,18 @@ $(document).ready(function () {
                     $summaryText.html(`<span class="text-danger">${response.error}</span>`).show();
                     if (response.error.includes('quota')) {
                         quotaReached = true;
-                        $summarizeBtn.prop('disabled', true).off('click');
+                            $button.prop('disabled', true).off('click');
                     }
                     return;
                 }
 
-                window.originalSummary = response.plain;
+                    // Store per-instance summary so copy uses the correct text
+                    if (!window.originalSummaries) {
+                        window.originalSummaries = {};
+                    }
+                    const key = listId || 'global';
+                    window.originalSummaries[key] = response.plain;
+
                 $summaryText.html(response.html).show();
                 $regenerateBox.show();
                 $copySummaryWrapper.show();
@@ -90,7 +131,7 @@ $(document).ready(function () {
             });
     }
 
-    $summarizeBtn.on('click', function () {
+        $button.on('click', function () {
         if (quotaReached) return;
 
         const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
@@ -99,11 +140,16 @@ $(document).ready(function () {
         $summaryPanel.collapse('toggle');
 
         if (isCollapsed && !hasSummary) {
-            generateSummary(defaultLimit);
+                generateSummary(defaultLimit || 5);
         }
     });
 
-    $(document).on('click', '#regenerate-summary-btn', function () {
+        // Regenerate button – global id on Finder/Readings, class+data-list-id for lists
+        const regenerateSelector = isPerList
+            ? `.regenerate-summary-btn[data-list-id="${listId}"]`
+            : '#regenerate-summary-btn';
+
+        $(document).on('click', regenerateSelector, function () {
         if (quotaReached) return;
 
         const topN = parseInt($summaryCount.val(), 10);
@@ -112,17 +158,28 @@ $(document).ready(function () {
         generateSummary(topN);
     });
 
-    $(document).on('keydown', '#summary-count', function (e) {
+        // Enter on input – per list or global
+        const countSelector = isPerList
+            ? `#summary-count-${listId}`
+            : '#summary-count';
+
+        $(document).on('keydown', countSelector, function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
+                if (isPerList) {
+                    $summaryPanel.find(regenerateSelector).click();
+                } else {
             $('#regenerate-summary-btn').click();
+                }
         }
     });
 
+        // Copy summary handler
     $copyBtn.on('click', function () {
-        if (!window.originalSummary) return;
+            const key = listId || 'global';
+            if (!window.originalSummaries || !window.originalSummaries[key]) return;
 
-        navigator.clipboard.writeText(window.originalSummary).then(() => {
+            navigator.clipboard.writeText(window.originalSummaries[key]).then(() => {
             $copyBtn.attr('data-original-title', 'Summary copied!').tooltip('show').off('mouseenter focus');
 
             setTimeout(() => {
@@ -132,4 +189,21 @@ $(document).ready(function () {
             console.error('Failed to copy summary.', err);
         });
     });
+    }
+
+    // New multi-instance usage for Contributions Lists
+    const $multiButtons = $('.summarizeBtn');
+    if ($multiButtons.length) {
+        $multiButtons.each(function () {
+            const $btn = $(this);
+            const listId = $btn.data('listId');
+            initSummaryInstance($btn, listId);
+        });
+    }
+
+    // Backwards-compatible single-instance usage (Finder / Readings)
+    const $legacyButton = $('#summarizeBtn');
+    if ($legacyButton.length) {
+        initSummaryInstance($legacyButton, null);
+    }
 });

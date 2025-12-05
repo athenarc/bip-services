@@ -808,7 +808,9 @@ $section_profiles = ($section === "profiles");
                     ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-show_missing_papers'])
                     ?>
 
-                
+                <!-- 7) Enable AI results summarization -->
+                <?= $form->field($elementContributionsModel, 'enable_summary')
+                    ->checkbox(['class' => ['green-checkbox'], 'id' => 'elementcontributions-enable_summary']) ?>
 
                 <!-- 8) Pre-applied filters -->
                 <?php
