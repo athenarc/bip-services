@@ -48,6 +48,7 @@ class ResultItem extends Widget
     public $involved;
     public $is_oa;
     public $type;
+    public $pubmed_types;
     public $search_context;
     public $repo_url;
     public $concepts;
@@ -60,6 +61,7 @@ class ResultItem extends Widget
     public $paper_rank;
     public $enable_like_dislike_records;
     public $enable_like_dislike_annotations;
+    public $user_vote_record; // 'like', 'dislike', or null
     
     /*
      * Widget initialisation a.k.a. setting widget properties

@@ -163,6 +163,7 @@ class Scholar extends Model
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->where(['internal_id' => $ids_subquery])
+            ->groupBy('internal_id')
             ->all();
         
         // add impact classes

@@ -304,11 +304,9 @@ if ($in_space) {
                             // Calculate paper_rank based on pagination
                             $current_page = $results['pagination']->page + 1; // Pagination is 0-indexed
                             $page_size = $results['pagination']->pageSize;
-                            $position_in_page = 0;
                             
-                            foreach($results['rows'] as $result ) {
-                                $position_in_page++;
-                                $paper_rank = ($current_page - 1) * $page_size + $position_in_page;
+                            foreach($results['rows'] as $index => $result ) {
+                                $paper_rank = ($current_page - 1) * $page_size + ($index + 1);
                                 
                                 echo ResultItem::widget([
                                     "impact_indicators" => $impact_indicators,
@@ -334,10 +332,12 @@ if ($in_space) {
                                     "cc_class" => $result["cc_class"],
                                     "is_oa" => $result["is_oa"],
                                     "type" => $result["type"],
+                                    "pubmed_types" => $result["pubmed_types"],
                                     "search_context" =>  $result["search_context"],
                                     "repo_url" => $result["zenodo_repo_url"] ?? null,
                                     "show" => [
                                         "concepts" => true,
+                                        "pubmed_types" => !$in_space || $space_model->has_pubmed_types,
                                         "annotations" => true,
                                         "relations" => true,
                                         "open_access" => true,
@@ -349,7 +349,8 @@ if ($in_space) {
                                     "space_annotation_db" => $space_model->annotation_db,
                                     "paper_rank" => $paper_rank,
                                     "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false,
-                                    "enable_like_dislike_annotations" => $space_model->enable_like_dislike_annotations ?? false
+                                    "enable_like_dislike_annotations" => $space_model->enable_like_dislike_annotations ?? false,
+                                    "user_vote_record" => $user_votes[$result["internal_id"]] ?? null
                                 ]);
                             } ?>
                         </div>

@@ -50,12 +50,12 @@ $item = $this->context;
             </div>
 
             <div class="col-md-4 col-lg-3 text-right">
-                <div class="citation-impact-icons">
+                <div class="version-impact-icons-wrapper">
                     <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <div class="version-link-wrapper">
+                        <span class="version-link-wrapper">
                             <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
                                 Found <?= $item->dois_num ?> versions</a>
-                        </div>
+                        </span>
                     <?php endif; ?>
                     
                     <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -67,7 +67,6 @@ $item = $this->context;
                                         'impulse_score' => $item->imp_score,
                                         'cc_score' => $item->cc_score,
                                         'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                         ]);?>
                 </div>
             </div>
@@ -106,28 +105,44 @@ $item = $this->context;
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'],2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);"></i></span>
-                                <span class="concept-divider">
-                                    <span style="color: #808080;">|</span> 
-                                    <?= ImpactIcons::widget([
-                                        'popularity_class' => $concept['pop_class'],
-                                        'influence_class' => $concept['inf_class'],
-                                        'impulse_class' => $concept['imp_class'],
-                                        'cc_class' => $concept['cc_class'],
-                                        'popularity_score' => $item->pop_score,
-                                        'influence_score' => $item->inf_score,
-                                        'impulse_score' => $item->imp_score,
-                                        'cc_score' => $item->cc_score,
-                                        'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false],
-                                    ]);?>
-                                </span>
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
+                                    'popularity_class' => $concept['pop_class'],
+                                    'influence_class' => $concept['inf_class'],
+                                    'impulse_class' => $concept['imp_class'],
+                                    'cc_class' => $concept['cc_class'],
+                                    'popularity_score' => $item->pop_score,
+                                    'influence_score' => $item->inf_score,
+                                    'impulse_score' => $item->imp_score,
+                                    'cc_score' => $item->cc_score,
+                                    'impact_indicators' => $item->impact_indicators,
+                                ]);?>
                             </span>
                         <?php }
                     } ?>
                 </div>
             </div>
         <?php endif; ?>
-        
+        <?php if (isset($item->show["pubmed_types"]) && $item->show['pubmed_types']): ?>
+            <!-- pubmed_types -->
+                <div id="res_<?= $item->internal_id ?>_pub" class="tag-region grey-text">
+                    <div class="bootstrap-tagsinput">
+                    <i class="fa-solid fa-book-medical fa-fw" aria-hidden="true" title="NLM types"></i>
+
+                        <?php if (empty($item->pubmed_types)): ?>
+                            &nbspN/A
+                        <?php else: ?>
+                            <?php foreach ($item->pubmed_types as $pubmed_type) { ?>
+                                <span class="tag label">
+                                    <span ><?= $pubmed_type['name'] ?> </span>
+                                </span>
+                            <?php } ?>
+                        <?php endif; ?>
+
+
+                    </div>
+                </div>
+        <?php endif; ?>
         <?php if (!empty($item->repo_url)): ?>
             <div class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
@@ -363,22 +378,39 @@ $item = $this->context;
             // Show like/dislike buttons if:
             // 1. User is logged in
             // 2. Feature is enabled for the space
-            // 3. Space is not in exclusion list
-            $excluded_spaces = ['mirpub', 'cancer-pilot-ag'];
             $show_like_dislike = !Yii::$app->user->isGuest 
-                && isset($item->enable_like_dislike_records) 
-                && $item->enable_like_dislike_records 
-                && !in_array($item->space_url_suffix, $excluded_spaces);
+                && ($item->enable_like_dislike_records ?? false);
             ?>
             <?php if ($show_like_dislike): ?>
-                <!-- like/dislike buttons -->
+                <!-- like/dislike (relevant/irrelevant) buttons -->
                 <div class="flex-b-18 no-white-space text-center">
                     <div class="like-dislike-buttons" data-paper-id="<?= $item->internal_id ?>" data-paper-rank="<?= isset($item->paper_rank) ? $item->paper_rank : '' ?>">
-                        <button class="btn-like btn btn-default btn-xs fs-inherit grey-link" type="button" title="Like">
-                            <i class="fa-regular fa-thumbs-up"></i>
+                        <?php 
+                        // Determine button states based on user_vote_record
+                        $base_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_style = 'style="background-color: var(--main-color); color: white;"';
+
+                        $like_class = $base_btn_class;
+                        $dislike_class = $base_btn_class;
+                        $like_style = '';
+                        $dislike_style = '';
+
+                        if (isset($item->user_vote_record)) {
+                            if ($item->user_vote_record === 'like') {
+                                $like_class = $active_btn_class;
+                                $like_style = $active_style;
+                            } elseif ($item->user_vote_record === 'dislike') {
+                                $dislike_class = $active_btn_class;
+                                $dislike_style = $active_style;
+                            }
+                        }
+                        ?>
+                        <button class="btn-like <?= $like_class ?>" type="button" title="This result is relevant to my search" <?= $like_style ?>>
+                            <i class="fa-solid fa-check"></i>
                         </button>
-                        <button class="btn-dislike btn btn-default btn-xs fs-inherit grey-link" type="button" title="Dislike">
-                            <i class="fa-regular fa-thumbs-down"></i>
+                        <button class="btn-dislike <?= $dislike_class ?>" type="button" title="This result is irrelevant to my search" <?= $dislike_style ?>>
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </div>

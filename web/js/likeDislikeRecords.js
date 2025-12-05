@@ -13,39 +13,33 @@ $(document).ready(function () {
     function applyVoteState(container, action) {
         const $likeBtn = container.find('.btn-like');
         const $dislikeBtn = container.find('.btn-dislike');
-        const $likeIcon = $likeBtn.find('i');
-        const $dislikeIcon = $dislikeBtn.find('i');
         
-        // Reset both buttons to inactive state
-        $likeBtn.removeClass('btn-danger').addClass('btn-default grey-link');
+        // Reset both buttons to inactive state (only colors, icons stay the same)
+        $likeBtn.removeClass('btn-danger active-like').addClass('btn-default grey-link');
         $likeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $likeIcon.removeClass('fa-solid').addClass('fa-regular');
         
-        $dislikeBtn.removeClass('btn-danger').addClass('btn-default grey-link');
+        $dislikeBtn.removeClass('btn-danger active-dislike').addClass('btn-default grey-link');
         $dislikeBtn.css({
             'background-color': '',
             'color': ''
         });
-        $dislikeIcon.removeClass('fa-solid').addClass('fa-regular');
         
         // Apply active state if action is set
         if (action === 'like') {
-            $likeBtn.removeClass('btn-default grey-link');
+            $likeBtn.removeClass('btn-default grey-link').addClass('active-like');
             $likeBtn.css({
                 'background-color': 'var(--main-color)',
                 'color': 'white'
             });
-            $likeIcon.removeClass('fa-regular').addClass('fa-solid');
         } else if (action === 'dislike') {
-            $dislikeBtn.removeClass('btn-default grey-link').addClass('btn-danger');
+            $dislikeBtn.removeClass('btn-default grey-link').addClass('active-dislike');
             $dislikeBtn.css({
-                'background-color': '',
+                'background-color': 'var(--main-color)',
                 'color': 'white'
             });
-            $dislikeIcon.removeClass('fa-regular').addClass('fa-solid');
         }
     }
     
@@ -88,9 +82,13 @@ $(document).ready(function () {
             return;
         }
         
-        // Check if this button is already active (icon has fa-solid class)
-        const icon = buttonElement.find('i');
-        const isActive = icon.hasClass('fa-solid');
+        // Check if this button is already active (based on custom active classes)
+        let isActive = false;
+        if (voteType === 'like') {
+            isActive = buttonElement.hasClass('active-like');
+        } else if (voteType === 'dislike') {
+            isActive = buttonElement.hasClass('active-dislike');
+        }
         
         // If active, remove vote; otherwise, save/update vote
         const remove = isActive ? 1 : 0;
@@ -146,60 +144,6 @@ $(document).ready(function () {
         });
     }
     
-    /**
-     * Load initial vote states for all papers on the page
-     */
-    function loadInitialVoteStates() {
-        // Collect all paper IDs from like-dislike-buttons containers
-        const paperIds = [];
-        $('.like-dislike-buttons').each(function() {
-            const paperId = $(this).data('paper-id');
-            if (paperId) {
-                paperIds.push(paperId);
-            }
-        });
-        
-        if (paperIds.length === 0) {
-            return; // No buttons on page
-        }
-        
-        // Get space_url_suffix
-        const spaceUrlSuffix = $('#space_url_suffix').val() || '';
-        
-        if (!spaceUrlSuffix) {
-            return; // No space, can't load votes
-        }
-        
-        // Get CSRF token
-        const csrfToken = $('meta[name="csrf-token"]').attr("content");
-        
-        // Send AJAX request to get user votes
-        $.ajax({
-            url: `${appBaseUrl}/site/get-user-votes`,
-            type: 'POST',
-            data: {
-                paper_ids: paperIds,
-                space_url_suffix: spaceUrlSuffix,
-                _csrf: csrfToken
-            },
-            success: function(response) {
-                if (response.success && response.votes) {
-                    // Apply vote states to each container
-                    $('.like-dislike-buttons').each(function() {
-                        const container = $(this);
-                        const paperId = container.data('paper-id');
-                        const action = response.votes[paperId] || null;
-                        applyVoteState(container, action);
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error loading vote states:', error);
-                // Fail silently - buttons will just show as inactive
-            }
-        });
-    }
-    
     // Handle like button clicks
     $(document).on('click', '.btn-like', function(e) {
         e.preventDefault();
@@ -211,8 +155,5 @@ $(document).ready(function () {
         e.preventDefault();
         handleVote($(this), 'dislike');
     });
-    
-    // Load initial vote states on page load
-    loadInitialVoteStates();
 });
 

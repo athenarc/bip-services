@@ -71,6 +71,12 @@ class ScholarNavbar extends Widget
                     'encode' => false,
                     'options' => ['class' => 'navbar-icon'],
                 ] : '',
+                // Report button - only show if not the current user's profile and user is logged in
+                (!$this->edit_perm && !Yii::$app->user->isGuest) ? [
+                    'label' => '<span data-toggle="modal" data-target="#reportProfileModal" title="Report this profile"><i class="fa fa-flag light-grey-link"></i> <span class="visible-xs-inline"> Report</span></span>',
+                    'encode' => false,
+                    'options' => ['class' => 'navbar-icon'],
+                ] : '',
                 [
                     'label' => '<i class="fa fa-cog light-grey-link"></i> <span class="visible-xs-inline"> More options</span>',
                     'encode' => false,

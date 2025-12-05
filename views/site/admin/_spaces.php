@@ -127,6 +127,15 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
     ?>
 
 
+    <label class="control-label">NLM Types</label>   
+    <?= $form->field($model, 'has_pubmed_types', [
+        'enableClientValidation' => false, 
+        'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}</div>\n{error}\n{hint}"
+        ])->checkbox([],
+                false // IMPORTANT: render input and label separately so template {input}{label} works
+            ) 
+    ?>
+
     <?= $form->field($model, 'start_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
     <?= $form->field($model, 'end_year')->textInput(['type' => 'number','class' => 'search-box form-control']) ?>
 
@@ -248,7 +257,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
             'widgetBody' => '.container-items', // required: css class selector
             'widgetItem' => '.item', // required: css class
-            'limit' => 4, // the maximum times, an element can be cloned (default 999)
+            'limit' => 10, // the maximum times, an element can be cloned (default 999)
             'min' => 0, // 0 or 1 (default 1)
             'insertButton' => '.add-item', // css class
             'deleteButton' => '.remove-item', // css class

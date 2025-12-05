@@ -1,102 +1,51 @@
-Yii 2 Basic Project Template
-============================
+BIP! Services
+=============
 
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
+The suite **BIP! Services** is a suite of services designed to support researchers and other stakeholders with scientific knowledge discovery, research assessment, and other use cases related to their everyday routines.  
+The suite comprises four services — **Finder**, **Scholar**, **Readings**, and **Spaces** — each offering unique functionalities addressed to professionals conducting research across all disciplines and to other stakeholders such as funders, research managers, and technologists.  
+For more information regarding BIP! Services visit the public site at https://bip.imsi.athenarc.gr/
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+## Overview of the services
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
+- **Finder**: Search and exploration interface for scholarly works, powered by citation-based indicators and rich filtering.
+- **Scholar**: Researcher-oriented views and profiles, focused on summarizing and communicating individual research outputs using the same indicators and concepts as Finder.
+- **Readings**: Personalized reading/bookmarking environment for managing papers, reading status, and tags, integrated with the core impact indicators.
+- **Spaces**: Configurable, space-specific instances (e.g. pilots, domains, projects) that control defaults, filters, theming, and enable features such as like/dislike records.
 
-DIRECTORY STRUCTURE
--------------------
+## Technology and structure
 
-      assets/             contains assets definition
-      commands/           contains console commands (controllers)
-      config/             contains application configurations
-      controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
-      runtime/            contains files generated during runtime
-      tests/              contains various tests for the basic application
-      vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
-      web/                contains the entry script and Web resources
+This repository contains a [Yii 2](https://www.yiiframework.com/)–based PHP web application with:
 
+- `config/` – application configuration (DB, params, URL rules, etc.)
+- `controllers/` – controllers for **Finder**, **Scholar**, **Readings**, **Spaces**, and shared pages
+- `models/` – ActiveRecord models (e.g. `Article`, `Spaces`, `LikeDislikeRecords`, user-related models)
+- `views/` – view templates for the different services (e.g. `views/site/index.php`, `views/scholar/*`, `views/readings/*`)
+- `components/` – reusable widgets and helpers (e.g. `ResultItem`, `BookmarkIcon`)
+- `web/` – entry script (`index.php`), assets, JS, and CSS
 
+## How to cite
 
-REQUIREMENTS
-------------
+We kindly ask that any published research using **BIP! Finder**, **BIP! Scholar**, **BIP! DB**, or **BIP! NDR** cites the corresponding papers listed below:
 
-The minimum requirement by this project template that your Web server supports PHP 5.4.0.
+- **BIP! Finder**  
+  T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas:  
+  *BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.*  
+  Proceedings of the 28th ACM International Conference on Information and Knowledge Management (CIKM), 2019
 
+- **BIP! Scholar**  
+  T. Vergoulis, S. Chatzopoulos, K. Vichos, I. Kanellos, A. Mannocci, N. Manola, P. Manghi:  
+  *BIP! Scholar: A Service to Facilitate Fair Researcher Assessment.*  
+  Joint Conference on Digital Libraries (JCDL), 2022
 
-INSTALLATION
-------------
+- **BIP! DB**  
+  T. Vergoulis, I. Kanellos, C. Atzori, A. Mannocci, S. Chatzopoulos, S. La Bruzzo, N. Manola, P. Manghi:  
+  *BIP! DB: A Dataset of Impact Measures for Scientific Publications.*  
+  International Workshop on Scientific Knowledge: Representation, Discovery, and Assessment (Sci-K) @ The Web Conf, 2021
 
-### Install from an Archive File
+- **BIP! NDR**  
+  P. Koloveas, S. Chatzopoulos, C. Tryfonopoulos, T. Vergoulis:  
+  *BIP! NDR (NoDoiRefs): A Dataset of Citations From Papers Without DOIs in Computer Science Conferences and Workshops.*  
+  International Conference on Theory and Practice of Digital Libraries (TPDL), 2023
 
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
+Thank you for supporting these tools and datasets by acknowledging their respective publications.
 
-Set cookie validation key in `config/web.php` file to some random secret string:
-
-```php
-'request' => [
-    // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-    'cookieValidationKey' => '<secret random string goes here>',
-],
-```
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this project template using the following command:
-
-~~~
-php composer.phar global require "fxp/composer-asset-plugin:~1.1.1"
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-CONFIGURATION
--------------
-
-### Database
-
-Edit the file `config/db.php` with real data, for example:
-
-```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
-```
-
-**NOTES:**
-- Yii won't create the database for you, this has to be done manually before you can access it.
-- Check and edit the other files in the `config/` directory to customize your application as required.
-- Refer to the README in the `tests` directory for information specific to basic application tests.

@@ -106,22 +106,31 @@ if ($space_model->enable_like_dislike_annotations) {
             <b><?= $article->getAttributeLabel('abstract') ?>:</b> <?= $article->abstract ?>
         </div> 
 
-        <!--Impact-->
-        <?= ImpactIcons::widget([
-            'popularity_class'   => $article->pop_class,
-            'influence_class'    => $article->inf_class,
-            'impulse_class'      => $article->imp_class,
-            'cc_class'           => $article->cc_class,
-            'popularity_score'   => $article->attrank,
-            'influence_score'    => $article->pagerank,
-            'impulse_score'      => $article->{'3y_cc'},
-            'cc_score'           => $article->citation_count,
-            'impact_indicators'  => $indicators,
-            'num_likes' => $article->getNumLikes(),
-            'num_views' => $article->getGuestViews() + $article->getUserViews(),
-            'options' => ['showScoreLabel' => true],
-        ]) ?>
-        
+        <div class='article-info'>
+            <b>Impact:</b>
+            <?= ImpactIcons::widget([
+                'popularity_class'   => $article->pop_class,
+                'influence_class'    => $article->inf_class,
+                'impulse_class'      => $article->imp_class,
+                'cc_class'           => $article->cc_class,
+                'popularity_score'   => $article->attrank,
+                'influence_score'    => $article->pagerank,
+                'impulse_score'      => $article->{'3y_cc'},
+                'cc_score'           => $article->citation_count,
+                'impact_indicators'  => $indicators,
+                'options' => ['show_score_label' => true],
+            ]) ?>
+
+            <span>
+                <b>&nbsp;/ Attention:</b>
+                <span title="Bookmarks">
+                    <i class="fa fa-bookmark"></i> <span><?= $article->getNumLikes() ?></span>
+                </span>
+                <span title="Views">
+                    <i class="fa fa-eye"></i> <span><?= $article->getGuestViews() + $article->getUserViews() ?></span>
+                </span>
+            </span>
+        </div>
 
         <div class='article-info tag-region'>
 
@@ -139,16 +148,14 @@ if ($space_model->enable_like_dislike_annotations) {
                                     data-toggle="popover" 
                                     data-placement="auto" 
                                     title="<b><?= $concept['display_name'] ?></b>" 
-                                    data-content="<?= $data_content ?>"
-                                    style="display: inline-block; line-height: 0.5; position: relative; top: 0.5px;">
+                                    data-content="<?= $data_content ?>">
                                     <?= $concept['display_name'] ?>
                             </span>
                         
                             <span   class= "concept-confidence" 
                                     title = "Confidence: <?= round($concept['concept_score'],2) ?>" >
                                 <i  class="fa-concept-confidence fa-solid fa-circle" 
-                                    style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);
-                                display: inline-block; position: relative; top: 6px;">
+                                    style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);">
                                 </i>
                             </span>
                         </span>

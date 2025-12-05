@@ -9,6 +9,7 @@ class ElementNarrativesForm extends Model
     public $title;
     public $heading_type;
     public $description;
+    public $tip;
     public $hide_when_empty;
     public $limit_value;
     public $limit_type;
@@ -17,6 +18,7 @@ class ElementNarrativesForm extends Model
     {
         return [
             [['description'], 'string'],
+            [['tip'], 'string'],
             [['title'], 'string', 'max' => 1024],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['hide_when_empty'], 'boolean'],

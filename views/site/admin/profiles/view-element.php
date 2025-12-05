@@ -225,6 +225,7 @@ $heading_type_view = [
                 'title',
                 $heading_type_view,
                 'description:html',
+                'tip:html',
                 [
                     'attribute' => 'limit_type',
                     'value' => function ($model) {

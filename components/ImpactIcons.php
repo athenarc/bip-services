@@ -47,6 +47,7 @@ class ImpactIcons extends Widget
     public $cc_class;
     // Necessary input only for details view
     // options = [mode=>, header=> (optional), css_classes=> (optional)]
+    // options = [show_score_label=>]
     public $options;
 
     // Properties calculated inside the class
@@ -68,8 +69,6 @@ class ImpactIcons extends Widget
     public $cc_class_message_ext;
     public $cc_popover_content;
     public $for_print;
-    public $num_likes;
-    public $num_views;
 
     /*
      * Widget initialisation a.k.a. setting widget properties
@@ -130,12 +129,9 @@ class ImpactIcons extends Widget
      */
     public function run()
     {
-        $showScoreLabel = isset($this->options['showScoreLabel']) && $this->options['showScoreLabel'];
 
         $array_var = [
             'has_scores_classes' => $this->has_scores_classes,
-            'num_likes' => $this->num_likes,
-            'num_views' => $this->num_views
         ];
         
 
@@ -190,9 +186,7 @@ class ImpactIcons extends Widget
             return $this->render('detailed_impact_icons', array_merge($array_var, $array_options));
         }
 
-        return $this->render('impact_icons', array_merge($array_var, [
-            'showScoreLabel' => $showScoreLabel
-        ]));
+        return $this->render('impact_icons', array_merge($array_var, $array_options));
         
     }
 

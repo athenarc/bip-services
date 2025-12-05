@@ -1,0 +1,69 @@
+/* Mini TOC for scholar profile only */
+#profile-toc-wrap .sidebar {
+    position: fixed;
+    top: 140px;
+    left: 24px; /* moved slightly inward from the edge */
+    width: 180px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    background: transparent;
+    z-index: 1;
+}
+
+#profile-toc-wrap .sidebar-body {
+    border-right: 1px solid #e6e6e6;
+    padding-right: 12px;
+}
+
+#profile-toc-wrap .sidebar-body ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#profile-toc-wrap .sidebar-body ul li {
+    padding-left: 20px;
+}
+
+#profile-toc-wrap .toc-link {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 4px 0; /* larger click target */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px; /* slightly bigger text */
+    line-height: 1.4;
+}
+
+#profile-toc-wrap .toc-item:hover,
+#profile-toc-wrap .toc-link:hover {
+    color: var(--main-color);
+}
+
+/* Indentation by heading level */
+#profile-toc-wrap .toc-item.level-1 { padding-left: 0; }
+#profile-toc-wrap .toc-item.level-2 { padding-left: 10px; }
+#profile-toc-wrap .toc-item.level-3 { padding-left: 20px; }
+
+/* Main content stays in place - no margin adjustment */
+#profile-toc-wrap .main-content {
+    margin-left: 0;
+}
+
+/* Ensure anchored headings sit below the fixed header/TOC on scroll */
+/* IMPORTANT: Keep this value matching OFFSET_PROFILE in scrollToAnchor.js */
+#profile-content .section-divider h1,
+#profile-content .section-divider h2,
+#profile-content .section-divider h3 {
+    scroll-margin-top: 140px; /* Match OFFSET_PROFILE in scrollToAnchor.js - adjust together */
+}
+
+/* Hide TOC sidebar when viewport is narrow to prevent overlap with profile content */
+@media (max-width: 1600px) {
+    #profile-toc-wrap .sidebar {
+        display: none;
+    }
+}
+
+
