@@ -88,7 +88,6 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                    'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                     ]);?>
             </div>
         </div>

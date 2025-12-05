@@ -6,7 +6,6 @@ use app\components\CustomBootstrapModal;
 use bigpaulie\social\share\Share;
 use asu\tagcloud\TagCloud;
 use app\components\BookmarkIcon;
-use app\components\ImpactIcons;
 use app\components\ConceptPopover;
 use app\components\ResultItem;
 
