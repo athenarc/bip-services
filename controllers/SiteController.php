@@ -1656,7 +1656,7 @@ class SiteController extends BaseController
         // If user is guest, return empty votes
         if (Yii::$app->user->isGuest) {
             return [
-                'success' => true,
+                'success' => false,
                 'votes' => [],
             ];
         }
@@ -1667,7 +1667,8 @@ class SiteController extends BaseController
 
         if (empty($paper_id) || empty($space_url_suffix)) {
             return [
-                'success' => true,
+                'success' => false,
+                'message' => 'Missing required parameters',
                 'votes' => [],
             ];
         }
@@ -1676,7 +1677,9 @@ class SiteController extends BaseController
         $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
         if (!$space_model || !$space_model->enable_like_dislike_annotations) {
             return [
-                'success' => true,
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
                 'votes' => [],
             ];
         }

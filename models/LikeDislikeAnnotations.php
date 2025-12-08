@@ -104,7 +104,7 @@ class LikeDislikeAnnotations extends ActiveRecord
             // Update existing vote
             $vote->action = $action;
             $vote->annotation_name = $annotation_name;
-            return $vote->save(false);
+            return $vote->save();
         } else {
             // Create new vote
             $vote = new self();
@@ -114,7 +114,7 @@ class LikeDislikeAnnotations extends ActiveRecord
             $vote->annotation_name = $annotation_name;
             $vote->space_url_suffix = $space_url_suffix;
             $vote->action = $action;
-            return $vote->save(false);
+            return $vote->save();
         }
     }
 

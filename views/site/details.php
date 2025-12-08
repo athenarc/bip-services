@@ -181,11 +181,10 @@ if ($space_model->enable_like_dislike_annotations) {
                                 'has_reverse_annotation_query' => $annotation['has_reverse_query'],
                                 'paper_id' => $article->internal_id,
                                 'annotation_name' => $annotation['label'],
-                                'annotation_local_id' => $annotation['id'] ?? null,
-                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false,
-                                'theme_color' => $space_model->theme_color
+                                'annotation_id' => $annotation['id'] ?? null,
+                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false
                             ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= str_replace(['"', "\n", "\r"], ['&quot;', ' ', ' '], $annotation_content) ?>"><?= $annotation['label'] ?></span>
+                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content='<?= str_replace(["'", "\n", "\r"], ["&#39;", " ", " "], $annotation_content) ?>'><?= $annotation['label'] ?></span>
                             <?php if (!empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
                             <?php endif; ?>

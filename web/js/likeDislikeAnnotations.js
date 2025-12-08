@@ -29,17 +29,15 @@ $(document).ready(function () {
         
         // Apply active state if action is set
         if (action === 'like') {
-            const themeColor = container.data('theme-color') || 'var(--main-color)';
             $likeBtn.removeClass('btn-default grey-link').addClass('active-like-annotation');
             $likeBtn.css({
-                'background-color': themeColor,
+                'background-color': 'var(--main-color)',
                 'color': 'white'
             });
         } else if (action === 'dislike') {
-            const themeColor = container.data('theme-color') || 'var(--main-color)';
             $dislikeBtn.removeClass('btn-default grey-link').addClass('active-dislike-annotation');
             $dislikeBtn.css({
-                'background-color': themeColor,
+                'background-color': 'var(--main-color)',
                 'color': 'white'
             });
         }

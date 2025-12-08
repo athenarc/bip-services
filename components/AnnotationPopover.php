@@ -28,9 +28,8 @@ class AnnotationPopover extends Widget
     public $has_reverse_annotation_query;
     public $paper_id;
     public $annotation_name;
-    public $annotation_local_id;
+    public $annotation_id; // Local annotation identifier
     public $enable_like_dislike_annotations;
-    public $theme_color; // Space theme color for like button
     public $user_vote_annotation; // 'like', 'dislike', or null
 
 

@@ -24,14 +24,16 @@ class m251124_124829_create_like_dislike_annotations_table extends Migration
         ]);
 
         // Create indexes
-        $this->createIndex('idx_like_dislike_annotations_user_id', '{{%like_dislike_annotations}}', 'user_id');
-        $this->createIndex('idx_like_dislike_annotations_paper_id', '{{%like_dislike_annotations}}', 'paper_id');
-        $this->createIndex('idx_like_dislike_annotations_space', '{{%like_dislike_annotations}}', 'space_url_suffix');
-        $this->createIndex('idx_like_dislike_annotations_action', '{{%like_dislike_annotations}}', 'action');
+        // Unique index for lookups by all 4 fields (getUserVote, saveVote, deleteVote)
         $this->createIndex('idx_like_dislike_annotations_user_paper_annotation', '{{%like_dislike_annotations}}', ['user_id', 'paper_id', 'annotation_id', 'space_url_suffix'], true);
+        // Composite index for getting all votes for a paper (actionGetUserAnnotationVotes)
+        $this->createIndex('idx_like_dislike_annotations_user_paper_space', '{{%like_dislike_annotations}}', ['user_id', 'paper_id', 'space_url_suffix']);
 
-        // Add enable_like_dislike_annotations column to spaces table
-        $this->addColumn('{{%spaces}}', 'enable_like_dislike_annotations', $this->boolean()->notNull()->defaultValue(0)->comment('Enable like/dislike buttons for annotations'));
+        // Add enable_like_dislike_annotations column to spaces table if it doesn't exist
+        $spacesTable = \Yii::$app->db->schema->getTableSchema('{{%spaces}}');
+        if ($spacesTable !== null && !isset($spacesTable->columns['enable_like_dislike_annotations'])) {
+            $this->addColumn('{{%spaces}}', 'enable_like_dislike_annotations', $this->boolean()->notNull()->defaultValue(0)->comment('Enable like/dislike buttons for annotations'));
+        }
     }
 
     /**

@@ -182,12 +182,6 @@ $item = $this->context;
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
                             <?php 
-                            // Get theme color from space model if available
-                            $theme_color = null;
-                            if (isset($item->space_url_suffix) && !empty($item->space_url_suffix)) {
-                                $space_model = \app\models\Spaces::find()->where(['url_suffix' => $item->space_url_suffix])->one();
-                                $theme_color = $space_model ? $space_model->theme_color : null;
-                            }
                             $annotation_content = AnnotationPopover::widget([ 
                                 'data' => $annotation['data'], 
                                 'space_annotation_db' => $item->space_annotation_db, 
@@ -196,11 +190,10 @@ $item = $this->context;
                                 'has_reverse_annotation_query' => $annotation['has_reverse_query'],
                                 'paper_id' => $item->internal_id,
                                 'annotation_name' => $annotation['label'],
-                                'annotation_local_id' => $annotation['id'] ?? null,
-                                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false,
-                                'theme_color' => $theme_color
+                                'annotation_id' => $annotation['id'] ?? null,
+                                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false
                             ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= str_replace(['"', "\n", "\r"], ['&quot;', ' ', ' '], $annotation_content) ?>"><?= $annotation['label'] ?></span>
+                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content='<?= str_replace(["'", "\n", "\r"], ["&#39;", " ", " "], $annotation_content) ?>'><?= $annotation['label'] ?></span>
                             <?php if (!empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
                             <?php endif; ?>
