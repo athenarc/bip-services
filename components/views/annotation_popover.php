@@ -50,7 +50,7 @@ foreach($this->context->data as $annotation_data): ?>
         // Determine button classes & styles based on user vote
         $inactive_class = 'btn btn-default grey-link btn-xs';
         $active_class = 'btn btn-xs';
-        $active_style = "style='background-color: var(--main-color); color: white;'";
+        $active_style = 'style="background-color: var(--main-color); color: white;"';
         
         $like_class = ($user_vote_annotation === 'like') ? $active_class : $inactive_class;
         $like_style = ($user_vote_annotation === 'like') ? $active_style : '';
@@ -59,10 +59,10 @@ foreach($this->context->data as $annotation_data): ?>
     ?>
         <div style='margin-top: 5px; padding-top: 5px;'>
             <div class='like-dislike-annotation-buttons' style='text-align: right;'
-                 data-paper-id="<?= Html::encode($paper_id) ?>" 
-                 data-annotation-id="<?= Html::encode($annotation_id) ?>"
-                 data-annotation-name="<?= Html::encode($annotation_name) ?>"
-                 data-space-url-suffix="<?= Html::encode($space_url_suffix) ?>">
+                 data-paper-id='<?= Html::encode($paper_id) ?>' 
+                 data-annotation-id='<?= Html::encode($annotation_id) ?>'
+                 data-annotation-name='<?= Html::encode($annotation_name) ?>'
+                 data-space-url-suffix='<?= Html::encode($space_url_suffix) ?>'>
                 <button class="btn-like-annotation <?= $like_class ?>" type="button" title="Confirm this annotation" <?= $like_style ?>>
                     <i class="fa-solid fa-check"></i>
                 </button>
