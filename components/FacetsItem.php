@@ -37,6 +37,10 @@ class FacetsItem extends Widget
     public $for_print;
     public $selected_per_list;
     public $facets_linked_to_lists;
+    
+    // additional data needed for logic
+    public $contributions_lists;
+    public $contributions_selected_filters;
 
 
     /*
@@ -52,16 +56,50 @@ class FacetsItem extends Widget
      */
     public function run()
     {
-        // Check if this Facets box is linked to a specific Contributions List
-        $linked_id = $this->element_config['linked_contribution_element_id'] ?? null;
+        // handle linked contribution lists logic
+        if ($this->for_print && $this->contributions_lists !== null) {
+            $linkedListId = null;
+            if (is_array($this->element_config)) {
+                foreach ($this->element_config as $facetConfig) {
+                    if (is_array($facetConfig) && isset($facetConfig['linked_contribution_element_id'])) {
+                        $linkedListId = $facetConfig['linked_contribution_element_id'];
+                        break;
+                    }
+                }
+            }
 
-        if ($linked_id && isset($this->result['contributions_lists'][$linked_id])) {
-            // Overwrite result to only use the specific contribution list works
-            $this->result['papers'] = $this->result['contributions_lists'][$linked_id]['works'] ?? [];
-            $this->result['topics'] = $this->result['contributions_lists'][$linked_id]['topics'] ?? [];
-            $this->result['roles'] = $this->result['contributions_lists'][$linked_id]['roles'] ?? [];
-            $this->result['accesses'] = $this->result['contributions_lists'][$linked_id]['accesses'] ?? [];
-            $this->result['types'] = $this->result['contributions_lists'][$linked_id]['types'] ?? [];
+            if ($linkedListId !== null && isset($this->contributions_lists[$linkedListId])) {
+                $this->result = $this->contributions_lists[$linkedListId];
+            } elseif (!empty($this->contributions_lists)) {
+                $this->result = reset($this->contributions_lists);
+            } else {
+                $this->result = ['facets' => []];
+            }
+
+            $this->selected_topics = [];
+            $this->selected_roles = [];
+            $this->selected_accesses = [];
+            $this->selected_types = [];
+            
+            if ($linkedListId !== null && isset($this->contributions_selected_filters[$linkedListId])) {
+                $selectedFilters = $this->contributions_selected_filters[$linkedListId];
+                $this->selected_topics = $selectedFilters['topics'] ?? [];
+                $this->selected_roles = $selectedFilters['roles'] ?? [];
+                $this->selected_accesses = $selectedFilters['accesses'] ?? [];
+                $this->selected_types = $selectedFilters['types'] ?? [];
+            }
+        } else {
+            // Check if this Facets box is linked to a specific Contributions List (non-PDF)
+            $linked_id = $this->element_config['linked_contribution_element_id'] ?? null;
+
+            if ($linked_id && isset($this->result['contributions_lists'][$linked_id])) {
+                // Overwrite result to only use the specific contribution list works
+                $this->result['papers'] = $this->result['contributions_lists'][$linked_id]['works'] ?? [];
+                $this->result['topics'] = $this->result['contributions_lists'][$linked_id]['topics'] ?? [];
+                $this->result['roles'] = $this->result['contributions_lists'][$linked_id]['roles'] ?? [];
+                $this->result['accesses'] = $this->result['contributions_lists'][$linked_id]['accesses'] ?? [];
+                $this->result['types'] = $this->result['contributions_lists'][$linked_id]['types'] ?? [];
+            }
         }
 
         $data =[

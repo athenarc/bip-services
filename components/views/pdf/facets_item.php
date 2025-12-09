@@ -2,28 +2,6 @@
 
 use yii\helpers\Html;
 
-if (!function_exists('renderFacetSectionPdf')) {
-    function renderFacetSectionPdf($title, $facetKey, $result, $icon) {
-        if (!isset($result["facets"][$facetKey])) {
-            return;
-        }
-
-        $counts = $result["facets"][$facetKey]["counts"];
-        $options = $result["facets"][$facetKey]["options"];
-
-        echo "<div class='section'>";
-        echo "<div class='title'><i class='$icon' aria-hidden='true'></i> $title</div>";
-        echo "<ul>";
-        foreach ($options as $value => $label) {
-            $count = $counts[$value] ?? 0;
-            $label_text = is_array($label) ? $label["name"] : $label;
-            echo "<li>$label_text <span class='count'>$count</span></li>";
-        }
-        echo "</ul>";
-        echo "</div>";
-    }
-}
-
 ?>
 
 <div>
@@ -45,7 +23,22 @@ if (!function_exists('renderFacetSectionPdf')) {
             ];
             foreach ($sections as $title => $data) {
                 if (isset($element_config[$title])) {
-                    renderFacetSectionPdf($title, $data['facetKey'], $result, $data['icon']);
+                    $facetKey = $data['facetKey'];
+                    if (isset($result["facets"][$facetKey])) {
+                        $counts = $result["facets"][$facetKey]["counts"];
+                        $options = $result["facets"][$facetKey]["options"];
+                        
+                        echo "<div class='section'>";
+                        echo "<div class='title'><i class='{$data['icon']}' aria-hidden='true'></i> $title</div>";
+                        echo "<ul>";
+                        foreach ($options as $value => $label) {
+                            $count = $counts[$value] ?? 0;
+                            $label_text = is_array($label) ? $label["name"] : $label;
+                            echo "<li>$label_text <span class='count'>$count</span></li>";
+                        }
+                        echo "</ul>";
+                        echo "</div>";
+                    }
                 }
             }
             ?>

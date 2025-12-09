@@ -49,6 +49,10 @@ class IndicatorsItem extends Widget
     public $current_cv_narrative;
 
     public $element_config;
+    public $contributions_lists;
+    public $contributions_indicators;
+    public $template_elements;
+    public $missing_papers;
 
 
     /*
@@ -64,6 +68,85 @@ class IndicatorsItem extends Widget
      */
     public function run()
     {
+        // handle indicators logic
+        if ($this->for_print && $this->contributions_indicators !== null) {
+            $indicatorItems = $this->element_config;
+            $linkedListId = $indicatorItems[0]['linked_contribution_element_id'] ?? null;
+
+            $indicatorsLocal = $linkedListId !== null && isset($this->contributions_indicators[$linkedListId])
+                ? $this->contributions_indicators[$linkedListId]
+                : [];
+
+            $listResult = $linkedListId !== null && isset($this->contributions_lists[$linkedListId])
+                ? $this->contributions_lists[$linkedListId]
+                : null;
+
+            $isLinkedUserDefined = false;
+            if ($linkedListId !== null && $this->template_elements !== null) {
+                foreach ($this->template_elements as $te2) {
+                    if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linkedListId) {
+                        $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                        break;
+                    }
+                }
+            }
+
+            $hasLinkedSelection = false;
+            if ($listResult) {
+                $hasLinkedSelection = (
+                    (!empty($listResult['selected_papers']) && count($listResult['selected_papers']) > 0) ||
+                    (!empty($listResult['selected_papers_num']) && (int)$listResult['selected_papers_num'] > 0)
+                );
+            }
+
+            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                $indicatorsLocal = [
+                    'works_num' => 0,
+                    'missing_papers_num' => count($this->missing_papers ?? []),
+                    'show_missing_papers' => $listResult['show_missing_papers'] ?? true,
+                    'popular_works_count' => 0,
+                    'influential_works_count' => 0,
+                    'citations_num' => 0,
+                    'popularity' => ['number' => 0, 'exponent' => 'e0'],
+                    'influence' => ['number' => 0, 'exponent' => 'e0'],
+                    'impulse' => 0,
+                    'h_index' => 0,
+                    'i10_index' => 0,
+                    'academic_age' => '-',
+                    'responsible_academic_age' => '-',
+                    'paper_min_year' => 0,
+                    'work_types_num' => [
+                        'papers' => 0,
+                        'datasets' => 0,
+                        'software' => 0,
+                        'other' => 0,
+                    ],
+                    'openness' => [],
+                ];
+            }
+
+            // Override widget properties with computed values
+            $this->works_num = $indicatorsLocal['works_num'] ?? 0;
+            $this->missing_papers_num = $indicatorsLocal['missing_papers_num'] ?? 0;
+            $this->show_missing_works = $indicatorsLocal['show_missing_papers'] ?? true;
+            $this->popular_works_count = $indicatorsLocal['popular_works_count'] ?? 0;
+            $this->influential_works_count = $indicatorsLocal['influential_works_count'] ?? 0;
+            $this->citations = $indicatorsLocal['citations_num'] ?? 0;
+            $this->popularity = $indicatorsLocal['popularity'] ?? ['number' => 0, 'exponent' => 'e0'];
+            $this->influence = $indicatorsLocal['influence'] ?? ['number' => 0, 'exponent' => 'e0'];
+            $this->impulse = $indicatorsLocal['impulse'] ?? 0;
+            $this->h_index = $indicatorsLocal['h_index'] ?? 0;
+            $this->i10_index = $indicatorsLocal['i10_index'] ?? 0;
+            $this->academic_age = $indicatorsLocal['academic_age'] ?? '';
+            $this->paper_min_year = $indicatorsLocal['paper_min_year'] ?? 0;
+            $this->responsible_academic_age = $indicatorsLocal['responsible_academic_age'] ?? '';
+            $this->papers_num = $indicatorsLocal['work_types_num']['papers'] ?? 0;
+            $this->datasets_num = $indicatorsLocal['work_types_num']['datasets'] ?? 0;
+            $this->software_num = $indicatorsLocal['work_types_num']['software'] ?? 0;
+            $this->other_num = $indicatorsLocal['work_types_num']['other'] ?? 0;
+            $this->openness = $indicatorsLocal['openness'] ?? [];
+        }
+
         $data = Indicators::find(['level' => 'Researcher'])
         ->select(['name', 'semantics', 'intuition'])
         ->all();
