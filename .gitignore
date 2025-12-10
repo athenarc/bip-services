@@ -17,3 +17,8 @@ views/site/favorites_s.php
 web/index.php
 web/img/spaces/
 .vscode/
+.php-cs-fixer.cache
+.eslintcache
+phpstan-baseline.neon
+node_modules/
+.husky/_/

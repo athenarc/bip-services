@@ -1,0 +1,67 @@
+# PHPStan configuration for static analysis
+# PHPStan performs static analysis to catch bugs: fake method calls, wrong return types, null errors, etc.
+
+parameters:
+    # Analysis level (0-9, higher = stricter)
+    # Level 5 is a good balance for catching code issues without being too strict
+    level: 5
+    
+    # Paths to analyze
+    paths:
+        - components
+        - controllers
+        - models
+        - commands
+        - config
+        - mail
+    
+    # Exclude paths
+    excludePaths:
+        - vendor
+        - runtime
+        - web/assets
+        - tests
+        - migrations
+        - graph_stuff
+        - another_graph_stuff_bkp
+    
+    # Ignore errors in these paths (third-party code, generated files, etc.)
+    ignoreErrors:
+        # Yii2 framework patterns
+        - '#Call to an undefined method yii\\base\\Component::#'
+        - '#Access to an undefined property yii\\base\\Component::#'
+        - '#Call to an undefined method yii\\db\\ActiveRecord::#'
+        - '#Access to an undefined property yii\\db\\ActiveRecord::#'
+        - '#Call to an undefined method yii\\web\\View::#'
+        - '#Access to an undefined property yii\\web\\View::#'
+    
+    # Check missing iterable value type
+    checkMissingIterableValueType: false
+    
+    # Check too wide types
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    
+    # Report unused private properties and methods
+    reportUnmatchedIgnoredErrors: false
+    
+    # Treat PHP 7.4+ types as required
+    treatPhpDocTypesAsCertain: false
+    
+    # Check nullables
+    checkNullables: true
+    
+    # Check this type
+    checkThisOnly: false
+    
+    # Check union types
+    checkUnionTypes: true
+    
+    # Check explicit mixed
+    checkExplicitMixedMissingReturn: true
+    
+    # Check missing typehints
+    checkMissingCallableSignature: true
+    
+    # Check generic classes
+    checkGenericClassInNonGenericObjectType: true
+
