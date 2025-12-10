@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    // Type checking only - no emit
+    "noEmit": true,
+    
+    // Check JavaScript files without converting them
+    "allowJs": true,
+    "checkJs": true,
+    
+    // Target modern JavaScript
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    
+    // Strict type checking (catches type errors and bugs)
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    
+    // Additional checks
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    
+    // Skip type checking for third-party libraries
+    "skipLibCheck": true,
+    
+    // Allow default imports from modules with no default export
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    // Resolve JSON modules
+    "resolveJsonModule": true
+  },
+  "include": [
+    "web/js/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "vendor",
+    "runtime",
+    "web/assets",
+    "web/js/third-party/**/*"
+  ],
+  "typeAcquisition": {
+    "enable": true,
+    "include": [
+      "jquery",
+      "bootstrap"
+    ]
+  }
+}
+

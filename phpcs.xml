@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<ruleset name="Code Quality and Safety Rules">
+    <description>PHP_CodeSniffer configuration focused on code quality, safety, and best practices. Formatting is handled by PHP CS Fixer.</description>
+    
+    <!-- Include the whole project -->
+    <file>.</file>
+    
+    <!-- Exclude directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/runtime/*</exclude-pattern>
+    <exclude-pattern>*/web/assets/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/migrations/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    
+    <!-- Basic PSR-1 rules (file structure, not formatting) -->
+    <rule ref="PSR1.Files.SideEffects"/>
+    <rule ref="PSR1.Classes.ClassDeclaration"/>
+    
+    <!-- Code Quality and Safety Rules -->
+    
+    <!-- Code Analysis - catch bugs and issues -->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+    <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
+    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
+    <rule ref="Generic.CodeAnalysis.JumbledIncrementer"/>
+    <rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>
+    
+    <!-- Documentation Quality -->
+    <rule ref="Generic.Commenting.DocComment"/>
+    <rule ref="Generic.Commenting.Todo"/>
+    
+    <!-- Control Structure Safety -->
+    <rule ref="Generic.ControlStructures.InlineControlStructure"/>
+    
+    <!-- Naming Conventions -->
+    <rule ref="Generic.NamingConventions.ConstructorName"/>
+    <rule ref="Generic.NamingConventions.CamelCapsFunctionName"/>
+    
+    <!-- PHP Best Practices -->
+    <rule ref="Generic.PHP.DeprecatedFunctions"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions"/>
+    <rule ref="Generic.PHP.LowerCaseKeyword"/>
+    <rule ref="Generic.PHP.LowerCaseConstant"/>
+    <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+    
+    <!-- String Safety -->
+    <rule ref="Generic.Strings.UnnecessaryStringConcat"/>
+    
+    <!-- Prevent common code issues and security problems -->
+    <rule ref="Squiz.Commenting.FunctionComment"/>
+    <rule ref="Squiz.Commenting.VariableComment"/>
+    <rule ref="Squiz.PHP.DisallowMultipleAssignments"/>
+    <rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops"/>
+    <rule ref="Squiz.PHP.Eval"/>
+    <rule ref="Squiz.PHP.ForbiddenFunctions"/>
+    <rule ref="Squiz.PHP.LowercasePHPFunctions"/>
+    <rule ref="Squiz.PHP.NonExecutableCode"/>
+    <rule ref="Squiz.PHP.DiscouragedFunctions"/>
+    <rule ref="Squiz.PHP.GlobalKeyword"/>
+    <rule ref="Squiz.Scope.MethodScope"/>
+    <rule ref="Squiz.Scope.StaticThisUsage"/>
+    
+    <!-- Security and Safety -->
+    <rule ref="Generic.PHP.NoSilencedErrors"/>
+    <rule ref="Squiz.PHP.Eval"/>
+    
+    <!-- Note: All formatting rules (spacing, indentation, braces, etc.) 
+         are handled by PHP CS Fixer, not PHP_CodeSniffer -->
+    
+    <!-- Severity levels -->
+    <severity>5</severity>
+    
+    <!-- Show progress -->
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg value="p"/>
+</ruleset>
+
