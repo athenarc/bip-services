@@ -1,14 +1,18 @@
 /**
  * ESLint configuration for vanilla JavaScript
- * 
+ *
  * This configuration enforces coding standards and catches common code quality issues.
  */
 
 module.exports = {
+    ignorePatterns: [
+        'web/js/third-party/**',
+    ],
     env: {
         browser: true,
         es2021: true,
         jquery: true,
+        node: true, // For ESLint config file itself
     },
     extends: [
         'eslint:recommended',
@@ -22,6 +26,7 @@ module.exports = {
         'Yii': 'readonly',
         'jQuery': 'readonly',
         '$': 'readonly',
+        'appBaseUrl': 'readonly',
         // Chart.js
         'Chart': 'readonly',
         // D3
@@ -45,7 +50,7 @@ module.exports = {
     },
     rules: {
         // Code quality rules to catch common issues
-        
+
         // Best practices
         'no-console': 'warn', // Warn about console.log statements
         'no-debugger': 'error',
@@ -67,7 +72,7 @@ module.exports = {
         'radix': 'error',
         'wrap-iife': ['error', 'any'],
         'yoda': 'error',
-        
+
         // Variables
         'no-undef': 'error',
         'no-unused-vars': ['error', {
@@ -78,7 +83,7 @@ module.exports = {
             'functions': false,
             'classes': false,
         }],
-        
+
         // Stylistic issues
         'indent': ['error', 4, {
             'SwitchCase': 1,
@@ -185,7 +190,7 @@ module.exports = {
             'maxBOF': 0,
         }],
         'no-tabs': 'error',
-        
+
         // ES6 features (if used)
         'arrow-body-style': ['error', 'as-needed'],
         'arrow-parens': ['error', 'as-needed'],
@@ -193,7 +198,7 @@ module.exports = {
         'prefer-const': 'warn',
         'prefer-arrow-callback': 'warn',
         'prefer-template': 'warn',
-        
+
         // Common code issues
         'no-empty': 'error',
         'no-empty-function': 'warn',
@@ -208,7 +213,7 @@ module.exports = {
         'no-unreachable': 'error',
         'use-isnan': 'error',
         'valid-typeof': 'error',
-        
+
         // JSHint compatibility (for legacy code)
         'eqeqeq': ['error', 'always'],
         'no-caller': 'error',
@@ -218,15 +223,5 @@ module.exports = {
         'no-script-url': 'error',
         'no-shadow-restricted-names': 'error',
     },
-    overrides: [
-        {
-            // Third-party libraries should be less strict
-            files: ['web/js/third-party/**/*.js'],
-            rules: {
-                'no-undef': 'off',
-                'no-unused-vars': 'off',
-            },
-        },
-    ],
 };
 

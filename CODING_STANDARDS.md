@@ -58,7 +58,7 @@ npm run lint:php:fix       # Fix
 # Code quality (detection only)
 npm run lint:phpcs
 
-# Static analysis - AI detector (detection only)
+# Static analysis (detection only)
 npm run lint:phpstan
 ```
 
@@ -69,23 +69,37 @@ npm run lint:phpstan
 npm run lint:js            # Check
 npm run lint:js:fix        # Fix
 
-# Type checking - AI detector (detection only)
+# Type checking (detection only)
 npm run lint:js:types
 ```
 
 ### All Tools
 
 ```bash
-npm run lint:all
+npm run lint:all        # Check entire codebase (use sparingly)
+npm run lint:changed    # Check all changed files (staged + unstaged since last commit)
 ```
 
-## Pre-commit Hooks
+**Recommended workflow:**
+- Pre-commit hooks run automatically on staged files
+- Use `lint:changed` to check what you've modified (before or after staging)
+- Use `lint:all` only when you want to check the entire codebase
 
-Automatically runs:
-- ESLint (auto-fix) on JavaScript files
-- PHP CS Fixer (auto-fix) on PHP files
+## Pre-commit Hooks vs CI/CD
 
-**Note:** TypeScript checking is not in pre-commit (can be slow). Runs on CI only.
+ESLint, PHP CS Fixer, and PHP_CodeSniffer run in pre-commit hook.
+
+All other tools run in CI pipeline for the entire codebase.
+
+### Manual Checks
+
+**For local development:**
+```bash
+npm run lint:changed    # Check only files you've modified
+npm run lint:all        # Check entire codebase (use before pushing)
+```
+
+**Note:** Pre-commit hooks only check staged files, so existing code is left as-is. This allows gradual adoption while CI ensures full codebase quality.
 
 ## IDE Integration
 

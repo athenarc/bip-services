@@ -4,17 +4,19 @@
   "description": "Yii2 project with code quality tools",
   "private": true,
   "scripts": {
-    "lint:js": "eslint web/js/**/*.js --ext .js",
-    "lint:js:fix": "eslint web/js/**/*.js --ext .js --fix",
+    "lint:js": "eslint 'web/js/**/*.js' 'web/js/*.js' --ext .js",
+    "lint:js:fix": "eslint 'web/js/**/*.js' 'web/js/*.js' --ext .js --fix",
     "lint:js:types": "tsc --noEmit",
     "lint:php": "vendor/bin/php-cs-fixer fix --dry-run --diff",
     "lint:php:fix": "vendor/bin/php-cs-fixer fix",
     "lint:phpcs": "vendor/bin/phpcs",
     "lint:phpstan": "vendor/bin/phpstan analyse",
     "lint:all": "npm run lint:js && npm run lint:js:types && npm run lint:php && npm run lint:phpcs && npm run lint:phpstan",
+    "lint:changed": "bash -c \"(git diff --name-only --diff-filter=ACMR HEAD; git diff --cached --name-only --diff-filter=ACMR) | grep -E '\\\\.(js|php)$' | grep -v 'web/js/third-party/' | sort -u | while read file; do echo \\\"Checking: \\$file\\\"; if [[ \\$file == *.js ]]; then eslint --fix \\\"\\$file\\\" || true; elif [[ \\$file == *.php ]]; then vendor/bin/php-cs-fixer fix \\\"\\$file\\\" || true; vendor/bin/phpcs \\\"\\$file\\\" || true; vendor/bin/phpstan analyse \\\"\\$file\\\" || true; fi; done\"",
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.33",
     "eslint": "^8.57.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
@@ -24,9 +26,12 @@
     "web/js/**/*.js": [
       "eslint --fix"
     ],
+    "web/js/*.js": [
+      "eslint --fix"
+    ],
     "*.php": [
-      "vendor/bin/php-cs-fixer fix"
+      "vendor/bin/php-cs-fixer fix",
+      "vendor/bin/phpcs"
     ]
   }
 }
-
