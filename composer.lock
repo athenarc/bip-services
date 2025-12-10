@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e6d87c991a20bf057b47be29367cc08",
+    "content-hash": "900458f262b93a13db57b4a7a05e3ceb",
     "packages": [
         {
             "name": "alexander-suter/yii2-tag-cloud",
@@ -1250,49 +1250,6 @@
                 "random"
             ],
             "time": "2020-10-15T08:29:30+00:00"
-        },
-        {
-            "name": "ricco/yii2-ticket",
-            "version": "2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ricco381/yii2-ticket.git",
-                "reference": "8b771939702dde9f835944a2e5248f90113c3a5e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ricco381/yii2-ticket/zipball/8b771939702dde9f835944a2e5248f90113c3a5e",
-                "reference": "8b771939702dde9f835944a2e5248f90113c3a5e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "ricco\\ticket\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "ricco381",
-                    "email": "ricco381@gmail.com"
-                }
-            ],
-            "description": "A ticket system for website",
-            "homepage": "https://bitbucket.org/Ricco381/yii2-ticket/src",
-            "keywords": [
-                "Ticket System",
-                "ricco",
-                "yii2",
-                "yii2-ticket"
-            ],
-            "time": "2018-12-12T16:54:37+00:00"
         },
         {
             "name": "sammaye/yii2-solr",
