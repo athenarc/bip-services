@@ -34,9 +34,8 @@ parameters:
         - '#Access to an undefined property yii\\db\\ActiveRecord::#'
         - '#Call to an undefined method yii\\web\\View::#'
         - '#Access to an undefined property yii\\web\\View::#'
-    
-    # Check missing iterable value type
-    checkMissingIterableValueType: false
+        # Ignore missing iterable value types (maintains previous behavior)
+        - identifier: missingType.iterableValue
     
     # Check too wide types
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
