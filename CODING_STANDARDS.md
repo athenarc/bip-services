@@ -85,9 +85,9 @@ npm run lint:changed    # Check all changed files (staged + unstaged since last 
 - Use `lint:changed` to check what you've modified (before or after staging)
 - Use `lint:all` only when you want to check the entire codebase
 
-## Pre-commit Hooks vs CI/CD
+## Pre-commit Hooks vs CI
 
-ESLint, PHP CS Fixer, and PHP_CodeSniffer run in pre-commit hook.
+ESLint and PHP CS Fixer run in pre-commit hook.
 
 All other tools run in CI pipeline for the entire codebase.
 
@@ -99,7 +99,7 @@ npm run lint:changed    # Check only files you've modified
 npm run lint:all        # Check entire codebase (use before pushing)
 ```
 
-**Note:** Pre-commit hooks only check staged files, so existing code is left as-is. This allows gradual adoption while CI ensures full codebase quality.
+**Note:** Pre-commit hooks only check staged files, so existing code is left as-is; this allows gradual adoption.
 
 ## IDE Integration
 

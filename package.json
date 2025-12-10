@@ -12,7 +12,7 @@
     "lint:phpcs": "vendor/bin/phpcs",
     "lint:phpstan": "vendor/bin/phpstan analyse",
     "lint:all": "npm run lint:js && npm run lint:js:types && npm run lint:php && npm run lint:phpcs && npm run lint:phpstan",
-    "lint:changed": "bash -c \"(git diff --name-only --diff-filter=ACMR HEAD; git diff --cached --name-only --diff-filter=ACMR) | grep -E '\\\\.(js|php)$' | grep -v 'web/js/third-party/' | sort -u | while read file; do echo \\\"Checking: \\$file\\\"; if [[ \\$file == *.js ]]; then eslint --fix \\\"\\$file\\\" || true; elif [[ \\$file == *.php ]]; then vendor/bin/php-cs-fixer fix \\\"\\$file\\\" || true; vendor/bin/phpcs \\\"\\$file\\\" || true; vendor/bin/phpstan analyse \\\"\\$file\\\" || true; fi; done\"",
+    "lint:changed": "bash -c 'BASE=${LINT_BASE:-HEAD}; (git diff --name-only --diff-filter=ACMR \"$BASE\" HEAD; git diff --cached --name-only --diff-filter=ACMR) | grep -E \"\\\\.(js|php)$\" | grep -v \"web/js/third-party/\" | sort -u | while read file; do echo \"Checking: $file\"; if [[ $file == *.js ]]; then eslint --fix \"$file\" || true; elif [[ $file == *.php ]]; then vendor/bin/php-cs-fixer fix \"$file\" || true; vendor/bin/phpcs \"$file\" || true; vendor/bin/phpstan analyse \"$file\" || true; fi; done'",
     "prepare": "husky install"
   },
   "devDependencies": {

@@ -1,0 +1,47 @@
+# Example CI/CD workflow for GitHub Actions
+# Copy this to .github/workflows/ci.yml and customize as needed
+
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        extensions: mbstring, xml, curl, json
+        coverage: none
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '24'
+        cache: 'npm'
+    
+    - name: Install PHP dependencies
+      run: composer install --no-interaction --prefer-dist
+    
+    - name: Install JavaScript dependencies
+      run: npm ci
+    
+    - name: Fetch base branch for PRs
+      if: github.event_name == 'pull_request'
+      run: |
+        git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
+    
+    - name: Run linting on changed files only
+      env:
+        LINT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.event.pull_request.base.ref) || 'HEAD^' }}
+      run: npm run lint:changed
+    
