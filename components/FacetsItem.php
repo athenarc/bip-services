@@ -56,40 +56,8 @@ class FacetsItem extends Widget
      */
     public function run()
     {
-        // handle linked contribution lists logic
-        if ($this->for_print && $this->contributions_lists !== null) {
-            $linkedListId = null;
-            if (is_array($this->element_config)) {
-                foreach ($this->element_config as $facetConfig) {
-                    if (is_array($facetConfig) && isset($facetConfig['linked_contribution_element_id'])) {
-                        $linkedListId = $facetConfig['linked_contribution_element_id'];
-                        break;
-                    }
-                }
-            }
-
-            if ($linkedListId !== null && isset($this->contributions_lists[$linkedListId])) {
-                $this->result = $this->contributions_lists[$linkedListId];
-            } elseif (!empty($this->contributions_lists)) {
-                $this->result = reset($this->contributions_lists);
-            } else {
-                $this->result = ['facets' => []];
-            }
-
-            $this->selected_topics = [];
-            $this->selected_roles = [];
-            $this->selected_accesses = [];
-            $this->selected_types = [];
-            
-            if ($linkedListId !== null && isset($this->contributions_selected_filters[$linkedListId])) {
-                $selectedFilters = $this->contributions_selected_filters[$linkedListId];
-                $this->selected_topics = $selectedFilters['topics'] ?? [];
-                $this->selected_roles = $selectedFilters['roles'] ?? [];
-                $this->selected_accesses = $selectedFilters['accesses'] ?? [];
-                $this->selected_types = $selectedFilters['types'] ?? [];
-            }
-        } else {
-            // Check if this Facets box is linked to a specific Contributions List (non-PDF)
+        // Check if this Facets box is linked to a specific Contributions List (non-PDF)
+        if (!$this->for_print) {
             $linked_id = $this->element_config['linked_contribution_element_id'] ?? null;
 
             if ($linked_id && isset($this->result['contributions_lists'][$linked_id])) {

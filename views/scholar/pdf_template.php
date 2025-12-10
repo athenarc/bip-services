@@ -424,84 +424,187 @@ use yii\helpers\ArrayHelper;
         foreach ($template_elements as $index => $element) {
 
             switch ($element["type"]) {
-                case "Facets":?>
+                case "Facets":
+                    // Find linked list ID from element config
+                    $linkedListId = null;
+                    if (is_array($element["config"])) {
+                        foreach ($element["config"] as $facetConfig) {
+                            if (is_array($facetConfig) && isset($facetConfig['linked_contribution_element_id'])) {
+                                $linkedListId = $facetConfig['linked_contribution_element_id'];
+                                break;
+                            }
+                        }
+                    }
+
+                    // Get result from contributions_lists
+                    if ($linkedListId !== null && isset($contributions_lists[$linkedListId])) {
+                        $facetsResult = $contributions_lists[$linkedListId];
+                    } elseif (!empty($contributions_lists)) {
+                        $facetsResult = reset($contributions_lists);
+                    } else {
+                        $facetsResult = ['facets' => []];
+                    }
+
+                    // Get selected filters
+                    $facetsSelectedTopics = [];
+                    $facetsSelectedRoles = [];
+                    $facetsSelectedAccesses = [];
+                    $facetsSelectedTypes = [];
+                    
+                    if ($linkedListId !== null && isset($contributions_selected_filters[$linkedListId])) {
+                        $selectedFilters = $contributions_selected_filters[$linkedListId];
+                        $facetsSelectedTopics = $selectedFilters['topics'] ?? [];
+                        $facetsSelectedRoles = $selectedFilters['roles'] ?? [];
+                        $facetsSelectedAccesses = $selectedFilters['accesses'] ?? [];
+                        $facetsSelectedTypes = $selectedFilters['types'] ?? [];
+                    }
+                    ?>
                     <div class="facets">
                         <?php
                             echo FacetsItem::widget([
                                 'for_print' => true,
                                 'edit_perm' => false,
-                                'result' => ['facets' => []],
-                                'formId' => 'scholar-form',
-                                'selected_topics' => [],
-                                'selected_roles' => [],
-                                'selected_accesses' => [],
-                                'selected_types' => [],
-                                'current_cv_narrative' => null,
+                                'result' => $facetsResult,
+                                'selected_topics' => $facetsSelectedTopics,
+                                'selected_roles' => $facetsSelectedRoles,
+                                'selected_accesses' => $facetsSelectedAccesses,
+                                'selected_types' => $facetsSelectedTypes,
                                 'researcher' => $researcher,
                                 'element_config' => $element["config"],
-                                'selected_per_list' => $selected_per_list,
-                                'facets_linked_to_lists' => $facets_linked_to_lists,
-                                'contributions_lists' => $contributions_lists,
-                                'contributions_selected_filters' => $contributions_selected_filters,
                             ]);
                         ?>
                     </div>
                     <?php break;
 
                 case "Indicators":
+                    // Find linked list ID from element config
+                    $indicatorItems = $element['config'];
+                    $linkedListId = $indicatorItems[0]['linked_contribution_element_id'] ?? null;
+
+                    // Get indicators from contributions_indicators
+                    $indicatorsLocal = $linkedListId !== null && isset($contributions_indicators[$linkedListId])
+                        ? $contributions_indicators[$linkedListId]
+                        : [];
+
+                    // Check if linked list is user-defined and has no selection
+                    $listResult = $linkedListId !== null && isset($contributions_lists[$linkedListId])
+                        ? $contributions_lists[$linkedListId]
+                        : null;
+
+                    $isLinkedUserDefined = false;
+                    if ($linkedListId !== null && $template_elements !== null) {
+                        foreach ($template_elements as $te2) {
+                            if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linkedListId) {
+                                $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                break;
+                            }
+                        }
+                    }
+
+                    $hasLinkedSelection = false;
+                    if ($listResult) {
+                        $hasLinkedSelection = (
+                            (!empty($listResult['selected_papers']) && count($listResult['selected_papers']) > 0) ||
+                            (!empty($listResult['selected_papers_num']) && (int)$listResult['selected_papers_num'] > 0)
+                        );
+                    }
+
+                    // If user-defined list with no selection, set all indicators to zero
+                    if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                        $indicatorsLocal = [
+                            'works_num' => 0,
+                            'missing_papers_num' => count($missing_papers ?? []),
+                            'show_missing_papers' => $listResult['show_missing_papers'] ?? true,
+                            'popular_works_count' => 0,
+                            'influential_works_count' => 0,
+                            'citations_num' => 0,
+                            'popularity' => ['number' => 0, 'exponent' => 'e0'],
+                            'influence' => ['number' => 0, 'exponent' => 'e0'],
+                            'impulse' => 0,
+                            'h_index' => 0,
+                            'i10_index' => 0,
+                            'academic_age' => '-',
+                            'responsible_academic_age' => '-',
+                            'paper_min_year' => 0,
+                            'work_types_num' => [
+                                'papers' => 0,
+                                'datasets' => 0,
+                                'software' => 0,
+                                'other' => 0,
+                            ],
+                            'openness' => [],
+                        ];
+                    }
+
                     echo IndicatorsItem::widget([
-                        'works_num' => 0,
-                        'missing_papers_num' => 0,
-                        'show_missing_works' => true,
-                        'facets_selected' => $facets_selected,
-                        'popular_works_count' => 0,
-                        'influential_works_count' => 0,
-                        'citations' => 0,
-                        'popularity' => ['number' => 0, 'exponent' => 'e0'],
-                        'influence' => ['number' => 0, 'exponent' => 'e0'],
-                        'impulse' => 0,
-                        'h_index' => 0,
-                        'i10_index' => 0,
-                        'academic_age' => '',
-                        'paper_min_year' => 0,
-                        'responsible_academic_age' => '',
-                        'rag_data' => $rag_data,
-                        'papers_num' => 0,
-                        'datasets_num' => 0,
-                        'software_num' => 0,
-                        'other_num' => 0,
-                        'openness' => [],
-                        'current_cv_narrative' => null,
-                        'element_config' => $element['config'],
                         'for_print' => true,
-                        'contributions_lists' => $contributions_lists,
-                        'contributions_indicators' => $contributions_indicators,
-                        'template_elements' => $template_elements,
-                        'missing_papers' => $missing_papers,
+                        'works_num' => $indicatorsLocal['works_num'] ?? 0,
+                        'missing_papers_num' => $indicatorsLocal['missing_papers_num'] ?? 0,
+                        'show_missing_works' => $indicatorsLocal['show_missing_papers'] ?? true,
+                        'popular_works_count' => $indicatorsLocal['popular_works_count'] ?? 0,
+                        'influential_works_count' => $indicatorsLocal['influential_works_count'] ?? 0,
+                        'citations' => $indicatorsLocal['citations_num'] ?? 0,
+                        'popularity' => $indicatorsLocal['popularity'] ?? ['number' => 0, 'exponent' => 'e0'],
+                        'influence' => $indicatorsLocal['influence'] ?? ['number' => 0, 'exponent' => 'e0'],
+                        'impulse' => $indicatorsLocal['impulse'] ?? 0,
+                        'h_index' => $indicatorsLocal['h_index'] ?? 0,
+                        'i10_index' => $indicatorsLocal['i10_index'] ?? 0,
+                        'academic_age' => $indicatorsLocal['academic_age'] ?? '',
+                        'paper_min_year' => $indicatorsLocal['paper_min_year'] ?? 0,
+                        'responsible_academic_age' => $indicatorsLocal['responsible_academic_age'] ?? '',
+                        'papers_num' => $indicatorsLocal['work_types_num']['papers'] ?? 0,
+                        'datasets_num' => $indicatorsLocal['work_types_num']['datasets'] ?? 0,
+                        'software_num' => $indicatorsLocal['work_types_num']['software'] ?? 0,
+                        'other_num' => $indicatorsLocal['work_types_num']['other'] ?? 0,
+                        'openness' => $indicatorsLocal['openness'] ?? [],
+                        'element_config' => $element['config'],
                     ]);
 
                     break;
 
                 case "Contributions List":
+                    $list_id = $element["element_id"];
+                    
+                    // Get list result from contributions_lists
+                    $listResult = $contributions_lists[$list_id] ?? [
+                        'papers' => [],
+                        'papers_num' => 0,
+                        'selected_papers' => [],
+                        'selected_papers_num' => 0,
+                        'all_papers' => [],
+                        'selected_accesses' => [],
+                        'selected_types' => [],
+                    ];
+
+                    // Determine which papers to show (selected_papers > all_papers > papers)
+                    $topK = isset($element['config']['top_k']) && $element['config']['top_k'] !== ''
+                        ? (int)$element['config']['top_k']
+                        : null;
+
+                    $papersForPrint = [];
+                    if (!empty($listResult['selected_papers'])) {
+                        $papersForPrint = $listResult['selected_papers'];
+                    } elseif (!empty($listResult['all_papers'])) {
+                        $papersForPrint = $listResult['all_papers'];
+                    } elseif (!empty($listResult['papers'])) {
+                        $papersForPrint = $listResult['papers'];
+                    }
+
+                    // Apply top_k limit if set
+                    if ($topK !== null && $topK > 0 && !empty($papersForPrint)) {
+                        $papersForPrint = array_slice($papersForPrint, 0, $topK);
+                    }
+
                     echo ContributionsListItem::widget([
                         'for_print' => true,
                         'impact_indicators' => $impact_indicators,
-                        'facets_selected' => $facets_selected,
-                        'result' => [],
-                        'papers' => [],
-                        'works_num' => 0,
+                        'result' => $listResult,
+                        'papers' => $papersForPrint,
+                        'works_num' => count($papersForPrint),
                         'missing_papers' => $missing_papers,
                         'missing_papers_num' => count($missing_papers),
-                        'sort_field' => $element['config']['sort'] ?? 'year',
-                        'orderings' => $orderings,
-                        'formId' => 'scholar-form',
-                        'current_cv_narrative' => null,
+                        'show_missing_works' => $listResult['show_missing_papers'] ?? true,
                         'element_config' => $element['config'],
-                        'selected_accesses' => [],
-                        'selected_types' => [],
-                        'show_missing_works' => true,
-                        'list_id' => $element["element_id"],
-                        'contributions_lists' => $contributions_lists,
                     ]);
 
                     break;

@@ -66,42 +66,6 @@ class ContributionsListItem extends Widget
      */
     public function run()
     {
-        // handle contributions list logic
-        if ($this->for_print && $this->contributions_lists !== null && $this->list_id !== null) {
-            $listResult = $this->contributions_lists[$this->list_id] ?? [
-                'papers' => [],
-                'papers_num' => 0,
-                'selected_papers' => [],
-                'selected_papers_num' => 0,
-                'all_papers' => [],
-                'selected_accesses' => [],
-                'selected_types' => [],
-            ];
-
-            $topK = isset($this->element_config['top_k']) && $this->element_config['top_k'] !== ''
-                ? (int)$this->element_config['top_k']
-                : null;
-
-            $papersForPrint = [];
-
-            if (!empty($listResult['selected_papers'])) {
-                $papersForPrint = $listResult['selected_papers'];
-            } elseif (!empty($listResult['all_papers'])) {
-                $papersForPrint = $listResult['all_papers'];
-            } elseif (!empty($listResult['papers'])) {
-                $papersForPrint = $listResult['papers'];
-            }
-
-            if ($topK !== null && $topK > 0 && !empty($papersForPrint)) {
-                $papersForPrint = array_slice($papersForPrint, 0, $topK);
-            }
-
-            // Override widget properties with computed values
-            $this->result = $listResult;
-            $this->papers = $papersForPrint;
-            $this->works_num = count($papersForPrint);
-            $this->show_missing_works = $listResult['show_missing_papers'] ?? true;
-        }
 
         $data =[
             'impact_indicators' => $this->impact_indicators,
