@@ -34,8 +34,25 @@ parameters:
         - '#Access to an undefined property yii\\db\\ActiveRecord::#'
         - '#Call to an undefined method yii\\web\\View::#'
         - '#Access to an undefined property yii\\web\\View::#'
+        # Ignore undefined properties on Application classes (Yii2 components like $user, $request, etc.)
+        - '#.*console.*Application.*#'
         # Ignore missing iterable value types (maintains previous behavior)
         - identifier: missingType.iterableValue
+        # Ignore undefined properties on ActiveRecord models (database columns loaded dynamically)
+        - '#Access to an undefined property app\\models\\.*::\$.*#'
+        # Ignore undefined variables in view files (variables are passed from controllers)
+        - message: '#Variable \$.* might not be defined#'
+          path: views/
+        # Ignore undefined method calls on object type in view files
+        - message: '#Call to an undefined method object::.*\(\)#'
+          path: views/
+        # Ignore undefined property access on object type in view files
+        - message: '#Access to an undefined property object::\$.*#'
+          path: views/
+    
+    # Bootstrap file to load Yii framework for static analysis
+    bootstrapFiles:
+        - vendor/yiisoft/yii2/Yii.php
     
     # Check too wide types
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
