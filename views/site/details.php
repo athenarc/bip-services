@@ -28,8 +28,6 @@ $show_overall_chart = (count($article->chart_data) > 0);
 $topic_chart_data = array_slice($article->chart_data, 1);
 $show_topic_charts = (count($topic_chart_data) > 0);
 
-$active_radar_chart = 'active';
-$active_readers_panel = (empty($active_radar_chart)) ? 'active' : '';
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
 if ($in_space) {
@@ -313,7 +311,7 @@ if ($in_space) {
             <!-- 	tab header	 -->
             <ul class="nav nav-tabs nav-justified green-nav-tabs">
 
-                <li class="<?= $active_radar_chart ?>">
+                <li class="active">
                     <a data-toggle="tab" href="#radar_chart_panel">
                         <!-- Impact aspects and other metrics -->
                         Topic-specific impact indicators
@@ -324,7 +322,7 @@ if ($in_space) {
     </div>
 
     <div class="tab-content">
-        <div id="radar_chart_panel" class="tab-pane fade in <?= $active_radar_chart ?> details-container">
+        <div id="radar_chart_panel" class="tab-pane fade in active details-container">
             <div class="row">
                 <?php foreach ($topic_chart_data as $key => $topic_data) { ?>
 
