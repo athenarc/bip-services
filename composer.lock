@@ -4,53 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e6d87c991a20bf057b47be29367cc08",
+    "content-hash": "33903515111ae92074e0910c53180cdd",
     "packages": [
-        {
-            "name": "alexander-suter/yii2-tag-cloud",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alexsuter/yii2-tag-cloud.git",
-                "reference": "5c3b9c3a8c4d8c33985c275e80c669e89443c103"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alexsuter/yii2-tag-cloud/zipball/5c3b9c3a8c4d8c33985c275e80c669e89443c103",
-                "reference": "5c3b9c3a8c4d8c33985c275e80c669e89443c103",
-                "shasum": ""
-            },
-            "require": {
-                "yiisoft/yii2": "2.0.*"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "asu\\tagcloud\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio Ramirez",
-                    "email": "amigo.cobos@gmail.com"
-                },
-                {
-                    "name": "Alexander Suter",
-                    "email": "alexander.suter.ch@gmail.com"
-                }
-            ],
-            "description": "Tagcloud for Yii2",
-            "homepage": "https://github.com/alexander-suter/yii2-tag-cloud",
-            "keywords": [
-                "tagcloud",
-                "yii2"
-            ],
-            "time": "2016-03-02T09:30:49+00:00"
-        },
         {
             "name": "bigpaulie/yii2-social-share",
             "version": "dev-master",
@@ -1250,49 +1205,6 @@
                 "random"
             ],
             "time": "2020-10-15T08:29:30+00:00"
-        },
-        {
-            "name": "ricco/yii2-ticket",
-            "version": "2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ricco381/yii2-ticket.git",
-                "reference": "8b771939702dde9f835944a2e5248f90113c3a5e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ricco381/yii2-ticket/zipball/8b771939702dde9f835944a2e5248f90113c3a5e",
-                "reference": "8b771939702dde9f835944a2e5248f90113c3a5e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "ricco\\ticket\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "ricco381",
-                    "email": "ricco381@gmail.com"
-                }
-            ],
-            "description": "A ticket system for website",
-            "homepage": "https://bitbucket.org/Ricco381/yii2-ticket/src",
-            "keywords": [
-                "Ticket System",
-                "ricco",
-                "yii2",
-                "yii2-ticket"
-            ],
-            "time": "2018-12-12T16:54:37+00:00"
         },
         {
             "name": "sammaye/yii2-solr",

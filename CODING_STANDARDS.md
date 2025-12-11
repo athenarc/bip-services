@@ -113,6 +113,28 @@ npm run lint:all        # Check entire codebase (use before pushing)
 ### VS Code
 Install extensions: PHP CS Fixer, PHP_CodeSniffer, PHPStan, ESLint, TypeScript (built-in), EditorConfig
 
+## Testing CI Locally
+
+**Option 1: Test linting commands directly (simplest)**
+```bash
+# Test what CI will run
+npm run lint:changed
+```
+
+**Option 2: Use `act` to test GitHub Actions workflow (requires Docker)**
+```bash
+# Install act (if not installed)
+# Linux: Download from https://github.com/nektos/act/releases
+# macOS: brew install act
+
+# Test the workflow
+act pull_request  # Simulate a pull request
+act push          # Simulate a push to main
+
+# Dry run (see what would happen)
+act --dry-run
+```
+
 ## Troubleshooting
 
 - **PHP CS Fixer cache**: `rm .php-cs-fixer.cache`
