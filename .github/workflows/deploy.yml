@@ -1,0 +1,63 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        
+        # Write key and strip CRLF (common GitHub bug)
+        echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
+        
+        chmod 600 ~/.ssh/deploy_key
+        
+        # Add host to known_hosts
+        ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script_stop: true
+        script: |
+          set -e
+          
+          # Set deployment path (default to /data/www/bip)
+          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+          if [ -z "$DEPLOY_PATH" ]; then
+            DEPLOY_PATH="/data/www/bip"
+          fi
+          
+          echo "Deploying to: $DEPLOY_PATH"
+          cd "$DEPLOY_PATH"
+
+          echo "Pulling latest code..."
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "Running migrations..."
+          ./yii migrate --interactive=0 || true
+
+          echo "Clearing Yii cache..."
+          ./yii cache/flush-all || true
+
+          echo "Clearing runtime cache..."
+          rm -rf runtime/cache/* runtime/temp/* || true
+
+          echo "Setting permissions..."
+          chmod -R 775 runtime web/assets || true
+
+          echo "✅ Deployment completed!"

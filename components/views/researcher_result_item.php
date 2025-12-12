@@ -3,7 +3,6 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-use app\components\ImpactIcons;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\AnnotationPopover;

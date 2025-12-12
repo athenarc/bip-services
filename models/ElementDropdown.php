@@ -44,6 +44,7 @@ class ElementDropdown extends \yii\db\ActiveRecord
             [['hide_when_empty'], 'boolean'],
             [['hide_when_empty'], 'default', 'value'=> false],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 

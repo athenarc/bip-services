@@ -13,6 +13,10 @@ use Yii;
  * @property string|null $status 
  * @property int|null $semantics_order
  * @property int|null $indicator_order
+ * @property string|null $margin_top
+ * @property string|null $margin_right
+ * @property string|null $margin_bottom
+ * @property string|null $margin_left
  *
  * @property Elements $element
  * @property Indicators $indicator
@@ -36,6 +40,7 @@ class ElementIndicators extends \yii\db\ActiveRecord
             [['indicator_id', 'element_id'], 'required'],
             [['indicator_id', 'element_id', 'semantics_order', 'indicator_order'], 'integer'],
             [['status'], 'string'], 
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
             [['indicator_id', 'element_id'], 'unique', 'targetAttribute' => ['indicator_id', 'element_id']],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
             [['indicator_id'], 'exist', 'skipOnError' => true, 'targetClass' => Indicators::class, 'targetAttribute' => ['indicator_id' => 'id']],
@@ -76,6 +81,18 @@ class ElementIndicators extends \yii\db\ActiveRecord
         return $this->hasOne(Indicators::class, ['id' => 'indicator_id']);
     }
 
+    public function beforeSave($insert)
+    {
+        // Add 'px' unit to margin values if they're just numbers
+        foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
+            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+                $this->$marginAttr = $this->$marginAttr . 'px';
+            }
+        }
+
+        return parent::beforeSave($insert);
+    }
+
     public static function getConfigIndicator($element_id) {
         $config = [];
     
@@ -84,6 +101,8 @@ class ElementIndicators extends \yii\db\ActiveRecord
             ->with('indicator')
             ->all();
     
+        $margins = null;
+        
         foreach ($indicators_config as $i_config) {
             $config[] = [
                 'indicator' => [
@@ -95,6 +114,26 @@ class ElementIndicators extends \yii\db\ActiveRecord
                 'indicator_order' => $i_config->indicator_order,
                 'linked_contribution_element_id' => $i_config->linked_contribution_element_id,
             ];
+            
+            // Store margin data from the first indicator entry that has margins
+            if ($margins === null && (
+                !empty($i_config->margin_top) || 
+                !empty($i_config->margin_right) || 
+                !empty($i_config->margin_bottom) || 
+                !empty($i_config->margin_left)
+            )) {
+                $margins = [
+                    'margin_top' => $i_config->margin_top,
+                    'margin_right' => $i_config->margin_right,
+                    'margin_bottom' => $i_config->margin_bottom,
+                    'margin_left' => $i_config->margin_left,
+                ];
+            }
+        }
+        
+        // Add margins to the array if they exist
+        if ($margins !== null) {
+            $config['_margins'] = $margins;
         }
     
         return $config;

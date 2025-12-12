@@ -21,11 +21,16 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
     <?php if (!$elem->edit_perm): ?>
         <?php if (!$elem->hide_when_empty || !empty($elem->value)): ?>
             <<?= $headingType ?>>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"><?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
+                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"><?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
             </<?= $headingType ?>>
         <?php endif ?>
     <?php else: ?>
-        <<?= $headingType ?>><?= $elem->title ?> </<?= $headingType ?>>
+        <<?= $headingType ?>>
+        <?= $elem->title ?>
+        <?php if (!empty($elem->tip)): ?>
+            <span role="button" style="font-size: 80%;" data-toggle="popover" data-placement="auto"  title="Tips" data-content="<div style='text-align: justify; font-style: italic;'><?= Html::encode($elem->tip) ?></div>"><i class="fa-solid fa-lightbulb light-grey-link" aria-hidden="true"></i></span>
+        <?php endif; ?>
+        </<?= $headingType ?>>
     <?php endif; ?>
 
     <?php if (!$elem->edit_perm): ?>

@@ -52,7 +52,7 @@ use app\components\ResultItem;
         </div>
     </div>
 <?php else: ?>
-    <div>BIP! software was not able to retrieve any publications for your profile. Also note that BIP Scholar retrieves only public works from your ORCiD profile</div>
+    <div>No research products of this type were found in the public works of the respective ORCID profile.</div>
 <?php endif; ?>
 
 

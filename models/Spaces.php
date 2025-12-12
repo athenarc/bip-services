@@ -46,6 +46,8 @@ class Spaces extends \yii\db\ActiveRecord
             ['topics', 'default', 'value' => null],
             ['type', 'default', 'value' => null],
             ['is_oa', 'default', 'value' => null],
+            ['pubmed_types', 'default', 'value' => null],
+            [['has_pubmed_types'], 'boolean'],
 
             ['logo_upload', 'image', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 1024*1024, 'wrongExtension' => 'Allowed extensions {extensions}'],
 
@@ -63,6 +65,10 @@ class Spaces extends \yii\db\ActiveRecord
             [['theme_color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['theme_color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
 
+            // Like/Dislike records feature 
+            ['enable_like_dislike_records', 'boolean'],
+            // Confirm/Report annotations feature 
+            ['enable_like_dislike_annotations', 'boolean'],           
         ];
     }
 
@@ -83,11 +89,15 @@ class Spaces extends \yii\db\ActiveRecord
             'impulse' => 'Impulse',
             'topics' => 'Topics',
             'type' => 'Type',
+            'has_pubmed_types' => 'Enable Pubmed Types',
+            'pubmed_types' => 'Pubmed Types',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
             'annotation_db' => 'Annotation Database',
-            'graph_db_system' => 'Graph Database System'
+            'graph_db_system' => 'Graph Database System',
+            'enable_like_dislike_records' => 'Enable Like/Dislike Records Feature',
+            'enable_like_dislike_annotations' => 'Enable Confirm/Report Annotations Feature',
         ];
     }
 

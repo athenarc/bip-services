@@ -42,6 +42,7 @@ class ElementNarratives extends \yii\db\ActiveRecord
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
             [['description'], 'string'],
+            [['tip'], 'string'],
             [['title'], 'string', 'max' => 1024],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['hide_when_empty'], 'boolean'],
@@ -49,6 +50,7 @@ class ElementNarratives extends \yii\db\ActiveRecord
             [['limit_value'], 'integer', 'min' => 0],
             [['limit_type'], 'in', 'range' => [self::TYPE_WORDS, self::TYPE_CHARACTERS]],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
@@ -76,6 +78,7 @@ class ElementNarratives extends \yii\db\ActiveRecord
             'title' => 'Title',
             'heading_type' => 'Header size',
             'description' => 'Description',
+            'tip' => 'Tip',
             'hide_when_empty' => 'Hide when Empty',
             'limit_value' => 'Limit Value',
             'limit_type' => 'Limit Type'

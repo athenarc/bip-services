@@ -1,14 +1,64 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const OFFSET = 70; // Adjust this value to your needs
+    // Different offsets for different pages
+    // IMPORTANT: Keep these in sync with:
+    //  - scroll-margin-top in fixed-sidebar.css (indicators)
+    //  - scroll-margin-top in profile-toc.css (profile) if you decide to match it
+    const OFFSET_INDICATORS = 60; // Indicators page (keep legacy behavior)
+    const OFFSET_DEFAULT   = 70;  // Data, Help, About, etc. (match "main" working behavior)
+    const OFFSET_PROFILE   = 100; // Scholar profile TOC (original behavior)
 
-    function scrollToTarget(hash) {
-        var target = document.querySelector(hash);
-        if (target) {
-            setTimeout(function () {
-                const top = target.getBoundingClientRect().top + window.pageYOffset - OFFSET;
-                window.scrollTo({ top, behavior: "smooth" });
-            }, 300); // Add delay to ensure Swagger UI is loaded
+    // Delay is important on pages with heavy widgets (e.g. Swagger UI on Data page)
+    // so that layout has stabilized before we compute target positions.
+    const DEFAULT_DELAY_MS = document.getElementById('swagger-ui') ? 300 : 0;
+
+    var isScrolling = false; // Flag to prevent double scrolling
+
+    function getOffsetForTarget(target) {
+        if (!target) return OFFSET_DEFAULT;
+
+        // Scholar profile page
+        if (target.closest('#profile-content')) {
+            return OFFSET_PROFILE;
         }
+
+        // Indicators page (keep legacy behavior)
+        if (target.closest('#indicators')) {
+            return OFFSET_INDICATORS;
+        }
+
+        // All other pages (Data, Help, About, etc.)
+        return OFFSET_DEFAULT;
+    }
+
+    function scrollToTarget(hash, options) {
+        if (isScrolling) return; // Prevent double scroll
+
+        var target = document.querySelector(hash);
+        if (!target) return;
+
+        var preventHashUpdate = options && options.preventHashUpdate;
+        var delayMs = (options && typeof options.delayMs === 'number')
+            ? options.delayMs
+            : DEFAULT_DELAY_MS;
+
+        isScrolling = true;
+
+        setTimeout(function () {
+            const offset = getOffsetForTarget(target);
+            const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+            window.scrollTo({ top, behavior: "smooth" });
+
+            // Reset flag after scroll completes (smooth scroll takes ~500ms)
+            setTimeout(function () {
+                isScrolling = false;
+            }, 600);
+
+            // Update URL without triggering native scroll (only if not prevented)
+            if (!preventHashUpdate && history.pushState) {
+                history.pushState(null, null, hash);
+            }
+        }, delayMs);
     }
 
     // Handle anchor links
@@ -18,27 +68,23 @@ document.addEventListener("DOMContentLoaded", function () {
             var hash = this.hash;
 
             if (hash) {
-                scrollToTarget(hash);
-
-                // Update URL without triggering scroll
-                if (history.pushState) {
-                    history.pushState(null, null, hash);
-                } else {
-                    location.hash = hash;
-                }
+                // Clicks: allow hash update, apply delay when needed (e.g. Swagger)
+                scrollToTarget(hash, { preventHashUpdate: false });
             }
         });
     });
 
-    // Handle initial page load with hash
-    if (window.location.hash) {
-        scrollToTarget(window.location.hash);
+    // Handle initial page load with hash (skip for profile pages)
+    if (window.location.hash && !document.getElementById('profile-content')) {
+        // Initial load: prevent hash re-update, apply delay if needed
+        scrollToTarget(window.location.hash, { preventHashUpdate: true });
     }
 
-    // Listen for hash changes
+    // Listen for hash changes (but only if not already scrolling)
     window.addEventListener('hashchange', function () {
-        if (window.location.hash) {
-            scrollToTarget(window.location.hash);
+        if (window.location.hash && !isScrolling) {
+            // Hash already updated; just scroll (with possible delay)
+            scrollToTarget(window.location.hash, { preventHashUpdate: true });
         }
     });
 });

@@ -639,6 +639,10 @@ use yii\helpers\ArrayHelper;
                         'bottom_padding' => $element["config"]->bottom_padding,
                         'show_top_hr' => $element["config"]->show_top_hr,
                         'show_bottom_hr' => $element["config"]->show_bottom_hr,
+                        'margin_top' => $element["config"]->margin_top ?? null,
+                        'margin_right' => $element["config"]->margin_right ?? null,
+                        'margin_bottom' => $element["config"]->margin_bottom ?? null,
+                        'margin_left' => $element["config"]->margin_left ?? null,
                     ]);
                     break;
                 

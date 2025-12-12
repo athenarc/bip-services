@@ -10,6 +10,8 @@ use app\components\common\CommonUtils;
 // needed for debounce
 $this->registerJsFile('@web/js/utils.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tableElement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/utils.js', ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]); // needed for { debounce }
+
 
 $elem = $this->context;
 $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];

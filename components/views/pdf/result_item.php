@@ -5,7 +5,6 @@ use yii\helpers\Url;
 
 use app\components\ImpactIcons;
 use app\components\ConceptPopover;
-use app\components\AnnotationPopover;
 
 $item = $this->context;
 
@@ -92,7 +91,8 @@ $item = $this->context;
                                 <span class="concept-confidence-container">
                                     <span class="concept-confidence-fill" style="width: <?= $concept_score ?>%;"></span>
                                 </span>
-                                <span class= "concept-class"> | <?= ImpactIcons::widget([
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
                                     'popularity_class' => $concept['pop_class'],
                                     'influence_class' => $concept['inf_class'],
                                     'impulse_class' => $concept['imp_class'],
@@ -102,7 +102,7 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                    ]);?></span>
+                                ]);?>
                             </span>
                         <?php }
                     } ?>
@@ -132,8 +132,7 @@ $item = $this->context;
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $item->space_annotation_db, 'space_url_suffix' => $item->space_url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query'] ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> </b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
+                            <?= $annotation['label'] ?>
                             <?php if (!empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
                             <?php endif; ?>

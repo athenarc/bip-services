@@ -77,6 +77,8 @@ use yii\widgets\ActiveForm;
 use app\components\OrcidComponent;
 use app\models\ChangePasswordForm;
 use app\models\AdminOptions;
+use app\models\LikeDislikeRecords;
+use app\models\LikeDislikeAnnotations;
 
 class SiteController extends BaseController
 {
@@ -206,7 +208,27 @@ class SiteController extends BaseController
         // - redirection from a search keyword that gets submitted as a POST request
         
         [ $results, $search_model, $space_model ] = $this->doSearch();
-        
+
+        // Preload user votes for the current page of results (used in the index view)
+        $user_votes = [];
+        if (!Yii::$app->user->isGuest
+            && isset($space_model->enable_like_dislike_records)
+            && $space_model->enable_like_dislike_records
+            && !empty($results['rows'] ?? [])
+        ) {
+            $paper_ids = array_map(function ($result) {
+                return $result['internal_id'];
+            }, $results['rows']);
+
+            if (!empty($paper_ids)) {
+                $user_votes = LikeDislikeRecords::getUserVotesBatch(
+                    Yii::$app->user->id,
+                    $paper_ids,
+                    $space_model->url_suffix
+                );
+            }
+        }
+
         Url::remember();
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
@@ -228,6 +250,7 @@ class SiteController extends BaseController
             'impact_indicators' => $impact_indicators,
             'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
+            'user_votes' => $user_votes,
         ]);
     }
 
@@ -409,6 +432,8 @@ class SiteController extends BaseController
         [ $article ] = SearchForm::get_concepts_impact_class([ $article ]);
         // get relations
         [ $article ] = Relations::getRelations([ $article ]);
+
+        [ $article ] = Spaces::fetchAnnotations([ $article ], $space_model);
 
         // // Do not calculate pyramidStatistics for articles with NULL scores
         // if(isset($article['pagerank'])){
@@ -1420,6 +1445,266 @@ class SiteController extends BaseController
 
     }
 
+    /**
+     * Handles vote submission for papers
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionVotePaper()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // Check if user is logged in
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'message' => 'You must be logged in to vote',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $vote_type = Yii::$app->request->post('vote_type');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $query = Yii::$app->request->post('query');
+        $ordering = Yii::$app->request->post('ordering');
+        $paper_rank = Yii::$app->request->post('paper_rank') ? (int)Yii::$app->request->post('paper_rank') : null;
+        $remove = (int)Yii::$app->request->post('remove', 0);
+
+        // Validate vote_type
+        if (!in_array($vote_type, ['like', 'dislike'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid vote type',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
+        try {
+            if ($remove == 1) {
+                // Delete the vote
+                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix);
+                $message = 'Vote removed';
+            } else {
+                // Save or update vote
+                LikeDislikeRecords::saveVote($user_id, $paper_id, $space_url_suffix, $vote_type, $query, $ordering, $paper_rank);
+                $message = 'Vote saved';
+            }
+
+            // Get updated counts
+            $counts = LikeDislikeRecords::getVoteCounts($paper_id, $space_url_suffix);
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'like_count' => $counts['like_count'],
+                'dislike_count' => $counts['dislike_count'],
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error processing vote: ' . $e->getMessage(),
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+    }
+
+    /**
+     * Returns user's votes for multiple papers
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionGetUserVotes()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // If user is guest, return empty votes
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'votes' => [],
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_ids = Yii::$app->request->post('paper_ids', []);
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+
+        if (empty($paper_ids) || !is_array($paper_ids)) {
+            return [
+                'success' => false,
+                'votes' => [],
+            ];
+        }
+
+        // Convert paper_ids to integers
+        $paper_ids = array_map('intval', $paper_ids);
+
+        // Get all votes for these papers
+        $votes = LikeDislikeRecords::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_ids,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        // Build response array
+        $votes_array = [];
+        foreach ($votes as $vote) {
+            $votes_array[$vote->paper_id] = $vote->action;
+        }
+
+        return [
+            'success' => true,
+            'votes' => $votes_array,
+        ];
+    }
+
+    /**
+     * Handles vote submission for annotations
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionVoteAnnotation()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // Check if user is logged in
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'message' => 'You must be logged in to vote',
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $annotation_id = Yii::$app->request->post('annotation_id');
+        $annotation_name = Yii::$app->request->post('annotation_name');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $vote_type = Yii::$app->request->post('vote_type');
+        $remove = (int)Yii::$app->request->post('remove', 0);
+
+        // Validate inputs
+        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+            return [
+                'success' => false,
+                'message' => 'Missing required parameters',
+            ];
+        }
+
+        // Validate vote_type
+        if (!in_array($vote_type, ['like', 'dislike'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid vote type',
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+        if (!$space_model || !$space_model->enable_like_dislike_annotations) {
+            // Return success=false but don't show error message - buttons should be hidden
+            return [
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
+            ];
+        }
+
+        try {
+            if ($remove == 1) {
+                // Delete the vote
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                $message = 'Vote removed';
+            } else {
+                // Save or update vote
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                $message = 'Vote saved';
+            }
+
+            // Get updated user vote
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'user_vote' => $user_vote,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error processing vote: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Returns user's votes for annotations
+     * 
+     * @return \yii\web\Response JSON response
+     */
+    public function actionGetUserAnnotationVotes()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // If user is guest, return empty votes
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'votes' => [],
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+
+        if (empty($paper_id) || empty($space_url_suffix)) {
+            return [
+                'success' => false,
+                'message' => 'Missing required parameters',
+                'votes' => [],
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+        if (!$space_model || !$space_model->enable_like_dislike_annotations) {
+            return [
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
+                'votes' => [],
+            ];
+        }
+
+        // Get all votes for this paper
+        $votes = LikeDislikeAnnotations::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_id,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        // Build response array: annotation_id => action
+        $votes_array = [];
+        foreach ($votes as $vote) {
+            $votes_array[$vote->annotation_id] = $vote->action;
+        }
+
+        return [
+            'success' => true,
+            'votes' => $votes_array,
+        ];
+    }
+
     public function actionAdminOptions()
     {
         $section = "thresholds";
@@ -1977,6 +2262,9 @@ class SiteController extends BaseController
         $elementTableHeadersModels = [new ElementTableHeaders];
         $elementFacetsFormModel = new ElementFacetsForm();
         $elementBulletedListModel = new ElementBulletedList();
+        $elementNarrativesModel = new ElementNarratives();
+        $elementFacetsForMargins = new ElementFacets();
+        $elementIndicatorsForMargins = new ElementIndicators();
 
         $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
         $indicatorOrder = [];
@@ -2013,7 +2301,11 @@ class SiteController extends BaseController
 
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
+                            // Load margin data outside the loop
+                            $elementIndicatorsForMargins->load($this->request->post());
+
                             if (!empty($selectedIndicators)) {
+                                $firstIndicator = true;
                                 foreach ($selectedIndicators as $indicatorId => $status) {
                                         $elementIndicators = new ElementIndicators();
                                         $elementIndicators->element_id = $elementModel->id;
@@ -2024,6 +2316,15 @@ class SiteController extends BaseController
                                         $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                         $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
                                         $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
+                                        
+                                        // Store margins on the first ElementIndicators record only
+                                        if ($firstIndicator) {
+                                            $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
+                                            $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
+                                            $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
+                                            $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
+                                            $firstIndicator = false;
+                                        }
         
                                         $elementIndicators->save();
                                 }
@@ -2035,12 +2336,12 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Narrative':
-                        if ($elementNarrativesFormModel->load($this->request->post())) {
-                            $elementNarrativesModel = new ElementNarratives();
+                        if ($elementNarrativesFormModel->load($this->request->post()) && $elementNarrativesModel->load($this->request->post())) {
                             $elementNarrativesModel->element_id = $elementModel->id;
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
+                            $elementNarrativesModel->tip = $elementNarrativesFormModel->tip;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
                             $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
                             $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;
@@ -2139,6 +2440,10 @@ class SiteController extends BaseController
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
                             $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->margin_top = $elementDividersFormModel->margin_top;
+                            $elementDividersModel->margin_right = $elementDividersFormModel->margin_right;
+                            $elementDividersModel->margin_bottom = $elementDividersFormModel->margin_bottom;
+                            $elementDividersModel->margin_left = $elementDividersFormModel->margin_left;
                             $elementDividersModel->save();
                         }
                         break;
@@ -2162,6 +2467,7 @@ class SiteController extends BaseController
                                 }
                             }
 
+                            $firstFacet = true;
                             foreach ($facets as $facet_type => $opts) {
 
                                 $newFacet = new Facets();
@@ -2188,6 +2494,16 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
+                                
+                                // Store margins on the first ElementFacets record only
+                                if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
+                                    $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
+                                    $elementFacets->margin_right = $elementFacetsForMargins->margin_right;
+                                    $elementFacets->margin_bottom = $elementFacetsForMargins->margin_bottom;
+                                    $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
+                                    $firstFacet = false;
+                                }
+                                
                                 $elementFacets->save();
                             }
                         } else if ($elementFacetsFormModel->load($this->request->post())) {
@@ -2235,6 +2551,9 @@ class SiteController extends BaseController
             'elementTableModel' => $elementTableModel,
             'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementBulletedListModel' => $elementBulletedListModel,
+            'elementNarrativesModel' => $elementNarrativesModel,
+            'elementFacetsForMargins' => $elementFacetsForMargins,
+            'elementIndicatorsForMargins' => $elementIndicatorsForMargins,
             'elementModel' => $elementModel,
             'semanticsOrder' => $semanticsOrder,
             'indicatorOrder' => $indicatorOrder,
@@ -2273,6 +2592,20 @@ class SiteController extends BaseController
         $elementNarrativesFormModel = new ElementNarrativesForm();
         $elementDividersFormModel = new ElementDividersForm();
         $elementFacetsFormModel = new ElementFacetsForm();
+        
+        // For margins: use first ElementFacets record if exists
+        $elementFacetsForMargins = ($elementFacetsModel && count($elementFacetsModel) > 0) ? $elementFacetsModel[0] : new ElementFacets();
+        
+        // For indicators margins: use first ElementIndicators record that has margins, if exists
+        $elementIndicatorsForMargins = new ElementIndicators();
+        if ($elementIndicatorsModel && count($elementIndicatorsModel) > 0) {
+            foreach ($elementIndicatorsModel as $ei) {
+                if (!empty($ei->margin_top) || !empty($ei->margin_right) || !empty($ei->margin_bottom) || !empty($ei->margin_left)) {
+                    $elementIndicatorsForMargins = $ei;
+                    break;
+                }
+            }
+        }
 
         $semanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
         $indicatorOrder = [];
@@ -2329,8 +2662,12 @@ class SiteController extends BaseController
                             $indicatorOrder = is_array($indicatorOrder) ? array_map('strtolower', $indicatorOrder) : [];
                             $indicatorOrderIndex = array_flip($indicatorOrder);
 
+                            // Load margin data outside the loop
+                            $elementIndicatorsForMargins->load($this->request->post());
+
                             ElementIndicators::deleteAll(['element_id' => $id]);
                             if (!empty($selectedIndicators)) {
+                                $firstIndicator = true;
                                 foreach ($selectedIndicators as $indicatorId => $status) {
                                     $elementIndicators = new ElementIndicators();
                                     $elementIndicators->element_id = $id;
@@ -2341,6 +2678,16 @@ class SiteController extends BaseController
                                     $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                     $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
                                     $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
+                                    
+                                    // Store margins on the first ElementIndicators record only
+                                    if ($firstIndicator) {
+                                        $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
+                                        $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
+                                        $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
+                                        $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
+                                        $firstIndicator = false;
+                                    }
+                                    
                                     $elementIndicators->save();
                                 }
                             }
@@ -2351,10 +2698,11 @@ class SiteController extends BaseController
                         }
                         break;
                     case 'Narrative':
-                        if ($elementNarrativesFormModel->load($this->request->post())) {
+                        if ($elementNarrativesFormModel->load($this->request->post()) && $elementNarrativesModel->load($this->request->post())) {
                             $elementNarrativesModel->title = $elementNarrativesFormModel->title;
                             $elementNarrativesModel->heading_type = $elementNarrativesFormModel->heading_type;
                             $elementNarrativesModel->description = $elementNarrativesFormModel->description;
+                            $elementNarrativesModel->tip = $elementNarrativesFormModel->tip;
                             $elementNarrativesModel->hide_when_empty = $elementNarrativesFormModel->hide_when_empty;
                             $elementNarrativesModel->limit_value = $elementNarrativesFormModel->limit_value;
                             $elementNarrativesModel->limit_type = $elementNarrativesFormModel->limit_type;
@@ -2371,6 +2719,10 @@ class SiteController extends BaseController
                             $elementDividersModel->bottom_padding = $elementDividersFormModel->bottom_padding;
                             $elementDividersModel->show_top_hr = $elementDividersFormModel->show_top_hr;
                             $elementDividersModel->show_bottom_hr = $elementDividersFormModel->show_bottom_hr;
+                            $elementDividersModel->margin_top = $elementDividersFormModel->margin_top;
+                            $elementDividersModel->margin_right = $elementDividersFormModel->margin_right;
+                            $elementDividersModel->margin_bottom = $elementDividersFormModel->margin_bottom;
+                            $elementDividersModel->margin_left = $elementDividersFormModel->margin_left;
                             $elementDividersModel->save();
                         }
                         break;
@@ -2507,6 +2859,7 @@ class SiteController extends BaseController
                                 }
                             }
 
+                            $firstFacet = true;
                             foreach ($facets as $facet_type => $opts) {
 
                                 $newFacet = new Facets();
@@ -2533,6 +2886,16 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
+                                
+                                // Store margins on the first ElementFacets record only
+                                if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
+                                    $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
+                                    $elementFacets->margin_right = $elementFacetsForMargins->margin_right;
+                                    $elementFacets->margin_bottom = $elementFacetsForMargins->margin_bottom;
+                                    $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
+                                    $firstFacet = false;
+                                }
+                                
                                 $elementFacets->save();
                             }
                        } else if ($elementFacetsFormModel->load($this->request->post())) {
@@ -2574,6 +2937,8 @@ class SiteController extends BaseController
             'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
             'elementFacetsFormModel' => $elementFacetsFormModel,
             'elementBulletedListModel' => $elementBulletedListModel,
+            'elementFacetsForMargins' => $elementFacetsForMargins,
+            'elementIndicatorsForMargins' => $elementIndicatorsForMargins,
             'indicatorList' => $indicatorList,
             'existing_indicators' => $existing_indicators,
             'existing_facets' => $existing_facets,

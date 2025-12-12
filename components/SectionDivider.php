@@ -19,6 +19,10 @@ class SectionDivider extends Widget
     public $show_top_hr;
     public $show_bottom_hr;
     public $edit_perm;
+    public $margin_top;
+    public $margin_right;
+    public $margin_bottom;
+    public $margin_left;
 
     public function init()
     {

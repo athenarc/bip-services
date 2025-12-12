@@ -1,0 +1,83 @@
+# PHPStan configuration for static analysis
+# PHPStan performs static analysis to catch bugs: fake method calls, wrong return types, null errors, etc.
+
+parameters:
+    # Analysis level (0-9, higher = stricter)
+    # Level 5 is a good balance for catching code issues without being too strict
+    level: 5
+    
+    # Paths to analyze
+    paths:
+        - components
+        - controllers
+        - models
+        - commands
+        - config
+        - mail
+    
+    # Exclude paths
+    excludePaths:
+        - vendor
+        - runtime
+        - web/assets
+        - tests
+        - migrations
+        - graph_stuff
+        - another_graph_stuff_bkp
+    
+    # Ignore errors in these paths (third-party code, generated files, etc.)
+    ignoreErrors:
+        # Yii2 framework patterns
+        - '#Call to an undefined method yii\\base\\Component::#'
+        - '#Access to an undefined property yii\\base\\Component::#'
+        - '#Call to an undefined method yii\\db\\ActiveRecord::#'
+        - '#Access to an undefined property yii\\db\\ActiveRecord::#'
+        - '#Call to an undefined method yii\\web\\View::#'
+        - '#Access to an undefined property yii\\web\\View::#'
+        # Ignore undefined properties on Application classes (Yii2 components like $user, $request, etc.)
+        - '#.*console.*Application.*#'
+        # Ignore missing iterable value types (maintains previous behavior)
+        - identifier: missingType.iterableValue
+        # Ignore undefined properties on ActiveRecord models (database columns loaded dynamically)
+        - '#Access to an undefined property app\\models\\.*::\$.*#'
+        # Ignore undefined variables in view files (variables are passed from controllers)
+        - message: '#Variable \$.* might not be defined#'
+          path: views/
+        # Ignore undefined method calls on object type in view files
+        - message: '#Call to an undefined method object::.*\(\)#'
+          path: views/
+        # Ignore undefined property access on object type in view files
+        - message: '#Access to an undefined property object::\$.*#'
+          path: views/
+    
+    # Bootstrap file to load Yii framework for static analysis
+    bootstrapFiles:
+        - vendor/yiisoft/yii2/Yii.php
+    
+    # Check too wide types
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    
+    # Report unused private properties and methods
+    reportUnmatchedIgnoredErrors: false
+    
+    # Treat PHP 7.4+ types as required
+    treatPhpDocTypesAsCertain: false
+    
+    # Check nullables
+    checkNullables: true
+    
+    # Check this type
+    checkThisOnly: false
+    
+    # Check union types
+    checkUnionTypes: true
+    
+    # Check explicit mixed
+    checkExplicitMixedMissingReturn: true
+    
+    # Check missing typehints
+    checkMissingCallableSignature: true
+    
+    # Check generic classes
+    checkGenericClassInNonGenericObjectType: true
+
