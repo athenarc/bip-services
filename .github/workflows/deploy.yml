@@ -1,0 +1,67 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          set -e
+          
+          # Set deployment path (default to /data/www/sbip if not provided)
+          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+          if [ -z "$DEPLOY_PATH" ]; then
+            DEPLOY_PATH="/data/www/bip"
+          fi
+          
+          # Navigate to project directory
+          echo "Deploying to: $DEPLOY_PATH"
+          cd "$DEPLOY_PATH"
+          
+          # Pull latest code
+          echo "Pulling latest code from main branch..."
+          git fetch origin main
+          git reset --hard origin/main
+          
+          # Install/update PHP dependencies
+          # echo "Installing PHP dependencies..."
+          # composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+          
+          # Run database migrations
+          echo "Running database migrations..."
+          ./yii migrate --interactive=0
+          
+          # Clear Yii cache (if cache component is configured)
+          echo "Clearing application cache..."
+          if ./yii cache/flush-all 2>/dev/null; then
+            echo "Cache flushed successfully"
+          else
+            echo "Cache flush command not available or failed (this is OK)"
+          fi
+          
+          # Clear runtime cache
+          echo "Clearing runtime cache..."
+          rm -rf runtime/cache/* runtime/temp/* 2>/dev/null || true
+          
+          # Set proper permissions (adjust user/group as needed)
+          echo "Setting permissions..."
+          if [ -d "runtime" ]; then
+            chmod -R 775 runtime 2>/dev/null || true
+          fi
+          if [ -d "web/assets" ]; then
+            chmod -R 775 web/assets 2>/dev/null || true
+          fi
+          
+          echo "✅ Deployment completed successfully!"
+
