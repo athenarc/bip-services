@@ -6,7 +6,8 @@ $elem = $this->context;
 $headingType = $elem->heading_type ?? 'h3';
 
 $tableHeaders = [];
-if (!empty($elem->table_headers)) {
+
+if (! empty($elem->table_headers)) {
     $tableHeaders = $elem->table_headers;
 }
 
@@ -16,11 +17,11 @@ $hasTableData = is_array($tableData) && count($tableData) > 0;
 ?>
 
 <div class="table-element">
-    <?php if ($hasTableData || !$elem->hide_when_empty): ?>
+    <?php if ($hasTableData || ! $elem->hide_when_empty): ?>
         <<?= $headingType ?> class="table-element-title">
             <?= Html::encode($elem->title) ?>
         </<?= $headingType ?>>
-        <?php if (!empty($elem->description)): ?>
+        <?php if (! empty($elem->description)): ?>
             <div class="table-element-description">
                 <?= Html::encode($elem->description) ?>
             </div>
@@ -47,7 +48,7 @@ $hasTableData = is_array($tableData) && count($tableData) > 0;
                 <?php endforeach; ?>
             </tbody>
         </table>
-    <?php elseif (!$elem->hide_when_empty): ?>
+    <?php elseif (! $elem->hide_when_empty): ?>
         <div class="table-element-empty">
             The researcher has not yet provided input for this element.
         </div>

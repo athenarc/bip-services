@@ -3,6 +3,7 @@
 /*
  * Define the namespace of the widget
  */
+
 namespace app\components;
 
 /*
@@ -13,61 +14,79 @@ use yii\base\Widget;
 /*
  * The widget class
  */
-class ContributionsListItem extends Widget
-{
+class ContributionsListItem extends Widget {
     /*
      * Widget properties
      */
 
-
     public $edit_perm;
+
     public $facets_selected;
+
     public $result;
+
     public $papers;
+
     public $heading_type;
+
     public $works_num;
+
     public $missing_papers;
+
     public $missing_papers_num;
+
     public $sort_field;
+
     public $orderings;
+
     public $formId;
+
     public $impact_indicators;
+
     public $element_config;
+
     public $for_print;
 
     public $current_cv_narrative;
+
     public $facets_for_this_list;
+
     public $selected_topics;
+
     public $selected_tags;
+
     public $selected_roles;
+
     public $selected_accesses;
+
     public $selected_types;
+
     public $preHeaderHtml;
+
     public $show_pagination;
+
     public $list_id;
+
     public $show_missing_works;
+
     public $noWorksMessage;
+
     public $contributions_lists;
 
-
     // public $show;
-
 
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
-    public function init()
-    {
+    public function init() {
         parent::init();
     }
 
     /*
      * Running the widget
      */
-    public function run()
-    {
-
-        $data =[
+    public function run() {
+        $data = [
             'impact_indicators' => $this->impact_indicators,
             'edit_perm' => $this->edit_perm,
             'facets_selected' => $this->facets_selected,
@@ -95,14 +114,10 @@ class ContributionsListItem extends Widget
             'noWorksMessage' => $this->noWorksMessage,
         ];
 
-
         if ($this->for_print) {
             return $this->render('pdf/contributions_list_item', $data);
         }
-        
+
         return $this->render('contributions_list_item', $data);
     }
-
 }
-
-?>
