@@ -69,7 +69,23 @@ Copy the private key content:
 cat ~/.ssh/github_actions_deploy
 ```
 
-Paste the entire output (including `-----BEGIN OPENSSH PRIVATE KEY-----` and `-----END OPENSSH PRIVATE KEY-----`) into the `SSH_KEY` secret in GitHub.
+**Important:** When pasting into GitHub Secrets:
+- Paste the **entire** private key content, including:
+  - `-----BEGIN OPENSSH PRIVATE KEY-----` (or `-----BEGIN RSA PRIVATE KEY-----` for older keys)
+  - All the key content in between
+  - `-----END OPENSSH PRIVATE KEY-----` (or `-----END RSA PRIVATE KEY-----`)
+- Do NOT add extra spaces or line breaks
+- Do NOT remove the BEGIN/END markers
+- The key should be on multiple lines (GitHub Secrets supports multi-line values)
+
+Example format:
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW...
+(more lines of key content)
+...
+-----END OPENSSH PRIVATE KEY-----
+```
 
 ### 4. Verify Server Access
 
@@ -98,9 +114,36 @@ git config --global user.email "deploy@example.com"
 ## Troubleshooting
 
 ### SSH Connection Issues
-- Verify the SSH key is correctly added to GitHub secrets
-- Check that the public key is in `~/.ssh/authorized_keys` on the server
-- Test SSH connection manually: `ssh -i ~/.ssh/github_actions_deploy user@host`
+
+#### Error: "ssh.ParsePrivateKey: ssh: no key found"
+
+This error typically means the SSH key format in GitHub Secrets is incorrect. To fix:
+
+1. **Verify the key format:**
+   - The key must include the BEGIN and END markers
+   - No extra whitespace at the beginning or end
+   - All lines of the key must be present
+
+2. **Re-add the secret:**
+   - Go to **Settings** → **Secrets and variables** → **Actions**
+   - Delete the existing `SSH_KEY` secret
+   - Create a new `SSH_KEY` secret
+   - Copy the entire private key (including BEGIN/END lines) and paste it
+   - Make sure there are no extra spaces before `-----BEGIN` or after `-----END`
+
+3. **Test the key format locally:**
+   ```bash
+   # Save your key to a file
+   echo "$SSH_KEY_CONTENT" > test_key
+   chmod 600 test_key
+   
+   # Try to parse it (should not show errors)
+   ssh-keygen -l -f test_key
+   ```
+
+4. **Verify the public key is on the server:**
+   - Check that the public key is in `~/.ssh/authorized_keys` on the server
+   - Test SSH connection manually: `ssh -i ~/.ssh/github_actions_deploy user@host`
 
 ### Permission Issues
 - Ensure the SSH user has write permissions to the project directory
