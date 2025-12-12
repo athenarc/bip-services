@@ -1,20 +1,14 @@
 <?php
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\web\View;
-use app\components\CustomBootstrapModal;
-use bigpaulie\social\share\Share;
-use asu\tagcloud\TagCloud;
-use app\components\BookmarkIcon;
-use app\components\ConceptPopover;
 use app\components\ResultItem;
+use yii\helpers\Url;
+use yii\web\View;
 
 $this->title = 'BIP! Finder - ' . $article['title'];
 
 //  polar area chart with ChartJS
-$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/chartjs_polar_area.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/chartjs_polar_area.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/readMore.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -43,10 +37,10 @@ $edit_perm = isset($userid);
         <div class='article-header'>
             <div id="flex-parent">
                 <div id="floating-title">
-                    <?php if (!empty($article->year)) { ?>
-                        <span class="article-header-year"><?= (!empty($article->year)) ? $article->year : 'N/A' ?> &bull;</span>
+                    <?php if (! empty($article->year)) { ?>
+                        <span class="article-header-year"><?= (! empty($article->year)) ? $article->year : 'N/A' ?> &bull;</span>
                     <?php } ?>
-                    <?= (!empty($article->title)) ? $article->title : 'N/A' ?>
+                    <?= (! empty($article->title)) ? $article->title : 'N/A' ?>
                 </div>
             </div>
         </div>
@@ -56,8 +50,8 @@ $edit_perm = isset($userid);
     <div class='col-md-7 col-xs-12'>
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('authors') ?>:</b> <?php if (empty($article->authors)) {
-                echo "N/A";
-            } else { ?>
+    echo 'N/A';
+} else { ?>
                 <span class="show-value">
                     <?= Yii::$app->bipstring->shortenString($article->authors, 250) ?>
                 </span>
@@ -71,8 +65,8 @@ $edit_perm = isset($userid);
         </div>
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('abstract') ?>:</b> <?php if (empty($article->abstract)) {
-                echo "N/A";
-            } else { ?>
+    echo 'N/A';
+} else { ?>
                 <span class="show-value">
                     <?= Yii::$app->bipstring->shortenString($article->abstract, 550) ?>
                 </span>
@@ -112,7 +106,7 @@ $edit_perm = isset($userid);
 <!-- add vertical space	-->
 <div style="margin-top: 20px;"></div>
 
-<?php if (!empty($article->dois)): ?>
+<?php if (! empty($article->dois)): ?>
     <div class="row" >
         <div class="col-md-8">
             <h4 style="display: inline-block;">
@@ -125,39 +119,39 @@ $edit_perm = isset($userid);
         <div class="col-md-12 details-container">
 
             <?php foreach ($article->doi_papers as $paper) {
-                echo ResultItem::widget([
-                    "internal_id" => $paper["internal_id"],
-                    "edit_perm" => true,
-                    "user_id" => $paper["user_id"],
-                    "doi" => $paper["doi"],
-                    "title" => $paper["title"],
-                    "authors" => $paper["authors"],
-                    "journal" => $paper["journal"],
-                    "year" => $paper["year"],
-                    "concepts" => $paper["concepts"],
-                    "tags" => isset($paper["tags"]) ? $paper["tags"] : '',
-                    "notes" => isset($paper["notes"]) ? $paper["notes"] : '',
-                    "involvements" => Yii::$app->params['involvement_fields'],
+    echo ResultItem::widget([
+                    'internal_id' => $paper['internal_id'],
+                    'edit_perm' => true,
+                    'user_id' => $paper['user_id'],
+                    'doi' => $paper['doi'],
+                    'title' => $paper['title'],
+                    'authors' => $paper['authors'],
+                    'journal' => $paper['journal'],
+                    'year' => $paper['year'],
+                    'concepts' => $paper['concepts'],
+                    'tags' => $paper['tags'] ?? '',
+                    'notes' => $paper['notes'] ?? '',
+                    'involvements' => Yii::$app->params['involvement_fields'],
                     // "involved" => $paper["involvement"],
-                    "pop_score" => $paper["attrank"],
-                    "inf_score" => $paper["pagerank"],
-                    "imp_score" => $paper["3y_cc"],
-                    "cc_score" => $paper["citation_count"],
-                    "pop_class" => $paper["pop_class"],
-                    "inf_class" => $paper["inf_class"],
-                    "imp_class" => $paper["imp_class"],
-                    "cc_class" => $paper["cc_class"],
-                    "is_oa" => $paper["is_oa"],
-                    "type" => $paper["type"],
-                    "show" => [
-                        "concepts" => true,
-                        "tags" => false,
-                        "reading_status" => false,
-                        "notes" => false,
-                        "bookmark" => true,
+                    'pop_score' => $paper['attrank'],
+                    'inf_score' => $paper['pagerank'],
+                    'imp_score' => $paper['3y_cc'],
+                    'cc_score' => $paper['citation_count'],
+                    'pop_class' => $paper['pop_class'],
+                    'inf_class' => $paper['inf_class'],
+                    'imp_class' => $paper['imp_class'],
+                    'cc_class' => $paper['cc_class'],
+                    'is_oa' => $paper['is_oa'],
+                    'type' => $paper['type'],
+                    'show' => [
+                        'concepts' => true,
+                        'tags' => false,
+                        'reading_status' => false,
+                        'notes' => false,
+                        'bookmark' => true,
                     ]
                 ]);
-            } ?>
+} ?>
         </div>
     </div>
 <?php else: ?>

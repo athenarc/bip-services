@@ -23,7 +23,6 @@
         "bigpaulie/yii2-social-share": "dev-master",
         "sammaye/yii2-solr": "^1.20",
         "wamania/php-stemmer": "^1.2",
-        "alexander-suter/yii2-tag-cloud": "*",
         "yiisoft/yii2-httpclient": "^2.0",
         "solarium/solarium": "4.2.0",
         "kartik-v/yii2-widget-datepicker": "dev-master",
@@ -32,14 +31,16 @@
         "stefanak-michal/bolt": "==v3.1.4",
         "wbraganca/yii2-dynamicform": "*",
         "kartik-v/yii2-widget-select2": "^2.2",
-        "kartik-v/yii2-builder": "^1.6",
-        "ricco/yii2-ticket": "2.0.0"
+        "kartik-v/yii2-builder": "^1.6"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
-        "yiisoft/yii2-faker": "*"
+        "yiisoft/yii2-faker": "*",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpstan/phpstan": "^1.10"
     },
     "config": {
         "process-timeout": 1800,
