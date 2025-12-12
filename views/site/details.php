@@ -35,6 +35,11 @@ if ($in_space) {
     $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
     $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 }
+
+// Register annotation like/dislike JS if enabled for this space
+if ($space_model->enable_like_dislike_annotations) {
+    $this->registerJsFile('@web/js/likeDislikeAnnotations.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+}
 ?>
 
 <div class='row'>
@@ -165,7 +170,17 @@ if ($in_space) {
 
                     <?php foreach ($article->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget(['data' => $annotation['data'], 'space_annotation_db' => $space_model->annotation_db, 'space_url_suffix' => $space_model->url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query']]); ?>
+                            <?php $annotation_content = AnnotationPopover::widget([ 
+                                'data' => $annotation['data'], 
+                                'space_annotation_db' => $space_model->annotation_db, 
+                                'space_url_suffix' => $space_model->url_suffix, 
+                                'space_annotation_id' => $annotation['annotation_id'], 
+                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                                'paper_id' => $article->internal_id,
+                                'annotation_name' => $annotation['label'],
+                                'annotation_id' => $annotation['id'] ?? null,
+                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false
+                            ]); ?>
                             <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
                             <?php if (! empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
