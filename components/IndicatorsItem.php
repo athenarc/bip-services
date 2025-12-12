@@ -3,72 +3,98 @@
 /*
  * Define the namespace of the widget
  */
+
 namespace app\components;
 
 /*
  * Includes
  */
-use yii\base\Widget;
 use app\models\Indicators;
+use yii\base\Widget;
 
 /*
  * The widget class
  */
-class IndicatorsItem extends Widget
-{
+class IndicatorsItem extends Widget {
     /*
      * Widget properties
      */
 
-
     public $edit_perm;
+
     public $works_num;
+
     public $missing_papers_num;
+
     public $facets_selected;
+
     public $show_missing_works = true;
 
     public $popular_works_count;
+
     public $influential_works_count;
+
     public $citations;
+
     public $popularity;
+
     public $influence;
+
     public $impulse;
+
     public $h_index;
+
     public $i10_index;
+
     public $academic_age;
+
     public $paper_min_year;
+
     public $responsible_academic_age;
+
     public $rag_data;
+
     public $papers_num;
+
     public $datasets_num;
+
     public $software_num;
+
     public $other_num;
+
     public $openness;
+
     public $for_print;
 
     public $current_cv_narrative;
 
     public $element_config;
 
+    public $contributions_lists;
+
+    public $contributions_indicators;
+
+    public $template_elements;
+
+    public $missing_papers;
 
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
-    public function init()
-    {
+    public function init() {
         parent::init();
     }
 
     /*
      * Running the widget
      */
-    public function run()
-    {
+    public function run() {
         $data = Indicators::find(['level' => 'Researcher'])
-        ->select(['name', 'semantics', 'intuition'])
-        ->all();
+            ->select(['name', 'semantics', 'intuition'])
+            ->all();
+
         foreach ($data as $element) {
-            if (!isset($indicators[$element['semantics']])) {
+            if (! isset($indicators[$element['semantics']])) {
                 $indicators[$element['semantics']] = [];
             }
             $indicators[$element['semantics']][$element['name']] = $element['intuition'];
@@ -103,11 +129,9 @@ class IndicatorsItem extends Widget
         ];
 
         if ($this->for_print) {
-            return $this->render('pdf/indicators_item', $data);    
+            return $this->render('pdf/indicators_item', $data);
         }
+
         return $this->render('indicators_item', $data);
     }
-
 }
-
-?>
