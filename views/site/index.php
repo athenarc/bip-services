@@ -1,24 +1,19 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\widgets\ActiveForm;
-use yii\widgets\LinkPager;
-use yii\web\View;
-use yii\bootstrap\Modal;
-use app\components\CustomBootstrapCheckboxList;
-use app\components\CustomBootstrapRadioList;
-use app\components\MagicSearchBox;
-use app\components\CustomFiltersRadioList;
+use app\components\CustomBootstrapModal;
 use app\components\CustomFiltersCheckboxList;
+use app\components\CustomFiltersRadioList;
+use app\components\MagicSearchBox;
 use app\components\ResultItem;
 use app\components\TopTopicsItem;
-use app\components\CustomBootstrapModal;
-use yii\helpers\ArrayHelper;
-use app\models\Indicators;
 use app\models\SummaryUsage;
-
 use Yii;
+use yii\bootstrap\Modal;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 
 $this->title = 'BIP! Services - Finder';
 
@@ -48,6 +43,7 @@ $start_year = $model->start_year;
 $end_year = $model->end_year;
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
     $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
@@ -58,10 +54,10 @@ if ($in_space) {
 <div class="site-index">
     <div class="jumbotron">
         <h1>
-            <?php if(isset($space_model->logo)): ?>
+            <?php if (isset($space_model->logo)): ?>
                 <?= Html::img($space_model->uploadLogoPath() . $space_model->logo, ['class' => '', 'style' => 'max-height: 150px;max-width: 80%;']) ?>
             <?php else: ?>
-                <?= Html::img("@web/img/bip-minimal.png", ['class' => 'img-responsive center-block', /*'width' => 100, 'height' => 89*/]) ?>
+                <?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?>
             <?php endif; ?>
 
         </h1>
@@ -69,28 +65,29 @@ if ($in_space) {
             <?= ($in_space) ? $space_model->display_name : 'Amplifying valuable research' ?>
         </p>
         
-        <?php if($in_space): ?>
+        <?php if ($in_space): ?>
             <p>
                 <small>
                     powered by 
                 </small>
                 <a href='<?=Url::to(['site/index'])?>' target='_blank'>
-                    <?= Html::img("@web/img/bip-minimal.png", ['height' => 30]) ?>
+                    <?= Html::img('@web/img/bip-minimal.png', ['height' => 30]) ?>
                 </a>
             </p>
         <?php endif; ?>
 
         <?php
-            $keywords_params = ['autofocus' => true, 'aria-label'=> 'Search', 'placeholder'=>'Enter keywords to retrieve articles...', 'class'=>'search-box form-control'];
+            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Enter keywords to retrieve articles...', 'class' => 'search-box form-control'];
             $fieldOptions = ['template' => "{input}<span class='glyphicon glyphicon-search form-control-feedback'></span>"];
 
-            if( $keywords!='' )
+            if ($keywords != '') {
                 $keywords_params['value'] = $keywords;
+            }
 
                 // loading and some filter validation on form submit happens in beforeSearchFormSubmit.js file
-                $form = ActiveForm::begin(['id' => 'search-form', 'method'=>'POST', 'action'=> Url::to(['site/index']), 'options'=>[]]);
+                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => []]);
             ?>
-            <?= Html::hiddenInput('space_url_suffix', $space_model->url_suffix, [ 'id' => 'space_url_suffix']) ?>
+            <?= Html::hiddenInput('space_url_suffix', $space_model->url_suffix, ['id' => 'space_url_suffix']) ?>
 
             <div class='row'>
                 <div class="col-md-8 col-md-offset-2">
@@ -104,55 +101,56 @@ if ($in_space) {
             <div class='row grey-text'>
                 <div class='col-xs-12'>
                     <div class = "inline-block-d" style = "margin:0 8px">
-                        <?= $form->field($model, 'ordering')->dropdownList([
+                        <?= $form->field($model, 'ordering')->dropdownList(
+                [
                             'popularity' => 'Popularity',
                             'influence' => 'Influence',
                             'citation_count' => 'Citation Count',
                             'impulse' => 'Impulse',
                             'year' => 'Year'
                             ],
-                            ['onchange' => '$(this).closest(\'form\').submit()',
+                ['onchange' => '$(this).closest(\'form\').submit()',
                             'style' => ['display' => 'inline-block', 'width' => 'auto', 'color' => 'grey'],
                             ]
-                        );?>
+            );?>
                     </div>
                 </div>
             </div>
-            <?php if (!empty($results['rows']) || ($keywords != '')) { ?>
+            <?php if (! empty($results['rows']) || ($keywords != '')) { ?>
                 <div id="collapsible_menu">
                     <div id="search_filters" class="toggled">
                         <a href="#" id="remove_filters">reset to default</a><br/>
 
-                        <?= CustomFiltersRadioList::widget(['id' => 'popularity_filter', 'name' => 'popularity', 'model' => $model, 'form' => $form, 'items' => ["top001" => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', "top10" => 'Top 10%', 'all' => 'All']]); ?>
+                        <?= CustomFiltersRadioList::widget(['id' => 'popularity_filter', 'name' => 'popularity', 'model' => $model, 'form' => $form, 'items' => ['top001' => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', 'top10' => 'Top 10%', 'all' => 'All']]); ?>
 
-                        <?= CustomFiltersRadioList::widget(['id' => 'influence_filter', 'name' => 'influence', 'model' => $model, 'form' => $form, 'items' => ["top001" => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', "top10" => 'Top 10%', 'all' => 'All']]); ?>
+                        <?= CustomFiltersRadioList::widget(['id' => 'influence_filter', 'name' => 'influence', 'model' => $model, 'form' => $form, 'items' => ['top001' => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', 'top10' => 'Top 10%', 'all' => 'All']]); ?>
 
-                        <?= CustomFiltersRadioList::widget(['id' => 'cc_filter', 'name' => 'cc', 'model' => $model, 'form' => $form, 'items' => ["top001" => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', "top10" => 'Top 10%', 'all' => 'All']]); ?>
+                        <?= CustomFiltersRadioList::widget(['id' => 'cc_filter', 'name' => 'cc', 'model' => $model, 'form' => $form, 'items' => ['top001' => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', 'top10' => 'Top 10%', 'all' => 'All']]); ?>
 
-                        <?= CustomFiltersRadioList::widget(['id' => 'impulse_filter', 'name' => 'impulse', 'model' => $model, 'form' => $form, 'items' => ["top001" => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', "top10" => 'Top 10%', 'all' => 'All']]); ?>
+                        <?= CustomFiltersRadioList::widget(['id' => 'impulse_filter', 'name' => 'impulse', 'model' => $model, 'form' => $form, 'items' => ['top001' => 'Top 0.01%', 'top01' => 'Top 0.1%', 'top1' => 'Top 1%', 'top10' => 'Top 10%', 'all' => 'All']]); ?>
 
-                        <?= CustomFiltersCheckboxList::widget(['id' => 'type_filter', 'name' => 'type', 'model' => $model, 'form' => $form, 'items' => array_map(function ($value) {return $value['name'];}, Yii::$app->params['work_types']), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+                        <?= CustomFiltersCheckboxList::widget(['id' => 'type_filter', 'name' => 'type', 'model' => $model, 'form' => $form, 'items' => array_map(function ($value) {return $value['name'];}, Yii::$app->params['work_types']), 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
 
-                        <?= CustomFiltersCheckboxList::widget(['id' => 'is_oa_filter', 'name' => 'is_oa', 'model' => $model, 'form' => $form, 'items' => array_map(function($v){ return $v['name']; }, array_filter(Yii::$app->params['openness'], function($k){ return $k !== ''; }, ARRAY_FILTER_USE_KEY)), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+                        <?= CustomFiltersCheckboxList::widget(['id' => 'is_oa_filter', 'name' => 'is_oa', 'model' => $model, 'form' => $form, 'items' => array_map(function ($v) { return $v['name']; }, array_filter(Yii::$app->params['openness'], function ($k) { return $k !== ''; }, ARRAY_FILTER_USE_KEY)), 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
 
                         <?php if ($in_space): ?>
-                            <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+                            <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
                         <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
                             <label>Start Year</label>
-                            <?php if (!$start_year) { ?>
-                                <input class="search-box form-control" type="number" step="1" name="start_year" id="start_year_input" placeholder="Starting Publication Year" min="1400" max='<?= date("Y") ?>' value="" />
+                            <?php if (! $start_year) { ?>
+                                <input class="search-box form-control" type="number" step="1" name="start_year" id="start_year_input" placeholder="Starting Publication Year" min="1400" max='<?= date('Y') ?>' value="" />
                             <?php } else { ?>
-                                <input class="search-box form-control" type="number" step="1" name="start_year" id="start_year_input" placeholder="Starting Publication Year" min="1400" max='<?= date("Y") ?>' value="<?= $start_year ?>"/>
+                                <input class="search-box form-control" type="number" step="1" name="start_year" id="start_year_input" placeholder="Starting Publication Year" min="1400" max='<?= date('Y') ?>' value="<?= $start_year ?>"/>
                             <?php } ?>
                             <div class="help-block"></div>
 
                             <label>End Year</label>
-                            <?php if (!$end_year) { ?>
-                                <input class="search-box form-control has-error" type="number" step="1" name="end_year" id="end_year_input" placeholder="Ending Publication Year" min="1400" max='<?= date("Y") ?>' value="" />
+                            <?php if (! $end_year) { ?>
+                                <input class="search-box form-control has-error" type="number" step="1" name="end_year" id="end_year_input" placeholder="Ending Publication Year" min="1400" max='<?= date('Y') ?>' value="" />
                             <?php } else { ?>
-                                <input class="search-box form-control has-error" type="number" step="1"  name="end_year" id="end_year_input" placeholder="Ending Publication Year" min="1400" max='<?= date("Y") ?>' value="<?= $end_year ?>"/>
+                                <input class="search-box form-control has-error" type="number" step="1"  name="end_year" id="end_year_input" placeholder="Ending Publication Year" min="1400" max='<?= date('Y') ?>' value="<?= $end_year ?>"/>
                             <?php } ?>
                         </div>
                         <!-- add vertical space -->
@@ -162,7 +160,7 @@ if ($in_space) {
                         <?= MagicSearchBox::widget(['min_char_to_start' => 1,
                                 'expansion' => 'both',
                                 'suggestions_num' => 10,
-                                'html_params' => ['id' => 'topics_search_box','name'=>'topics','class'=>'form-control search-box', 'placeholder' => "Select Topics"],
+                                'html_params' => ['id' => 'topics_search_box', 'name' => 'topics', 'class' => 'form-control search-box', 'placeholder' => 'Select Topics'],
                                 'ajax_action' => Url::toRoute('auto-complete-concepts'),
                                 'selected_elements' => $model->topics
                         ]);?>
@@ -184,7 +182,7 @@ if ($in_space) {
             <?php } ?>
             <?php ActiveForm::end(); ?>
 
-            <?php if (!empty($researcher_count)): ?>
+            <?php if (! empty($researcher_count)): ?>
                 <div id="researcher_panel" class="panel-body text-left grey-text" style="font-size: 1.2em;">
                     Searching for a researcher? Found
                     <a class="main-green" href="<?= Url::to([
@@ -210,20 +208,20 @@ if ($in_space) {
                 </div>
             </div>
 
-            <?php if(!empty($results['rows'])) { ?>
+            <?php if (! empty($results['rows'])) { ?>
                 <div class='container-fluid'>
                     
                     <?= TopTopicsItem::widget([]) ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">
-                            <?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results (<?= Yii::$app->formatter->asDecimal($results['pagination']->pageCount,0) ?> pages)
+                            <?= Yii::$app->formatter->asDecimal($results['pagination']->totalCount, 0) ?> results (<?= Yii::$app->formatter->asDecimal($results['pagination']->pageCount, 0) ?> pages)
                         </div>
                         <div class='col-sm-12 col-md-6 text-center' style="margin-bottom: 15px;">
-                            <?= LinkPager::widget(['pagination'=>$results['pagination'],
-                                'maxButtonCount'=>5,
+                            <?= LinkPager::widget(['pagination' => $results['pagination'],
+                                'maxButtonCount' => 5,
                                 'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
-                                'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
+                                'lastPageLabel' => '<i class="fa-solid fa-forward-fast"></i>']);
                             ?>
                         </div>
 
@@ -234,9 +232,9 @@ if ($in_space) {
                         <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
                             <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
                                 <button id="summarizeBtn" class="btn btn-default btn-sm" 
-                                        data-paper-ids='<?= json_encode(array_map(function($result) { 
-                                            return $result['internal_id']; 
-                                        }, $results['rows'])) ?>'
+                                        data-paper-ids='<?= json_encode(array_map(function ($result) {
+                            return $result['internal_id'];
+                        }, $results['rows'])) ?>'
                                         data-keywords='<?= $keywords ?>'
                                         data-threshold="<?= $threshold ?>"
                                     >
@@ -295,71 +293,71 @@ if ($in_space) {
 
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
-                            <?php 
+                            <?php
                             // Calculate paper_rank based on pagination
                             $current_page = $results['pagination']->page + 1; // Pagination is 0-indexed
                             $page_size = $results['pagination']->pageSize;
-                            
-                            foreach($results['rows'] as $index => $result ) {
+
+                            foreach ($results['rows'] as $index => $result) {
                                 $paper_rank = ($current_page - 1) * $page_size + ($index + 1);
-                                
+
                                 echo ResultItem::widget([
-                                    "impact_indicators" => $impact_indicators,
-                                    "internal_id" => $result["internal_id"],
-                                    "doi" => $result["doi"],
-                                    "dois_num" => $result["dois_num"],
-                                    "openaire_id" => $result["openaire_id"],
-                                    "title" => $result["title"],
-                                    "authors" => $result["authors"],
-                                    "journal" => $result["journal"],
-                                    "year" => $result["year"],
-                                    "concepts" => $result["concepts"],
-                                    "annotations" => $result["annotations"] ?? null,
-                                    "relations" => $result["relations"],
-                                    "user_id" => $result["user_id"],
-                                    "pop_score" => $result["attrank"],
-                                    "inf_score" => $result["pagerank"],
-                                    "imp_score" => $result["3y_cc"],
-                                    "cc_score" => $result["citation_count"],
-                                    "pop_class" => $result["pop_class"],
-                                    "inf_class" => $result["inf_class"],
-                                    "imp_class" => $result["imp_class"],
-                                    "cc_class" => $result["cc_class"],
-                                    "is_oa" => $result["is_oa"],
-                                    "type" => $result["type"],
-                                    "pubmed_types" => $result["pubmed_types"],
-                                    "search_context" =>  $result["search_context"],
-                                    "repo_url" => $result["zenodo_repo_url"] ?? null,
-                                    "show" => [
-                                        "concepts" => true,
-                                        "pubmed_types" => !$in_space || $space_model->has_pubmed_types,
-                                        "annotations" => true,
-                                        "relations" => true,
-                                        "open_access" => true,
-                                        "search_context" => true,
-                                        "copy_link" => true,
-                                        "bookmark" => true,
+                                    'impact_indicators' => $impact_indicators,
+                                    'internal_id' => $result['internal_id'],
+                                    'doi' => $result['doi'],
+                                    'dois_num' => $result['dois_num'],
+                                    'openaire_id' => $result['openaire_id'],
+                                    'title' => $result['title'],
+                                    'authors' => $result['authors'],
+                                    'journal' => $result['journal'],
+                                    'year' => $result['year'],
+                                    'concepts' => $result['concepts'],
+                                    'annotations' => $result['annotations'] ?? null,
+                                    'relations' => $result['relations'],
+                                    'user_id' => $result['user_id'],
+                                    'pop_score' => $result['attrank'],
+                                    'inf_score' => $result['pagerank'],
+                                    'imp_score' => $result['3y_cc'],
+                                    'cc_score' => $result['citation_count'],
+                                    'pop_class' => $result['pop_class'],
+                                    'inf_class' => $result['inf_class'],
+                                    'imp_class' => $result['imp_class'],
+                                    'cc_class' => $result['cc_class'],
+                                    'is_oa' => $result['is_oa'],
+                                    'type' => $result['type'],
+                                    'pubmed_types' => $result['pubmed_types'],
+                                    'search_context' => $result['search_context'],
+                                    'repo_url' => $result['zenodo_repo_url'] ?? null,
+                                    'show' => [
+                                        'concepts' => true,
+                                        'pubmed_types' => ! $in_space || $space_model->has_pubmed_types,
+                                        'annotations' => true,
+                                        'relations' => true,
+                                        'open_access' => true,
+                                        'search_context' => true,
+                                        'copy_link' => true,
+                                        'bookmark' => true,
                                     ],
-                                    "space_url_suffix" => $space_model->url_suffix,
-                                    "space_annotation_db" => $space_model->annotation_db,
-                                    "paper_rank" => $paper_rank,
-                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false,
-                                    "user_vote_record" => $user_votes[$result["internal_id"]] ?? null
+                                    'space_url_suffix' => $space_model->url_suffix,
+                                    'space_annotation_db' => $space_model->annotation_db,
+                                    'paper_rank' => $paper_rank,
+                                    'enable_like_dislike_records' => $space_model->enable_like_dislike_records ?? false,
+                                    'user_vote_record' => $user_votes[$result['internal_id']] ?? null
                                 ]);
                             } ?>
                         </div>
                     </div>
                     <div id="results_ftr" class='row'>
-                        <div class='col-md-12 text-center'><?= LinkPager::widget(['pagination'=>$results['pagination'],
-                            'maxButtonCount'=>5,
+                        <div class='col-md-12 text-center'><?= LinkPager::widget(['pagination' => $results['pagination'],
+                            'maxButtonCount' => 5,
                             'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
-                            'lastPageLabel'  => '<i class="fa-solid fa-forward-fast"></i>']);
+                            'lastPageLabel' => '<i class="fa-solid fa-forward-fast"></i>']);
                         ?></div>
                     </div>
                 </div>
                     <?php } else { ?>
                         <div id='results_set'>
-                            <?php if( $keywords != "" ) { ?>
+                            <?php if ($keywords != '') { ?>
                                 <p class="help-text" style="text-align: center;">No results found!<br/>
                                 Please check your spelling or try again with different input parameters</p>
                             <?php } else { ?>
@@ -436,15 +434,15 @@ if ($in_space) {
                                                         <div class="bip-carousel">
                                                             <div class="bip-carousel-inner">
                                                                 <div class="bip-carousel-item">
-                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <?= Html::img('@web/img/bip-minimal.png', ['class' => 'bip-slide-logo']) ?>
                                                                     <a href="<?= Url::to(['/scholar']) ?>" class="bip-slide-button">Scholar</a>
                                                                 </div>
                                                                 <div class="bip-carousel-item">
-                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <?= Html::img('@web/img/bip-minimal.png', ['class' => 'bip-slide-logo']) ?>
                                                                     <a href="<?= Url::to(['/spaces']) ?>" class="bip-slide-button">Spaces</a>
                                                                 </div>
                                                                 <div class="bip-carousel-item">
-                                                                    <?= Html::img("@web/img/bip-minimal.png", ['class' => 'bip-slide-logo']) ?>
+                                                                    <?= Html::img('@web/img/bip-minimal.png', ['class' => 'bip-slide-logo']) ?>
                                                                     <a href="<?= Url::to(['/readings']) ?>" class="bip-slide-button">Readings</a>
                                                                 </div>
                                                             </div>
