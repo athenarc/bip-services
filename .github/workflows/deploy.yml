@@ -24,18 +24,6 @@ jobs:
         # Add host to known_hosts
         ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-    - name: Debug SSH Key Format
-      run: |
-        echo "---- Debug: SSH Key Header ----"
-        head -n 3 ~/.ssh/deploy_key || true
-
-        echo "---- Debug: File type ----"
-        file ~/.ssh/deploy_key || true
-
-        echo "---- Debug: Try parsing key ----"
-        ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1 && \
-          echo "Key is VALID" || echo "❌ Key is INVALID"
-
     - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3
       with:
