@@ -4,12 +4,9 @@ use app\components\CustomBootstrapModal;
 use app\components\CustomFiltersCheckboxList;
 use app\components\CustomFiltersRadioList;
 use app\components\MagicSearchBox;
+use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\TopTopicsItem;
-use app\components\CustomBootstrapModal;
-use app\components\PubmedTypesModal;
-use yii\helpers\ArrayHelper;
-use app\models\Indicators;
 use app\models\SummaryUsage;
 use Yii;
 use yii\bootstrap\Modal;
@@ -142,7 +139,7 @@ if ($in_space) {
 
                         <?= CustomFiltersCheckboxList::widget(['id' => 'is_oa_filter', 'name' => 'is_oa', 'model' => $model, 'form' => $form, 'items' => array_map(function ($v) { return $v['name']; }, array_filter(Yii::$app->params['openness'], function ($k) { return $k !== ''; }, ARRAY_FILTER_USE_KEY)), 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
 
-                        <?php if (!$in_space || $space_model->has_pubmed_types): ?>
+                        <?php if (! $in_space || $space_model->has_pubmed_types): ?>
 
                                 <div class="form-group field-pubmed_types_filter" >
                                     <label class="control-label">NLM Types</label>
@@ -150,10 +147,10 @@ if ($in_space) {
                                         <?= Html::activeHiddenInput($model, 'pubmed_types', [
                                             'id' => 'filter-pubmed-types-hidden',
                                             'class' => 'form-control',
-                                            'value' => implode(',', (array)$model->pubmed_types)
+                                            'value' => implode(',', (array) $model->pubmed_types)
                                         ]) ?>
                                         <button type="button" class="btn btn-default" style="color:unset" data-toggle="modal" data-target="#filterPubmedTypesModal">
-                                            Edit NLM Types (<span id="filter-pubmed-types-count"><?= count((array)$model->pubmed_types)?></span>)
+                                            Edit NLM Types (<span id="filter-pubmed-types-count"><?= count((array) $model->pubmed_types)?></span>)
                                         </button>
                                     </div>
                                     <div class="help-block"></div>
@@ -369,12 +366,12 @@ if ($in_space) {
                                         'copy_link' => true,
                                         'bookmark' => true,
                                     ],
-                                    "space_url_suffix" => $space_model->url_suffix,
-                                    "space_annotation_db" => $space_model->annotation_db,
-                                    "paper_rank" => $paper_rank,
-                                    "enable_like_dislike_records" => $space_model->enable_like_dislike_records ?? false,
-                                    "enable_like_dislike_annotations" => $space_model->enable_like_dislike_annotations ?? false,
-                                    "user_vote_record" => $user_votes[$result["internal_id"]] ?? null
+                                    'space_url_suffix' => $space_model->url_suffix,
+                                    'space_annotation_db' => $space_model->annotation_db,
+                                    'paper_rank' => $paper_rank,
+                                    'enable_like_dislike_records' => $space_model->enable_like_dislike_records ?? false,
+                                    'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false,
+                                    'user_vote_record' => $user_votes[$result['internal_id']] ?? null
                                 ]);
                             } ?>
                         </div>
@@ -515,7 +512,7 @@ if ($in_space) {
     ?>
 
 
-    <?php if (!$in_space || $space_model->has_pubmed_types): ?>
+    <?php if (! $in_space || $space_model->has_pubmed_types): ?>
                             
         <?= PubmedTypesModal::widget([
             'modalId' => 'filterPubmedTypesModal',
