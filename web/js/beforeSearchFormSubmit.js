@@ -19,13 +19,13 @@ $(document).ready(function()
         showYearsErrorMsg();
 
         return false;
-    
+
     });
 
     function validateYearsFilters() {
         let start_year = $('#start_year_input').val();
         let end_year = $('#end_year_input').val();
-      
+
         return !(start_year && end_year && (end_year < start_year));
     }
 
@@ -35,4 +35,40 @@ $(document).ready(function()
 
         $('#years_form_group').addClass('has-error');
     }
+
+
+
+    $('#filterPubmedTypesModal').on('show.bs.modal', function () {
+
+        // read original saved values from hidden field
+        var saved = $('#filter-pubmed-types-hidden').val().split(',');
+        if (saved.length === 1 && saved[0] === '') saved = [];
+
+        // clear all checkboxes
+        $('.filter-pubmed-type-checkbox').prop('checked', false);
+
+        // restore saved selections
+        saved.forEach(function (val) {
+            $('.filter-pubmed-type-checkbox[value="' + val + '"]').prop('checked', true);
+        });
+
+    });
+
+    // Add selected checkboxes into hidden input and submit the form
+    $('#filterApplyPubmedTypes').on('click', function() {
+
+        var selected = [];
+
+        $('.filter-pubmed-type-checkbox:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        $('#filter-pubmed-types-hidden').val(selected.join(','));
+
+        $('#filterPubmedTypesModal').modal('hide');
+
+        // Submit search form
+        $('#search-form').submit();
+    });
+
 });

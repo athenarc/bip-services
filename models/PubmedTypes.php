@@ -61,6 +61,7 @@ class PubmedTypes extends \yii\db\ActiveRecord
 
         $ids = array_column($papers, 'internal_id');
 
+        // each paper can have multiple pmids
         $ids_to_types = (new \yii\db\Query())
         ->select('pp.paper_id, pt.pmid, pt.pubmed_types')
         ->from('pmc_paper_pids pp')
@@ -79,6 +80,12 @@ class PubmedTypes extends \yii\db\ActiveRecord
             $types = explode(',', $row['pubmed_types']);
 
             foreach ($types as $type) {
+
+                // avoid adding duplicate pubmed_types from multiple pmids
+                if (isset($id_to_types_group[$paperId]) && in_array($type, array_column($id_to_types_group[$paperId], 'id'), true)) {
+                    continue;
+                }
+
                 $id_to_types_group[$paperId][] = [
                     'id' => $type,
                     'name' =>  Yii::$app->params['pubmed_types_fields'][$type] ?? null,
