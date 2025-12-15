@@ -10,9 +10,24 @@ $bottomPadding = isset($elem->bottom_padding) ? $elem->bottom_padding : '0px';
 $showTopHr = isset($elem->show_top_hr) ? $elem->show_top_hr : false;
 $showBottomHr = isset($elem->show_bottom_hr) ? $elem->show_bottom_hr : false;
 
+// Build margin style
+$marginStyle = '';
+if (!empty($elem->margin_top)) {
+    $marginStyle .= 'margin-top: ' . $elem->margin_top . '; ';
+}
+if (!empty($elem->margin_right)) {
+    $marginStyle .= 'margin-right: ' . $elem->margin_right . '; ';
+}
+if (!empty($elem->margin_bottom)) {
+    $marginStyle .= 'margin-bottom: ' . $elem->margin_bottom . '; ';
+}
+if (!empty($elem->margin_left)) {
+    $marginStyle .= 'margin-left: ' . $elem->margin_left . '; ';
+}
+
 ?>
 
-<div id="divider_<?= $elem->element_id ?>" class="section-divider">
+<div id="divider_<?= $elem->element_id ?>" class="section-divider"<?= !empty($marginStyle) ? ' style="' . trim($marginStyle) . '"' : '' ?>>
     
     <?php if ($topPadding): ?>
         <div style="padding-top: <?= $topPadding ?>;"></div>

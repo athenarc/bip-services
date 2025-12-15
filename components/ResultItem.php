@@ -58,6 +58,10 @@ class ResultItem extends Widget
     public $space_annotation_db;
     public $for_print;
     public $view_mode = 'full'; // 'full', 'compact', 'minimal'
+    public $paper_rank;
+    public $enable_like_dislike_records;
+    public $enable_like_dislike_annotations;
+    public $user_vote_record; // 'like', 'dislike', or null
     
     /*
      * Widget initialisation a.k.a. setting widget properties

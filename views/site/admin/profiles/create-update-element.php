@@ -488,6 +488,7 @@ $section_profiles = ($section === "profiles");
                     'h6' => 'H6',
                 ], ['prompt' => 'Select header size']) ?>
                 <?= $form->field($elementNarrativesFormModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']); ?>
+                <?= $form->field($elementNarrativesFormModel, 'tip')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin'])->hint('This optional tip will help users understand the narrative more clearly.'); ?>
                 <?= $form->field($elementNarrativesFormModel, 'limit_type')->dropDownList(ElementNarratives::getLimitTypeList())->hint('Choose to limit the text of this element by words or characters.') ?>
                 <?= $form->field($elementNarrativesFormModel, 'limit_value')->textInput()->hint('Number of allowed words or characters for this text. Use 0 for no limit.') ?>
                 <?= $form->field($elementNarrativesFormModel, 'hide_when_empty')->checkbox([
@@ -529,6 +530,7 @@ $section_profiles = ($section === "profiles");
                     'h5' => 'H5',
                     'h6' => 'H6'], ['prompt' => 'Select header size', 'value' => $elementNarrativesModel->heading_type]) ?>
                     <?= $form->field($elementNarrativesFormModel, 'description')->textarea(['value' => $elementNarrativesModel->description, 'rows' => 6, 'class' => 'rich_text_area_admin']); ?>
+                    <?= $form->field($elementNarrativesFormModel, 'tip')->textarea(['value' => $elementNarrativesModel->tip, 'rows' => 6, 'class' => 'rich_text_area_admin']); ?>
                     <?= $form->field($elementNarrativesFormModel, 'limit_type')->dropDownList($elementNarrativesModel::getLimitTypeList(), ['value' => $elementNarrativesModel->limit_type]) ?>
                     <?= $form->field($elementNarrativesFormModel, 'limit_value')->textInput(['value' => $elementNarrativesModel->limit_value]) ?>
 
@@ -598,6 +600,31 @@ $section_profiles = ($section === "profiles");
                 <?= $form->field($elementDividersFormModel, 'show_top_hr')->checkbox() ?>
                 <?= $form->field($elementDividersFormModel, 'show_bottom_hr')->checkbox() ?>
 
+                <!-- Margin settings -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <strong>Margins</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_top')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_right')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_bottom')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <?= $form->field($elementDividersFormModel, 'margin_left')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             <?php else: ?>
                 <?php if ($elementModel->type == "Section Divider"): ?>
                     <?= $form->field($elementDividersFormModel, 'title')->textInput(['value' => $elementDividersModel->title, 'maxlength' => true]); ?>
@@ -631,6 +658,31 @@ $section_profiles = ($section === "profiles");
                     <?= $form->field($elementDividersFormModel, 'show_bottom_hr')->checkbox([
                         'checked' => $elementDividersModel->show_bottom_hr ? true : false,
                     ]) ?>
+
+                    <!-- Margin settings -->
+                    <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <strong>Margins</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_top')->textInput(['value' => $elementDividersModel->margin_top, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_right')->textInput(['value' => $elementDividersModel->margin_right, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_bottom')->textInput(['value' => $elementDividersModel->margin_bottom, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <?= $form->field($elementDividersFormModel, 'margin_left')->textInput(['value' => $elementDividersModel->margin_left, 'maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
                 <?php endif ?>
             <?php endif ?>
         </div>

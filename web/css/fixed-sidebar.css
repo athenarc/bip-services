@@ -68,6 +68,13 @@
     color: var(--main-color);
 }
 
+/* Ensure anchored headings sit below the fixed header/spacing on scroll */
+#indicators h2,
+#indicators h3,
+#indicators h4 {
+    scroll-margin-top: 70px; /* Match OFFSET in scrollToAnchor.js for indicators */
+}
+
 #indicators .indicator-heading {
     margin-top: 20px;
     margin-bottom: 10px;

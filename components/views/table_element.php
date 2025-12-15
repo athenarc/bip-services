@@ -1,32 +1,30 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\web\View;
-use kartik\builder\TabularForm;
-use kartik\grid\GridView;
-use yii\data\ArrayDataProvider;
 use app\components\common\CommonUtils;
+use yii\helpers\Html;
+use yii\web\View;
+
+// needed for debounce
+$this->registerJsFile('@web/js/utils.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tableElement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/utils.js', ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]); // needed for { debounce }
 
-
 $elem = $this->context;
-$headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];
+$headingType = ! empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];
 
 ?>
 
 <div>
 
-    <?php if (!$elem->edit_perm): ?>
+    <?php if (! $elem->edit_perm): ?>
 
-        <?php if (!empty($elem->table_data) || !$elem->hide_when_empty): ?>
+        <?php if (! empty($elem->table_data) || ! $elem->hide_when_empty): ?>
             <<?= $headingType ?>>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"> <?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
+                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (! empty($elem->description)) ? Html::encode($elem->description) : 'No description provided for this element.' ?></div>"> <?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
             </<?= $headingType ?>>
         <?php endif; ?>
 
-        <?php if (!empty($elem->table_data)): ?>
+        <?php if (! empty($elem->table_data)): ?>
             <div class="panel panel-default table-responsive dynamic-table-panel">
                 <table class="table table-hover table-bordered dynamic-table element-table">
                     <thead>
@@ -48,7 +46,7 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
                 </table>
             </div>
         <?php else: ?>
-            <?php if (!$elem->hide_when_empty): ?>
+            <?php if (! $elem->hide_when_empty): ?>
                 <div class="alert alert-warning text-center" role="alert">
                     The researcher has not yet provided input for this element. 
                 </div>
@@ -64,7 +62,7 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
         <div style="text-align: justify; font-style: italic;">
             <?= $elem->description ?>
         </div>
-        <?php if (!empty($elem->max_rows)): ?>
+        <?php if (! empty($elem->max_rows)): ?>
             <p class="text-warning">        
                 Note that a maximum of <?= $elem->max_rows ?> rows is allowed in this table.
             </p>
@@ -76,14 +74,15 @@ $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->pa
                 <thead>
                     <tr>
                         <?php $header_action_width = 8;
+
                         foreach ($elem->table_headers as $header => $header_width): ?>
-                            <th width = "<?= isset($header_width) ? $header_width*(100-$header_action_width)/100 . '%' : '' ?>"><?= $header ?></th>
+                            <th width = "<?= isset($header_width) ? $header_width * (100 - $header_action_width) / 100 . '%' : '' ?>"><?= $header ?></th>
                         <?php endforeach; ?>
                         <th style="width: <?=  $header_action_width ?>%"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($elem->table_data)): ?>
+                    <?php if (! empty($elem->table_data)): ?>
                         <?php foreach ($elem->table_data as $row): ?>
                             <tr>
                                 <?php foreach ($row as $cell): ?>

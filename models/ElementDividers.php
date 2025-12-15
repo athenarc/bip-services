@@ -15,6 +15,10 @@ use Yii;
  * @property string $bottom_padding
  * @property bool $show_top_hr
  * @property bool $show_bottom_hr
+ * @property string|null $margin_top
+ * @property string|null $margin_right
+ * @property string|null $margin_bottom
+ * @property string|null $margin_left
  *
  * @property Elements $element
  */
@@ -42,6 +46,7 @@ class ElementDividers extends \yii\db\ActiveRecord
             [['element_id'], 'integer'],
             [['show_top_hr', 'show_bottom_hr', 'show_description_tooltip'], 'boolean'],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
+            [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
@@ -61,6 +66,10 @@ class ElementDividers extends \yii\db\ActiveRecord
             'show_top_hr' => 'Show top rule',
             'show_bottom_hr' => 'Show bottom rule',
             'show_description_tooltip' => 'Show description as a tooltip',
+            'margin_top' => 'Top margin',
+            'margin_right' => 'Right margin',
+            'margin_bottom' => 'Bottom margin',
+            'margin_left' => 'Left margin',
         ];
     }
 
@@ -72,6 +81,18 @@ class ElementDividers extends \yii\db\ActiveRecord
     public function getElement()
     {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
+    }
+
+    public function beforeSave($insert)
+    {
+        // Add 'px' unit to margin values if they're just numbers
+        foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
+            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+                $this->$marginAttr = $this->$marginAttr . 'px';
+            }
+        }
+
+        return parent::beforeSave($insert);
     }
 
     /**

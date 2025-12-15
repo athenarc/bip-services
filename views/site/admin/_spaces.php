@@ -15,6 +15,7 @@ use wbraganca\dynamicform\DynamicFormWidget;
 
 
 $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerCssFile('@web/css/on-off-my-switch.css');
 
 ?>
 
@@ -276,7 +277,7 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
             'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
             'widgetBody' => '.container-items', // required: css class selector
             'widgetItem' => '.item', // required: css class
-            'limit' => 4, // the maximum times, an element can be cloned (default 999)
+            'limit' => 10, // the maximum times, an element can be cloned (default 999)
             'min' => 0, // 0 or 1 (default 1)
             'insertButton' => '.add-item', // css class
             'deleteButton' => '.remove-item', // css class
@@ -360,6 +361,51 @@ $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'd
     </div>
     <?php DynamicFormWidget::end(); ?>
 
+    <h3>Evaluation</h3>
+
+    <div class="form-group">
+        <div class="flex-wrap items-center" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <label style="margin: 0;">Like/Dislike Records</label>
+            <div class="my-switch">
+                <?php
+                // Get the current value, default to 0 (false) if not set
+                $isEnabled = isset($model->enable_like_dislike_records) ? (bool)$model->enable_like_dislike_records : false;
+                ?>
+                <!-- Hidden input to store the actual value (0 or 1) -->
+                <input type="hidden" name="Spaces[enable_like_dislike_records]" id="enable-like-dislike-records-value" value="<?= $isEnabled ? '1' : '0' ?>">
+                <input 
+                    type="checkbox" 
+                    id="enable-like-dislike-records-toggle"
+                    class="my-switch-input" 
+                    <?= $isEnabled ? "checked" : "" ?>
+                    onchange="document.getElementById('enable-like-dislike-records-value').value = this.checked ? '1' : '0';"
+                >
+                <label for="enable-like-dislike-records-toggle" class="my-switch-slider"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="flex-wrap items-center" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <label style="margin: 0;">Confirm/Report Annotations</label>
+            <div class="my-switch">
+                <?php
+                // Get the current value, default to 0 (false) if not set
+                $isEnabled = isset($model->enable_like_dislike_annotations) ? (bool)$model->enable_like_dislike_annotations : false;
+                ?>
+                <!-- Hidden input to store the actual value (0 or 1) -->
+                <input type="hidden" name="Spaces[enable_like_dislike_annotations]" id="enable-like-dislike-annotations-value" value="<?= $isEnabled ? '1' : '0' ?>">
+                <input 
+                    type="checkbox" 
+                    id="enable-like-dislike-annotations-toggle"
+                    class="my-switch-input" 
+                    <?= $isEnabled ? "checked" : "" ?>
+                    onchange="document.getElementById('enable-like-dislike-annotations-value').value = this.checked ? '1' : '0';"
+                >
+                <label for="enable-like-dislike-annotations-toggle" class="my-switch-slider"></label>
+            </div>
+        </div>
+    </div>
 
 
     <div class="form-group">

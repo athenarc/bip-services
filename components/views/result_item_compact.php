@@ -61,12 +61,12 @@ $item = $this->context;
 
             <!-- impact indicators -->
             <div class="col-md-4 text-right">
-                <div class="citation-impact-icons">
+                <div class="version-impact-icons-wrapper">
                     <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <div class="version-link-wrapper small">
+                        <span class="version-link-wrapper">
                             <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
                                 <?= $item->dois_num ?> versions</a>
-                        </div>
+                        </span>
                     <?php endif; ?>
                     
                     <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -78,7 +78,6 @@ $item = $this->context;
                                         'impulse_score' => $item->imp_score,
                                         'cc_score' => $item->cc_score,
                                         'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                         ]);?>
                 </div>
             </div>

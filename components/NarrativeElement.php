@@ -13,6 +13,7 @@ class NarrativeElement extends Widget
     public $title;
     public $heading_type;
     public $description; 
+    public $tip; 
     public $hide_when_empty;
     public $value;
     public $edit_perm;

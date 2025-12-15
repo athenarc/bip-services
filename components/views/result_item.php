@@ -50,12 +50,12 @@ $item = $this->context;
             </div>
 
             <div class="col-md-4 col-lg-3 text-right">
-                <div class="citation-impact-icons">
+                <div class="version-impact-icons-wrapper">
                     <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <div class="version-link-wrapper">
+                        <span class="version-link-wrapper">
                             <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
                                 Found <?= $item->dois_num ?> versions</a>
-                        </div>
+                        </span>
                     <?php endif; ?>
                     
                     <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -67,7 +67,6 @@ $item = $this->context;
                                         'impulse_score' => $item->imp_score,
                                         'cc_score' => $item->cc_score,
                                         'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                         ]);?>
                 </div>
             </div>
@@ -106,21 +105,18 @@ $item = $this->context;
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'],2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);"></i></span>
-                                <span class="concept-divider">
-                                    <span style="color: #808080;">|</span> 
-                                    <?= ImpactIcons::widget([
-                                        'popularity_class' => $concept['pop_class'],
-                                        'influence_class' => $concept['inf_class'],
-                                        'impulse_class' => $concept['imp_class'],
-                                        'cc_class' => $concept['cc_class'],
-                                        'popularity_score' => $item->pop_score,
-                                        'influence_score' => $item->inf_score,
-                                        'impulse_score' => $item->imp_score,
-                                        'cc_score' => $item->cc_score,
-                                        'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false],
-                                    ]);?>
-                                </span>
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
+                                    'popularity_class' => $concept['pop_class'],
+                                    'influence_class' => $concept['inf_class'],
+                                    'impulse_class' => $concept['imp_class'],
+                                    'cc_class' => $concept['cc_class'],
+                                    'popularity_score' => $item->pop_score,
+                                    'influence_score' => $item->inf_score,
+                                    'impulse_score' => $item->imp_score,
+                                    'cc_score' => $item->cc_score,
+                                    'impact_indicators' => $item->impact_indicators,
+                                ]);?>
                             </span>
                         <?php }
                     } ?>
@@ -185,7 +181,18 @@ $item = $this->context;
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $item->space_annotation_db, 'space_url_suffix' => $item->space_url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query'] ]); ?>
+                            <?php 
+                            $annotation_content = AnnotationPopover::widget([ 
+                                'data' => $annotation['data'], 
+                                'space_annotation_db' => $item->space_annotation_db, 
+                                'space_url_suffix' => $item->space_url_suffix, 
+                                'space_annotation_id' => $annotation['annotation_id'], 
+                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                                'paper_id' => $item->internal_id,
+                                'annotation_name' => $annotation['label'],
+                                'annotation_id' => $annotation['id'] ?? null,
+                                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false
+                            ]); ?>
                             <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
                             <?php if (!empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
@@ -357,6 +364,48 @@ $item = $this->context;
                     <a class="copy-link btn btn-default btn-xs fs-inherit grey-link" role = "button" target="_blank" href="<?=Url::to(array_merge(['site/details'], $params), true)?>" data-toggle="tooltip">
                         <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy Link
                     </a>
+                </div>
+            <?php endif; ?>
+
+            <?php 
+            // Show like/dislike buttons if:
+            // 1. User is logged in
+            // 2. Feature is enabled for the space
+            $show_like_dislike = !Yii::$app->user->isGuest 
+                && ($item->enable_like_dislike_records ?? false);
+            ?>
+            <?php if ($show_like_dislike): ?>
+                <!-- like/dislike (relevant/irrelevant) buttons -->
+                <div class="flex-b-18 no-white-space text-center">
+                    <div class="like-dislike-buttons" data-paper-id="<?= $item->internal_id ?>" data-paper-rank="<?= isset($item->paper_rank) ? $item->paper_rank : '' ?>">
+                        <?php 
+                        // Determine button states based on user_vote_record
+                        $base_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_btn_class = 'btn btn-default btn-xs fs-inherit grey-link';
+                        $active_style = 'style="background-color: var(--main-color); color: white;"';
+
+                        $like_class = $base_btn_class;
+                        $dislike_class = $base_btn_class;
+                        $like_style = '';
+                        $dislike_style = '';
+
+                        if (isset($item->user_vote_record)) {
+                            if ($item->user_vote_record === 'like') {
+                                $like_class = $active_btn_class;
+                                $like_style = $active_style;
+                            } elseif ($item->user_vote_record === 'dislike') {
+                                $dislike_class = $active_btn_class;
+                                $dislike_style = $active_style;
+                            }
+                        }
+                        ?>
+                        <button class="btn-like <?= $like_class ?>" type="button" title="This result is relevant to my search" <?= $like_style ?>>
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="btn-dislike <?= $dislike_class ?>" type="button" title="This result is irrelevant to my search" <?= $dislike_style ?>>
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 </div>
             <?php endif; ?>
 

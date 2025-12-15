@@ -40,11 +40,18 @@ $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Use the generic smooth-scroll handler
+$this->registerJsFile('@web/js/scrollToAnchor.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Build/update TOC for Section Divider headings
+$this->registerJsFile('@web/js/profile-toc.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// Report profile functionality
+$this->registerJsFile('@web/js/profile-report.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
 $this->registerCssFile('@web/css/scholar-profile.css');
 $this->registerCssFile('@web/css/missing-works.css');
+$this->registerCssFile('@web/css/profile-toc.css');
 
 $this->title = 'BIP! Services - Scholar';
 
@@ -215,6 +222,11 @@ use yii\bootstrap\NavBar;
                 echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
                 $indicatorIndex = 0;
                 $listIds = array_keys($contributions_indicators);
+                echo "<div id=\"scholar-profile\">";
+                echo "<div id=\"profile-toc-wrap\">";
+                echo "<div class=\"sidebar\"><div class=\"sidebar-body\"><ul id=\"profile-toc\"></ul></div></div>";
+                echo "<div class=\"main-content\" id=\"profile-content\">";
+
                 foreach ($template_elements as $index => $element) {
 
                     switch ($element["type"]) {
@@ -656,6 +668,7 @@ use yii\bootstrap\NavBar;
                                         'title' => $element["config"]->title,
                                         'heading_type' => $element["config"]->heading_type,
                                         'description' => $element["config"]->description,    
+                                        'tip' => $element["config"]->tip,    
                                         'hide_when_empty' => $element["config"]->hide_when_empty,
                                         'edit_perm' => $edit_perm,
                                         'value' => $element["config"]->value,
@@ -716,6 +729,10 @@ use yii\bootstrap\NavBar;
                                 'bottom_padding' => $element["config"]->bottom_padding,
                                 'show_top_hr' => $element["config"]->show_top_hr,
                                 'show_bottom_hr' => $element["config"]->show_bottom_hr,
+                                'margin_top' => $element["config"]->margin_top ?? null,
+                                'margin_right' => $element["config"]->margin_right ?? null,
+                                'margin_bottom' => $element["config"]->margin_bottom ?? null,
+                                'margin_left' => $element["config"]->margin_left ?? null,
                                 'edit_perm' => $edit_perm,
                             ]);
                             break;
@@ -790,6 +807,9 @@ use yii\bootstrap\NavBar;
                             break;
                     }
                 }
+                echo "</div>"; // end main-content
+                echo "</div>"; // end profile-toc-wrap
+                echo "</div>"; // end scholar-profile
             ?>
         </div>
 
@@ -925,4 +945,46 @@ use yii\bootstrap\NavBar;
         <?php endif; ?>
 
     */ ?>
+
+    <!-- Report Profile Modal -->
+    <?php if (!$edit_perm && !Yii::$app->user->isGuest): ?>
+        <?php
+        $footer = '
+            <button class="btn btn-custom-color" type="button" id="submit-report-btn">Submit Report</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        ';
+        Modal::begin([
+            'header' => '<h4>Report Profile</h4>',
+            'id' => 'reportProfileModal',
+            'size' => 'modal-md',
+            'footer' => $footer
+        ]);
+        ?>
+            <form id="report-profile-form" autocomplete="off">
+                <?= Html::hiddenInput('reported_orcid', $researcher->orcid, ['id' => 'report-profile-orcid']) ?>
+                
+                <div class="form-group">
+                    <label for="report-reason">Reason for Reporting <span class="text-danger">*</span></label>
+                    <select id="report-reason" name="reason" class="form-control" required>
+                        <option value="" disabled selected>-- Select a reason --</option>
+                        <option value="Inappropriate content">Inappropriate content</option>
+                        <option value="Fake or impersonation">Fake or impersonation</option>
+                        <option value="Spam or misleading">Spam or misleading</option>
+                        <option value="Copyright violation">Copyright violation</option>
+                        <option value="Harassment or abuse">Harassment or abuse</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <small class="form-text text-muted">Please select the reason for reporting this profile.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="report-description">Additional Details (optional)</label>
+                    <textarea id="report-description" name="description" class="form-control" rows="4" maxlength="1000" placeholder="Please provide any additional information that may help us review this report..."></textarea>
+                    <small class="form-text text-muted"><span id="report-description-count">0</span>/1000 characters</small>
+                </div>
+                
+                <div id="report-message" class="alert" style="display: none;"></div>
+            </form>
+        <?php Modal::end(); ?>
+    <?php endif; ?>
 <?php endif; ?>
