@@ -46,11 +46,6 @@ class FacetsItem extends Widget {
 
     public $facets_linked_to_lists;
 
-    // additional data needed for logic
-    public $contributions_lists;
-
-    public $contributions_selected_filters;
-
     /*
      * Widget initialisation a.k.a. setting widget properties
      */

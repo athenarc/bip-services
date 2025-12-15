@@ -70,14 +70,6 @@ class IndicatorsItem extends Widget {
 
     public $element_config;
 
-    public $contributions_lists;
-
-    public $contributions_indicators;
-
-    public $template_elements;
-
-    public $missing_papers;
-
     /*
      * Widget initialisation a.k.a. setting widget properties
      */

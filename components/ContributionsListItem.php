@@ -71,10 +71,6 @@ class ContributionsListItem extends Widget {
 
     public $noWorksMessage;
 
-    public $contributions_lists;
-
-    // public $show;
-
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
