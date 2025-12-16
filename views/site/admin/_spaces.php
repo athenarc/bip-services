@@ -260,6 +260,31 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <h3>Annotations</h3>
 
+        <div><label class="control-label">Annotations Flag</label></div>
+
+        <?= $form->field($model, 'has_annotations_flag', [
+            'enableClientValidation' => false, 
+            'options' => ['tag' => false], // prevent extra wrapper
+            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+            ])->checkbox([],
+                    false // IMPORTANT: render input and label separately so template {input}{label} works
+                ) 
+        ?>
+
+        <?= $form->field($model, 'enable_annotations_flag', [
+            'enableClientValidation' => false, 
+            'options' => ['tag' => false], // prevent extra wrapper
+            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+            ])->checkbox(['disabled' => !$model->has_annotations_flag],
+                    false // IMPORTANT: render input and label separately so template {input}{label} works
+                ) 
+        ?>
+        <div class="help-block"></div>
+
+    
+
     <?php
 
         $annotation_db_options = array_map(function($db) {

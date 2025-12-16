@@ -182,10 +182,12 @@ class SiteController extends BaseController
                     $post_request_array['influence'] = $post_data_all['influence'];
                     $post_request_array['impulse'] = $post_data_all['impulse'];
                     $post_request_array['cc'] = $post_data_all['cc'];
-                    // if no checkbox is selected, type, is_oa & pubmed_types won't be present in post request
+                    // if no checkbox is selected (type, is_oa, pubmed_types, etc.), it will not be present in the POST request
                     $post_request_array['type'] = $post_data_all['type'] ?? [];
                     $post_request_array['is_oa'] = $post_data_all['is_oa'] ?? [];
                     $post_request_array['pubmed_types'] = !empty($post_data_all['pubmed_types']) ? explode(',', $post_data_all['pubmed_types']) : [];
+                    // convert checkbox array value to int (enable_annotations_flag is stored as boolean in the space model)
+                    $post_request_array['enable_annotations_flag'] = (int)($post_data_all['enable_annotations_flag'][0] ?? 0);
                 }
             }
 
@@ -293,6 +295,7 @@ class SiteController extends BaseController
             $search_params['is_oa'],
             $search_params['pubmed_types'],
             $search_params['provided_by'],
+            $search_params['enable_annotations_flag'],
             $space_model
         );
 

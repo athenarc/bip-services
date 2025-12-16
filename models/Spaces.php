@@ -48,6 +48,8 @@ class Spaces extends \yii\db\ActiveRecord
             ['is_oa', 'default', 'value' => null],
             ['pubmed_types', 'default', 'value' => null],
             [['has_pubmed_types'], 'boolean'],
+            [['has_annotations_flag'], 'boolean'],
+            [['enable_annotations_flag'], 'boolean'],
 
             ['logo_upload', 'image', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 1024*1024, 'wrongExtension' => 'Allowed extensions {extensions}'],
 
@@ -91,6 +93,8 @@ class Spaces extends \yii\db\ActiveRecord
             'type' => 'Type',
             'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
+            'has_annotations_flag' => 'Show annotations flag',
+            'enable_annotations_flag' => 'Enable annotations flag',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
@@ -472,7 +476,7 @@ class Spaces extends \yii\db\ActiveRecord
         } else {
             $search_params['provided_by'] = [];
         }
-        
+
         return [
             $search_params,
             $space_model

@@ -1100,3 +1100,9 @@ body {
     color: grey; 
     margin-top: 15px;
 }
+
+.help-inline-block {
+    display: inline-block;
+    margin-left: 5px;
+    color: #737373;
+}
