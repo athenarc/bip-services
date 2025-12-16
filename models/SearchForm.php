@@ -31,6 +31,7 @@ class SearchForm extends Model
     public $cc;
     public $type;
     public $is_oa;
+    public $pubmed_types;
     public $space_model;
     public $provided_by;
     public $enable_annotations_flag;
@@ -43,7 +44,7 @@ class SearchForm extends Model
      *
      * @author Ilias Kanellos
      */
-        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $provided_by = [], $enable_annotations_flag = [], $space_model = null)
+        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [],  $pubmed_types = [], $provided_by = [], $enable_annotations_flag = [], $space_model = null)
         {
           parent::__construct();
           $this->ordering = $ordering;
@@ -81,6 +82,7 @@ class SearchForm extends Model
           $this->cc = $cc;
           $this->type = $type;
           $this->is_oa = $is_oa;
+          $this->pubmed_types = $pubmed_types;
           $this->provided_by = $provided_by;
           $this->enable_annotations_flag = $enable_annotations_flag;
           $this->space_model = $space_model;
@@ -160,6 +162,7 @@ class SearchForm extends Model
             'provided_by' => 'Provided by',
             'enable_annotations_flag' => 'Annotations',
             'is_oa' => 'Availability'
+            'pubmed_types' => 'NLM Types'
         ];
     }
 
@@ -596,6 +599,24 @@ class SearchForm extends Model
             $query->createFilterQuery('is_oa_filter')->setQuery($is_oa_filter);
             
         }
+
+
+
+        if ($this->pubmed_types) {
+            $pubmed_types_filter = [];
+
+            // escape pubmed_types names and prepend 'pubmed_types' field
+            foreach ($this->pubmed_types as $key => $pubmed_types_value) {
+                array_push($pubmed_types_filter, "pubmed_types:" . $query->getHelper()->escapePhrase($pubmed_types_value));
+            }
+
+            // join them with 'OR' opearator
+            $pubmed_types_filter = implode(" OR ", $pubmed_types_filter);
+            $query->createFilterQuery('pubmed_types_filter')->setQuery($pubmed_types_filter);
+            
+        }
+
+
 
         // get min impact scores to be added to query (set by impact category filter)
         $min_impact_scores = $this->getImpactScoreFilters();
@@ -1040,6 +1061,7 @@ class SearchForm extends Model
         if (count($this->topics) > 0) $count++;
         if (count($this->type) > 0) $count++;
         if (count($this->is_oa) > 0) $count++;
+        if (count($this->pubmed_types) > 0) $count++;
         if ($this->start_year != 0) $count++;
         if ($this->end_year != 0) $count++;
         if ($this->influence != 'all') $count++;
