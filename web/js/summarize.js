@@ -153,7 +153,7 @@ $(document).ready(function () {
         if (quotaReached) return;
 
         const topN = parseInt($summaryCount.val(), 10);
-        if (isNaN(topN) || topN < 0 || topN > 20) return;
+        if (isNaN(topN) || topN < 1 || topN > 20) return;
 
         generateSummary(topN);
     });

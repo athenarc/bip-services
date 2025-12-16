@@ -1,8 +1,6 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\bootstrap\Modal;
 use yii\widgets\LinkPager;
 use app\components\ResultItem;
 use app\components\CustomBootstrapModal;
