@@ -21,7 +21,7 @@ $this->title = 'BIP! impact indicators';
                             <a href="#<?= str_replace(' ', '_', $indicator_level) ?>" class="green-bip"><?= $indicator_level ?></a>
                         </h5>
                             <?php foreach ($indicator_level_array as $indicator_semantics => $indicator_semantics_array) { ?>
-                                <?php 
+                                <?php
                                     $collapse_id = str_replace(' ', '_', $indicator_level) . '_' . str_replace(' ', '_', $indicator_semantics);
                                 ?>
                                 <div class="toc-link" data-toggle="collapse" href="#<?= $collapse_id ?>" aria-expanded="false" aria-controls="<?= $collapse_id ?>"><?= $indicator_semantics ?>
@@ -60,40 +60,40 @@ $this->title = 'BIP! impact indicators';
                                 <div class="card">
                                     <div class="card-body">
                                         <h4 id="<?= str_replace(' ', '_', $indicator) ?>" class="header-scroll"><?= $indicator ?></h4>
-                                        <?php if (!empty($indicator_array[''])): ?>
+                                        <?php if (! empty($indicator_array[''])): ?>
                                             <p class="indicator-label">Description</p>
                                             <p><?= $indicator_array[''] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Intuition'])): ?>
+                                        <?php if (! empty($indicator_array['Intuition'])): ?>
                                             <p class="indicator-label">Intuition</p>
                                             <p><?= $indicator_array['Intuition'] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Data & calculation'])): ?>
+                                        <?php if (! empty($indicator_array['Data & calculation'])): ?>
                                             <p class="indicator-label">Data & calculation</p>
                                             <p><?= $indicator_array['Data & calculation'] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Parameters'])): ?>
+                                        <?php if (! empty($indicator_array['Parameters'])): ?>
                                             <p class="indicator-label">Parameters</p>
                                             <p><?= $indicator_array['Parameters'] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Limitations'])): ?>
+                                        <?php if (! empty($indicator_array['Limitations'])): ?>
                                             <p class="indicator-label">Limitations</p>
                                             <p><?= $indicator_array['Limitations'] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Availability'])): ?>
+                                        <?php if (! empty($indicator_array['Availability'])): ?>
                                             <p><span class="indicator-label">Availability:</span> <?= $indicator_array['Availability'] ?></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['Code'])): ?>
+                                        <?php if (! empty($indicator_array['Code'])): ?>
                                             <p><span class="indicator-label">Code:</span> <a target='_blank' class='green-bip' href='<?= $indicator_array['Code'] ?>'> <?= $indicator_array['Code'] ?></a></p>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($indicator_array['References'])): ?>
+                                        <?php if (! empty($indicator_array['References'])): ?>
                                             <p class="indicator-label">References</p>
                                             <?= $indicator_array['References'] ?>
 

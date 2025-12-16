@@ -3,16 +3,16 @@
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-use Yii;
-use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
-use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
-use yii\helpers\Url;
 use app\components\CookieBox;
 use app\components\GoogleAnalytics;
 use app\components\Matomo;
+use Yii;
+use yii\bootstrap\Nav;
+use yii\bootstrap\NavBar;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 AppAsset::register($this);
 
@@ -79,24 +79,22 @@ AppAsset::register($this);
             ['label' => 'Indicators', 'url' => ['site/indicators']],
             ['label' => 'Help', 'url' => ['/site/help']],
             [
-                'label' => 'Admin', 'url' => ['/site/admin-overview'], 
-                'active' => in_array(Yii::$app->controller->action->getUniqueId() , ["site/admin-overview", "site/admin-spaces"]),
-                'visible' => Yii::$app->user->isGuest ? False : Yii::$app->user->identity->is_admin
+                'label' => 'Admin', 'url' => ['/site/admin-overview'],
+                'active' => in_array(Yii::$app->controller->action->getUniqueId(), ['site/admin-overview', 'site/admin-spaces']),
+                'visible' => Yii::$app->user->isGuest ? false : Yii::$app->user->identity->is_admin
             ]
         ];
 
-        if(Yii::$app->user->isGuest)
-        {
-           array_push($items,
+        if (Yii::$app->user->isGuest) {
+            array_push(
+                $items,
                 ['label' => 'Log In', 'url' => ['site/login']]
             );
-        }
-        else
-        {
+        } else {
             $item = [
                 'label' => '<i class="fa-solid fa-user"></i> ' . Yii::$app->user->identity->username,
                 'items' => [
-                    ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => [ 'site/settings' ]],
+                    ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => ['site/settings']],
                     ['label' => '<i class="fa-solid fa-paper-plane"></i> ' . 'Contact & Feedback', 'url' => ['/site/feedback']],
                     ['label' => '<i class="fa-solid fa-right-from-bracket"></i> ' . 'Logout', 'url' => ['site/logout'], 'linkOptions' => ['data-method' => 'post']]
                 ]
@@ -121,7 +119,7 @@ AppAsset::register($this);
             </div> -->
 
             <?= Breadcrumbs::widget([
-                'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
+                'links' => $this->params['breadcrumbs'] ?? [],
             ]) ?>
             <?= $content ?>
         </div>
@@ -132,7 +130,7 @@ AppAsset::register($this);
 
 <?php
 // Global modals
-require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . "layouts" . DIRECTORY_SEPARATOR . "delete_bookmark_modal.php");
+require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR . 'delete_bookmark_modal.php');
 // require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . "layouts" . DIRECTORY_SEPARATOR . "mobile_warning_modal.php");
 ?>
 
@@ -142,7 +140,7 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEP
         <div class="footer-flex">
             <div>
                 <a href="http://www.imis.athena-innovation.gr/" target="_blank">
-                    <?= Html::img("@web/img/athena_rc.png", ['class' => 'logo-footer img-responsive' , 'style' => "max-height: 30px" , 'alt' => 'Athena RC logo']) ?>
+                    <?= Html::img('@web/img/athena_rc.png', ['class' => 'logo-footer img-responsive', 'style' => 'max-height: 30px', 'alt' => 'Athena RC logo']) ?>
                 </a>
             </div>
             <div>
@@ -152,14 +150,14 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEP
             </div>
             <div>
                 <a href="https://graph.openaire.eu/" target="_blank">
-                    <?= Html::img("@web/img/openaire_badge.png", ['class' => 'logo-footer img-responsive', 'style' => "max-height: 17px",'alt' => 'Openaire logo']) ?>
+                    <?= Html::img('@web/img/openaire_badge.png', ['class' => 'logo-footer img-responsive', 'style' => 'max-height: 17px', 'alt' => 'Openaire logo']) ?>
                 </a>
             </div>
             <div class="text-center">
-                Copyright © <?= date("Y") ?>
-                <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr', [ 'class' => 'main-green' ]) ?>
+                Copyright © <?= date('Y') ?>
+                <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr', ['class' => 'main-green']) ?>
                 |
-                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings'), [ 'class' => 'main-green' ]) ?>
+                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings'), ['class' => 'main-green']) ?>
             </div>
         </div>
     </div>

@@ -1,25 +1,25 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
-use yii\web\View;
 use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\ActiveForm;
 
-/** @var yii\web\View $this */
-/** @var app\models\AssessmentProtocols $protocolModel */
-/** @var app\models\ProtocolIndicators $protocolIndicatorsModel */
-/** @var app\models\ProtocolIndicatorsForm $protocolIndicatorsFormModel */
-/** @var app\models\Indicators $indicatorList */
-/** @var yii\widgets\ActiveForm $form */
+/* @var yii\web\View $this */
+/* @var app\models\AssessmentProtocols $protocolModel */
+/* @var app\models\ProtocolIndicators $protocolIndicatorsModel */
+/* @var app\models\ProtocolIndicatorsForm $protocolIndicatorsFormModel */
+/* @var app\models\Indicators $indicatorList */
+/* @var yii\widgets\ActiveForm $form */
 
-$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tinymceAdminPanel.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 ?>
 <script>
     $(document).ready(function(){
@@ -32,20 +32,20 @@ $section_profiles = ($section === "profiles");
 <div class="assessment-protocols-create-update">
     
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
+        <a class="" <?= ! $section_scholar ? 'href=' . Url::to(['site/admin-scholar']) : '' ?>>Scholar</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profiles</a>
         </li>
     </ul>
 
@@ -70,7 +70,7 @@ $section_profiles = ($section === "profiles");
         </div>
 
         <!-- < ?php $indicatorLevels = ["Researcher", "Work"]; ?> -->
-        <?php $indicatorLevels = ["Researcher"]; ?>
+        <?php $indicatorLevels = ['Researcher']; ?>
 
         <div class="flex-wrap" style="gap: 20px;">
             <?php foreach ($indicatorLevels as $ilevel): ?>
@@ -79,6 +79,7 @@ $section_profiles = ($section === "profiles");
                     <ul style="list-style-type: none; padding: 0; margin: 0;">
                         <?php
                         $lastSemantics = null;
+
                         foreach ($indicatorList as $indicator):
                             if ($indicator->level !== $ilevel) {
                                 continue;
@@ -89,7 +90,7 @@ $section_profiles = ($section === "profiles");
                             $indicatorLevel = $indicator->level;
                             $isChecked = false;
 
-                            if (!empty($existing_indicators)) {
+                            if (! empty($existing_indicators)) {
                                 foreach ($existing_indicators as $existing_indicator) {
                                     if ($existing_indicator['id'] == $indicatorId) {
                                         $isChecked = true;
@@ -112,7 +113,7 @@ $section_profiles = ($section === "profiles");
                                     'labelOptions' => ['style' => 'font-weight: normal'],
                                     'value' => $indicatorId,
                                     'uncheck' => null,
-                                    'template' => "{input}{label}",
+                                    'template' => '{input}{label}',
                                     'checked' => $isChecked,
                                     'class' => 'green-checkbox',
                                 ])->label(false); ?>

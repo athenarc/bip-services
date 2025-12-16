@@ -1,27 +1,25 @@
 <?php
+
 namespace app\models;
 
+use DateTime;
 use Yii;
 use yii\base\Model;
-use yii\helpers\ArrayHelper;
-use app\models\UsersLikes;
-use app\models\User;
-use DateTime;
-use DateInterval;
-use DatePeriod;
 
 class AdminStats extends Model {
-
     public $total_users_likes;
+
     public $total_users_with_likes;
+
     public $monthly_user_data;
+
     public $user_activity_data;
+
     public $monthly_researcher_data;
+
     public $researcher_profile_visibility;
 
-
-    public function getStats(){
-
+    public function getStats() {
         $this->total_users_likes = self::getTotalUserLikes();
         $this->total_users_with_likes = self::getTotalUserswithLikes();
         $this->monthly_user_data = self::getMonthlyData(User::class, 'registered_at');
@@ -30,37 +28,32 @@ class AdminStats extends Model {
         $this->researcher_profile_visibility = self::getProfileVisibilityData();
     }
 
-    public static function getTotalScholarProfiles(){
+    public static function getTotalScholarProfiles() {
         return Researcher::find()->where(['not', ['orcid' => null]])->count();
     }
 
-    public static function getTotalPublicScholarProfiles(){
+    public static function getTotalPublicScholarProfiles() {
         return Researcher::find()->where(['not', ['orcid' => null]])->andWhere(['is_public' => 1])->count();
     }
 
-
-    public static function getTotalUserLikes(){
+    public static function getTotalUserLikes() {
         return UsersLikes::find()->where(['showit' => 1])->count();
     }
 
-    public static function getTotalUserswithLikes(){
+    public static function getTotalUserswithLikes() {
         return UsersLikes::find()->where(['showit' => 1])->select('COUNT(DISTINCT user_id)')->scalar();
-
     }
 
-    public static function hasAdminAccess(){
-
+    public static function hasAdminAccess() {
         // if user is not logged in or is not admin, throw not found
-        if (Yii::$app->user->isGuest  || !Yii::$app->user->identity->is_admin)  {
-            return False;
+        if (Yii::$app->user->isGuest || ! Yii::$app->user->identity->is_admin) {
+            return false;
         }
-        return True;
-        
+
+        return true;
     }
 
-
-    public static function getUserActivityData()
-    {
+    public static function getUserActivityData() {
         $now = new \DateTime();
         $activeDate = (clone $now)->modify('-7 days')->format('Y-m-d H:i:s');
         $dormantDate = (clone $now)->modify('-30 days')->format('Y-m-d H:i:s');
@@ -74,7 +67,6 @@ class AdminStats extends Model {
             ->andWhere(['>=', 'last_visited', $dormantDate])
             ->count();
 
-
         // Inactive: > 30 days ago OR never visited (NULL)
         $inactive = User::find()
             ->where([
@@ -86,12 +78,11 @@ class AdminStats extends Model {
 
         return [
             'labels' => ['Active (≤7d)', 'Dormant (8-30d)', 'Inactive (>30d)'],
-            'data' => [(int)$active, (int)$dormant, (int)$inactive],
+            'data' => [(int) $active, (int) $dormant, (int) $inactive],
         ];
     }
 
-    public static function getProfileVisibilityData()
-    {
+    public static function getProfileVisibilityData() {
         $results = Researcher::find()
             ->select(['is_public', 'COUNT(*) AS count'])
             ->groupBy('is_public')
@@ -103,9 +94,9 @@ class AdminStats extends Model {
 
         foreach ($results as $row) {
             if ($row['is_public'] == 1) {
-                $public = (int)$row['count'];
+                $public = (int) $row['count'];
             } elseif ($row['is_public'] == 0) {
-                $private = (int)$row['count'];
+                $private = (int) $row['count'];
             }
         }
 
@@ -115,12 +106,10 @@ class AdminStats extends Model {
         ];
     }
 
-
-    public static function getMonthlyData($modelClass, $dateField)
-    {
+    public static function getMonthlyData($modelClass, $dateField) {
         // Validate class exists and is an ActiveRecord
-        if (!class_exists($modelClass) || !is_subclass_of($modelClass, \yii\db\ActiveRecord::class)) {
-            throw new \InvalidArgumentException("Invalid model class: $modelClass");
+        if (! class_exists($modelClass) || ! is_subclass_of($modelClass, \yii\db\ActiveRecord::class)) {
+            throw new \InvalidArgumentException("Invalid model class: ${modelClass}");
         }
 
         // Determine date range (past 12 months including current month)
@@ -139,8 +128,8 @@ class AdminStats extends Model {
         // 2) Get monthly counts within the date range
         $records = $modelClass::find()
             ->select([
-                "DATE_FORMAT($dateField, '%Y-%m') AS ym",
-                "COUNT(*) AS count"
+                "DATE_FORMAT(${dateField}, '%Y-%m') AS ym",
+                'COUNT(*) AS count'
             ])
             ->where(['between', $dateField, $startDate, $endDate])
             ->groupBy('ym')
@@ -178,8 +167,4 @@ class AdminStats extends Model {
             'data' => $cumulative,
         ];
     }
-
-
-
-
 }

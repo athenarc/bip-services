@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "assessment_frameworks".
  *
@@ -14,21 +12,12 @@ use Yii;
  *
  * @property AssessmentProtocols[] $assessmentProtocols
  */
-class AssessmentFrameworks extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class AssessmentFrameworks extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'assessment_frameworks';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['name'], 'required'],
             [['description'], 'string'],
@@ -36,11 +25,7 @@ class AssessmentFrameworks extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'name' => 'Name',
@@ -54,8 +39,7 @@ class AssessmentFrameworks extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getAssessmentProtocols()
-    {
+    public function getAssessmentProtocols() {
         return $this->hasMany(AssessmentProtocols::class, ['assessment_framework_id' => 'id']);
     }
 }

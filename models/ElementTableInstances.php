@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -18,21 +17,12 @@ use yii\db\ActiveRecord;
  *
  * @property Elements $element
  */
-class ElementTableInstances extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementTableInstances extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return '{{%element_table_instances}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['user_id', 'template_id', 'element_id'], 'required'],
             [['user_id', 'template_id', 'element_id'], 'integer'],
@@ -42,11 +32,7 @@ class ElementTableInstances extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
@@ -57,9 +43,7 @@ class ElementTableInstances extends \yii\db\ActiveRecord
         ];
     }
 
-
-    public function behaviors()
-    {
+    public function behaviors() {
         return [
             'timestamp' => [
                 'class' => TimestampBehavior::class,
@@ -72,14 +56,12 @@ class ElementTableInstances extends \yii\db\ActiveRecord
         ];
     }
 
-
     /**
      * Gets query for [[Element]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 }

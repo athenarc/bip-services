@@ -1,51 +1,49 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
-use yii\web\View;
-use yii\helpers\Url;
-use yii\jui\Accordion;
 use app\models\ElementNarratives;
-use wbraganca\dynamicform\DynamicFormWidget;
-use yii\helpers\ArrayHelper;
 use app\models\Elements;
+use wbraganca\dynamicform\DynamicFormWidget;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\ActiveForm;
 
-/** @var yii\web\View $this */
-/** @var app\models\Elements $elementModel */
-/** @var app\models\ElementIndicators $elementIndicatorsModel */
-/** @var app\models\ElementIndicatorsForm $elementIndicatorsFormModel */
-/** @var app\models\ElementIndicators $elementIndicatorsForMargins */
-/** @var app\models\Indicators $indicatorList */
-/** @var yii\widgets\ActiveForm $form */
+/* @var yii\web\View $this */
+/* @var app\models\Elements $elementModel */
+/* @var app\models\ElementIndicators $elementIndicatorsModel */
+/* @var app\models\ElementIndicatorsForm $elementIndicatorsFormModel */
+/* @var app\models\ElementIndicators $elementIndicatorsForMargins */
+/* @var app\models\Indicators $indicatorList */
+/* @var yii\widgets\ActiveForm $form */
 
-$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tinymceAdminPanel.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/create_update_element.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->registerCssFile("@web/css/create-update-element.css", ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
+$this->registerCssFile('@web/css/create-update-element.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 
 ?>
 
 <div class="elements-update">
 
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profile Templates</a>
         </li>
     </ul>
 
@@ -105,7 +103,7 @@ $section_profiles = ($section === "profiles");
                 <h1><?= Html::encode('Bulleted List') ?></h1>
             </div>
 
-        <?php if ($elementModel->isNewRecord || $elementModel->type == "Bulleted List"): ?>
+        <?php if ($elementModel->isNewRecord || $elementModel->type == 'Bulleted List'): ?>
             <?= $form->field($elementBulletedListModel, 'title')->textInput(['maxlength' => true]); ?>
             <?= $form->field($elementBulletedListModel, 'heading_type')->dropDownList([
                     'h1' => 'H1',
@@ -159,14 +157,15 @@ $section_profiles = ($section === "profiles");
                 <h1><?= Html::encode('Facets') ?></h1>
             </div>
                 <?php
-                if (!$elementModel->isNewRecord && isset($existing_facets[0]['linked_contribution_element_id'])) {
+                if (! $elementModel->isNewRecord && isset($existing_facets[0]['linked_contribution_element_id'])) {
                     $elementFacetsFormModel->linked_contribution_element_id = $existing_facets[0]['linked_contribution_element_id'];
                 }
                 $contributionsLists = Elements::find()
                     ->where(['type' => 'Contributions List', 'template_id' => $template_id])
                     ->all();
-                
+
                 $dropdownOptions = [];
+
                 foreach ($contributionsLists as $el) {
                     $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
                 }
@@ -178,26 +177,25 @@ $section_profiles = ($section === "profiles");
                 )->label('Linked Contribution List') ?>
             
 
-            <?php $facetTypes = ["Topics", "Roles", "Availability", "Work type"]; ?>
+            <?php $facetTypes = ['Topics', 'Roles', 'Availability', 'Work type']; ?>
 
             <div class="flex-wrap" style="gap: 20px;">
                 <?php foreach ($facetTypes as $fType): ?>
                     <?php
-                    
+
                         $isCheckedFacet = false;
 
-                        if ($fType != "Availability" && $fType != "Work type") {
-                            $optionValues = ["visualize_opt", "numbers_opt"];
-                            $optionLabels = ["Visualization Button", "Numbers"];
-                        }
-                        else {
-                            $optionValues = ["numbers_opt"];
-                            $optionLabels = ["Numbers"];
+                        if ($fType != 'Availability' && $fType != 'Work type') {
+                            $optionValues = ['visualize_opt', 'numbers_opt'];
+                            $optionLabels = ['Visualization Button', 'Numbers'];
+                        } else {
+                            $optionValues = ['numbers_opt'];
+                            $optionLabels = ['Numbers'];
                         }
 
-                        if (!empty($existing_facets)) {
+                        if (! empty($existing_facets)) {
                             foreach ($existing_facets as $ex_facet) {
-                                if ($ex_facet['type'] == $fType){
+                                if ($ex_facet['type'] == $fType) {
                                     $isCheckedFacet = true;
                                 }
                             }
@@ -211,7 +209,7 @@ $section_profiles = ($section === "profiles");
                                 'labelOptions' => ['style' => 'display: block; font-size: 24px; font-weight: bold;'],
                                 'value' => $fType,
                                 'uncheck' => null,
-                                'template' => "{label}{input}",
+                                'template' => '{label}{input}',
                                 'checked' => $isCheckedFacet,
                                 'class' => ['green-checkbox', str_replace(' ', '-', strtolower($fType)) . '-checkbox'],
                             ])->label(false); ?>
@@ -225,7 +223,7 @@ $section_profiles = ($section === "profiles");
                             <?php $isCheckedOpts = false; ?>
 
                             <?php
-                                if (!empty($existing_facets)) {
+                                if (! empty($existing_facets)) {
                                     foreach ($existing_facets as $ex_facet) {
                                         if ($ex_facet['type'] == $fType && $ex_facet[$opt] == true) {
                                             $isCheckedOpts = true;
@@ -238,9 +236,9 @@ $section_profiles = ($section === "profiles");
                                 <?= $form->field($elementFacetsFormModel, 'selectedFacets[]', ['errorOptions' => ['tag' => null]])->checkbox([
                                     'label' => 'Show ' . $optionLabels[$i],
                                     'labelOptions' => ['style' => 'margin: 0px; font-weight: normal; font-size: 14px;'],
-                                    'value' => $fType . "-" . $opt,
+                                    'value' => $fType . '-' . $opt,
                                     'uncheck' => null,
-                                    'template' => "{label}{input}",
+                                    'template' => '{label}{input}',
                                     'checked' => $isCheckedOpts,
                                     // 'disabled' => true,
                                     'class' => ['green-checkbox', str_replace(' ', '-', strtolower($fType)) . '-opt-checkbox', 'opt-checkbox'],
@@ -286,7 +284,7 @@ $section_profiles = ($section === "profiles");
             </div>
 
             <?php
-            if (!$elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
+            if (! $elementModel->isNewRecord && isset($existing_indicators[0]['linked_contribution_element_id'])) {
                 $elementIndicatorsFormModel->linked_contribution_element_id = $existing_indicators[0]['linked_contribution_element_id'];
             }
             $contributionsLists = \app\models\Elements::find()
@@ -294,6 +292,7 @@ $section_profiles = ($section === "profiles");
                 ->all();
 
                 $dropdownOptions = [];
+
                 foreach ($contributionsLists as $el) {
                     $dropdownOptions[$el->id] = $el->name ?: "Unnamed (#{$el->id})";
                 }
@@ -302,7 +301,7 @@ $section_profiles = ($section === "profiles");
             <?= $form->field($elementIndicatorsFormModel, 'linked_contribution_element_id')->dropDownList(
                 $dropdownOptions,
                 ['prompt' => 'Select a Contributions List to link']
-            )->label("Linked Contribution List") ?>
+            )->label('Linked Contribution List') ?>
             
             <div style="margin-top:10px; display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="toggle-all-indicators">Collapse All</button>
@@ -316,8 +315,9 @@ $section_profiles = ($section === "profiles");
 
             <?php
                 $groupedIndicators = [];
+
                 foreach ($indicatorList as $indicator):
-                    if ($indicator->level !== "Researcher") {
+                    if ($indicator->level !== 'Researcher') {
                         continue;
                     }
                     $groupedIndicators[$indicator->semantics][] = ['id' => $indicator->id, 'name' => $indicator->name];
@@ -326,38 +326,40 @@ $section_profiles = ($section === "profiles");
                 // Default semantics order for new records
                 $defaultSemanticsOrder = ['Impact', 'Productivity', 'Open Science', 'Career Stage'];
 
-                if (!$elementModel->isNewRecord ) {
-                    if (!empty($existing_indicators)) {
+                if (! $elementModel->isNewRecord) {
+                    if (! empty($existing_indicators)) {
                         $semanticsOrderCombined = [];
+
                         foreach ($existing_indicators as $existing_indicator) {
                             $semanticsOrderCombined[] = [
-                                'semantics_value' => $existing_indicator['semantics'], 
+                                'semantics_value' => $existing_indicator['semantics'],
                                 'semantics_number' => $existing_indicator['semantics_order']
                             ];
                         }
-            
+
                         // print_r($semanticsOrder);
-                        
+
                         // Sort the combined array by the 'number' key
-                        usort($semanticsOrderCombined, function($a, $b) {
+                        usort($semanticsOrderCombined, function ($a, $b) {
                             return $a['semantics_number'] <=> $b['semantics_number'];
                         });
-                        
+
                         // Extract the sorted values
                         $sortedValues = array_column($semanticsOrderCombined, 'semantics_value');
                         $semanticsOrder = array_values(array_unique($sortedValues));
                     }
 
                     $indicatorOrderBySemantics = [];
+
                     foreach ($existing_indicators as $existing_indicator) {
                         $indicatorOrderBySemantics[$existing_indicator['semantics']][] = [
-                            'indicator_id' => $existing_indicator['id'], 
+                            'indicator_id' => $existing_indicator['id'],
                             'indicator_order' => $existing_indicator['indicator_order']
                         ];
                     }
 
                     foreach ($indicatorOrderBySemantics as $semantics => $indicators) {
-                        usort($indicators, function($a, $b) {
+                        usort($indicators, function ($a, $b) {
                             return $a['indicator_order'] <=> $b['indicator_order'];
                         });
                         $indicatorOrderBySemantics[$semantics] = $indicators;
@@ -366,6 +368,7 @@ $section_profiles = ($section === "profiles");
                     $semanticsOrder = $defaultSemanticsOrder;
 
                     $indicatorOrderBySemantics = [];
+
                     foreach ($groupedIndicators as $semantics => $indicators) {
                         foreach ($indicators as $key => $indicator) {
                             $indicatorOrderBySemantics[$semantics][] = [
@@ -378,6 +381,7 @@ $section_profiles = ($section === "profiles");
 
                 // Sort the grouped indicators by the provided order
                 $sortedGroupedIndicators = [];
+
                 foreach ($semanticsOrder as $semantics) {
                     if (isset($groupedIndicators[$semantics])) {
                         $sortedGroupedIndicators[$semantics] = [];
@@ -415,7 +419,8 @@ $section_profiles = ($section === "profiles");
                             <?php foreach ($indicators as $indicator): ?>
                             <?php
                                 $currentStatus = 'Enabled';
-                                if (!empty($existing_indicators)) {
+
+                                if (! empty($existing_indicators)) {
                                     foreach ($existing_indicators as $existing_indicator) {
                                         if ($existing_indicator['id'] == $indicator['id']) {
                                             $currentStatus = $existing_indicator['status'];
@@ -521,7 +526,7 @@ $section_profiles = ($section === "profiles");
                     </div>
                 </div>
             <?php else: ?>
-                <?php if ($elementModel->type == "Narrative"): ?>
+                <?php if ($elementModel->type == 'Narrative'): ?>
                     <?= $form->field($elementNarrativesFormModel, 'title')->textInput(['value' => $elementNarrativesModel->title, 'maxlength' => true]); ?>
                     <?= $form->field($elementNarrativesFormModel, 'heading_type')->dropDownList(['h1' => 'H1',
                     'h2' => 'H2',
@@ -534,8 +539,9 @@ $section_profiles = ($section === "profiles");
                     <?= $form->field($elementNarrativesFormModel, 'limit_type')->dropDownList($elementNarrativesModel::getLimitTypeList(), ['value' => $elementNarrativesModel->limit_type]) ?>
                     <?= $form->field($elementNarrativesFormModel, 'limit_value')->textInput(['value' => $elementNarrativesModel->limit_value]) ?>
 
-                    <?php 
+                    <?php
                         $isCheckedHideNarrative = false;
+
                         if ($elementNarrativesModel->hide_when_empty) {
                             $isCheckedHideNarrative = true;
                         }
@@ -590,7 +596,7 @@ $section_profiles = ($section === "profiles");
                     'h6' => 'H6',
                 ], ['prompt' => 'Select header size']) ?>
                 <?= $form->field($elementDividersFormModel, 'description')->textarea(['rows' => 6, 'class' => 'rich_text_area_admin']); ?>
-                <?= $form->field($elementDividersFormModel, 'show_description_tooltip')->checkbox([ 'checked' => true ]) ?>
+                <?= $form->field($elementDividersFormModel, 'show_description_tooltip')->checkbox(['checked' => true]) ?>
 
                 <h3>Padding</h3>
                 <?= $form->field($elementDividersFormModel, 'top_padding')->textInput(['maxlength' => true, 'placeholder' => 'e.g., 20px']) ?>
@@ -626,7 +632,7 @@ $section_profiles = ($section === "profiles");
                 </div>
 
             <?php else: ?>
-                <?php if ($elementModel->type == "Section Divider"): ?>
+                <?php if ($elementModel->type == 'Section Divider'): ?>
                     <?= $form->field($elementDividersFormModel, 'title')->textInput(['value' => $elementDividersModel->title, 'maxlength' => true]); ?>
                     <?= $form->field($elementDividersFormModel, 'heading_type')->dropDownList([
                         'h1' => 'H1',
@@ -686,7 +692,7 @@ $section_profiles = ($section === "profiles");
                 <?php endif ?>
             <?php endif ?>
         </div>
-        <?php if ($elementModel->isNewRecord || $elementModel->type == "Contributions List"): ?>
+        <?php if ($elementModel->isNewRecord || $elementModel->type == 'Contributions List'): ?>
             <div id="element-type-Contributions-List" class="element-type-section" style="display: none;">
                 <div class="divider-header" style="display: flex; align-items: center">
                     <h1><?= Html::encode('Contributions List') ?></h1>
@@ -694,11 +700,11 @@ $section_profiles = ($section === "profiles");
 
                 <!-- 1) Sort (kept outside the expandable pairs) -->
                 <?= $form->field($elementContributionsModel, 'sort')->dropDownList(
-                    array_combine(
+                        array_combine(
                         array_keys(Yii::$app->params['impact_fields']),
                         array_keys(Yii::$app->params['impact_fields'])
                     )
-                ) ?>
+                    ) ?>
 
                 <!-- Display Mode (between Sort and Show header) -->
                 <?= $form->field($elementContributionsModel, 'compact_view')->dropDownList([
@@ -725,7 +731,7 @@ $section_profiles = ($section === "profiles");
                             </div>',
                         'labelOptions' => ['class' => 'col-form-label'],
                     ])->dropDownList(
-                        ['h1'=>'H1','h2'=>'H2','h3'=>'H3','h4'=>'H4','h5'=>'H5','h6'=>'H6'],
+                        ['h1' => 'H1', 'h2' => 'H2', 'h3' => 'H3', 'h4' => 'H4', 'h5' => 'H5', 'h6' => 'H6'],
                         ['prompt' => 'Select header size', 'id' => 'contrib-heading-size', 'class' => 'form-control']
                     ) ?>
                 </div>
@@ -748,8 +754,8 @@ $section_profiles = ($section === "profiles");
                             </div>',
                         'labelOptions' => ['class' => 'col-form-label'],
                     ])->textInput([
-                        'type' => 'number','class' => 'form-control',
-                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'type' => 'number', 'class' => 'form-control',
+                        'min' => 1, 'step' => 1, 'placeholder' => 'Enter a positive integer',
                         'id' => 'elementcontributions-page_size'
                     ])->label('Page size') ?>
                 </div>
@@ -772,8 +778,8 @@ $section_profiles = ($section === "profiles");
                             </div>',
                         'labelOptions' => ['class' => 'col-form-label'],
                     ])->textInput([
-                        'type' => 'number','class' => 'form-control',
-                        'min' => 1,'step' => 1,'placeholder' => 'Enter a positive integer',
+                        'type' => 'number', 'class' => 'form-control',
+                        'min' => 1, 'step' => 1, 'placeholder' => 'Enter a positive integer',
                         'id' => 'elementcontributions-top_k'
                     ])->label('K') ?>
                 </div>
@@ -817,15 +823,17 @@ $section_profiles = ($section === "profiles");
                 $workTypes = Yii::$app->params['work_types'] ?? [];
 
                 $opennessOptions = [];
+
                 foreach ($openness as $k => $def) {
                     // keys: '1','0',''  ('' means Unknown)
-                    $opennessOptions[(string)$k] = $def['name'];
+                    $opennessOptions[(string) $k] = $def['name'];
                 }
 
                 $workTypeOptions = [];
+
                 foreach ($workTypes as $k => $def) {
                     // keys: '0','1','2','3'
-                    $workTypeOptions[(string)$k] = $def['name'];
+                    $workTypeOptions[(string) $k] = $def['name'];
                 }
                 ?>
 
@@ -888,7 +896,7 @@ $section_profiles = ($section === "profiles");
 
             </div>
         <?php endif ?>
-        <?php if ($elementModel->isNewRecord || $elementModel->type == "Dropdown"): ?>
+        <?php if ($elementModel->isNewRecord || $elementModel->type == 'Dropdown'): ?>
             <div id="element-type-Dropdown" class="element-type-section" style="display: none;">
                 <div class="divider-header" style="display: flex; align-items: center">
                     <h1><?= Html::encode('Dropdown') ?></h1>
@@ -912,7 +920,7 @@ $section_profiles = ($section === "profiles");
                         'class' => ['green-checkbox'],
                     ])->label(false) ?>
                     
-                <?php 
+                <?php
                     DynamicFormWidget::begin([
                         'widgetContainer' => 'dynamicform_wrapper_dropdown_element', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
                         'widgetBody' => '.container-items-dropdown-element', // required: css class selector
@@ -926,7 +934,7 @@ $section_profiles = ($section === "profiles");
                         'formFields' => [
                             'option_name',
                         ],
-                    ]); 
+                    ]);
                     ?>
                     <div style = "margin-bottom:10px">
                         <label class="pull-left" style="font-size: inherit;" >Dropdown Options</label>
@@ -988,7 +996,7 @@ $section_profiles = ($section === "profiles");
                 </div>
             </div>
         <?php endif ?>
-        <?php if ($elementModel->isNewRecord || $elementModel->type == "Table"): ?>
+        <?php if ($elementModel->isNewRecord || $elementModel->type == 'Table'): ?>
             <div id="element-type-Table" class="element-type-section" style="display: none;">
                 <div class="divider-header" style="display: flex; align-items: center">
                     <h1><?= Html::encode('Table') ?></h1>
@@ -1020,7 +1028,7 @@ $section_profiles = ($section === "profiles");
                                     'placeholder' => 'Enter a positive integer'
                                 ])->hint('Leave empty to allow for dynamic additions and removals.') ?>
                                         
-                <?php 
+                <?php
                     DynamicFormWidget::begin([
                         'widgetContainer' => 'dynamicform_wrapper_table_element', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
                         'widgetBody' => '.container-items-table-element', // required: css class selector
@@ -1035,7 +1043,7 @@ $section_profiles = ($section === "profiles");
                             'header_name',
                             'header_width',
                         ],
-                    ]); 
+                    ]);
                     ?>
                     <div style = "margin-bottom:10px">
                         <label class="pull-left" style="font-size: inherit;" >Table Options</label>

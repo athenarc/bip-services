@@ -1,12 +1,12 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\widgets\LinkPager;
-use yii\web\View;
+use app\components\BookmarkIcon;
 use app\components\ImpactIcons;
 use yii\bootstrap\Modal;
-use app\components\BookmarkIcon;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\LinkPager;
 
 $this->title = 'BIP! Finder - User bookmarks';
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -22,10 +22,12 @@ $this->registerCssFile('@web/css/favorites.css');
             <h2>
             <?php
                 $u_name = Yii::$app->user->identity->username;
-                if(substr($u_name,-1)=="s")
-                    echo $u_name."' bookmarked papers";
-                else
-                    echo $u_name."'s bookmarked papers";
+
+                if (substr($u_name, -1) == 's') {
+                    echo $u_name . "' bookmarked papers";
+                } else {
+                    echo $u_name . "'s bookmarked papers";
+                }
             ?>
             </h2>
         </div>
@@ -55,10 +57,10 @@ $this->registerCssFile('@web/css/favorites.css');
         <span><h4 style="display: inline-block;"><i class="fa fa-folder-o" aria-hidden="true"></i> <?= $folder['name'] ?></h4></span>
         (<span class = "folder-articles" id = "fa_<?= $folder['id'] ?>" >
         <?php
-        $folder_articles = $folders_info[$folder['id']]["num_articles"];
-        $folder_read = $folders_info[$folder['id']]["total_read"];
-        echo $folder_articles.(($folder_articles != 1) ? " articles" : " article");
-        echo empty($folder_articles) ? "" : ' - '.round(100*($folder_read/$folder_articles),0). '% read';
+        $folder_articles = $folders_info[$folder['id']]['num_articles'];
+        $folder_read = $folders_info[$folder['id']]['total_read'];
+        echo $folder_articles . (($folder_articles != 1) ? ' articles' : ' article');
+        echo empty($folder_articles) ? '' : ' - ' . round(100 * ($folder_read / $folder_articles), 0) . '% read';
         ?>
         </span>)
         <form class='small-btn-form' id='comm-form' method='post' action='<?=Url::to(['site/editfolder'])?>' style="display: inline-block;">
@@ -79,7 +81,7 @@ $this->registerCssFile('@web/css/favorites.css');
         </form>
     </div>
 
-    <?php if(empty($folders_contents[$folder['id']])) { ?>
+    <?php if (empty($folders_contents[$folder['id']])) { ?>
         <p>No bookmarks in this folder</p>
     <?php continue; } ?>
 
@@ -87,7 +89,7 @@ $this->registerCssFile('@web/css/favorites.css');
 
         <tbody>
 
-        <?php foreach($folders_contents[$folder['id']] as $cur_contents) { ?>
+        <?php foreach ($folders_contents[$folder['id']] as $cur_contents) { ?>
             <tr id="res_<?= $cur_contents['internal_id'] ?>" class="text-left selected-after-click">
                 <td class="col-xs-8">
                     <!-- title -->
@@ -103,15 +105,15 @@ $this->registerCssFile('@web/css/favorites.css');
                         </span>&middot;
                         <!-- year -->
                         <span id="res_<?= $cur_contents['internal_id'] ?>_y">
-                            <?= ($cur_contents['year'] == 0) ? "N/A" : $cur_contents['year'] ?>
+                            <?= ($cur_contents['year'] == 0) ? 'N/A' : $cur_contents['year'] ?>
                         </span>
                     </div>
                 </td>
                 <td class="col-xs-1" style = "padding-top: 12px;">
                     <select class="reading-status" data-color = "<?= $cur_contents['reading_status']?>">
-                        <option value="0" <?= ($cur_contents['reading_status'] == 0) ? "selected" : "" ?>>To Read</option>
-                        <option value="1" <?= ($cur_contents['reading_status'] == 1) ? "selected" : "" ?>>Reading</option>
-                        <option value="2" <?= ($cur_contents['reading_status'] == 2) ? "selected" : "" ?>>Read</option>
+                        <option value="0" <?= ($cur_contents['reading_status'] == 0) ? 'selected' : '' ?>>To Read</option>
+                        <option value="1" <?= ($cur_contents['reading_status'] == 1) ? 'selected' : '' ?>>Reading</option>
+                        <option value="2" <?= ($cur_contents['reading_status'] == 2) ? 'selected' : '' ?>>Read</option>
                     </select>
 
                 </td>
@@ -133,8 +135,8 @@ $this->registerCssFile('@web/css/favorites.css');
                 <!-- bookmark -->
                 <td class="col-xs-1" style="text-align: right; width: 1%" >
 
-                    <?= BookmarkIcon::widget(['user_liked' => True, /*by default all bookmarks are liked by the user*/
-                                            'user_logged' => True, /*by default user is logged-in in favorites view */
+                    <?= BookmarkIcon::widget(['user_liked' => true, /*by default all bookmarks are liked by the user*/
+                                            'user_logged' => true, /*by default user is logged-in in favorites view */
                                             'id_bookmark' => $cur_contents['internal_id']]);?>
 
 
@@ -151,7 +153,7 @@ $this->registerCssFile('@web/css/favorites.css');
 
 
 <!-- Not bookmarked papers -->
-<?php if (!empty($bmk_uncategorized)) { ?>
+<?php if (! empty($bmk_uncategorized)) { ?>
 
     </br>
     <div class="row">
@@ -159,14 +161,14 @@ $this->registerCssFile('@web/css/favorites.css');
     </div>
     <div id="results_hdr" class='row'>
         <div class='col-xs-4 text-center results-header'><?= $pagination->totalCount ?> articles (<?= $pagination->pageCount ?> pages)</div>
-        <div class='col-xs-4 text-center'><?= LinkPager::widget(['pagination' => $pagination,'maxButtonCount'=>5]); ?></div>
+        <div class='col-xs-4 text-center'><?= LinkPager::widget(['pagination' => $pagination, 'maxButtonCount' => 5]); ?></div>
         <!-- <div class='col-md-4 text-center results-header'><i class="fa fa-lightbulb-o fa-lg" aria-hidden="true"></i> Click on entries for comparison</div> -->
     </div>
     <table class="table table-hover">
 
         <tbody>
 
-        <?php foreach($bmk_uncategorized as $cur_contents) { ?>
+        <?php foreach ($bmk_uncategorized as $cur_contents) { ?>
             <tr id="res_<?= $cur_contents['internal_id'] ?>" class="text-left selected-after-click">
                 <td class="col-xs-8">
                     <!-- title -->
@@ -182,15 +184,15 @@ $this->registerCssFile('@web/css/favorites.css');
                         </span>&middot;
                         <!-- year -->
                         <span id="res_<?= $cur_contents['internal_id'] ?>_y">
-                            <?= ($cur_contents['year'] == 0) ? "N/A" : $cur_contents['year'] ?>
+                            <?= ($cur_contents['year'] == 0) ? 'N/A' : $cur_contents['year'] ?>
                         </span>
                     </div>
                 </td>
                 <td class="col-xs-1" style = "padding-top: 12px;">
                     <select class="reading-status" data-color = "<?= $cur_contents['reading_status']?>">
-                        <option value="0" <?= ($cur_contents['reading_status'] == 0) ? "selected" : "" ?>>To Read</option>
-                        <option value="1" <?= ($cur_contents['reading_status'] == 1) ? "selected" : "" ?>>Reading</option>
-                        <option value="2" <?= ($cur_contents['reading_status'] == 2) ? "selected" : "" ?>>Read</option>
+                        <option value="0" <?= ($cur_contents['reading_status'] == 0) ? 'selected' : '' ?>>To Read</option>
+                        <option value="1" <?= ($cur_contents['reading_status'] == 1) ? 'selected' : '' ?>>Reading</option>
+                        <option value="2" <?= ($cur_contents['reading_status'] == 2) ? 'selected' : '' ?>>Read</option>
                     </select>
                 </td>
                 <td class="col-xs-1">
@@ -210,8 +212,8 @@ $this->registerCssFile('@web/css/favorites.css');
                 </td>
                 <!-- bookmark -->
                 <td class="col-xs-1" style="text-align: right; width: 1%">
-                    <?= BookmarkIcon::widget(['user_liked' => True,
-                                            'user_logged' => True,
+                    <?= BookmarkIcon::widget(['user_liked' => true,
+                                            'user_logged' => true,
                                             'id_bookmark' => $cur_contents['internal_id']]);?>
 
                     <!-- <?= Html::a('<i class="fa fa-info-circle" aria-hidden="true"></i>', Url::to(['site/details', 'id' => $cur_contents['doi']]), ['class' => 'my-btn', 'id' => 'a_res_' . $cur_contents['internal_id'], 'title' => 'Show details', 'target' => '_blank']); ?> -->
@@ -233,7 +235,7 @@ $this->registerCssFile('@web/css/favorites.css');
 
     Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'confirm-delete-folder'],
                     'size' => '',
-                    'closeButton' => False,
+                    'closeButton' => false,
                     'footer' => $footer
                 ]);
     echo "Are you sure you want to delete

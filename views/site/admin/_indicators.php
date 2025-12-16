@@ -1,13 +1,13 @@
 <?php
 
 use app\models\Indicators;
-use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
-/** @var yii\web\View $this */
-/** @var yii\data\ActiveDataProvider $dataProvider */
+/* @var yii\web\View $this */
+/* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Indicators';
 
@@ -38,9 +38,10 @@ $this->title = 'Indicators';
                 'class' => ActionColumn::className(),
                 'header' => 'Actions',
                 'urlCreator' => function ($action, Indicators $model, $key, $index, $column) {
-                    $action .= "-indicator";
+                    $action .= '-indicator';
+
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                }
             ],
         ],
     ]); ?>

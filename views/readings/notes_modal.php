@@ -4,22 +4,22 @@
             <div>
                 <!-- title -->
                 <div>
-                    <?= ($paper['title'] == '') ? "N/A" : $paper['title'] ?>
+                    <?= ($paper['title'] == '') ? 'N/A' : $paper['title'] ?>
                 </div>
                 <!-- venue-year -->
                 <div class="year-venue-bookmarks">
                     <!-- venue -->
-                    <?= ($paper['journal'] == '') ? "N/A" : $paper['journal'] ?>
+                    <?= ($paper['journal'] == '') ? 'N/A' : $paper['journal'] ?>
                     &middot;
                     <!-- year -->
-                    <?= ($paper['year'] == '') ? "N/A" : $paper['year'] ?>
+                    <?= ($paper['year'] == '') ? 'N/A' : $paper['year'] ?>
                 </div>
                 <!-- tags -->
                 <div class="tag-region">
                     <div class="bootstrap-tagsinput">
                         <?php if ($tags !== '') : ?>
                             <i class="fa fa-tags" aria-hidden="true"></i>
-                            <?php foreach (explode(',',$tags) as $tag) { ?>
+                            <?php foreach (explode(',', $tags) as $tag) { ?>
                                 <span class="tag label"><?= $tag ?></span>
                             <?php } ?>
                         <?php endif ?>

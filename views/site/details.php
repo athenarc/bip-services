@@ -170,11 +170,11 @@ if ($space_model->enable_like_dislike_annotations) {
 
                     <?php foreach ($article->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 
-                                'data' => $annotation['data'], 
-                                'space_annotation_db' => $space_model->annotation_db, 
-                                'space_url_suffix' => $space_model->url_suffix, 
-                                'space_annotation_id' => $annotation['annotation_id'], 
+                            <?php $annotation_content = AnnotationPopover::widget([
+                                'data' => $annotation['data'],
+                                'space_annotation_db' => $space_model->annotation_db,
+                                'space_url_suffix' => $space_model->url_suffix,
+                                'space_annotation_id' => $annotation['annotation_id'],
                                 'has_reverse_annotation_query' => $annotation['has_reverse_query'],
                                 'paper_id' => $article->internal_id,
                                 'annotation_name' => $annotation['label'],
@@ -195,8 +195,8 @@ if ($space_model->enable_like_dislike_annotations) {
         <div class='article-info'>
             <b><?= $article->getPidName() ?>:</b>
             <?php if (empty($article->doi)) {
-                echo 'N/A';
-            } elseif (! empty($article->doi)) { ?>
+                                echo 'N/A';
+                            } elseif (! empty($article->doi)) { ?>
                     <?php if ($article->getPidName() === 'DOI') :?>
                         <a href="https://doi.org/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php elseif ($article->getPidName() === 'PubMed Id') :?>

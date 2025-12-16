@@ -16,39 +16,32 @@ use Yii;
  * @property string|null $sort
  * @property int|null $top_k
  * @property int|null $page_size
- * @property int         $user_defined
- * @property int|null    $user_defined_max
- * @property string|null $prefilter_types     JSON text (array)
- * @property string|null $prefilter_accesses  JSON text (array)
+ * @property int $user_defined
+ * @property int|null $user_defined_max
+ * @property string|null $prefilter_types JSON text (array)
+ * @property string|null $prefilter_accesses JSON text (array)
  * @property string|null $margin_top
  * @property string|null $margin_right
  * @property string|null $margin_bottom
  * @property string|null $margin_left
- * @property string|null $compact_view        Display mode: 'full', 'compact', 'minimal'
+ * @property string|null $compact_view Display mode: 'full', 'compact', 'minimal'
  *
  * @property Elements $element
  */
-class ElementContributions extends \yii\db\ActiveRecord
-{
+class ElementContributions extends \yii\db\ActiveRecord {
     public $filters_accesses = []; // '1','0',''  ('' means Unknown)
-    public $filters_types    = []; // '0','1','2','3'
+
+    public $filters_types = []; // '0','1','2','3'
+
     public $top_k_toggle = 0;
+
     public $compact_view = 'full'; // Virtual property
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+    public static function tableName() {
         return '{{%element_contributions}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-
-    public function rules()
-    {
+    public function rules() {
         return [
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
@@ -69,7 +62,7 @@ class ElementContributions extends \yii\db\ActiveRecord
                 ['user_defined_max'],
                 'integer',
                 'min' => 0,
-                'when' => function ($model) { return (int)$model->user_defined === 1; },
+                'when' => function ($model) { return (int) $model->user_defined === 1; },
                 'whenClient' => "function () { return $('#elementcontributions-user_defined').is(':checked'); }"
             ],
             // when not user_defined, null it server-side so it’s ignored
@@ -77,27 +70,18 @@ class ElementContributions extends \yii\db\ActiveRecord
 
             [['filters_accesses', 'filters_types', 'compact_view'], 'safe'],
             ['filters_accesses', 'each', 'rule' => ['in', 'range' => ['', '0', '1']]],
-            ['filters_types',    'each', 'rule' => ['in', 'range' => ['0','1','2','3']]],
+            ['filters_types',    'each', 'rule' => ['in', 'range' => ['0', '1', '2', '3']]],
             [['prefilter_accesses', 'prefilter_types'], 'string'],
             [['top_k_toggle'], 'boolean'],
             [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributes()
-    {
+    public function attributes() {
         return array_merge(parent::attributes(), ['compact_view']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'element_id' => 'Element ID',
             'show_header' => 'Show header',
@@ -108,10 +92,10 @@ class ElementContributions extends \yii\db\ActiveRecord
             'page_size' => 'Page size',
             'heading_type' => 'Header size',
             'compact_view' => 'Display Mode',
-            'user_defined'        => 'Researcher selection',
-            'user_defined_max'    => 'Max user-selected works',
+            'user_defined' => 'Researcher selection',
+            'user_defined_max' => 'Max user-selected works',
             'filters_accesses' => 'Availability (default filters)',
-            'filters_types'    => 'Work type (default filters)',
+            'filters_types' => 'Work type (default filters)',
             'top_k_toggle' => 'Top-K',
             'margin_top' => 'Top margin',
             'margin_right' => 'Right margin',
@@ -126,52 +110,55 @@ class ElementContributions extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-
-    public function afterFind()
-    {
+    public function afterFind() {
         parent::afterFind();
 
         // Decode JSON columns to arrays (default to [])
         $acc = $this->prefilter_accesses ? json_decode($this->prefilter_accesses, true) : [];
-        $typ = $this->prefilter_types    ? json_decode($this->prefilter_types, true)    : [];
+        $typ = $this->prefilter_types ? json_decode($this->prefilter_types, true) : [];
 
         // Force string keys as we use '' / '0' / '1', etc.
-        $this->filters_accesses = array_map('strval', (array)$acc);
-        $this->filters_types    = array_map('strval', (array)$typ);
+        $this->filters_accesses = array_map('strval', (array) $acc);
+        $this->filters_types = array_map('strval', (array) $typ);
         $this->top_k_toggle = ($this->top_k !== null && $this->top_k !== '');
-        
+
         // Load compact_view from database
         $this->compact_view = $this->getAttribute('compact_view') ?: 'full';
     }
 
-    public function beforeValidate()
-    {
-        if (!is_array($this->filters_accesses)) $this->filters_accesses = [];
-        if (!is_array($this->filters_types))    $this->filters_types    = [];
+    public function beforeValidate() {
+        if (! is_array($this->filters_accesses)) {
+            $this->filters_accesses = [];
+        }
 
-        if ((int)$this->user_defined !== 1) {
+        if (! is_array($this->filters_types)) {
+            $this->filters_types = [];
+        }
+
+        if ((int) $this->user_defined !== 1) {
             // Clear on server if toggle is off
             $this->user_defined_max = null;
         }
-        if (!$this->top_k_toggle) {
+
+        if (! $this->top_k_toggle) {
             $this->top_k = null;
         }
+
         return parent::beforeValidate();
     }
 
-    public function beforeSave($insert)
-    {
+    public function beforeSave($insert) {
         // Persist the virtuals into JSON columns
         $this->prefilter_accesses = json_encode(array_values($this->filters_accesses ?: []), JSON_UNESCAPED_UNICODE);
-        $this->prefilter_types    = json_encode(array_values($this->filters_types    ?: []), JSON_UNESCAPED_UNICODE);
-        
+        $this->prefilter_types = json_encode(array_values($this->filters_types ?: []), JSON_UNESCAPED_UNICODE);
+
         // Add 'px' unit to margin values if they're just numbers
         foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
-            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+            if (! empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
                 $this->$marginAttr = $this->$marginAttr . 'px';
             }
         }
-      
+
         // Save compact_view to database
         if (isset($this->compact_view)) {
             $this->setAttribute('compact_view', $this->compact_view);
@@ -180,8 +167,7 @@ class ElementContributions extends \yii\db\ActiveRecord
         return parent::beforeSave($insert);
     }
 
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
@@ -193,28 +179,30 @@ class ElementContributions extends \yii\db\ActiveRecord
      */
     public static function getConfigContributions($element_id) {
         $model = self::find()->where(['element_id' => $element_id])->one();
-        if (!$model) return [];
+
+        if (! $model) {
+            return [];
+        }
 
         return [
-            'heading_type'     => $model->heading_type,
-            'show_header'      => $model->show_header,
-            'show_pagination'  => $model->show_pagination,
+            'heading_type' => $model->heading_type,
+            'show_header' => $model->show_header,
+            'show_pagination' => $model->show_pagination,
             'show_missing_papers' => $model->show_missing_papers,
-            'sort'             => $model->sort,
-            'top_k'            => $model->top_k,
-            'page_size'        => $model->page_size,
-            'user_defined'     => $model->user_defined,
+            'sort' => $model->sort,
+            'top_k' => $model->top_k,
+            'page_size' => $model->page_size,
+            'user_defined' => $model->user_defined,
             'user_defined_max' => $model->user_defined ? $model->user_defined_max : null,
-            'margin_top'       => $model->margin_top,
-            'margin_right'     => $model->margin_right,
-            'margin_bottom'    => $model->margin_bottom,
-            'margin_left'      => $model->margin_left,
-            'compact_view'     => $model->compact_view ?: 'full',
+            'margin_top' => $model->margin_top,
+            'margin_right' => $model->margin_right,
+            'margin_bottom' => $model->margin_bottom,
+            'margin_left' => $model->margin_left,
+            'compact_view' => $model->compact_view ?: 'full',
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],
-                'types'    => $model->prefilter_types    ? (json_decode($model->prefilter_types, true)    ?: []) : [],
+                'types' => $model->prefilter_types ? (json_decode($model->prefilter_types, true) ?: []) : [],
             ],
         ];
     }
-
 }

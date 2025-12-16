@@ -2,15 +2,13 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "element_indicators".
  *
  * @property int $indicator_id
  * @property int $element_id
- *  @property string $heading_type
- * @property string|null $status 
+ * @property string $heading_type
+ * @property string|null $status
  * @property int|null $semantics_order
  * @property int|null $indicator_order
  * @property string|null $margin_top
@@ -21,25 +19,16 @@ use Yii;
  * @property Elements $element
  * @property Indicators $indicator
  */
-class ElementIndicators extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementIndicators extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'element_indicators';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['indicator_id', 'element_id'], 'required'],
             [['indicator_id', 'element_id', 'semantics_order', 'indicator_order'], 'integer'],
-            [['status'], 'string'], 
+            [['status'], 'string'],
             [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
             [['indicator_id', 'element_id'], 'unique', 'targetAttribute' => ['indicator_id', 'element_id']],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
@@ -47,15 +36,11 @@ class ElementIndicators extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'indicator_id' => 'Indicator ID',
             'element_id' => 'Element ID',
-            'status' => 'Status', 
+            'status' => 'Status',
             'semantics_order' => 'Semantics Order',
             'indicator_order' => 'Indicator Order'
         ];
@@ -66,8 +51,7 @@ class ElementIndicators extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
@@ -76,16 +60,14 @@ class ElementIndicators extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getIndicator()
-    {
+    public function getIndicator() {
         return $this->hasOne(Indicators::class, ['id' => 'indicator_id']);
     }
 
-    public function beforeSave($insert)
-    {
+    public function beforeSave($insert) {
         // Add 'px' unit to margin values if they're just numbers
         foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
-            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+            if (! empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
                 $this->$marginAttr = $this->$marginAttr . 'px';
             }
         }
@@ -95,14 +77,14 @@ class ElementIndicators extends \yii\db\ActiveRecord
 
     public static function getConfigIndicator($element_id) {
         $config = [];
-    
+
         $indicators_config = self::find()
             ->where(['element_id' => $element_id])
             ->with('indicator')
             ->all();
-    
+
         $margins = null;
-        
+
         foreach ($indicators_config as $i_config) {
             $config[] = [
                 'indicator' => [
@@ -114,13 +96,13 @@ class ElementIndicators extends \yii\db\ActiveRecord
                 'indicator_order' => $i_config->indicator_order,
                 'linked_contribution_element_id' => $i_config->linked_contribution_element_id,
             ];
-            
+
             // Store margin data from the first indicator entry that has margins
             if ($margins === null && (
-                !empty($i_config->margin_top) || 
-                !empty($i_config->margin_right) || 
-                !empty($i_config->margin_bottom) || 
-                !empty($i_config->margin_left)
+                ! empty($i_config->margin_top) ||
+                ! empty($i_config->margin_right) ||
+                ! empty($i_config->margin_bottom) ||
+                ! empty($i_config->margin_left)
             )) {
                 $margins = [
                     'margin_top' => $i_config->margin_top,
@@ -130,17 +112,16 @@ class ElementIndicators extends \yii\db\ActiveRecord
                 ];
             }
         }
-        
+
         // Add margins to the array if they exist
         if ($margins !== null) {
             $config['_margins'] = $margins;
         }
-    
-        return $config;
-    }  
 
-    public static function getLinkedContributionElementId($element_id)
-    {
+        return $config;
+    }
+
+    public static function getLinkedContributionElementId($element_id) {
         return self::find()
             ->select('linked_contribution_element_id')
             ->where(['element_id' => $element_id])

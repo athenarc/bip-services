@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "facets".
  *
@@ -16,33 +14,20 @@ use Yii;
  * @property ElementFacets[] $elementFacets
  * @property Elements[] $elements
  */
-class Facets extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class Facets extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'facets';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['type'], 'string'],
             [['selected', 'visualize_opt', 'numbers_opt', 'border_opt'], 'boolean'],
-            [['selected', 'visualize_opt', 'numbers_opt', 'border_opt'], 'default', 'value'=> false],
+            [['selected', 'visualize_opt', 'numbers_opt', 'border_opt'], 'default', 'value' => false],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'type' => 'Type',
@@ -58,8 +43,7 @@ class Facets extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementFacets()
-    {
+    public function getElementFacets() {
         return $this->hasMany(ElementFacets::class, ['facet_id' => 'id']);
     }
 
@@ -68,8 +52,7 @@ class Facets extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElements()
-    {
+    public function getElements() {
         return $this->hasMany(Elements::class, ['id' => 'element_id'])->viaTable('element_facets', ['facet_id' => 'id']);
     }
 }

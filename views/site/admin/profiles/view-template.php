@@ -1,44 +1,44 @@
 <?php
 
-use Yii;
 use app\models\Elements;
-use yii\helpers\Html;
-use yii\widgets\DetailView;
-use yii\helpers\Url;
+use Yii;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\Templates $model */
-/** @var app\models\ElementsSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
+/* @var yii\web\View $this */
+/* @var app\models\Templates $model */
+/* @var app\models\ElementsSearch $searchModel */
+/* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = $templateModel->name;
 
 \yii\web\YiiAsset::register($this);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 
 ?>
 
 <div class="templates-view">
     
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profile Templates</a>
         </li>
     </ul>
 
@@ -91,7 +91,6 @@ $section_profiles = ($section === "profiles");
                 'format' => 'raw',
                 'value' => function ($model) {
                     return $model->visible ? '<i class="fa-solid fa-eye" title="Shown"></i>' : '<i class="fa-solid fa-eye-slash" title="Hidden"></i>';
-
                 },
             ],
             [
@@ -103,6 +102,7 @@ $section_profiles = ($section === "profiles");
 
                     // Get the maximum total_users value
                     $maxUsers = max(array_column($elementsTotalUsers, 'total_users'));
+
                     return $maxUsers;
                 },
             ],
@@ -115,7 +115,7 @@ $section_profiles = ($section === "profiles");
 
     <h2>
         Elements
-        <?= Html::a('<i class="fa-solid fa-plus"></i> New element', ['create-element', 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id,], ['class' => 'btn btn-success pull-right']) ?>
+        <?= Html::a('<i class="fa-solid fa-plus"></i> New element', ['create-element', 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-success pull-right']) ?>
     </h2>
 
     <?= $elementsDataProvider->setSort([
@@ -133,11 +133,13 @@ $section_profiles = ($section === "profiles");
                 'value' => function ($model, $key, $index, $column) use ($elementsTotalUsers) {
                     // Find the matching total_users value
                     $elementId = $model->id;
+
                     foreach ($elementsTotalUsers as $data) {
                         if ($data['element_id'] == $elementId) {
                             return $data['total_users']; // Return total_users value
                         }
                     }
+
                     return '-'; // Default to - if no match found
                 },
             ],
@@ -147,25 +149,25 @@ $section_profiles = ($section === "profiles");
                 'buttons' => [
                     'view' => function ($url, $model, $key) {
                         return Html::a(
-                            '<i class="fas fa-eye"></i> View', 
-                            $url, 
+                            '<i class="fas fa-eye"></i> View',
+                            $url,
                             ['title' => 'View', 'class' => 'btn btn-sm btn-default']
                         );
                     },
                     'update' => function ($url, $model, $key) {
                         return Html::a(
-                            '<i class="fas fa-edit"></i> Edit', 
-                            $url, 
+                            '<i class="fas fa-edit"></i> Edit',
+                            $url,
                             ['title' => 'Edit', 'class' => 'btn btn-sm btn-primary']
                         );
                     },
                     'delete' => function ($url, $model, $key) {
                         return Html::a(
-                            '<i class="fas fa-trash"></i> Delete', 
-                            $url, 
+                            '<i class="fas fa-trash"></i> Delete',
+                            $url,
                             [
-                                'title' => 'Delete', 
-                                'class' => 'btn btn-sm btn-danger', 
+                                'title' => 'Delete',
+                                'class' => 'btn btn-sm btn-danger',
                                 'data-confirm' => 'Are you sure you want to delete this item?',
                                 'data-method' => 'post'
                             ]
@@ -173,9 +175,10 @@ $section_profiles = ($section === "profiles");
                     },
                 ],
                 'urlCreator' => function ($action, Elements $model, $key, $index, $column) use ($profile_template_category_id) {
-                    $action .= "-element";
+                    $action .= '-element';
+
                     return Url::toRoute([$action, 'id' => $model->id, 'template_id' => $model->template_id, 'profile_template_category_id' => $profile_template_category_id]);
-                 }
+                }
             ],
         ],
     ]); ?>

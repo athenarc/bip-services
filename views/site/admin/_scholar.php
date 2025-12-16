@@ -1,21 +1,21 @@
 <?php
 
 use app\models\AssessmentFrameworks;
-use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
-/** @var yii\web\View $this */
-/** @var app\models\AssessmentFrameworksSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
+/* @var yii\web\View $this */
+/* @var app\models\AssessmentFrameworksSearch $searchModel */
+/* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Scholar Assessment';
 // $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="assessment-frameworks-index">
 
-    <h1><?= Html::encode("Assessment Frameworks") ?></h1>
+    <h1><?= Html::encode('Assessment Frameworks') ?></h1>
 
     <p>
         <?= Html::a('New Framework', ['create-framework'], ['class' => 'btn btn-custom-color']) ?>
@@ -34,9 +34,10 @@ $this->title = 'Scholar Assessment';
                 'class' => ActionColumn::className(),
                 'header' => 'Actions',
                 'urlCreator' => function ($action, AssessmentFrameworks $model, $key, $index, $column) {
-                    $action .= "-framework";
+                    $action .= '-framework';
+
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                }
             ],
         ],
     ]); ?>

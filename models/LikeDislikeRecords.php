@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -17,21 +16,12 @@ use yii\db\ActiveRecord;
  * @property int|null $paper_rank
  * @property string $action
  */
-class LikeDislikeRecords extends ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class LikeDislikeRecords extends ActiveRecord {
+    public static function tableName() {
         return 'like_dislike_records';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['user_id', 'space_url_suffix', 'paper_id', 'action'], 'required'],
             [['user_id', 'paper_id', 'paper_rank'], 'integer'],
@@ -42,11 +32,7 @@ class LikeDislikeRecords extends ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
@@ -60,14 +46,13 @@ class LikeDislikeRecords extends ActiveRecord
     }
 
     /**
-     * Get vote counts for a paper in a space
-     * 
+     * Get vote counts for a paper in a space.
+     *
      * @param int $paper_id
      * @param string $space_url_suffix
      * @return array ['like_count' => int, 'dislike_count' => int]
      */
-    public static function getVoteCounts($paper_id, $space_url_suffix)
-    {
+    public static function getVoteCounts($paper_id, $space_url_suffix) {
         $rows = self::find()
             ->select(['action', 'cnt' => 'COUNT(*)'])
             ->where([
@@ -83,9 +68,9 @@ class LikeDislikeRecords extends ActiveRecord
 
         foreach ($rows as $row) {
             if ($row['action'] === 'like') {
-                $like_count = (int)$row['cnt'];
+                $like_count = (int) $row['cnt'];
             } elseif ($row['action'] === 'dislike') {
-                $dislike_count = (int)$row['cnt'];
+                $dislike_count = (int) $row['cnt'];
             }
         }
 
@@ -96,15 +81,14 @@ class LikeDislikeRecords extends ActiveRecord
     }
 
     /**
-     * Get user's vote for a paper in a space
-     * 
+     * Get user's vote for a paper in a space.
+     *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
      * @return string|null 'like', 'dislike', or null
      */
-    public static function getUserVote($user_id, $paper_id, $space_url_suffix)
-    {
+    public static function getUserVote($user_id, $paper_id, $space_url_suffix) {
         $vote = self::find()
             ->where([
                 'user_id' => $user_id,
@@ -112,21 +96,20 @@ class LikeDislikeRecords extends ActiveRecord
                 'space_url_suffix' => $space_url_suffix,
             ])
             ->one();
-        
+
         return $vote ? $vote->action : null;
     }
 
     /**
-     * Get user's votes for multiple papers in a space (batch query)
-     * 
+     * Get user's votes for multiple papers in a space (batch query).
+     *
      * @param int $user_id
      * @param array $paper_ids Array of paper IDs
      * @param string $space_url_suffix
      * @return array Associative array with paper_id as key and 'like'/'dislike' as value
      */
-    public static function getUserVotesBatch($user_id, $paper_ids, $space_url_suffix)
-    {
-        if (empty($paper_ids) || !is_array($paper_ids)) {
+    public static function getUserVotesBatch($user_id, $paper_ids, $space_url_suffix) {
+        if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [];
         }
 
@@ -139,6 +122,7 @@ class LikeDislikeRecords extends ActiveRecord
             ->all();
 
         $result = [];
+
         foreach ($votes as $vote) {
             $result[$vote->paper_id] = $vote->action;
         }
@@ -147,8 +131,8 @@ class LikeDislikeRecords extends ActiveRecord
     }
 
     /**
-     * Save or update a vote
-     * 
+     * Save or update a vote.
+     *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
@@ -158,8 +142,7 @@ class LikeDislikeRecords extends ActiveRecord
      * @param int|null $paper_rank
      * @return bool
      */
-    public static function saveVote($user_id, $paper_id, $space_url_suffix, $action, $query = null, $ordering = null, $paper_rank = null)
-    {
+    public static function saveVote($user_id, $paper_id, $space_url_suffix, $action, $query = null, $ordering = null, $paper_rank = null) {
         $vote = self::find()
             ->where([
                 'user_id' => $user_id,
@@ -167,38 +150,38 @@ class LikeDislikeRecords extends ActiveRecord
                 'space_url_suffix' => $space_url_suffix,
             ])
             ->one();
-        
+
         if ($vote) {
             // Update existing vote
             $vote->action = $action;
             $vote->query = $query;
             $vote->ordering = $ordering;
             $vote->paper_rank = $paper_rank;
-            return $vote->save();
-        } else {
-            // Create new vote
-            $vote = new self();
-            $vote->user_id = $user_id;
-            $vote->paper_id = $paper_id;
-            $vote->space_url_suffix = $space_url_suffix;
-            $vote->action = $action;
-            $vote->query = $query;
-            $vote->ordering = $ordering;
-            $vote->paper_rank = $paper_rank;
+
             return $vote->save();
         }
+        // Create new vote
+        $vote = new self();
+        $vote->user_id = $user_id;
+        $vote->paper_id = $paper_id;
+        $vote->space_url_suffix = $space_url_suffix;
+        $vote->action = $action;
+        $vote->query = $query;
+        $vote->ordering = $ordering;
+        $vote->paper_rank = $paper_rank;
+
+        return $vote->save();
     }
 
     /**
-     * Delete a vote
-     * 
+     * Delete a vote.
+     *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
      * @return bool
      */
-    public static function deleteVote($user_id, $paper_id, $space_url_suffix)
-    {
+    public static function deleteVote($user_id, $paper_id, $space_url_suffix) {
         return self::deleteAll([
             'user_id' => $user_id,
             'paper_id' => $paper_id,
@@ -206,4 +189,3 @@ class LikeDislikeRecords extends ActiveRecord
         ]) > 0;
     }
 }
-

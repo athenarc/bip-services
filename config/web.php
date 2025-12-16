@@ -16,15 +16,15 @@ $config = [
         // store session in cache
         'class' => 'yii\web\CacheSession',
     ],
-	'assetManager' => [
+    'assetManager' => [
         'bundles' => [
             'yii\web\JqueryAsset' => [
-                'jsOptions' => [ 'position' => \yii\web\View::POS_HEAD ],
+                'jsOptions' => ['position' => \yii\web\View::POS_HEAD],
                 // 'jsOptions' => [ 'position' => \yii\web\View::POS_HEAD, 'type' => 'text/javascript' ],
                 // 'js' => [ 'https://code.jquery.com/jquery-3.5.1.min.js' ],
                 ],
             'yii\bootstrap\BootstrapAsset' => [
-                'depends' => ['yii\jui\JuiAsset',],
+                'depends' => ['yii\jui\JuiAsset'],
                 ],
             ],
             'appendTimestamp' => true,
@@ -51,45 +51,43 @@ $config = [
         'class' => 'yii\caching\FileCache',
     ],
     'bipstring' => [
-    	'class' => 'app\components\BipStringHelper',
+        'class' => 'app\components\BipStringHelper',
     ],
-	'viewregister' => [
-		'class' => 'app\components\ViewRegister',
-	],
+    'viewregister' => [
+        'class' => 'app\components\ViewRegister',
+    ],
         'pyramidchart' => [
-        	'class' => 'app\components\PyramidChart',
+            'class' => 'app\components\PyramidChart',
         ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
-	],
-	'errorHandler' => [
+    ],
+    'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        'mailer' => 
-        [
+        'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'useFileTransport' => false,
             //Use this on athena network
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
-                
+
                 //ON ATHENA
                 'host' => $params['mailHost'],
                 'port' => '25',
 
                 //Keep this for all configurations
                 'encryption' => 'tls',
-         	    'streamOptions' => [ 
-                    'ssl' => [ 
+                 'streamOptions' => [
+                    'ssl' => [
                         'allow_self_signed' => true,
                         'verify_peer' => false,
                         'verify_peer_name' => false,
-                    ]
-                    ,
+                    ],
                 ],
-        	],
-	    ],
+            ],
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -103,7 +101,7 @@ $config = [
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
-	        'showScriptName' => false,
+            'showScriptName' => false,
             'rules' => [
                 'search/<space_url_suffix>' => 'site/index',
                 'search' => 'site/index',
@@ -112,9 +110,9 @@ $config = [
                 'details' => 'site/details',
 
                 // Rewrite rules for author page
-                'author/<author>/<ordering>/<page:\d+>' => 'site/author',  
+                'author/<author>/<ordering>/<page:\d+>' => 'site/author',
                 'author/<author>/<ordering:(popularity|influence)>' => 'site/author',
-                'author/<author>/<page:\d+>' => 'site/author',  
+                'author/<author>/<page:\d+>' => 'site/author',
                 'author/<author>' => 'site/author',
                 'site/auto-complete-journals/<expansion>/<max_num>' => 'site/auto-complete-journals',
                 'site/auto-complete-concepts/<expansion>/<max_num>' => 'site/auto-complete-concepts',
@@ -123,7 +121,7 @@ $config = [
                 'scholar' => 'scholar/index',
                 'scholar/profile/<orcid>' => 'scholar/profile',
                 'scholar/profile/<orcid>/<template_url_name>' => 'scholar/profile',
-                
+
                 'scholar/myprofile' => 'scholar/myprofile',
                 'scholar/myprofile/<template_url_name>' => 'scholar/myprofile',
 
@@ -133,7 +131,6 @@ $config = [
 
                 // spaces pages
                 'spaces' => 'spaces/index',
-
             ],
         ],
     ],

@@ -7,7 +7,7 @@ $this->title = 'BIP! Finder - Survey';
 ?>
 <div class="container site-about">
   <h1><?= Html::encode($this->title) ?></h1>
-  <?php if($already_completed){ ?>
+  <?php if ($already_completed) { ?>
     <p>
       <h4>You have already completed the survey! Thank you for your participation.</h4>
     </p>

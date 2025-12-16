@@ -2,10 +2,6 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\widgets\LinkPager;
-use yii\web\View;
-use yii\bootstrap\Modal;
-use yii\bootstrap\Button;
 
 $this->title = 'BIP! Services - Readings';
 
@@ -19,10 +15,10 @@ $this->title = 'BIP! Services - Readings';
         <h2 class = "text-right">
             <a class = "btn btn-default"href="<?= Url::to(['readings/list']) ?>">
             <?php
-                if ( !isset($user_id) ) {
-                    echo "Sign in to manage your readings";
+                if (! isset($user_id)) {
+                    echo 'Sign in to manage your readings';
                 } else {
-                    echo "My readings";
+                    echo 'My readings';
                 }
             ?>
             </a>
@@ -51,7 +47,7 @@ $this->title = 'BIP! Services - Readings';
             </p>
         </div>
         <div class = "col-md-5">
-            <?= Html::img("@web/img/readings_example.png", ['alt' => 'Search example', 'class' => 'img-responsive screenshot', 'style' => 'margin:0']) ?>
+            <?= Html::img('@web/img/readings_example.png', ['alt' => 'Search example', 'class' => 'img-responsive screenshot', 'style' => 'margin:0']) ?>
         </div>
     </div>
 </div>

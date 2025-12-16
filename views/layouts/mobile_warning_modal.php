@@ -9,12 +9,11 @@ $footer = '
 
 ';
 
-Modal::begin([  'options' => ['class' => ''],
+Modal::begin(['options' => ['class' => ''],
                 'id' => 'warnMobileUser',
                 'size' => 'modal-lg',
-                'closeButton' => False,
+                'closeButton' => false,
                 'footer' => $footer
             ]);
-echo "BIP! is not optimised for mobile devices";
+echo 'BIP! is not optimised for mobile devices';
 Modal::end();
-?>

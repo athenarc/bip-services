@@ -1,40 +1,40 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 use yii\helpers\Url;
+use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\AssessmentProtocols $protocolModel */
-/** @var yii\data\ActiveDataProvider $indicatorDataProvider */
-/** @var app\models\IndicatorsSearch $searchModel */
+/* @var yii\web\View $this */
+/* @var app\models\AssessmentProtocols $protocolModel */
+/* @var yii\data\ActiveDataProvider $indicatorDataProvider */
+/* @var app\models\IndicatorsSearch $searchModel */
 
 $this->title = $protocolModel->name;
 \yii\web\YiiAsset::register($this);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 ?>
 <div class="assessment-protocols-view">
 
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_scholar ? 'active' : ''?>">
-        <a class="" <?= !$section_scholar ? "href=" . Url::to(['site/admin-scholar']) : "" ?>>Scholar</a>
+        <a class="" <?= ! $section_scholar ? 'href=' . Url::to(['site/admin-scholar']) : '' ?>>Scholar</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profiles</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profiles</a>
         </li>
     </ul>
 
@@ -78,19 +78,18 @@ $section_profiles = ($section === "profiles");
         if ($protocolModel->protocolIndicators) {
             foreach ($protocolModel->protocolIndicators as $protocol_indicator) {
                 $indicator = $protocol_indicator->indicator;
-                
+
                 $selected_indicators[] = [
                     'id' => Html::encode($indicator->id)
                 ];
             }
-        }
-        else {
+        } else {
             $selected_indicators = [];
         }
     ?>
 
     <!-- < ?php $indicatorLevels = ["Researcher", "Work"]; ?> -->
-    <?php $indicatorLevels = ["Researcher"]; ?>
+    <?php $indicatorLevels = ['Researcher']; ?>
 
     <div class="flex-wrap" style="gap: 20px;">
         <?php foreach ($indicatorLevels as $ilevel): ?>
@@ -99,6 +98,7 @@ $section_profiles = ($section === "profiles");
             <ul style="list-style-type: none; padding: 0; margin: 0;">
                 <?php
                     $lastSemantics = null;
+
                     foreach ($all_indicators as $indicator):
                         if ($indicator->level !== $ilevel) {
                             continue;
@@ -109,7 +109,7 @@ $section_profiles = ($section === "profiles");
                         $indicatorLevel = $indicator->level;
                         $isChecked = false;
 
-                        if (!empty($selected_indicators)) {
+                        if (! empty($selected_indicators)) {
                             foreach ($selected_indicators as $selected_indicator) {
                                 if ($selected_indicator['id'] == $indicatorId) {
                                     $isChecked = true;

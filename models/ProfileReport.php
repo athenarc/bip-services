@@ -2,23 +2,19 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveRecord;
 
-class ProfileReport extends ActiveRecord
-{
+class ProfileReport extends ActiveRecord {
     const STATUS_PENDING = 'pending';
     const STATUS_REVIEWED = 'reviewed';
     const STATUS_RESOLVED = 'resolved';
     const STATUS_DISMISSED = 'dismissed';
 
-    public static function tableName()
-    {
+    public static function tableName() {
         return '{{%profile_reports}}';
     }
 
-    public function rules()
-    {
+    public function rules() {
         return [
             [['reported_orcid', 'reporter_user_id', 'reason'], 'required'],
             [['reporter_user_id'], 'integer'],
@@ -31,8 +27,7 @@ class ProfileReport extends ActiveRecord
         ];
     }
 
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'reported_orcid' => 'Reported Profile ORCID',
@@ -45,18 +40,15 @@ class ProfileReport extends ActiveRecord
         ];
     }
 
-    public function getReporter()
-    {
+    public function getReporter() {
         return $this->hasOne(User::class, ['id' => 'reporter_user_id']);
     }
 
-    public function getReportedResearcher()
-    {
+    public function getReportedResearcher() {
         return $this->hasOne(Researcher::class, ['orcid' => 'reported_orcid']);
     }
 
-    public static function create($reported_orcid, $reporter_user_id, $reason, $description = null)
-    {
+    public static function create($reported_orcid, $reporter_user_id, $reason, $description = null) {
         $report = new self();
         $report->reported_orcid = $reported_orcid;
         $report->reporter_user_id = $reporter_user_id;
