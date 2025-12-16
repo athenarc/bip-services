@@ -33,6 +33,7 @@ class SearchForm extends Model
     public $is_oa;
     public $space_model;
     public $provided_by;
+    public $enable_annotations_flag;
 
     /*
          * Constructor method to help with validation
@@ -42,7 +43,7 @@ class SearchForm extends Model
      *
      * @author Ilias Kanellos
      */
-        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $provided_by = [], $space_model = null)
+        public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year=0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $provided_by = [], $enable_annotations_flag = [], $space_model = null)
         {
           parent::__construct();
           $this->ordering = $ordering;
@@ -81,6 +82,7 @@ class SearchForm extends Model
           $this->type = $type;
           $this->is_oa = $is_oa;
           $this->provided_by = $provided_by;
+          $this->enable_annotations_flag = $enable_annotations_flag;
           $this->space_model = $space_model;
         }
 
@@ -156,6 +158,7 @@ class SearchForm extends Model
             'location' => 'Search in:',
             'cc' => 'Citation Count',
             'provided_by' => 'Provided by',
+            'enable_annotations_flag' => 'Annotations',
             'is_oa' => 'Availability'
         ];
     }
@@ -638,6 +641,23 @@ class SearchForm extends Model
             }
         }
 
+        if ($this->enable_annotations_flag) {
+
+
+            if (!empty($this->space_model->solr_name)) {
+
+                // $space_suffix = $this->space_model->url_suffix;
+                $space_suffix = array_column($this->space_model->solr_name, 'value')[0];
+
+                // Build annotation filter: annotations:<url_suffix>\|*
+                
+                $annotation_query = "annotations:" . $space_suffix . "*";
+
+                $query->createFilterQuery('annotations_filter')->setQuery($annotation_query);
+            }
+
+        }
+
         // do not consider keyword relevance when:
         // * relevance is set to 'low'
         // * ordering is set to 'year'
@@ -1027,6 +1047,7 @@ class SearchForm extends Model
         if ($this->impulse != 'all') $count++;
         if ($this->cc != 'all') $count++;
         if (!empty($this->provided_by)) $count++;
+        if ($this->enable_annotations_flag) $count++;
 
         return $count;
     }

@@ -40,4 +40,10 @@ $(document).ready(function () {
         }
     });
 
+    $('#spaces-has_annotations_flag').on('change', function () {
+        $('#spaces-enable_annotations_flag')        
+        .prop('disabled', !this.checked)
+        .prop('checked', false);
+    });
+
 });

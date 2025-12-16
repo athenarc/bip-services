@@ -184,6 +184,9 @@ class SiteController extends BaseController
                     // if no checkbox is selected, type & is_oa won't be present in post request
                     $post_request_array['type'] = $post_data_all['type'] ?? [];
                     $post_request_array['is_oa'] = $post_data_all['is_oa'] ?? [];
+                    // convert checkbox array value to int (enable_annotations_flag is stored as boolean in the space model)
+                    $post_request_array['enable_annotations_flag'] = (int)($post_data_all['enable_annotations_flag'][0] ?? 0);
+
                 }
             }
 
@@ -290,6 +293,7 @@ class SiteController extends BaseController
             $search_params['type'],
             $search_params['is_oa'],
             $search_params['provided_by'],
+            $search_params['enable_annotations_flag'],
             $space_model
         );
 

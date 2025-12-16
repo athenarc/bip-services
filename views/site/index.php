@@ -139,6 +139,12 @@ if ($in_space) {
                             <?= CustomFiltersCheckboxList::widget(['id' => 'space_filter', 'name' => 'provided_by', 'model' => $model, 'form' => $form, 'items' => array_column($space_model->solr_name, 'label', 'value'), 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
                         <?php endif; ?>
 
+                        <?php if($space_model->has_annotations_flag): ?>
+
+                            <?= CustomFiltersCheckboxList::widget(['id' => 'enable_annotations_flag_filter', 'name' => 'enable_annotations_flag', 'model' => $model, 'form' => $form, 'items' => ['1' => 'Enable annotations'], 'item_class' => "checkbox checkbox-custom filters-margin"]); ?>
+
+                        <?php endif; ?>
+
                         <div id="years_form_group" class="form-group">
                             <label>Start Year</label>
                             <?php if (!$start_year) { ?>

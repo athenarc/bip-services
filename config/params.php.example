@@ -139,9 +139,24 @@ return [
     'defaultElementHeadingType' => 'h3',
     // this array maps bip space names to pilot graph names as they are indexed in solr
     'spaceSolrNames' => [
-        'neuroscience-pilot' => 'neuro',
-        'transport-pilot' => 'transport',
-        'cancer-pilot' => 'cancer',
-        'energy-pilot' => 'energy',
-    ]
+        'neuroscience-pilot' => [
+            [ 'value' => 'neuroscience-pilot', 'label' => 'OpenAIRE Graph (Neuroscience Pilot)'],
+            [ 'value' => 'neuroscience-pilot_ebrains', 'label' => 'EBRAINS'],
+        ],
+        'transport-ccam-pilot' => [
+            [ 'value' => 'transport-ccam-pilot', 'label' => 'OpenAIRE Graph (Transport CCAM Pilot)'],
+        ],
+        'transport-maritime-pilot' => [
+            [ 'value' => 'transport-maritime-pilot', 'label' => 'OpenAIRE Graph (Transport Maritime Pilot)'],
+        ],
+        'cancer-pilot' => [
+            [ 'value' => 'cancer-pilot', 'label' => 'OpenAIRE Graph (Cancer Pilot)'],
+        ],
+        'energy-pilot' => [
+            [ 'value' => 'energy-pilot', 'label' => 'OpenAIRE Graph (Energy Pilot)'],
+        ],
+        'flowcytogen-labs' => [
+           [ 'value' => 'cancer-pilot', 'label' => 'Clinical Knowledge Graph'],
+        ]
+    ],
 ];
