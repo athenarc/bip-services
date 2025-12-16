@@ -160,9 +160,9 @@ class SearchForm extends Model
             'location' => 'Search in:',
             'cc' => 'Citation Count',
             'provided_by' => 'Provided by',
+            'is_oa' => 'Availability',
+            'pubmed_types' => 'NLM Types',
             'enable_annotations_flag' => 'Annotations',
-            'is_oa' => 'Availability'
-            'pubmed_types' => 'NLM Types'
         ];
     }
 

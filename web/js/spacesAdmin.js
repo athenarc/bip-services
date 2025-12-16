@@ -40,14 +40,6 @@ $(document).ready(function () {
         }
     });
 
-    $('#spaces-has_annotations_flag').on('change', function () {
-        $('#spaces-enable_annotations_flag')        
-        .prop('disabled', !this.checked)
-        .prop('checked', false);
-    });
-
-
-
     // show button only if has_pubmed_types is checked
     $('#spaces-has_pubmed_types').on('change', function() {
         if ($(this).is(':checked')) {
@@ -99,5 +91,12 @@ $(document).ready(function () {
         var count = $('.spaces-pubmed-type-checkbox:checked').length;
         $('#spaces-pubmed-types-count').text(count);
     }
+
+    // When has_annotations_flag is unchecked, disable and uncheck enable_annotations_flag
+    $('#spaces-has_annotations_flag').on('change', function () {
+        $('#spaces-enable_annotations_flag')        
+        .prop('disabled', !this.checked)
+        .prop('checked', false);
+    });
 
 });
