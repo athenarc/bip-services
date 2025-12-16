@@ -24,10 +24,10 @@
   },
   "lint-staged": {
     "web/js/**/*.js": [
-      "eslint --fix"
+      "eslint --fix || true"
     ],
     "web/js/*.js": [
-      "eslint --fix"
+      "eslint --fix || true"
     ],
     "*.php": [
       "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php"

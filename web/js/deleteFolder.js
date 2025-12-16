@@ -2,20 +2,17 @@
  * Confirmation pop-up before deleting bookmark folder
  */
 
-$(document).ready(function () {
+$(document).ready(() => {
+    let formsnapshot = null;
 
-    var formsnapshot= null;
-
-    $(".bookmark-delete-button").click(function () {
-
-        var folder_name = $(this).closest("button").attr("data-folder");
-        formsnapshot = $(this).closest("form");
+    $('.bookmark-delete-button').click(function () {
+        const folder_name = $(this).closest('button').attr('data-folder');
+        formsnapshot = $(this).closest('form');
         $('#modaldeleteContent').text(folder_name);
         $('#confirm-delete-folder').modal('show');
-
     });
 
-    $('#deletefolder').click(function () {
+    $('#deletefolder').click(() => {
         formsnapshot.submit();
     });
 });

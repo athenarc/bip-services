@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
     const animatedBlocks = document.querySelectorAll('.bip-animate');
     animatedBlocks.forEach((block, index) => {
         setTimeout(() => {
