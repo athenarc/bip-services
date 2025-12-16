@@ -1,12 +1,11 @@
-$(document).ready(function () {
-
+$(document).ready(() => {
     $(document).on('change', '.dropdown-options', function () {
-        let optionId = $(this).val();
-        let templateId = $('#template_id').val();
-        let elementId = $(this).data('element-id');
+        const optionId = $(this).val();
+        const templateId = $('#template_id').val();
+        const elementId = $(this).data('element-id');
 
         $.ajax({
-            url: appBaseUrl + '/scholar/save-dropdown-instance',
+            url: `${appBaseUrl }/scholar/save-dropdown-instance`,
             type: 'POST',
             data: {
                 option_id: optionId,
@@ -27,12 +26,10 @@ $(document).ready(function () {
                     alert('Failed to update instance.');
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 alert('An error occurred while processing the request.');
                 // console.error('Error saving data:', error);
-            }
+            },
         });
     });
-
-
-  });
+});

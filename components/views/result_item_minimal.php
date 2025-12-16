@@ -1,10 +1,9 @@
 <?php
 
+use app\components\BookmarkIcon;
+use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-use app\components\ImpactIcons;
-use app\components\BookmarkIcon;
 
 $item = $this->context;
 
@@ -14,8 +13,8 @@ $item = $this->context;
     <div class="row">
         <!-- title and basic info -->
         <div class="col-md-9">
-            <?php if (isset($item->show["bookmark"]) && $item->show['bookmark']
-                            && (!isset($item->edit_perm) || (isset($item->edit_perm) && $item->edit_perm))): ?>
+            <?php if (isset($item->show['bookmark']) && $item->show['bookmark'] &&
+                            (! isset($item->edit_perm) || (isset($item->edit_perm) && $item->edit_perm))): ?>
                 <!-- bookmark -->
                 <span class="bookmark-item" style="cursor: pointer;">
                 <?= BookmarkIcon::widget([
@@ -28,6 +27,7 @@ $item = $this->context;
             <?php endif; ?>
             <?php
                 $params = ['id' => $item->doi];
+
                 if (isset($item) && isset($item->space_url_suffix)) {
                     $params['space_url_suffix'] = $item->space_url_suffix;
                 }
@@ -38,7 +38,7 @@ $item = $this->context;
                 $url,
                 ['class' => 'main-green', 'title' => 'Show details', 'target' => '_blank']
             ); ?>
-            <?php if(!empty($item->retracted)): ?>
+            <?php if (! empty($item->retracted)): ?>
                 <i class="retraction-alert fa fa-exclamation-triangle" title="This article has been retracted"></i>
             <?php endif; ?>
             
@@ -66,7 +66,7 @@ $item = $this->context;
         <!-- impact indicators -->
         <div class="col-md-3 text-right">
             <div class="minimal-impact">
-                <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
+                <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
                     <?php $versionsLabel = $item->dois_num . ' ' . ($item->dois_num == 1 ? 'version' : 'versions'); ?>
                     <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>"
                        modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions"

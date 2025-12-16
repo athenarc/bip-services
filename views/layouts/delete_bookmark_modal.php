@@ -12,9 +12,8 @@ $footer = '
 Modal::begin([
                 'id' => 'confirm-delete-bookmark',
                 'size' => '',
-                'closeButton' => False,
+                'closeButton' => false,
                 'footer' => $footer
             ]);
-echo "Are you sure you want to delete this bookmark ?";
+echo 'Are you sure you want to delete this bookmark ?';
 Modal::end();
-?>

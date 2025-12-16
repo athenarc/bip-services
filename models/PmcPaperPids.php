@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "{{%pmc_paper_pids}}".
  *
@@ -11,21 +9,12 @@ use Yii;
  * @property string $openaire_id
  * @property string $doi
  */
-class PmcPaperPids extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class PmcPaperPids extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return '{{%pmc_paper_pids}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['paper_id', 'openaire_id', 'doi'], 'required'],
             [['paper_id'], 'integer'],
@@ -34,11 +23,7 @@ class PmcPaperPids extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'paper_id' => 'Paper ID',
             'openaire_id' => 'Openaire ID',
@@ -52,10 +37,8 @@ class PmcPaperPids extends \yii\db\ActiveRecord
      * $paper = $pid?->paper;
      * Each pid belongs to one paper.
      * @return \yii\db\ActiveQuery
-    */
-
-    public function getPaper()
-    {
+     */
+    public function getPaper() {
         return $this->hasOne(Article::class, ['internal_id' => 'paper_id']);
     }
 }

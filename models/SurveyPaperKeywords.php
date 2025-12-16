@@ -2,32 +2,21 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "survey_paper_keywords".
  *
- * @property integer $id
+ * @property int $id
  * @property string $session_id
- * @property integer $paper_id
+ * @property int $paper_id
  * @property string $keyword
  * @property string $action
  */
-class SurveyPaperKeywords extends \yii\db\ActiveRecord
-{
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
+class SurveyPaperKeywords extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'survey_paper_keywords';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['action', 'paper_id', 'keywords', 'session_id'], 'required'],
             ['paper_id', 'integer'],
@@ -37,11 +26,7 @@ class SurveyPaperKeywords extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'session_id' => 'Session ID',

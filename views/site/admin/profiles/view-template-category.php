@@ -1,41 +1,39 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\DetailView;
-use app\models\Templates;
-use yii\helpers\Url;
-use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\TemplatesSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
-/** @var app\models\ProfileTemplateCategories $templateCategoryModel */
+/* @var yii\web\View $this */
+/* @var app\models\TemplatesSearch $searchModel */
+/* @var yii\data\ActiveDataProvider $dataProvider */
+/* @var app\models\ProfileTemplateCategories $templateCategoryModel */
 
 $this->title = $templateCategoryModel->name;
 
 \yii\web\YiiAsset::register($this);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 ?>
 <div class="profile-template-categories-view">
     
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profile Templates</a>
         </li>
     </ul>
 
@@ -86,7 +84,7 @@ $section_profiles = ($section === "profiles");
             'class' => 'admin-table grey-text'
         ],
        'columns' => [
-           ['class' => 'yii\grid\SerialColumn'],           
+           ['class' => 'yii\grid\SerialColumn'],
            [
                 'attribute' => 'name',
                 'format' => 'raw', // Ensures HTML output is not escaped

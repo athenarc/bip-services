@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "assessment_protocols".
  *
@@ -16,21 +14,12 @@ use Yii;
  * @property Indicators[] $indicators
  * @property ProtocolIndicators[] $protocolIndicators
  */
-class AssessmentProtocols extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class AssessmentProtocols extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'assessment_protocols';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['assessment_framework_id', 'name'], 'required'],
             [['assessment_framework_id'], 'integer'],
@@ -40,11 +29,7 @@ class AssessmentProtocols extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'assessment_framework_id' => 'Assessment Framework ID',
@@ -58,8 +43,7 @@ class AssessmentProtocols extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getAssessmentFramework()
-    {
+    public function getAssessmentFramework() {
         return $this->hasOne(AssessmentFrameworks::class, ['id' => 'assessment_framework_id']);
     }
 
@@ -68,8 +52,7 @@ class AssessmentProtocols extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getIndicators()
-    {
+    public function getIndicators() {
         return $this->hasMany(Indicators::class, ['id' => 'indicator_id'])->viaTable('protocol_indicators', ['protocol_id' => 'id']);
     }
 
@@ -78,8 +61,7 @@ class AssessmentProtocols extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getProtocolIndicators()
-    {
+    public function getProtocolIndicators() {
         return $this->hasMany(ProtocolIndicators::class, ['protocol_id' => 'id']);
     }
 }

@@ -32,7 +32,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                     id="keyword-relevance-toggle"
                                     type="checkbox" 
                                     class="my-switch-input" 
-                                    <?= ($user->keyword_relevance) ? "checked" : "" ?> 
+                                    <?= ($user->keyword_relevance) ? 'checked' : '' ?> 
                                     onchange="toggleSwitch(this, 'keyword_relevance', '<?= Url::to(['/user/update-setting']) ?>')"
                                 >
                                 <label for="keyword-relevance-toggle" class="my-switch-slider"></label>
@@ -50,7 +50,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                     id="ai-features-toggle"
                                     type="checkbox" 
                                     class="my-switch-input" 
-                                    <?= ($user->ai_features) ? "checked" : "" ?> 
+                                    <?= ($user->ai_features) ? 'checked' : '' ?> 
                                     onchange="confirmAiAssistantToggle(this, '<?= Url::to(['/user/update-setting']) ?>')"
                                 >
                                 <label for="ai-features-toggle" class="my-switch-slider"></label>
@@ -70,11 +70,11 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                 <div class="flex-wrap items-center justify-between">
                                     <div>
                                         <span class="grey-text"><b>Profile visibility</b></span>
-                                        <span id = "profile-visibility-text" class="badge badge-outline badge-success"><?= ($user->researcher->is_public) ? "Public" : "Private" ?></span>
+                                        <span id = "profile-visibility-text" class="badge badge-outline badge-success"><?= ($user->researcher->is_public) ? 'Public' : 'Private' ?></span>
                                         <div class="text-muted-settings">Toggle the visibility of your Scholar profile.</div>
                                     </div>
                                     <div class="my-switch">
-                                        <input type="checkbox" id="settings-public-switch" class="my-switch-input" <?= ($user->researcher->is_public) ? "checked" : "" ?> >
+                                        <input type="checkbox" id="settings-public-switch" class="my-switch-input" <?= ($user->researcher->is_public) ? 'checked' : '' ?> >
                                         <label for="settings-public-switch" class="my-switch-slider"></label>
                                     </div>
                                 </div>
@@ -86,7 +86,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                     <div class="grey-text"><b>Unlink your profile</b></div>
                                         <div class="text-muted-settings">Unlink your Scholar profile from ORCiD.</div>
                                     </div>
-                                    <?= Html::a('<i class="fa fa-unlink" aria-hidden="true"></i>', ['site/settings', 'unlink_profile' => true], ['id' => 'settings-unlink-switch', 'class'=>'btn btn-sm btn-default']) ?>
+                                    <?= Html::a('<i class="fa fa-unlink" aria-hidden="true"></i>', ['site/settings', 'unlink_profile' => true], ['id' => 'settings-unlink-switch', 'class' => 'btn btn-sm btn-default']) ?>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -99,7 +99,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                             <div class="grey-text"><b>Manage your privacy settings</b></div>
                                 <div class="text-muted-settings">Opt in or out from Matomo and/or Google Analytics.</div>
                             </div>
-                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/privacy-settings'], ['class'=>'main-green']) ?>
+                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/privacy-settings'], ['class' => 'main-green']) ?>
                         </div>
                     </div>
                     <div class="list-group-item">
@@ -108,7 +108,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                             <div class="grey-text"><b>Review our Privacy and Cookie Policy</b></div>
                                 <div class="text-muted-settings">Review our policy for the information that we collect.</div>
                             </div>
-                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/data-policy'], ['class'=>'main-green']) ?>
+                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/data-policy'], ['class' => 'main-green']) ?>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                             <div class="grey-text"><b>Change password</b></div>
                                 <div class="text-muted-settings">Manage your account security by changing your current password.</div>
                             </div>
-                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class'=>'main-green']) ?>
+                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class' => 'main-green']) ?>
                         </div>
                     </div>
                 </div>

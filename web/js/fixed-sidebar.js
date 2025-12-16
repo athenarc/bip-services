@@ -1,5 +1,5 @@
-$(document).ready(function() {
-  $('.toc-link').click(function() {
-      $(this).find('.caret').toggleClass('collapsed');
-  });
+$(document).ready(() => {
+    $('.toc-link').click(function () {
+        $(this).find('.caret').toggleClass('collapsed');
+    });
 });

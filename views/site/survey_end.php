@@ -15,7 +15,7 @@ $this->title = 'BIP! Finder - Survey Finished';
   <p>  
     Nullam elit massa, eleifend vitae lacinia in, elementum id purus. Curabitur pellentesque lacinia dapibus. Sed nec cursus orci, id condimentum risus. Nulla euismod nunc et nulla efficitur tincidunt. Phasellus efficitur tempor nisi, sed pulvinar lectus varius non. Integer lacinia tempus sapien, eget dictum nibh hendrerit ut. Sed semper dapibus quam. Nunc feugiat libero velit, ac pharetra neque pulvinar eget. Cras ut velit ut lectus pharetra tempus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse luctus dictum gravida. Quisque nec velit in tortor elementum rutrum.
   </p>
-  <?php $form = ActiveForm::begin(['id' => 'credits-form', 'action'=> Url::to(['site/save-survey-credits'])]); ?>
+  <?php $form = ActiveForm::begin(['id' => 'credits-form', 'action' => Url::to(['site/save-survey-credits'])]); ?>
 
     <?= $form->field($credits_model, 'name') ?>
     <?= $form->field($credits_model, 'email') ?>

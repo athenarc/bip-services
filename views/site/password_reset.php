@@ -1,11 +1,11 @@
 <?php
 
-use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
+use yii\helpers\Html;
 
-/* 
+/*
  * Form to reset user password
- * 
+ *
  * @author: Hlias
  */
 $this->title = 'Password Reset';
@@ -15,8 +15,8 @@ $this->title = 'Password Reset';
 
 <div class="container site-login">
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php if($model->postMsg != '' && $model->postMsg != null): ?>
-    <?= "<p class='text-warning'>$model->postMsg</p>" ?>
+    <?php if ($model->postMsg != '' && $model->postMsg != null): ?>
+    <?= "<p class='text-warning'>{$model->postMsg}</p>" ?>
     <?php endif; ?>
     <p>Please fill out the following fields:</p>
 

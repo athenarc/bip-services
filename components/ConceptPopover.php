@@ -5,6 +5,7 @@
 /*
  * Define the namespace of the widget
  */
+
 namespace app\components;
 
 /*
@@ -15,30 +16,24 @@ use yii\base\Widget;
 /*
  * The widget class
  */
-class ConceptPopover extends Widget
-{
+class ConceptPopover extends Widget {
     /*
      * Widget properties
      */
 
     public $concept;
 
-
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
-    public function init()
-    {
+    public function init() {
         parent::init();
     }
 
     /*
      * Running the widget
      */
-    public function run()
-    {
+    public function run() {
         return $this->render('concept_popover');
     }
-
 }
-

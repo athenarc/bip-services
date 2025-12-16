@@ -1,6 +1,6 @@
-<?php 
-use yii\helpers\Html;
+<?php
 use yii\helpers\Url;
+
 ?>
 
 <!-- Display the heading. -->
@@ -16,11 +16,12 @@ use yii\helpers\Url;
 	<div class="col-md-6">
 		<form id='move-form' method='post' action='<?=Url::to(['scholar/movefolder'])?>'>
 <?php
-foreach ($folders as $folder)
-{
-?>
+foreach ($folders as $folder) {
+    ?>
 			&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="fid" value='<?=$folder['id']?>' <?php if ($bookmark->folder_id==$folder['id'] ){echo ' checked="checked"';}?> >
+			<input type="radio" name="fid" value='<?=$folder['id']?>' <?php if ($bookmark->folder_id == $folder['id']) {
+        echo ' checked="checked"';
+    } ?> >
 			&nbsp;&nbsp;&nbsp;
 			<i class="fa fa-folder-o" aria-hidden="true"></i>&nbsp;
 			<?= $folder['name']?>
@@ -31,7 +32,9 @@ foreach ($folders as $folder)
 
 <!-- Also display the "dummy folder", the one containing all the not-organized.-->
 			&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="fid" value='-1' <?php if (empty($bookmark->folder_id)) {echo ' checked="checked"';}?> >
+			<input type="radio" name="fid" value='-1' <?php if (empty($bookmark->folder_id)) {
+    echo ' checked="checked"';
+}?> >
 			&nbsp;&nbsp;&nbsp;
 			<i class="fa fa-folder-o" aria-hidden="true"></i>&nbsp
 			Not organized

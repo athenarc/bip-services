@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "{{%element_table_headers}}".
  *
@@ -15,21 +13,12 @@ use Yii;
  * @property ElementTable $elementTable
  * @property ElementTableInstances[] $elementTableInstances
  */
-class ElementTableHeaders extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementTableHeaders extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return '{{%element_table_headers}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             // the element_table_id is assigned from ElementTable model, so no need for validation
             // [['element_table_id'], 'integer'],
@@ -38,16 +27,10 @@ class ElementTableHeaders extends \yii\db\ActiveRecord
             // [['header_name'], 'required'],
             [['header_name'], 'string', 'max' => 255],
             [['header_width'], 'integer', 'min' => 1, 'max' => 100, 'message' => 'Header width must be an integer between 1 and 100.']
-
-
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_table_id' => 'Element Table ID',
@@ -61,9 +44,7 @@ class ElementTableHeaders extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementTable()
-    {
+    public function getElementTable() {
         return $this->hasOne(ElementTable::class, ['id' => 'element_table_id']);
     }
-
 }

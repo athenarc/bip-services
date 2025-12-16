@@ -1,22 +1,22 @@
 <?php
+use app\components\BookmarkIcon;
+use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
-use app\components\ImpactIcons;
-use app\components\BookmarkIcon;
 
 $this->title = 'BIP! Finder - Comparison';
 
-$this->registerJsFile('@web/js/third-party/d3/d3.min.js',  ['position' => View::POS_HEAD]);
+$this->registerJsFile('@web/js/third-party/d3/d3.min.js', ['position' => View::POS_HEAD]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
+$this->registerJsFile('@web/js/radarChart.js', ['position' => View::POS_HEAD]);
 
 ?>
 
 <div class="container">
 <div class="row">
     <div class="col-md-3 col-md-offset-3 vcenter">
-       <?= Html::img("@web/img/bip-minimal.png", ['class' => 'img-responsive center-block','width' => 100, 'height' => 75]) ?>
+       <?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block', 'width' => 100, 'height' => 75]) ?>
     </div>
     <div class="col-md-3 vcenter">
         <h2 style="margin-top:0; margino-bottom: 0">
@@ -42,9 +42,9 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
         <tbody>
         <?php
             $i = 0;
-            foreach($articles as $row )
-            {
-        ?>
+
+            foreach ($articles as $row) {
+                ?>
                     <tr id="res_<?= $row['internal_id'] ?>" class="text-left">
 
                         <!-- color -->
@@ -54,7 +54,7 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
 
                         <!-- title -->
                         <td id="res_<?= $row['internal_id'] ?>_t" <?php if (strlen($row['title']) > 80) { ?> title="<?= $row['title'] ?>" <?php } ?>>
-                            <?= Html::a(Yii::$app->bipstring->shortenString($row['title'],80) . ' <i class="fa fa-info-circle" aria-hidden="true"></i>', Url::to(['site/details', 'id' => $row['doi']]), ['class' => 'grey-link', 'title' => 'Show details', 'target' => '_blank']); ?>
+                            <?= Html::a(Yii::$app->bipstring->shortenString($row['title'], 80) . ' <i class="fa fa-info-circle" aria-hidden="true"></i>', Url::to(['site/details', 'id' => $row['doi']]), ['class' => 'grey-link', 'title' => 'Show details', 'target' => '_blank']); ?>
                         </td>
 
                         <!-- venue -->
@@ -77,19 +77,19 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
                                                     'influence_score' => $row['pagerank'],
                                                     'impulse_score' => $row['3y_cc'],
                                                     'cc_score' => $row['citation_count'],
-                                                    ]);?>
+                                                    ]); ?>
                         </td>
 
                         <!-- bookmark -->
                         <td>
                             <?= BookmarkIcon::widget(['user_liked' => $row['user_id'],
                                                     'user_logged' => Yii::$app->user->id,
-                                                    'id_bookmark' => $row['internal_id']]);?>
+                                                    'id_bookmark' => $row['internal_id']]); ?>
 
                         </td>
 
                         <td>
-                            <?= Html::a('<i class="fa fa-times" aria-hidden="true"></i>', Url::to(['site/comparison']), ['class' => 'my-btn-discreet', 'title' => 'Remove from comparison', 'onclick'=>"clickRemoveBtn(".$row['internal_id'].")"]); ?>
+                            <?= Html::a('<i class="fa fa-times" aria-hidden="true"></i>', Url::to(['site/comparison']), ['class' => 'my-btn-discreet', 'title' => 'Remove from comparison', 'onclick' => 'clickRemoveBtn(' . $row['internal_id'] . ')']); ?>
                         </td>
                     </tr>
         <?php
@@ -133,19 +133,19 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
                                 var colors = [];
                                 var data = [];
                                 <?php
-                                    $i=0;
+                                    $i = 0;
                                     $max_value = 0;
-                                    foreach($articles as $row )
-                                    {
+
+                                    foreach ($articles as $row) {
                                         $all_values = [
                                             $row['attrank_normalized'],
                                             $row['pagerank_normalized'],
                                             $row['3y_cc_normalized']
                                          ];
 
-                                        if( $max_value < max($all_values) )
+                                        if ($max_value < max($all_values)) {
                                             $max_value = max($all_values);
-                                ?>
+                                        } ?>
 
                                 //get color
                                 var element = document.getElementById('dot_<?=$i?>'),
@@ -165,8 +165,10 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
                                 <?php
                                         $i++;
                                     }
-                                    if( $max_value == 0 )
+
+                                    if ($max_value == 0) {
                                         $max_value = 1;
+                                    }
 
                                 ?>
 
@@ -182,7 +184,7 @@ $this->registerJsFile('@web/js/radarChart.js',  ['position' => View::POS_HEAD]);
                 <div class="col-md-12">
                     <div class="citation-history-container">
                         <div class="citation-line-chart">
-                            <? /* php $this->registerJsFile ( '@web/js/drawLineChart.js', ['position' => \yii\web\View::POS_HEAD]) */?>
+                            <?php /* php $this->registerJsFile ( '@web/js/drawLineChart.js', ['position' => \yii\web\View::POS_HEAD]) */?>
                             <script>$(document).ready(drawLineChart(<?php /* echo "$xmin,$xmax,$ymax,$citation_data" */?>))</script>
                         </div>
                     </div>

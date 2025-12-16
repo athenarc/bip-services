@@ -2,23 +2,12 @@
 
 namespace app\models;
 
-use Yii;
-
-class Tags extends \yii\db\ActiveRecord
-{
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
+class Tags extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'tags';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['name', 'used'], 'required'],
             [['id', 'used'], 'integer'],
@@ -26,13 +15,9 @@ class Tags extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
-            'id'  => 'Tag ID',
+            'id' => 'Tag ID',
             'name' => 'Tag Name',
             'used' => 'Times used',
         ];

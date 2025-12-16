@@ -1,11 +1,6 @@
 <?php
 
-use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\widgets\LinkPager;
-use yii\web\View;
-use yii\bootstrap\Modal;
-use yii\bootstrap\Button;
 
 $this->title = 'BIP! Services - Scholar';
 
@@ -20,9 +15,9 @@ $this->title = 'BIP! Services - Scholar';
       <a href="<?= Url::to(['scholar/profile']) ?>" class="btn btn-custom-color btn-lg">
       <?php
       if (Yii::$app->user->isGuest) {
-          echo "Sign In";
-      } elseif ( !isset($researcher->orcid ) ) {
-          echo "Create Profile";
+          echo 'Sign In';
+      } elseif (! isset($researcher->orcid)) {
+          echo 'Create Profile';
       } else {
           echo "<i class='fa-solid fa-id-card'></i> My profile";
       }

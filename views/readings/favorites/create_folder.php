@@ -1,5 +1,4 @@
-<?php 
-use yii\helpers\Html;
+<?php
 use yii\helpers\Url;
 
 ?>
@@ -38,19 +37,19 @@ use yii\helpers\Url;
 	</div>
 	
 	<div class='row'>
-	<?php 
-		if( isset($err) )
-		{
-			echo "<p class=\"bg-danger\">";
-			echo "Folder creation failed!<br/><br/>";
-			foreach($err as $cur_err_entity)
-			{
-				foreach($cur_err_entity as $cur_prob)
-					echo $cur_prob."<br/>";
-			}
-			echo "<br/>Please resolve the issue and continue...";
-			echo "</p>";
-		}
-	?>
+	<?php
+        if (isset($err)) {
+            echo '<p class="bg-danger">';
+            echo 'Folder creation failed!<br/><br/>';
+
+            foreach ($err as $cur_err_entity) {
+                foreach ($cur_err_entity as $cur_prob) {
+                    echo $cur_prob . '<br/>';
+                }
+            }
+            echo '<br/>Please resolve the issue and continue...';
+            echo '</p>';
+        }
+    ?>
 	</div>
 </div>

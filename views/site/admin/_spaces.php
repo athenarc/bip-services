@@ -1,18 +1,16 @@
 <?php
 
-use Yii;
-use yii\web\View;
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\web\JsExpression;
-use yii\widgets\ActiveForm;
-use yii\bootstrap\Modal;
-use app\components\CustomBootstrapRadioList;
 use app\components\CustomBootstrapCheckboxList;
+use app\components\CustomBootstrapRadioList;
 use app\components\PubmedTypesModal;
-use yii\jui\AutoComplete;
 use wbraganca\dynamicform\DynamicFormWidget;
-
+use Yii;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\jui\AutoComplete;
+use yii\web\JsExpression;
+use yii\web\View;
+use yii\widgets\ActiveForm;
 
 $this->registerJsFile('@web/js/spacesAdmin.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/on-off-my-switch.css');
@@ -43,11 +41,13 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 ]) ?>
             </div>
 
-            <?php if (!$model->isNewRecord) : ?>
+            <?php if (! $model->isNewRecord) : ?>
             <div style="margin-top: 10px;">
-            <?= Html::a("Link to " . $model->url_suffix . " <i class='fa fa-external-link-square main-green' aria-hidden='true'></i>",
-                    Url::to(['/search' . '/' .  $model->url_suffix]),
-                    ['class' => 'main-green', 'target' => '_blank']);
+            <?= Html::a(
+                    'Link to ' . $model->url_suffix . " <i class='fa fa-external-link-square main-green' aria-hidden='true'></i>",
+                    Url::to(['/search' . '/' . $model->url_suffix]),
+                    ['class' => 'main-green', 'target' => '_blank']
+                );
             ?>
             </div>
             <?php endif ?>
@@ -86,10 +86,10 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
         'enableClientValidation' => false,
     ]) ?>
 
-    <?= $form->field($model, 'theme_color')->textInput(['maxlength' => true, 'class' => 'search-box form-control', 'type'=>'color', 'style' => 'width: 70px;']) ?>
+    <?= $form->field($model, 'theme_color')->textInput(['maxlength' => true, 'class' => 'search-box form-control', 'type' => 'color', 'style' => 'width: 70px;']) ?>
 
     <div id = "spaces-form_img">
-        <?php if(isset($model->logo)): ?>
+        <?php if (isset($model->logo)): ?>
             <?= Html::img($model->uploadLogoPath() . $model->logo, ['class' => '', 'style' => 'max-height: 150px; max-width: 50%;']) ?>
         <?php endif; ?>
     </div>
@@ -122,7 +122,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <?=  CustomBootstrapCheckboxList::widget([
             'name' => 'is_oa', 'model' => $model, 'form' => $form,
-            'items' => array_map(function($v){ return $v['name']; }, array_filter(Yii::$app->params['openness'], function($k){ return $k !== ''; }, ARRAY_FILTER_USE_KEY)),
+            'items' => array_map(function ($v) { return $v['name']; }, array_filter(Yii::$app->params['openness'], function ($k) { return $k !== ''; }, ARRAY_FILTER_USE_KEY)),
             'item_class' => 'checkbox checkbox-custom checkbox-inline',
             'unselect' => ''
         ]);
@@ -133,9 +133,10 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
     <?= $form->field($model, 'has_pubmed_types', [
         'enableClientValidation' => false,
         'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}</div>\n{error}\n{hint}"
-        ])->checkbox([],
-                false // IMPORTANT: render input and label separately so template {input}{label} works
-            )
+        ])->checkbox(
+            [],
+            false // IMPORTANT: render input and label separately so template {input}{label} works
+        )
     ?>
 
 
@@ -144,20 +145,20 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
         <?= $form->field($model, 'pubmed_types')
             ->hiddenInput([
                 'id' => 'spaces-pubmed-types-hidden',
-                'value' => implode(',', (array)$model->pubmed_types)
+                'value' => implode(',', (array) $model->pubmed_types)
             ])
             ->label(false)
         ?>
 
 
         <button type="button" class="btn btn-custom-color" data-toggle="modal" data-target="#spacesPubmedTypesModal">
-            Edit NLM Types (<span id="spaces-pubmed-types-count"><?= count((array)$model->pubmed_types)?></span>)
+            Edit NLM Types (<span id="spaces-pubmed-types-count"><?= count((array) $model->pubmed_types)?></span>)
         </button>
         <div class="help-block"></div>
     </div>
 
     <?= $form->field($model, 'start_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
-    <?= $form->field($model, 'end_year')->textInput(['type' => 'number','class' => 'search-box form-control']) ?>
+    <?= $form->field($model, 'end_year')->textInput(['type' => 'number', 'class' => 'search-box form-control']) ?>
 
     <?php
 
@@ -200,11 +201,9 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
 
     <?= $form->field($model, 'topics')->widget(AutoComplete::class, [
-
-        'name' => "topics",
-        'clientOptions' =>
-        [
-            'source' =>  new JsExpression('
+        'name' => 'topics',
+        'clientOptions' => [
+            'source' => new JsExpression('
                 function(request, response) {
                     // extract last value
                     var term = request.term.split(/,\s*/).pop();
@@ -215,8 +214,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 }
             ')
         ],
-        'clientEvents' =>
-        [
+        'clientEvents' => [
             'search' => new JsExpression('
                 function(event, ui) {
                     // extract last value
@@ -255,7 +253,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             ')
         ],
         //html options
-        'options' => ['class'=>'form-control search-box', 'placeholder' => "Select Topics"],
+        'options' => ['class' => 'form-control search-box', 'placeholder' => 'Select Topics'],
     ]) ?>
 
     <h3>Annotations</h3>
@@ -263,23 +261,25 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
         <div><label class="control-label">Annotations Flag</label></div>
 
         <?= $form->field($model, 'has_annotations_flag', [
-            'enableClientValidation' => false, 
+            'enableClientValidation' => false,
             'options' => ['tag' => false], // prevent extra wrapper
             'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
             'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
-            ])->checkbox([],
-                    false // IMPORTANT: render input and label separately so template {input}{label} works
-                ) 
+            ])->checkbox(
+                [],
+                false // IMPORTANT: render input and label separately so template {input}{label} works
+            )
         ?>
 
         <?= $form->field($model, 'enable_annotations_flag', [
-            'enableClientValidation' => false, 
+            'enableClientValidation' => false,
             'options' => ['tag' => false], // prevent extra wrapper
             'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
             'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
-            ])->checkbox(['disabled' => !$model->has_annotations_flag],
-                    false // IMPORTANT: render input and label separately so template {input}{label} works
-                ) 
+            ])->checkbox(
+                ['disabled' => ! $model->has_annotations_flag],
+                false // IMPORTANT: render input and label separately so template {input}{label} works
+            )
         ?>
         <div class="help-block"></div>
 
@@ -287,7 +287,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <?php
 
-        $annotation_db_options = array_map(function($db) {
+        $annotation_db_options = array_map(function ($db) {
             return $db['name'];
         }, Yii::$app->params['annotation_dbs']);
 
@@ -394,7 +394,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             <div class="my-switch">
                 <?php
                 // Get the current value, default to 0 (false) if not set
-                $isEnabled = isset($model->enable_like_dislike_records) ? (bool)$model->enable_like_dislike_records : false;
+                $isEnabled = isset($model->enable_like_dislike_records) ? (bool) $model->enable_like_dislike_records : false;
                 ?>
                 <!-- Hidden input to store the actual value (0 or 1) -->
                 <input type="hidden" name="Spaces[enable_like_dislike_records]" id="enable-like-dislike-records-value" value="<?= $isEnabled ? '1' : '0' ?>">
@@ -402,7 +402,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     type="checkbox" 
                     id="enable-like-dislike-records-toggle"
                     class="my-switch-input" 
-                    <?= $isEnabled ? "checked" : "" ?>
+                    <?= $isEnabled ? 'checked' : '' ?>
                     onchange="document.getElementById('enable-like-dislike-records-value').value = this.checked ? '1' : '0';"
                 >
                 <label for="enable-like-dislike-records-toggle" class="my-switch-slider"></label>
@@ -416,7 +416,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             <div class="my-switch">
                 <?php
                 // Get the current value, default to 0 (false) if not set
-                $isEnabled = isset($model->enable_like_dislike_annotations) ? (bool)$model->enable_like_dislike_annotations : false;
+                $isEnabled = isset($model->enable_like_dislike_annotations) ? (bool) $model->enable_like_dislike_annotations : false;
                 ?>
                 <!-- Hidden input to store the actual value (0 or 1) -->
                 <input type="hidden" name="Spaces[enable_like_dislike_annotations]" id="enable-like-dislike-annotations-value" value="<?= $isEnabled ? '1' : '0' ?>">
@@ -424,7 +424,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     type="checkbox" 
                     id="enable-like-dislike-annotations-toggle"
                     class="my-switch-input" 
-                    <?= $isEnabled ? "checked" : "" ?>
+                    <?= $isEnabled ? 'checked' : '' ?>
                     onchange="document.getElementById('enable-like-dislike-annotations-value').value = this.checked ? '1' : '0';"
                 >
                 <label for="enable-like-dislike-annotations-toggle" class="my-switch-slider"></label>
@@ -434,7 +434,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
 
     <div class="form-group">
-        <?php if($model->isNewRecord): ?>
+        <?php if ($model->isNewRecord): ?>
             <?= Html::submitButton('Create', ['class' => 'btn btn-custom-color']) ?>
         <?php else: ?>
             <?= Html::submitButton('Update', ['class' => 'btn btn-success']) ?>

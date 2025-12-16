@@ -5,24 +5,26 @@ namespace app\models;
 /**
  * ScholarIndicators class computes various researcher-level indicators.
  */
-class ScholarIndicators
-{
+class ScholarIndicators {
     public $citations; // Array of citation counts for each paper
+
     public $papers; // Array of papers with metadata
+
     private $impact_fields; // Mapping of impact fields (popularity, influence, impulse, etc.)
+
     private $impact_classes; // Classes representing different impact levels
+
     private $work_types; // Mapping of work types (papers, datasets, software, etc.)
 
     /**
      * Constructor to initialize the ScholarIndicators class.
-     * 
+     *
      * @param array $impact_fields Mapping of impact field names.
      * @param array $impact_classes List of impact classes.
      * @param array $work_types Mapping of work types.
      * @param array $papers Array of papers with metadata.
      */
-    public function __construct($impact_fields, $impact_classes, $work_types, $papers)
-    {
+    public function __construct($impact_fields, $impact_classes, $work_types, $papers) {
         $this->citations = array_column($papers, 'citation_count');
         $this->papers = $papers;
         $this->impact_fields = $impact_fields;
@@ -32,11 +34,10 @@ class ScholarIndicators
 
     /**
      * Computes the number of works by type (papers, datasets, software, other).
-     * 
+     *
      * @return array Associative array with counts for each type.
      */
-    public function work_types_num()
-    {
+    public function work_types_num() {
         $types = [
             'papers' => 0,
             'datasets' => 0,
@@ -61,21 +62,19 @@ class ScholarIndicators
 
     /**
      * Calculates the total number of citations.
-     * 
+     *
      * @return int Total citations.
      */
-    public function citations_num()
-    {
+    public function citations_num() {
         return array_sum($this->citations);
     }
 
     /**
      * Computes the h-index of the researcher based on citations.
-     * 
+     *
      * @return int h-index value.
      */
-    public function h_index()
-    {
+    public function h_index() {
         if (array_sum($this->citations) == 0) {
             return 0;
         }
@@ -93,11 +92,10 @@ class ScholarIndicators
 
     /**
      * Calculates the i10-index (number of papers with at least 10 citations).
-     * 
+     *
      * @return int i10-index value.
      */
-    public function i10_index()
-    {
+    public function i10_index() {
         return array_reduce($this->citations, function ($ret, $val) {
             return $ret += $val >= 10;
         });
@@ -105,12 +103,11 @@ class ScholarIndicators
 
     /**
      * Counts the number of popular works (those not in the last impact class).
-     * 
+     *
      * @param array $all_works Array of all works with metadata.
      * @return int Number of popular works.
      */
-    public function popular_works_count($all_works)
-    {      
+    public function popular_works_count($all_works) {
         $pop_class_field = 'pop_class';
         $last_impact_class = end($this->impact_classes);
 
@@ -124,12 +121,11 @@ class ScholarIndicators
 
     /**
      * Counts the number of influential works (those not in the last impact class).
-     * 
+     *
      * @param array $all_works Array of all works with metadata.
      * @return int Number of influential works.
      */
-    public function influential_works_count($all_works)
-    {
+    public function influential_works_count($all_works) {
         $inf_class_field = 'inf_class';
         $last_impact_class = end($this->impact_classes);
 
@@ -141,17 +137,16 @@ class ScholarIndicators
         );
     }
 
-
     /**
      * Calculates the sum of popularity scores.
-     * 
+     *
      * @return array Popularity sum in scientific notation.
      */
-    public function popularity_sum()
-    {
+    public function popularity_sum() {
         $pop_field = $this->impact_fields['popularity'];
         $pop_value = sprintf('%.2e', array_sum(array_column($this->papers, $pop_field)));
         list($number, $exponent) = explode('e', $pop_value);
+
         return [
             'number' => $number,
             'exponent' => 'E' . $exponent,
@@ -160,14 +155,14 @@ class ScholarIndicators
 
     /**
      * Calculates the sum of influence scores.
-     * 
+     *
      * @return array Influence sum in scientific notation.
      */
-    public function influence_sum()
-    {
+    public function influence_sum() {
         $inf_field = $this->impact_fields['influence'];
         $inf_value = sprintf('%.2e', array_sum(array_column($this->papers, $inf_field)));
         list($number, $exponent) = explode('e', $inf_value);
+
         return [
             'number' => $number,
             'exponent' => 'E' . $exponent,
@@ -176,23 +171,21 @@ class ScholarIndicators
 
     /**
      * Calculates the sum of impulse scores.
-     * 
+     *
      * @return int Impulse sum.
      */
-    public function impulse_sum()
-    {
+    public function impulse_sum() {
         $imp_field = $this->impact_fields['impulse'];
+
         return array_sum(array_column($this->papers, $imp_field));
     }
 
     /**
      * Computes the percentage of open access papers.
-     * 
+     *
      * @return array Open access statistics.
      */
-    public function open_papers_percentage()
-    {  
-            
+    public function open_papers_percentage() {
         $open_papers_array = array_filter($this->papers, function ($item) {
             return $item['is_oa'] == 1;
         });
@@ -205,7 +198,7 @@ class ScholarIndicators
 
         $known_papers = $open_papers + $closed_papers;
 
-        $open_percentage = ($known_papers == 0) ? "" : round(100 * ($open_papers / $known_papers), 0);
+        $open_percentage = ($known_papers == 0) ? '' : round(100 * ($open_papers / $known_papers), 0);
 
         $influential_open_papers = $this->influential_works_count($open_papers_array) ?? 0;
         $popular_open_papers = $this->popular_works_count($open_papers_array) ?? 0;
@@ -221,11 +214,10 @@ class ScholarIndicators
 
     /**
      * Finds the minimum publication year among papers.
-     * 
+     *
      * @return int|null Minimum year or null if no valid year is found.
      */
-    public function get_paper_min_year()
-    {
+    public function get_paper_min_year() {
         $years = array_column($this->papers, 'year');
 
         $years_clean = array_filter($years, function ($value) {
@@ -245,32 +237,30 @@ class ScholarIndicators
 
     /**
      * Calculates the academic age of the researcher (years since first publication).
-     * 
+     *
      * @param int|null $min_year The earliest year of publication.
      * @return int|null Academic age or null if no valid year is found.
      */
-    public function get_academic_age($min_year)
-    {
+    public function get_academic_age($min_year) {
         return (empty($min_year)) ? null : (date('Y') - $min_year);
     }
 
     /**
      * Adjusts the academic age based on periods of inactivity (responsible academic age).
-     * 
+     *
      * @param int|null $academic_age The academic age of the researcher.
      * @param array $rag_data Array of inactivity periods with start and end dates.
      * @param int|null $min_year The earliest year of publication.
      * @return float|null Adjusted academic age or null if inputs are invalid.
      */
-    public static function get_responsible_academic_age($academic_age, $rag_data, $min_year)
-    {
+    public static function get_responsible_academic_age($academic_age, $rag_data, $min_year) {
         if (empty($min_year) || empty($academic_age)) {
             return null;
         }
 
         if (empty($rag_data)) {
             return $academic_age;
-        }        
+        }
 
         // Combine overlapping inactivity date ranges
         $rag_data_ranges = self::mergeDateRanges($rag_data);
@@ -314,35 +304,35 @@ class ScholarIndicators
             ? 0
             : number_format(($total_remaining_interval / 365), 2);
 
-        return (float)$total_remaining_interval;        
+        return (float) $total_remaining_interval;
     }
 
     /**
      * Extracts and keeps only the start and end date keys from the inactivity periods.
-     * 
+     *
      * @param array $rag_data Array of inactivity periods with start and end dates.
      * @return array Simplified array containing only start_date and end_date keys.
      */
-    public static function keepOnlyDateRanges($rag_data)
-    {
+    public static function keepOnlyDateRanges($rag_data) {
         $ranges = [];
+
         foreach ($rag_data as $rag_row) {
             $ranges[] = [
                 'start_date' => $rag_row['start_date'],
                 'end_date' => $rag_row['end_date'],
             ];
         }
+
         return $ranges;
     }
 
     /**
      * Merges overlapping or adjacent date ranges into a consolidated list.
-     * 
+     *
      * @param array $rag_data Array of inactivity periods with start and end dates.
      * @return array Merged date ranges.
      */
-    public static function mergeDateRanges($rag_data)
-    {
+    public static function mergeDateRanges($rag_data) {
         $ranges = self::keepOnlyDateRanges($rag_data);
         $retVal = [];
 
@@ -352,6 +342,7 @@ class ScholarIndicators
         });
 
         $currentRange = [];
+
         foreach ($ranges as $range) {
             // Skip invalid ranges
             if ($range['start_date'] >= $range['end_date']) {
@@ -382,12 +373,11 @@ class ScholarIndicators
 
     /**
      * Computes all scholarly metrics and returns them in an associative array.
-     * 
+     *
      * @param array $rag_data Array of inactivity periods with start and end dates.
      * @return array Computed scholarly metrics.
      */
-    public function compute($rag_data)
-    {
+    public function compute($rag_data) {
         $work_types_num = $this->work_types_num();
         $citations_num = $this->citations_num();
         $h_index = $this->h_index();
@@ -419,5 +409,4 @@ class ScholarIndicators
             'responsible_academic_age' => $responsible_academic_age,
         ];
     }
-
 }

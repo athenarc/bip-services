@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "protocol_indicators".
  *
@@ -13,21 +11,12 @@ use Yii;
  * @property Indicators $indicator
  * @property AssessmentProtocols $protocol
  */
-class ProtocolIndicators extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ProtocolIndicators extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'protocol_indicators';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['indicator_id', 'protocol_id'], 'required'],
             [['indicator_id', 'protocol_id'], 'integer'],
@@ -37,11 +26,7 @@ class ProtocolIndicators extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'indicator_id' => 'Indicator ID',
             'protocol_id' => 'Protocol ID',
@@ -53,8 +38,7 @@ class ProtocolIndicators extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getIndicator()
-    {
+    public function getIndicator() {
         return $this->hasOne(Indicators::class, ['id' => 'indicator_id']);
     }
 
@@ -63,8 +47,7 @@ class ProtocolIndicators extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getProtocol()
-    {
+    public function getProtocol() {
         return $this->hasOne(AssessmentProtocols::class, ['id' => 'protocol_id']);
     }
 }

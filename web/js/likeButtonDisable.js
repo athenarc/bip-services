@@ -1,7 +1,5 @@
-$(document).ready(function()
-{
-    $("a.my-btn:has(i.fa-bookmark)").bind('click', function(event)
-    {
+$(document).ready(() => {
+    $('a.my-btn:has(i.fa-bookmark)').bind('click', event => {
         event.preventDefault();
         return false;
     });

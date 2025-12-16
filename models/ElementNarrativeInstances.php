@@ -2,37 +2,26 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
-
-class ElementNarrativeInstances extends ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementNarrativeInstances extends ActiveRecord {
+    public static function tableName() {
         return 'element_narrative_instances';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['user_id', 'element_id', 'template_id'], 'required'],
-            
+
             [['user_id'], 'integer'],
             [['template_id'], 'integer'],
             [['element_id'], 'integer'],
             [['value'], 'string'],
         ];
     }
-    
-    public function behaviors()
-    {
+
+    public function behaviors() {
         return [
             'timestamp' => [
                 'class' => TimestampBehavior::class,

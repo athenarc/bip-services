@@ -2,14 +2,11 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
-use Yii;
-use app\models\Researcher;
 
-
-class User extends ActiveRecord implements \yii\web\IdentityInterface
-{
+class User extends ActiveRecord implements \yii\web\IdentityInterface {
     /*
     private $id;
     private $username;
@@ -24,13 +21,11 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     /*
      * Method do connect class to db table
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'users';
     }
 
-    public function rules()
-    {
+    public function rules() {
         return [
             [['last_visited'], 'safe'],
         ];
@@ -39,86 +34,69 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     /**
      * @Hlias: method to return db record that corresponds to user id
      */
-    public static function findIdentity($id)
-    {
+    public static function findIdentity($id) {
         /*
          * This is code by @Hlias to get db record of user.
          * (Shamelessly copying from http://www.yiiframework.com/doc-2.0/guide-security-authentication.html)
          */
         return static::findOne($id);
-        
     }
 
     public function getResearcher() {
         return $this->hasOne(Researcher::class, ['user_id' => 'id']);
     }
-    
+
     /**
      * Finds an identity by the given token.
      *
      * @param string $token the token to be looked for
      * @return IdentityInterface|null the identity object that matches the given token.
      */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
+    public static function findIdentityByAccessToken($token, $type = null) {
         return static::findOne(['access_token' => $token]);
     }
 
     /**
-     * Finds user by username
+     * Finds user by username.
      *
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username)
-    {
+    public static function findByUsername($username) {
         return static::findOne(['username' => $username]);
     }
-    
-    /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
+
+    public function getId() {
         return $this->id;
     }
-    
-    public function setPassword($password)
-    {
+
+    public function setPassword($password) {
         $this->password = \Yii::$app->security->generatePasswordHash($password);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getAuthKey()
-    {
+    public function getAuthKey() {
         return $this->authKey;
     }
 
     public function getKeywordRelevance() {
         if ($this->keyword_relevance == 0) {
-            return "low";
+            return 'low';
         }
-        return "high";
+
+        return 'high';
     }
-    
-    /**
-     * @inheritdoc
-     */
-    public function validateAuthKey($authKey)
-    {
+
+    public function validateAuthKey($authKey) {
         return $this->authKey === $authKey;
     }
 
     /**
-     * Validates password
+     * Validates password.
      *
      * @param string $password password to validate
-     * @return boolean if password provided is valid for current user
+     * @return bool if password provided is valid for current user
      */
-    public function validatePassword($password)
-    {
+    public function validatePassword($password) {
         /*
          * create password hash
          */
@@ -127,49 +105,48 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
          * Compare user pass to hash created from password entered
          */
         $user_pass = $this->password;
+
         return Yii::$app->getSecurity()->validatePassword($password, $user_pass);
     }
-    
-    
+
     /*
      * @autho: Hlias
      * Generate authentication key for each user before inserting into database
      */
-    public function beforeSave($insert)
-    {
+    public function beforeSave($insert) {
         /*
          * Create an authentication key before insertion
          */
-        if (parent::beforeSave($insert)) 
-        {
-            if ($this->isNewRecord) 
-            {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
                 $this->authKey = \Yii::$app->security->generateRandomString();
             }
+
             return true;
         }
+
         return false;
     }
 
     // used to restrict access in some api routes
     public static function validateAuthToken($auth_token) {
-        if (!$auth_token) {
-            throw new \yii\base\Exception;
+        if (! $auth_token) {
+            throw new \yii\base\Exception();
         }
 
         return (new \yii\db\Query())
-            ->select("id")
+            ->select('id')
             ->from('users')
             ->where(['auth_token' => $auth_token])
             ->exists();
     }
+
     /**
      * Check if the user has a scholar profile.
      *
      * @return bool
      */
-    public function getHasScholarProfile()
-    {
+    public function getHasScholarProfile() {
         // Replace 'scholars' with your actual table name if different
         return Scholar::find()->where(['user_id' => $this->id])->exists();
     }
