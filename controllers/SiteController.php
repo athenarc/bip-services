@@ -124,7 +124,11 @@ class SiteController extends BaseController {
             $keywords = trim(Yii::$app->request->post('keywords'), ' ');
             $ordering = Yii::$app->request->post('ordering');
             $user = User::findOne(Yii::$app->user->id);
-            $relevance = ($user) ? $user->getKeywordRelevance() : 'high';
+            // Determine the relevance setting:
+            // - If a space is selected ($space_url_suffix), use the space's relevance
+            // - Otherwise, if a user is logged in, use the user's keyword relevance
+            // - If neither, default to 'high'
+            $relevance = ($space_url_suffix) ? $space_model->relevance : (($user) ? $user->getKeywordRelevance() : 'high');
 
             if ($ordering == 'year') {
                 $relevance = 'low';
