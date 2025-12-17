@@ -3,7 +3,7 @@ web/js/matomo.js
 graph_stuff_bkp_working/
 commands/
 config/db.php
-config/params.php
+config/params-local.php
 graph_stuff/
 mail/
 runtime/
