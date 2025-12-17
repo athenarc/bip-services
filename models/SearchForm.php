@@ -179,7 +179,7 @@ class SearchForm extends Model {
     }
 
     public static function assignClass($paper, $score, $scores_levels, $impact_type) {
-            // papers with no scores (eg datasets)
+        // papers with no scores (eg datasets)
         if (! isset($paper[$score])) {
             $class = null;
         } elseif ($paper[$score] >= $scores_levels[$impact_type . '_top001']) {
@@ -428,11 +428,27 @@ class SearchForm extends Model {
                 // $space_suffix = $this->space_model->url_suffix;
                 $space_suffix = array_column($this->space_model->solr_name, 'value')[0];
 
-                // Build annotation filter: annotations:<url_suffix>\|*
+                // Get enabled annotations for this space
+                $enabled_annotations = $this->space_model->annotations;
 
-                $annotation_query = 'annotations:' . $space_suffix . '*';
+                if (! empty($enabled_annotations)) {
+                    // Build annotation filter with specific enabled annotation names
+                    // Format in Solr: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
+                    // We match: annotations:<space_suffix>|<annotation_id>|*
+                    $annotation_queries = [];
 
-                $query->createFilterQuery('annotations_filter')->setQuery($annotation_query);
+                    foreach ($enabled_annotations as $annotation) {
+                        $annotation_queries[] = 'annotations:' . $space_suffix . '|' . $annotation->id . '|*';
+                    }
+
+                    // Combine with OR to match papers with any enabled annotation
+                    $annotation_query = '(' . implode(' OR ', $annotation_queries) . ')';
+
+                    $query->createFilterQuery('annotations_filter')->setQuery($annotation_query);
+                } else {
+                    // No enabled annotations, filter should match nothing
+                    $query->createFilterQuery('annotations_filter')->setQuery('id:__nonexistent__');
+                }
             }
         }
 

@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property string|null $reverse_query
  * @property string|null $reverse_query_count
  * @property string|null $reverse_query_info
+ * @property int $enabled
  *
  * @property Spaces $spaces
  */
@@ -35,6 +36,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             [['name', 'description'], 'string', 'max' => 255],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
+            [['enabled'], 'boolean'],
+            [['enabled'], 'default', 'value' => 1],
 
             [['reverse_query', 'reverse_query_count', 'reverse_query_info'], 'validateReverseFields'],
         ];
@@ -51,6 +54,7 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'reverse_query' => 'Reverse Query',
             'reverse_query_count' => 'Reverse Query Count',
             'reverse_query_info' => 'Reverse Query Info',
+            'enabled' => 'Enabled',
         ];
     }
 

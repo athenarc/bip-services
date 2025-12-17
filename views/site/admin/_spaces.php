@@ -380,6 +380,16 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_info")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>
