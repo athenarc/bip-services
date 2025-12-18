@@ -1,8 +1,8 @@
 <?php
 
+use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\bootstrap\Modal;
 
 ?>
 
@@ -12,6 +12,7 @@ use yii\bootstrap\Modal;
             <?php
                 // Try to extract the first defined list_id from any facet type
                 $linked_id = null;
+
                 foreach ($element_config as $section) {
                     if (is_array($section) && isset($section['linked_contribution_element_id'])) {
                         $linked_id = $section['linked_contribution_element_id'];
@@ -19,11 +20,11 @@ use yii\bootstrap\Modal;
                     }
                 }
                 // Set selected filters from controller-provided selected_per_list
-                $selected_topics   = $selected_per_list[$linked_id]['topics']   ?? [];
-                $selected_roles    = $selected_per_list[$linked_id]['roles']    ?? [];
+                $selected_topics = $selected_per_list[$linked_id]['topics'] ?? [];
+                $selected_roles = $selected_per_list[$linked_id]['roles'] ?? [];
                 $selected_accesses = $selected_per_list[$linked_id]['accesses'] ?? [];
-                $selected_types    = $selected_per_list[$linked_id]['types']    ?? [];
-                
+                $selected_types = $selected_per_list[$linked_id]['types'] ?? [];
+
             ?>
             
             <div>
@@ -35,7 +36,7 @@ use yii\bootstrap\Modal;
                             <div style = "margin-right:5px">
                             <span id="current_cv_narrative_title"><?=$current_cv_narrative->title?></span>
                             <?php if ($edit_perm): ?>
-                                <span title="This narrative is <?=(!$current_cv_narrative->is_public || !$researcher->is_public) ? "private" : "public" ?>, please go to your settings to toggle its visibility.<?= (!$current_cv_narrative->is_public || !$researcher->is_public) ? " Please also make sure that your Scholar profile is also public to allow public access to this narrative." : ""?>" class="grey-text"><?=(!$current_cv_narrative->is_public || !$researcher->is_public) ? '<i class="fa-solid
+                                <span title="This narrative is <?=(! $current_cv_narrative->is_public || ! $researcher->is_public) ? 'private' : 'public' ?>, please go to your settings to toggle its visibility.<?= (! $current_cv_narrative->is_public || ! $researcher->is_public) ? ' Please also make sure that your Scholar profile is also public to allow public access to this narrative.' : ''?>" class="grey-text"><?=(! $current_cv_narrative->is_public || ! $researcher->is_public) ? '<i class="fa-solid
                                 fa-eye-slash fa-xs"></i>' : '<i class="fa-solid fa-eye fa-xs"></i>' ?></span>
                             <?php endif; ?>
 
@@ -80,41 +81,42 @@ use yii\bootstrap\Modal;
                                         data-target="#topics-stats-modal"></i>
                                     <?php endif; ?>
                                 </strong>
-                                <?= (!empty($selected_topics)) 
-                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet('.$linked_id.', \'topics\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' 
+                                <?= (! empty($selected_topics))
+                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(' . $linked_id . ', \'topics\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>'
                                     : '' ?>
                                 <br/>
                             </div>
 
-                            <?php if (empty($result["facets"]["topics"]["counts"])): ?>
+                            <?php if (empty($result['facets']['topics']['counts'])): ?>
                                 <span id="topic-facet-items-<?= $linked_id ?>">-</span>
-                            <?php else: 
-                                $counts = $result["facets"]["topics"]["counts"];
+                            <?php else:
+                                $counts = $result['facets']['topics']['counts'];
                                 echo Html::checkboxList(
-                                    "lists[$linked_id][topics]", 
-                                    $selected_topics, 
-                                    $result["facets"]["topics"]['options'], 
+                                    "lists[${linked_id}][topics]",
+                                    $selected_topics,
+                                    $result['facets']['topics']['options'],
                                     [
-                                        'id' => "topic-facet-items-$linked_id",
+                                        'id' => "topic-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
                                         'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled  = ($checked) ? '' : 'disabled=disabled';
-                                            $badge_number = ($element_config['Topics']['numbers_opt'] === 1 && isset($counts[$value])) 
-                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>" 
+                                            $disabled = ($checked) ? '' : 'disabled=disabled';
+                                            $badge_number = ($element_config['Topics']['numbers_opt'] === 1 && isset($counts[$value]))
+                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
-                                            return "<button id='topic-$value-list$linked_id' 
+
+                                            return "<button id='topic-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs $btn_class facet-item'
-                                                            data-list-id='$linked_id'
+                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            data-list-id='${linked_id}'
                                                             data-facet='topics'>
-                                                        <input id='topic-$value-list$linked_id-i' 
-                                                            name='lists[$linked_id][topics][]' 
-                                                            value='$value' 
-                                                            form='$formId' 
+                                                        <input id='topic-${value}-list${linked_id}-i' 
+                                                            name='lists[${linked_id}][topics][]' 
+                                                            value='${value}' 
+                                                            form='${formId}' 
                                                             type='hidden' 
-                                                            $disabled/>
-                                                        $label $badge_number
+                                                            ${disabled}/>
+                                                        ${label} ${badge_number}
                                                     </button>";
                                         }
                                     ]
@@ -141,41 +143,42 @@ use yii\bootstrap\Modal;
                                         data-target="#credit-stats-modal"></i>
                                     <?php endif; ?>
                                 </strong>
-                                <?= (!empty($selected_roles)) 
-                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet('.$linked_id.', \'roles\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' 
+                                <?= (! empty($selected_roles))
+                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(' . $linked_id . ', \'roles\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>'
                                     : '' ?>
                                 <br/>
                             </div>
 
-                            <?php if (empty($result["facets"]["roles"]["counts"])): ?>
+                            <?php if (empty($result['facets']['roles']['counts'])): ?>
                                 <span id="role-facet-items-<?= $linked_id ?>">-</span>
-                            <?php else: 
-                                $counts = $result["facets"]["roles"]["counts"];
+                            <?php else:
+                                $counts = $result['facets']['roles']['counts'];
                                 echo Html::checkboxList(
-                                    "lists[$linked_id][roles]", 
-                                    $selected_roles, 
-                                    $result["facets"]["roles"]['options'], 
+                                    "lists[${linked_id}][roles]",
+                                    $selected_roles,
+                                    $result['facets']['roles']['options'],
                                     [
-                                        'id' => "role-facet-items-$linked_id",
+                                        'id' => "role-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
                                         'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled  = ($checked) ? '' : 'disabled=disabled';
+                                            $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $badge_number = ($element_config['Roles']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
-                                            return "<button id='role-$value-list$linked_id' 
+
+                                            return "<button id='role-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs $btn_class facet-item'
-                                                            data-list-id='$linked_id'
+                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            data-list-id='${linked_id}'
                                                             data-facet='roles'>
-                                                        <input id='role-$value-list$linked_id-i' 
-                                                            name='lists[$linked_id][roles][]' 
-                                                            value='$value' 
-                                                            form='$formId' 
+                                                        <input id='role-${value}-list${linked_id}-i' 
+                                                            name='lists[${linked_id}][roles][]' 
+                                                            value='${value}' 
+                                                            form='${formId}' 
                                                             type='hidden' 
-                                                            $disabled/>
-                                                        $label $badge_number
+                                                            ${disabled}/>
+                                                        ${label} ${badge_number}
                                                     </button>";
                                         }
                                     ]
@@ -189,43 +192,43 @@ use yii\bootstrap\Modal;
                             <div class="facet-header grey-text">
                                 <i class="fas fa-lock-open" aria-hidden="true" title="Open access data"></i> 
                                 <strong>Availability</strong>
-                                <?= (!empty($selected_accesses)) 
-                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet('.$linked_id.', \'accesses\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' 
+                                <?= (! empty($selected_accesses))
+                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(' . $linked_id . ', \'accesses\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>'
                                     : '' ?>
                                 <br/>
                             </div>
 
-                            <?php if (empty($result["facets"]["accesses"]["counts"])): ?>
+                            <?php if (empty($result['facets']['accesses']['counts'])): ?>
                                 <span id="access-facet-items-<?= $linked_id ?>">-</span>
-                            <?php else: 
-                                $counts = $result["facets"]["accesses"]["counts"];
+                            <?php else:
+                                $counts = $result['facets']['accesses']['counts'];
                                 echo Html::checkboxList(
-                                    "lists[$linked_id][accesses]", 
-                                    $selected_accesses, 
-                                    $result["facets"]["accesses"]['options'], 
+                                    "lists[${linked_id}][accesses]",
+                                    $selected_accesses,
+                                    $result['facets']['accesses']['options'],
                                     [
-                                        'id' => "access-facet-items-$linked_id",
+                                        'id' => "access-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
                                         'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled  = ($checked) ? '' : 'disabled=disabled';
-                                            $label     = $label['name'];
+                                            $disabled = ($checked) ? '' : 'disabled=disabled';
+                                            $label = $label['name'];
                                             $badge_number = ($element_config['Availability']['numbers_opt'] === 1 && isset($counts[$value]))
-                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>" 
+                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
 
-                                            return "<button id='access-$value-list$linked_id' 
+                                            return "<button id='access-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs $btn_class facet-item'
-                                                            data-list-id='$linked_id'
+                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            data-list-id='${linked_id}'
                                                             data-facet='accesses'>
-                                                        <input id='access-$value-list$linked_id-i' 
-                                                            name='lists[$linked_id][accesses][]' 
-                                                            value='$value' 
-                                                            form='$formId' 
+                                                        <input id='access-${value}-list${linked_id}-i' 
+                                                            name='lists[${linked_id}][accesses][]' 
+                                                            value='${value}' 
+                                                            form='${formId}' 
                                                             type='hidden' 
-                                                            $disabled/>
-                                                        $label $badge_number
+                                                            ${disabled}/>
+                                                        ${label} ${badge_number}
                                                     </button>";
                                         }
                                     ]
@@ -239,43 +242,43 @@ use yii\bootstrap\Modal;
                             <div class="facet-header grey-text">
                                 <i class="fas fa-cube" aria-hidden="true" title="Work types"></i> 
                                 <strong>Work type</strong>
-                                <?= (!empty($selected_types)) 
-                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet('.$linked_id.', \'types\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>' 
+                                <?= (! empty($selected_types))
+                                    ? ' <button type="button" class="btn btn-xs" onclick="clearFacet(' . $linked_id . ', \'types\')">clear <i role="button" class="fa-solid fa-xmark"></i></button>'
                                     : '' ?>
                                 <br/>
                             </div>
 
-                            <?php if (empty($result["facets"]["types"]["counts"])): ?>
+                            <?php if (empty($result['facets']['types']['counts'])): ?>
                                 <span id="types-facet-items-<?= $linked_id ?>">-</span>
-                            <?php else: 
-                                $counts = $result["facets"]["types"]["counts"];
+                            <?php else:
+                                $counts = $result['facets']['types']['counts'];
                                 echo Html::checkboxList(
-                                    "lists[$linked_id][types]", 
-                                    $selected_types, 
-                                    $result["facets"]["types"]['options'], 
+                                    "lists[${linked_id}][types]",
+                                    $selected_types,
+                                    $result['facets']['types']['options'],
                                     [
-                                        'id' => "type-facet-items-$linked_id",
+                                        'id' => "type-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
                                         'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled  = ($checked) ? '' : 'disabled=disabled';
-                                            $label     = $label['name'];
+                                            $disabled = ($checked) ? '' : 'disabled=disabled';
+                                            $label = $label['name'];
                                             $badge_number = ($element_config['Work type']['numbers_opt'] === 1 && isset($counts[$value]))
-                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>" 
+                                                ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
 
-                                            return "<button id='type-$value-list$linked_id' 
+                                            return "<button id='type-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs $btn_class facet-item'
-                                                            data-list-id='$linked_id'
+                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            data-list-id='${linked_id}'
                                                             data-facet='types'>
-                                                        <input id='type-$value-list$linked_id-i' 
-                                                            name='lists[$linked_id][types][]' 
-                                                            value='$value' 
-                                                            form='$formId' 
+                                                        <input id='type-${value}-list${linked_id}-i' 
+                                                            name='lists[${linked_id}][types][]' 
+                                                            value='${value}' 
+                                                            form='${formId}' 
                                                             type='hidden' 
-                                                            $disabled/>
-                                                        $label $badge_number
+                                                            ${disabled}/>
+                                                        ${label} ${badge_number}
                                                     </button>";
                                         }
                                     ]
@@ -290,7 +293,7 @@ use yii\bootstrap\Modal;
 
     </div>
 
-    <?php if(isset($element_config['Topics']) && $element_config['Topics']['visualize_opt'] === 1): ?>
+    <?php if (isset($element_config['Topics']) && $element_config['Topics']['visualize_opt'] === 1): ?>
 
         <?php
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'topics-stats-modal'],
@@ -303,8 +306,8 @@ use yii\bootstrap\Modal;
                     <canvas id="chart-topics"></canvas>
                 </div>
                 <script>
-                    var topic_counts = <?= '["' . implode('", "', $result["facets"]["topics"]["counts"]) . '"]'?>;
-                    var topic_labels = <?= '["' . implode('", "', $result["facets"]["topics"]["options"]) . '"]'?>;
+                    var topic_counts = <?= '["' . implode('", "', $result['facets']['topics']['counts']) . '"]'?>;
+                    var topic_labels = <?= '["' . implode('", "', $result['facets']['topics']['options']) . '"]'?>;
 
                     topic_labels = topic_labels.map(item => item.split(' '));
 
@@ -318,7 +321,7 @@ use yii\bootstrap\Modal;
     <?php endif; ?>
 
 
-    <?php if(isset($element_config['Roles']) && $element_config['Roles']['visualize_opt'] === 1): ?>
+    <?php if (isset($element_config['Roles']) && $element_config['Roles']['visualize_opt'] === 1): ?>
 
         <?php
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'credit-stats-modal'],
@@ -331,8 +334,8 @@ use yii\bootstrap\Modal;
                     <canvas id="chart-credit"></canvas>
                 </div>
                 <script>
-                    var roles_counts = <?= '["' . implode('", "', $result["facets"]["roles"]["counts"]) . '"]'?>;
-                    var roles_labels = <?= '["' . implode('", "', $result["facets"]["roles"]["options"]) . '"]'?>;
+                    var roles_counts = <?= '["' . implode('", "', $result['facets']['roles']['counts']) . '"]'?>;
+                    var roles_labels = <?= '["' . implode('", "', $result['facets']['roles']['options']) . '"]'?>;
 
                     roles_labels = roles_labels.map(item => {
                         return item.split(/\b(?=\w{1,2}|\w+\-|\w+\b)/);

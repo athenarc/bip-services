@@ -4,25 +4,32 @@ namespace app\models;
 
 use yii\base\Model;
 
-class ElementDividersForm extends Model
-{
+class ElementDividersForm extends Model {
     public $title;
+
     public $heading_type;
 
     public $description;
+
     public $show_description_tooltip;
 
     public $top_padding;
+
     public $bottom_padding;
+
     public $show_top_hr;
+
     public $show_bottom_hr;
+
     public $margin_top;
+
     public $margin_right;
+
     public $margin_bottom;
+
     public $margin_left;
 
-    public function rules()
-    {
+    public function rules() {
         return [
             [['title'], 'string', 'max' => 1024],
             [['description'], 'string'],
@@ -33,8 +40,7 @@ class ElementDividersForm extends Model
         ];
     }
 
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'title' => 'Title',
             'description' => 'Description',

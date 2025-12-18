@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "{{%element_dropdown}}".
  *
@@ -11,30 +9,22 @@ use Yii;
  * @property int $element_id
  * @property string $title
  * @property string|null $description
- * @property boolean|null $hide_when_empty
+ * @property bool|null $hide_when_empty
  *
  *
  * @property Elements $element
  * @property ElementDropdownOptions[] $elementDropdownOptions
  */
-class ElementDropdown extends \yii\db\ActiveRecord
-{
-
+class ElementDropdown extends \yii\db\ActiveRecord {
     public $option_id;    // Exists in ElementDropdownInstances, needed for getConfigDropdown
+
     public $last_updated; // Exists in ElementDropdownInstances, needed for getConfigDropdown
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+
+    public static function tableName() {
         return '{{%element_dropdown}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
@@ -42,17 +32,13 @@ class ElementDropdown extends \yii\db\ActiveRecord
             [['title'], 'string', 'max' => 1024],
             [['description'], 'string'],
             [['hide_when_empty'], 'boolean'],
-            [['hide_when_empty'], 'default', 'value'=> false],
+            [['hide_when_empty'], 'default', 'value' => false],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
             [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_id' => 'Element ID',
@@ -68,8 +54,7 @@ class ElementDropdown extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
@@ -78,25 +63,23 @@ class ElementDropdown extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementDropdownOptions()
-    {
+    public function getElementDropdownOptions() {
         return $this->hasMany(ElementDropdownOptions::class, ['element_dropdown_id' => 'id']);
     }
 
     public function getConfigDropdown($element_id, $template_id, $user_id) {
-
         // eager loading
-        $element_config = self::find()->with('elementDropdownOptions')->where([ 'element_id' => $element_id ])->one();
+        $element_config = self::find()->with('elementDropdownOptions')->where(['element_id' => $element_id])->one();
 
         // get info for dropdown instances
         // TODO: fetch with one query: outer join
         $element_instance_config = ElementDropdownInstances::find()
-        ->where([
+            ->where([
             'element_id' => $element_id,
             'user_id' => $user_id,
             'template_id' => $template_id,
         ])
-        ->one();
+            ->one();
 
         // print_r($element_config);
         // print_r($element_instance_config);

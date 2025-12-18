@@ -1,41 +1,37 @@
 <?php
 
+use app\components\ProgressSteps;
+use Yii;
+use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\widgets\ActiveForm;
-use yii\widgets\LinkPager;
 use yii\web\View;
-use yii\bootstrap\Modal;
-use app\components\CustomBootstrapRadioList;
-use app\components\ProgressSteps;
-
-use Yii;
+use yii\widgets\ActiveForm;
 
 $this->title = 'BIP! Finder';
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 // this is added with POS_END, as when added at the the top, the beforeSubmit form hook is ignored
 $this->registerJsFile('@web/js/surveyFunctions.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerCssFile("@web/css/survey.css", ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
+$this->registerCssFile('@web/css/survey.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
 
-// get previously checked rows from session variable. 
+// get previously checked rows from session variable.
 // used to highlight previously selected rows when going back
 $previously_checked = [];
 $previous_comment = '';
 
-if(isset($_SESSION['results'][$step]) 
-    && $_SESSION['results'][$step]['keywords'] == $keywords){
-
+if (isset($_SESSION['results'][$step]) &&
+    $_SESSION['results'][$step]['keywords'] == $keywords) {
     $previous_page_data = $_SESSION['results'][$step];
     $previously_checked = explode(',', $previous_page_data['checked']);
     $previous_comment = $previous_page_data['comments'];
 }
 
-// no or incomplete results are set via a session param as 
+// no or incomplete results are set via a session param as
 // the flow is redirected to the first try of the step
 $no_results = false;
 
-if($session->has('no_results') && $session->get('no_results') == true){
+if ($session->has('no_results') && $session->get('no_results') == true) {
     $no_results = true;
     $session->remove('no_results');
 }
@@ -43,11 +39,11 @@ if($session->has('no_results') && $session->get('no_results') == true){
 <div class="container site-index">
     <div class="jumbotron">
         <div class="col-md-1" style="margin-top: 25px;">
-             <?php if($step != 1){ ?>
+             <?php if ($step != 1) { ?>
                 <span class="input-group-btn">
-                    <?php 
+                    <?php
 
-                        $prev_step = $_SESSION['results'][$step-1];
+                        $prev_step = $_SESSION['results'][$step - 1];
                         $link = ($n == 2) ? Url::to(['site/survey', 'step' => $step - 1]) : Url::to(['site/survey', 'keywords' => $prev_step['keywords'], 'ordering' => $prev_step['ordering'], 'step' => $step - 1]);
                         echo Html::a('<i class="fa fa-angle-double-left" aria-hidden="true"></i> Back', $link, ['class' => 'btn btn-success form-control', 'title' => 'Go back to previous step']);
                     ?>
@@ -60,31 +56,31 @@ if($session->has('no_results') && $session->get('no_results') == true){
                     'active' => ($step - 1),
                     'steps' => [
                         [
-                            'title' => 'Step 1', 
+                            'title' => 'Step 1',
                             'message' => 'Enter keywords to retrieve articles'
-                        ], 
+                        ],
                         [
-                            'title' => 'Step 2', 
+                            'title' => 'Step 2',
                             'message' => 'Select relevant articles from the list below'
-                        ], 
+                        ],
                         [
-                            'title' => 'Step 3', 
+                            'title' => 'Step 3',
                             'message' => 'Select extra articles from the list below'
-                        ], 
+                        ],
                         [
-                            'title' => 'Step 4', 
+                            'title' => 'Step 4',
                             'message' => 'Enter keywords to retrieve articles'
-                        ], 
+                        ],
                         [
-                            'title' => 'Step 5', 
+                            'title' => 'Step 5',
                             'message' => 'Select relevant articles from the list below'
-                        ], 
+                        ],
                         [
-                            'title' => 'Step 6', 
+                            'title' => 'Step 6',
                             'message' => 'Select extra articles from the list below'
                         ]
                     ]
-                ]); 
+                ]);
             ?>
         </div>
         <div class="col-md-offset-1 col-md-1" style="margin-top:25px;">
@@ -93,13 +89,16 @@ if($session->has('no_results') && $session->get('no_results') == true){
             </span>
         </div>
             <?php
-            $keywords_params = ['autofocus' => true, 'placeholder'=>'Enter keywords to retrieve articles...', 'class'=>'search-box form-control'];
-            if($n > 1)
-                $keywords_params['disabled'] = true;
+            $keywords_params = ['autofocus' => true, 'placeholder' => 'Enter keywords to retrieve articles...', 'class' => 'search-box form-control'];
 
-            if( $keywords!='' )
+            if ($n > 1) {
+                $keywords_params['disabled'] = true;
+            }
+
+            if ($keywords != '') {
                 $keywords_params['value'] = $keywords;
-            $form = ActiveForm::begin(['id' => 'search-form', 'method'=>'get', 'action'=> Url::to(['site/survey', 'step' => $step + 1]), 'options'=>['onsubmit'=>'showLoading();']]);
+            }
+            $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'get', 'action' => Url::to(['site/survey', 'step' => $step + 1]), 'options' => ['onsubmit' => 'showLoading();']]);
             ?>            
             <div class='row'>
                 <div class="col-md-8 col-md-offset-2">
@@ -109,7 +108,7 @@ if($session->has('no_results') && $session->get('no_results') == true){
                 </div>
             </div>
             <div class='row'>
-                <?php if($n == 1){ ?>
+                <?php if ($n == 1) { ?>
                 <div class="col-md-8 col-md-offset-2">
                     <div class="form-group field-ordering">
                         <label class="control-label" for="category">What papers are you looking for?</label>
@@ -131,10 +130,9 @@ if($session->has('no_results') && $session->get('no_results') == true){
     		</div>
             </div>
 
-            <?php 
-            if(!empty($results['rows']) && !$no_results)
-            {
-            ?>
+            <?php
+            if (! empty($results['rows']) && ! $no_results) {
+                ?>
             <div class='container-fluid'>
                 <div id='results_tbl' class='row'>             
                     <div class='col-md-12'>
@@ -151,21 +149,20 @@ if($session->has('no_results') && $session->get('no_results') == true){
                             </thead>
                             <tbody>
                             <?php
-                            foreach($results['rows'] as $row )
-                            {
-                            ?>
+                            foreach ($results['rows'] as $row) {
+                                ?>
                                 <tr id="res_<?= $row['internal_id'] ?>" class="text-left selected-after-click">
 									<td id="checkbox_<?= $row['internal_id'] ?>">
                                     <!-- check paper if it was selected in previous step -->
-                                    <?php if (in_array($row['internal_id'], $already_checked)){ ?>      
+                                    <?php if (in_array($row['internal_id'], $already_checked)) { ?>      
        								     <input checked disabled="true" type="checkbox" name="selected_papers" value="<?= $row['internal_id'] ?>" />
-                                    <?php } else if (in_array($row['internal_id'], $previously_checked)){ ?>
+                                    <?php } elseif (in_array($row['internal_id'], $previously_checked)) { ?>
                                          <input checked type="checkbox" name="selected_papers" value="<?= $row['internal_id'] ?>" onclick='handleCheckboxClick(this);' />
                                     <?php } else { ?>
                                         <input type="checkbox" name="selected_papers" value="<?= $row['internal_id'] ?>" onclick='handleCheckboxClick(this);' />
                                     <?php } ?>
 									</td>
-                                    <td id="res_<?= $row['internal_id'] ?>_t"><?= Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($row['title'],180)) ?></td>
+                                    <td id="res_<?= $row['internal_id'] ?>_t"><?= Yii::$app->bipstring->lowerize(Yii::$app->bipstring->shortenString($row['title'], 180)) ?></td>
                                     <td>    
                                         <a class="context-popup-link" data-target="#context-modal" data-toggle="modal" href="#modal" title='Show keyword context'><span class='context'>context </span><i class="fa fa-eye" aria-hidden="true"></i></a>
                                     </td>                                                
@@ -176,90 +173,82 @@ if($session->has('no_results') && $session->get('no_results') == true){
                                         <?= $row['year'] ?>
                                     </td>
                                     <td>
-                                        <?= Html::a('<i class="fa fa-info-circle" aria-hidden="true"></i>', ['site/redirect'], ['class' => 'my-btn', 'title' => 'Show details', 'target' => '_blank', 'data' => ['method' => 'post', 'params' => ['pmc'=> $row['pmc'], 'action' => 'details', 'keywords' => $keywords, 'paper_id' => $row['internal_id'], 'source' => 'survey', 'session_id' => $session->getId()]]]); ?>
-                                        <?= Html::a('<i class="fa fa-external-link-square" aria-hidden="true"></i>', ['site/redirect'], ['class' => 'my-btn', 'title' => 'Show article in PMC', 'target' => '_blank', 'data' => ['method' => 'post', 'params' => ['pmc'=> $row['pmc'], 'action' => 'pubmed', 'keywords' => $keywords, 'paper_id' => $row['internal_id'], 'source' => 'survey', 'session_id' => $session->getId()]]]); ?>
+                                        <?= Html::a('<i class="fa fa-info-circle" aria-hidden="true"></i>', ['site/redirect'], ['class' => 'my-btn', 'title' => 'Show details', 'target' => '_blank', 'data' => ['method' => 'post', 'params' => ['pmc' => $row['pmc'], 'action' => 'details', 'keywords' => $keywords, 'paper_id' => $row['internal_id'], 'source' => 'survey', 'session_id' => $session->getId()]]]); ?>
+                                        <?= Html::a('<i class="fa fa-external-link-square" aria-hidden="true"></i>', ['site/redirect'], ['class' => 'my-btn', 'title' => 'Show article in PMC', 'target' => '_blank', 'data' => ['method' => 'post', 'params' => ['pmc' => $row['pmc'], 'action' => 'pubmed', 'keywords' => $keywords, 'paper_id' => $row['internal_id'], 'source' => 'survey', 'session_id' => $session->getId()]]]); ?>
                                     </td>
                                 </tr>
                                 <tr id="res_<?= $row['internal_id'] ?>_context" class="kwd-context title">
                                     <td colspan="5">
-                                        <?php if (!empty($row['author_contexts']))
-                                        {
-                                        ?>
+                                        <?php if (! empty($row['author_contexts'])) {
+                                    ?>
                                             <span class="context-list-title">Author:</span>
                                             <ul>
-                                            <?php foreach($row['author_contexts'] as $context)
-                                            {
-                                                echo "<li>" . $context . "</li>";
-                                            }
-                                            ?>
+                                            <?php foreach ($row['author_contexts'] as $context) {
+                                        echo '<li>' . $context . '</li>';
+                                    } ?>
                                             </ul>
                                         <?php
-                                        }
-                                        if(!empty($row['title_contexts']))
-                                        {
-                                        ?>
+                                }
+
+                                if (! empty($row['title_contexts'])) {
+                                    ?>
                                             <span class="context-list-title">Title:</span>
                                             <ul>
-                                            <?php foreach($row['title_contexts'] as $context)
-                                            {
-                                                echo "<li>" . $context . "</li>";
-                                            }
-                                            ?>
+                                            <?php foreach ($row['title_contexts'] as $context) {
+                                        echo '<li>' . $context . '</li>';
+                                    } ?>
                                             </ul>
                                         <?php
-                                        }
-                                        if (!empty($row['abstract_contexts']))
-                                        {
-                                        ?>
+                                }
+
+                                if (! empty($row['abstract_contexts'])) {
+                                    ?>
                                             <span class="context-list-title">Abstract:</span>
                                             <ul>
-                                            <?php foreach($row['abstract_contexts'] as $context)
-                                            {
-                                                echo "<li>" . $context . "</li>";
-                                            }
-                                            ?>
+                                            <?php foreach ($row['abstract_contexts'] as $context) {
+                                        echo '<li>' . $context . '</li>';
+                                    } ?>
                                             </ul>    
                                         <?php
-                                        }
-                                        ?>
+                                } ?>
                                     </td>
                                 </tr>                            
                             <?php
-                            }
-                            ?>
+                            } ?>
                             </tbody>
                         </table>
                         <?php
-                            if(!empty($results['rows'])){
+                            if (! empty($results['rows'])) {
                                 $survey_form = '';
-                                if($n == 3){
-                                     $survey_form = ActiveForm::begin([
-                                                        'id' => 'survey-form', 
-                                                        'method' => 'post', 
+
+                                if ($n == 3) {
+                                    $survey_form = ActiveForm::begin([
+                                                        'id' => 'survey-form',
+                                                        'method' => 'post',
                                                         'action' => Url::to([
-                                                            'site/survey', 
-                                                            'step' => $step + 1, 
+                                                            'site/survey',
+                                                            'step' => $step + 1,
                                                         ])
-                                                    ]); 
+                                                    ]);
                                 } else {
                                     $survey_form = ActiveForm::begin([
-                                                        'id' => 'survey-form', 
-                                                        'method' => 'post', 
+                                                        'id' => 'survey-form',
+                                                        'method' => 'post',
                                                         'action' => Url::to([
-                                                            'site/survey', 
-                                                            'keywords' => $keywords, 
+                                                            'site/survey',
+                                                            'keywords' => $keywords,
                                                             'step' => $step + 1,
-                                                        ]), 
+                                                        ]),
                                                         'options' => [
                                                             'onsubmit' => 'showLoading();disableKeywordsInput();'
                                                         ]
-                                                    ]); 
+                                                    ]);
                                 }
 
-                                $comments_params = ['placeholder' => 'Enter your comments here', 'class'=>'search-box form-control', 'rows' => 4];
+                                $comments_params = ['placeholder' => 'Enter your comments here', 'class' => 'search-box form-control', 'rows' => 4];
 
                                 // set comments input if it was previously filled, used with back button
-                                if($previous_comment != ''){
+                                if ($previous_comment != '') {
                                     $survey_model->comments = $previous_comment;
                                 }
 
@@ -268,26 +257,26 @@ if($session->has('no_results') && $session->get('no_results') == true){
                                 ])->textarea($comments_params);
 
                                 // this hidden input will be filled with JS on beforeSubmit form event, see file surveyFunction.js
-                                echo $survey_form->field($survey_model, 'checked')->hiddenInput(['value'=> '', 'id' => 'surveyform-checked'])->label(false);
-                                echo $survey_form->field($survey_model, 'session_id')->hiddenInput(['value'=> $session->getId()])->label(false);
-                                echo $survey_form->field($survey_model, 'keywords')->hiddenInput(['value'=> $keywords])->label(false);
-                                echo $survey_form->field($survey_model, 'ordering')->hiddenInput(['value'=> $ordering])->label(false);
-                                echo $survey_form->field($survey_model, 'start_time')->hiddenInput(['value'=> $start_time])->label(false);
-                                echo $survey_form->field($survey_model, 'step')->hiddenInput(['value'=> $step])->label(false);
-                                echo $survey_form->field($survey_model, 'category')->hiddenInput(['value'=> $category])->label(false);
+                                echo $survey_form->field($survey_model, 'checked')->hiddenInput(['value' => '', 'id' => 'surveyform-checked'])->label(false);
+                                echo $survey_form->field($survey_model, 'session_id')->hiddenInput(['value' => $session->getId()])->label(false);
+                                echo $survey_form->field($survey_model, 'keywords')->hiddenInput(['value' => $keywords])->label(false);
+                                echo $survey_form->field($survey_model, 'ordering')->hiddenInput(['value' => $ordering])->label(false);
+                                echo $survey_form->field($survey_model, 'start_time')->hiddenInput(['value' => $start_time])->label(false);
+                                echo $survey_form->field($survey_model, 'step')->hiddenInput(['value' => $step])->label(false);
+                                echo $survey_form->field($survey_model, 'category')->hiddenInput(['value' => $category])->label(false);
 
                                 // get only the internal paper ids of the results
-                                $paper_ids_in_results = implode(array_column($results["rows"], 'internal_id'), ',');
-                                echo $survey_form->field($survey_model, 'papers')->hiddenInput(['value'=> $paper_ids_in_results])->label(false);
+                                $paper_ids_in_results = implode(array_column($results['rows'], 'internal_id'), ',');
+                                echo $survey_form->field($survey_model, 'papers')->hiddenInput(['value' => $paper_ids_in_results])->label(false);
                                 ActiveForm::end();
-                            }
-                        ?>
+                            } ?>
 		          </div>
                 </div>
             </div>
-            <?php } else { ?>
+            <?php
+            } else { ?>
                 <div id='results_set'>
-                    <?php if( $no_results ) { ?>   
+                    <?php if ($no_results) { ?>   
                         <span id="no_results_msg"> 
                             Not enough results were found for the specified input, please try again with different terms.
                         </span>

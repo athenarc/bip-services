@@ -1,37 +1,39 @@
 <?php
+
 namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use app\models\User;
 use yii\helpers\Html;
 
 /**
  * SignupForm is the model behind the sign up form.
  *
  * @property User|null $user This property is read-only.
- *
  */
-class SignupForm extends Model
-{
+class SignupForm extends Model {
     public $username;
+
     public $password;
+
     public $email;
+
     public $rememberMe = true;
+
     public $postMsg;
+
     public $captcha;
 
     public $auth_provider;
+
     public $auth_id;
 
     private $_user = false;
 
-
     /**
      * @return array the validation rules.
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             //Username Rules
             ['username', 'trim'],
@@ -46,7 +48,7 @@ class SignupForm extends Model
             ['email', 'string', 'max' => 50],
             ['email', 'unique', 'targetClass' => 'app\models\User', 'message' => 'Email already exists.'],
             //Password rules
-            ['password', 'required', 'when' => function($model) {
+            ['password', 'required', 'when' => function ($model) {
                 return empty($model->auth_id);
             }, 'whenClient' => "function (attribute, value) {
                 return !$('#" . Html::getInputId($this, 'auth_id') . "').val();
@@ -57,10 +59,10 @@ class SignupForm extends Model
 
             ['captcha', 'required'],
             ['captcha', 'captcha'],
-            
+
             ['auth_id', 'string'],
             ['auth_provider', 'string'],
-            
+
             ['auth_id', 'validateAuthId'],
         ];
     }
@@ -68,8 +70,7 @@ class SignupForm extends Model
     /**
      * @return array customized attribute labels
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'captcha' => 'Verification Code',
             'auth_provider' => 'Provider',
@@ -79,6 +80,7 @@ class SignupForm extends Model
 
     public function validateAuthId($attribute, $params) {
         $session_auth_id = Yii::$app->session->get('auth_id');
+
         if ($this->auth_id !== $session_auth_id) {
             $this->addError($attribute, 'Invalid ID: Please authenticate through ' . $this->auth_provider . '.');
         }
@@ -91,29 +93,25 @@ class SignupForm extends Model
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
      */
-    public function validateUsername($attribute, $params)
-    {
-        if (!$this->hasErrors()) 
-        {
+    public function validateUsername($attribute, $params) {
+        if (! $this->hasErrors()) {
             $user = $this->getUser();
 
-            if (!$user->validateUsername($this->username)) 
-            {
+            if (! $user->validateUsername($this->username)) {
                 $this->addError($attribute, 'Username already exists!');
             }
         }
     }
-    
+
     /*
      * Sign up the user
      */
-    public function signup()
-    {
-        if (!$this->validate()) {
+    public function signup() {
+        if (! $this->validate()) {
             return null;
         }
 
-        // Create new user record and insert it        
+        // Create new user record and insert it
         $user = new User();
         $user->username = $this->username;
         $user->email = $this->email;
@@ -130,19 +128,15 @@ class SignupForm extends Model
     }
 
     /**
-     * Finds user by [[username]]
+     * Finds user by [[username]].
      *
      * @return User|null
      */
-    public function getUser()
-    {
-        if ($this->_user === false) 
-        {
+    public function getUser() {
+        if ($this->_user === false) {
             $this->_user = User::findByUsername($this->username);
         }
 
         return $this->_user;
     }
 }
-
-

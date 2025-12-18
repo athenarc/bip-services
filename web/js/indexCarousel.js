@@ -1,14 +1,14 @@
 let currentSlide = 0;
-let totalSlides = 3;
+const totalSlides = 3;
 let interval;
 let autoplay = true;
 
-const updateCarousel = (index) => {
+const updateCarousel = index => {
     const inner = document.querySelector('.bip-carousel-inner');
     const dots = document.querySelectorAll('.dot');
 
-    if (!inner || dots.length === 0) return;
-    
+    if (!inner || dots.length === 0) { return; }
+
     inner.style.transform = `translateX(-${index * 100}%)`;
 
     dots.forEach(dot => dot.classList.remove('active'));
@@ -18,12 +18,12 @@ const updateCarousel = (index) => {
 };
 
 function nextSlide() {
-    if (!autoplay) return;
+    if (!autoplay) { return; }
     currentSlide = (currentSlide + 1) % totalSlides;
     updateCarousel(currentSlide);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
     // Force initial alignment to the first slide
     updateCarousel(0);
 

@@ -11,12 +11,10 @@ namespace app\components;
 use yii\base\Widget;
 use yii\helpers\Html;
 
-class CustomBootstrapModal extends Widget
-{
+class CustomBootstrapModal extends Widget {
     public $id;
 
-    public function init()
-    {
+    public function init() {
         parent::init();
 
         $js_code = <<<JS
@@ -45,15 +43,12 @@ class CustomBootstrapModal extends Widget
         });
 JS;
 
-        echo Html::script($js_code, ['type'=>'text/javascript']) ;
+        echo Html::script($js_code, ['type' => 'text/javascript']);
     }
 
-    public function run()
-    {
+    public function run() {
         return $this->render('custom_modal', [
             'id' => $this->id,
         ]);
     }
 }
-
-?>

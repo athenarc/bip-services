@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "element_section_divider".
  *
@@ -22,21 +20,12 @@ use Yii;
  *
  * @property Elements $element
  */
-class ElementDividers extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementDividers extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'element_section_divider';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['title'], 'string', 'max' => 1024],
             [['description'], 'string'],
@@ -50,11 +39,7 @@ class ElementDividers extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_id' => 'Element ID',
@@ -78,16 +63,14 @@ class ElementDividers extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
-    public function beforeSave($insert)
-    {
+    public function beforeSave($insert) {
         // Add 'px' unit to margin values if they're just numbers
         foreach (['margin_top', 'margin_right', 'margin_bottom', 'margin_left'] as $marginAttr) {
-            if (!empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
+            if (! empty($this->$marginAttr) && is_numeric($this->$marginAttr)) {
                 $this->$marginAttr = $this->$marginAttr . 'px';
             }
         }
@@ -102,6 +85,6 @@ class ElementDividers extends \yii\db\ActiveRecord
      * @return ElementDividers|null
      */
     public function getConfigDivider($element_id) {
-        return ElementDividers::find()->where([ 'element_id' => $element_id ])->one();
+        return self::find()->where(['element_id' => $element_id])->one();
     }
 }

@@ -56,7 +56,7 @@ $(document).on('click', '.add-item', function () {
         method: 'POST',
         data: {
             template_id: $('#template_id').val(),
-            element_id: elementId
+            element_id: elementId,
         },
         success: function (response) {
             if (!response.id) {
@@ -87,7 +87,7 @@ $(document).on('click', '.add-item', function () {
         },
         error: function () {
             alert('Error creating new list item');
-        }
+        },
     });
 });
 
@@ -111,8 +111,8 @@ $(document).on('input', '.item-value', debounce(function () {
             updateLastUpdated(listContainer, response.last_updated); // Update timestamp after success
         },
         error: function () {
-            alert('Error saving list item ' + item_id);
-        }
+            alert(`Error saving list item ${ item_id}`);
+        },
     });
 }, 500)); // Save after a delay of 500ms
 
@@ -130,22 +130,22 @@ $(document).on('click', '.remove-item', function () {
             success: function () {
                 item.remove();
                 toggleNoItemsMessage(listContainer);
-                toggleNewItemButton(listContainer); 
+                toggleNewItemButton(listContainer);
             },
             error: function () {
-                alert('Error removing item ' + itemId);
-            }
+                alert(`Error removing item ${ itemId}`);
+            },
         });
     }
 });
 
 // Initialize each bulleted list on page load
-$(document).ready(function () {
+$(document).ready(() => {
     $('.bulleted-list').each(function () {
         const listContainer = $(this);
 
         // Initialize the current bulleted list
         toggleNoItemsMessage(listContainer);
-        toggleNewItemButton(listContainer); 
+        toggleNewItemButton(listContainer);
     });
 });

@@ -4,10 +4,10 @@
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model app\models\LoginForm */
 
+use app\components\CustomBootstrapCheckboxList;
+use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\bootstrap\ActiveForm;
-use app\components\CustomBootstrapCheckboxList;
 
 $this->title = 'Login';
 //$this->params['breadcrumbs'][] = $this->title;
@@ -15,8 +15,8 @@ $this->title = 'Login';
 <div class="container site-login">
     <h1><?= Html::encode($this->title) ?></h1>
     
-    <?php if($model->postMsg != '' && $model->postMsg != null): ?>
-        <?= "<p class='text-warning'>$model->postMsg</p>" ?>
+    <?php if ($model->postMsg != '' && $model->postMsg != null): ?>
+        <?= "<p class='text-warning'>{$model->postMsg}</p>" ?>
     <?php endif; ?>
 
     <p>Please fill out the following fields to login:</p>

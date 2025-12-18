@@ -2,7 +2,6 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\web\Request;
 use yii\web\View;
 
 $this->title = 'BIP! Services - About';
@@ -32,13 +31,13 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
     <div class="help-text-left">
         <div class="row">
             <div class="flex-wrap items-center">
-                <?php foreach(Yii::$app->params['teamMembers']['current']  as $member): ?>
+                <?php foreach (Yii::$app->params['teamMembers']['current']  as $member): ?>
                     <div class="col-md-4 col-xs-12">
                             <div class="flex-wrap items-center">
                             <?= Html::img($member['imgUrl'], ['alt' => $member['name'], 'class' => 'img-circle team-member-img']) ?>
                             <div>
                                 <a href="<?= $member['link'] ?>" class="main-green" target="_blank"><?= $member['name'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                                <?php if (!empty($member['role'])): ?>
+                                <?php if (! empty($member['role'])): ?>
                                     <?php
                                         $roleParts = explode('&', $member['role']);
                                         $primaryRole = trim($roleParts[0]);
@@ -100,7 +99,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
                     T. Vergoulis, S. Chatzopoulos, I. Kanellos, P. Deligiannis, C. Tryfonopoulos, T. Dalamagas: 
                     <b>BIP! Finder: Facilitating scientific literature search by exploiting impact-based ranking.</b> 
                     <i>Proceedings of the 28<sup>th</sup> ACM International Conference on Information and Knowledge Management (CIKM)</i>, 2019 
-                    <small><?= Html::a("(BibTeX)", "@web/files/bip-finder.bib", ['class' => 'grey-link']) ?></small>
+                    <small><?= Html::a('(BibTeX)', '@web/files/bip-finder.bib', ['class' => 'grey-link']) ?></small>
                 </div>
             </div>
 
@@ -110,7 +109,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
                     T. Vergoulis, S. Chatzopoulos, K. Vichos, I. Kanellos, A. Mannocci, N. Manola, P. Manghi: 
                     <b>BIP! Scholar: A Service to Facilitate Fair Researcher Assessment.</b> 
                     <i>Joint Conference on Digital Libraries (JCDL)</i>, 2022 
-                    <small><?= Html::a("(BibTeX)", "@web/files/bip-scholar.bib", ['class' => 'grey-link']) ?></small>
+                    <small><?= Html::a('(BibTeX)', '@web/files/bip-scholar.bib', ['class' => 'grey-link']) ?></small>
                 </div>
             </div>
 
@@ -120,7 +119,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
                     T. Vergoulis, I. Kanellos, C. Atzori, A. Mannocci, S. Chatzopoulos, S. La Bruzzo, N. Manola, P. Manghi: 
                     <b>BIP! DB: A Dataset of Impact Measures for Scientific Publications.</b> 
                     <i>International Workshop on Scientific Knowledge: Representation, Discovery, and Assessment (Sci-K) @ The Web Conf</i>, 2021 
-                    <small><?= Html::a("(BibTeX)", "@web/files/bip-db.bib", ['class' => 'grey-link']) ?></small>
+                    <small><?= Html::a('(BibTeX)', '@web/files/bip-db.bib', ['class' => 'grey-link']) ?></small>
                 </div>
             </div>
 
@@ -130,7 +129,7 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
                     P. Koloveas, S. Chatzopoulos, C. Tryfonopoulos, T. Vergoulis: 
                     <b>BIP! NDR (NoDoiRefs): A Dataset of Citations From Papers Without DOIs in Computer Science Conferences and Workshops.</b> 
                     <i>International Conference on Theory and Practice of Digital Libraries (TPDL)</i>, 2023 
-                    <small><?= Html::a("(BibTeX)", "@web/files/bip-ndr.bib", ['class' => 'grey-link']) ?></small>
+                    <small><?= Html::a('(BibTeX)', '@web/files/bip-ndr.bib', ['class' => 'grey-link']) ?></small>
                 </div>
             </div>
         </div>
@@ -156,15 +155,15 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\Jquer
 
             <div class="panel-body">
             
-                <p>I. Kanellos, T. Vergoulis, D. Sacharidis, T. Dalamagas, Y. Vassiliou: <b>Impact-Based Ranking of Scientific Publications: A Survey and Experimental Evaluation.</b> <i>IEEE Transactions on Knowledge and Data Engineering (TKDE)</i>, 2019 <small><?= Html::a("(BibTeX)", "@web/files/survey.bib", [ 'class' => 'grey-link' ]) ?></small></p>
+                <p>I. Kanellos, T. Vergoulis, D. Sacharidis, T. Dalamagas, Y. Vassiliou: <b>Impact-Based Ranking of Scientific Publications: A Survey and Experimental Evaluation.</b> <i>IEEE Transactions on Knowledge and Data Engineering (TKDE)</i>, 2019 <small><?= Html::a('(BibTeX)', '@web/files/survey.bib', ['class' => 'grey-link']) ?></small></p>
 
-                <p>I. Kanellos, T. Vergoulis, D. Sacharidis, T. Dalamagas, Y. Vassiliou: <b>Ranking papers by their short-term scientific impact.</b> <i>International Conference on Data Engineering (ICDE)</i>, 2021 <small><?= Html::a("(BibTeX)", "@web/files/attrank.bib", [ 'class' => 'grey-link' ]) ?></small></p>
+                <p>I. Kanellos, T. Vergoulis, D. Sacharidis, T. Dalamagas, Y. Vassiliou: <b>Ranking papers by their short-term scientific impact.</b> <i>International Conference on Data Engineering (ICDE)</i>, 2021 <small><?= Html::a('(BibTeX)', '@web/files/attrank.bib', ['class' => 'grey-link']) ?></small></p>
 
-                <p>S. Chatzopoulos, T. Vergoulis, I. Kanellos, T. Dalamagas, C. Tryfonopoulos: <b>ArtSim: Improved estimation of current impact for recent articles.</b> <i>International Workshop on Assessing Impact and Merit in Science (AimInScience) @ TPDL</i>, 2020 <small><?= Html::a("(BibTeX)", "@web/files/artsim.bib", [ 'class' => 'grey-link' ]) ?></small></p>
+                <p>S. Chatzopoulos, T. Vergoulis, I. Kanellos, T. Dalamagas, C. Tryfonopoulos: <b>ArtSim: Improved estimation of current impact for recent articles.</b> <i>International Workshop on Assessing Impact and Merit in Science (AimInScience) @ TPDL</i>, 2020 <small><?= Html::a('(BibTeX)', '@web/files/artsim.bib', ['class' => 'grey-link']) ?></small></p>
 
-                <p>S. Chatzopoulos, T. Vergoulis, I. Kanellos, T. Dalamagas, C. Tryfonopoulos: <b>Further Improvements on Estimating the Popularity of Recently Published Papers.</b> <i>Quantitative Science Studies (QSS)</i>, 2021 <small><?= Html::a("(BibTeX)", "@web/files/artsimplus.bib", [ 'class' => 'grey-link' ]) ?></small></p>
+                <p>S. Chatzopoulos, T. Vergoulis, I. Kanellos, T. Dalamagas, C. Tryfonopoulos: <b>Further Improvements on Estimating the Popularity of Recently Published Papers.</b> <i>Quantitative Science Studies (QSS)</i>, 2021 <small><?= Html::a('(BibTeX)', '@web/files/artsimplus.bib', ['class' => 'grey-link']) ?></small></p>
 
-                <p>S. Chatzopoulos, K. Vichos, I. Kanellos, T. Vergoulis: <b>Piloting topic-aware research impact assessment features in BIP! Services.</b> <i>Extended Semantic Web Conference (ESWC)</i>, 2023 <small><?= Html::a("(BibTeX)", "@web/files/topic-aware.bib", [ 'class' => 'grey-link' ]) ?></small></p>
+                <p>S. Chatzopoulos, K. Vichos, I. Kanellos, T. Vergoulis: <b>Piloting topic-aware research impact assessment features in BIP! Services.</b> <i>Extended Semantic Web Conference (ESWC)</i>, 2023 <small><?= Html::a('(BibTeX)', '@web/files/topic-aware.bib', ['class' => 'grey-link']) ?></small></p>
             </div>
         </div>
         

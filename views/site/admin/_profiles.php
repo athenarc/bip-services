@@ -1,14 +1,12 @@
 <?php
 
-use app\models\ProfileTemplateCategories;
+use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\grid\ActionColumn;
-use yii\grid\GridView;
 
-/** @var yii\web\View $this */
-/** @var app\models\ProfileTemplateCategoriesSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
+/* @var yii\web\View $this */
+/* @var app\models\ProfileTemplateCategoriesSearch $searchModel */
+/* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Profile Template Categories';
 

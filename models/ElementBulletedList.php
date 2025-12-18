@@ -2,33 +2,22 @@
 
 namespace app\models;
 
-use Yii;
-
-class ElementBulletedList extends \yii\db\ActiveRecord
-{
+class ElementBulletedList extends \yii\db\ActiveRecord {
     // exists in ElementBulletedListItem; needed for getConfig()
     public $items;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+    public static function tableName() {
         return '{{%element_bulleted_list}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['element_id'], 'integer'],
-            
+
             [['title'], 'string', 'max' => 1024],
             [['heading_type'], 'in', 'range' => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']],
             [['description'], 'string'],
-          
+
             [['elements_number'], 'integer'],
 
             [['element_id'], 'required'],
@@ -37,11 +26,7 @@ class ElementBulletedList extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_id' => 'Element ID',
@@ -57,14 +42,12 @@ class ElementBulletedList extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
-    public function getConfig($element_id, $template_id, $user_id)
-    {
-        $config = ElementBulletedList::find()->where([ 'element_id' => $element_id ])->one();
+    public function getConfig($element_id, $template_id, $user_id) {
+        $config = self::find()->where(['element_id' => $element_id])->one();
 
         // TODO: fetch with one query: outer join
         $config->items = ElementBulletedListItem::find()
@@ -78,5 +61,4 @@ class ElementBulletedList extends \yii\db\ActiveRecord
 
         return $config;
     }
-
 }

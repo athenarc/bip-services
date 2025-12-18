@@ -1,22 +1,22 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\LinkPager;
-use app\components\ResultItem;
 use app\components\CustomBootstrapModal;
+use app\components\ResultItem;
 use app\models\AdminOptions;
 use app\models\SummaryUsage;
+use yii\helpers\Html;
+use yii\widgets\LinkPager;
 
 // Register compact views CSS
 $this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
 
-$headingType = !empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
+$headingType = ! empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
 
 ?>
 
 <div class="row">
     <div class="col-md-12">
-        <?php if (!empty($element_config["show_header"])): ?>
+        <?php if (! empty($element_config['show_header'])): ?>
         <<?= $headingType ?> style="display: inline-block;">
             List of works
         </<?= $headingType ?>>
@@ -33,15 +33,15 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
 
 <div id="publications">
     <?php
-    $showPager = !empty($element_config['show_pagination'])
-            && ($works_num ?? 0) > 0
-            && !empty($result['pagination']);
+    $showPager = ! empty($element_config['show_pagination']) &&
+            ($works_num ?? 0) > 0 &&
+            ! empty($result['pagination']);
 
-    $hideMeta = !empty($element_config['user_defined'])
-        && (int)$element_config['user_defined'] === 1
-        && (int)($result['selected_papers_num'] ?? 0) === 0;
+    $hideMeta = ! empty($element_config['user_defined']) &&
+        (int) $element_config['user_defined'] === 1 &&
+        (int) ($result['selected_papers_num'] ?? 0) === 0;
 
-    $rightShown  = !$hideMeta && empty($element_config['top_k']) && ($works_num ?? 0) > 0;
+    $rightShown = !$hideMeta && empty($element_config['top_k']) && ($works_num ?? 0) > 0;
 
     $canShowSummaryButton = !empty($element_config['enable_summary'])
         && (int)$element_config['enable_summary'] === 1
@@ -62,23 +62,23 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         <?php if ($showPager): ?>
             <div class="col-md-4 text-left results-header"
                 style="display:flex;align-items:center;flex-wrap:nowrap;">
-                <?php if (!empty($preHeaderHtml)): ?>
+                <?php if (! empty($preHeaderHtml)): ?>
                     <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
                 <?php endif; ?>
-                <?php if (!$hideMeta && ($works_num ?? 0) > 0): ?>
+                <?php if (! $hideMeta && ($works_num ?? 0) > 0): ?>
                     <?php
-                    $hasPager     = !empty($result['pagination']);
+                    $hasPager = ! empty($result['pagination']);
                     $totalResults = $hasPager
-                        ? (int)$result['pagination']->totalCount
-                        : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
-                    $pageCount = $hasPager ? (int)$result['pagination']->pageCount : 1;
-                    $topK      = isset($element_config['top_k']) ? (int)$element_config['top_k'] : 0;
-                    $isUserDefined = !empty($element_config['user_defined']) && (int)$element_config['user_defined'] === 1;
+                        ? (int) $result['pagination']->totalCount
+                        : (isset($result['papers_num']) ? (int) $result['papers_num'] : count($result['papers'] ?? []));
+                    $pageCount = $hasPager ? (int) $result['pagination']->pageCount : 1;
+                    $topK = isset($element_config['top_k']) ? (int) $element_config['top_k'] : 0;
+                    $isUserDefined = ! empty($element_config['user_defined']) && (int) $element_config['user_defined'] === 1;
                     $maxSelection = (isset($element_config['user_defined_max']) && $element_config['user_defined_max'] !== '')
-                        ? (int)$element_config['user_defined_max']
+                        ? (int) $element_config['user_defined_max']
                         : null;
                     ?>
-                    <?php if (!empty($element_config['top_k'])): ?>
+                    <?php if (! empty($element_config['top_k'])): ?>
                         <span style="white-space:nowrap;">
                             Top <?= Yii::$app->formatter->asDecimal(min($topK, $totalResults), 0) ?> results
                             &nbsp;sorted by&nbsp;<?= Html::tag('i', $orderings[$sort_field] ?? ucfirst($sort_field)) ?>
@@ -119,19 +119,19 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         <?php else: ?>
             <div class="col-md-8 text-left results-header"
                 style="display:flex;align-items:center;flex-wrap:nowrap;">
-                <?php if (!empty($preHeaderHtml)): ?>
+                <?php if (! empty($preHeaderHtml)): ?>
                     <?= $preHeaderHtml ?>&nbsp;&nbsp;&nbsp;
                 <?php endif; ?>
 
-                <?php if (!$hideMeta && ($works_num ?? 0) > 0): ?>
+                <?php if (! $hideMeta && ($works_num ?? 0) > 0): ?>
                     <?php
-                    $hasPager     = !empty($result['pagination']);
+                    $hasPager = ! empty($result['pagination']);
                     $totalResults = $hasPager
-                        ? (int)$result['pagination']->totalCount
-                        : (isset($result['papers_num']) ? (int)$result['papers_num'] : count($result['papers'] ?? []));
-                    $isUserDefined = !empty($element_config['user_defined']) && (int)$element_config['user_defined'] === 1;
+                        ? (int) $result['pagination']->totalCount
+                        : (isset($result['papers_num']) ? (int) $result['papers_num'] : count($result['papers'] ?? []));
+                    $isUserDefined = ! empty($element_config['user_defined']) && (int) $element_config['user_defined'] === 1;
                     $maxSelection = (isset($element_config['user_defined_max']) && $element_config['user_defined_max'] !== '')
-                        ? (int)$element_config['user_defined_max']
+                        ? (int) $element_config['user_defined_max']
                         : null;
                     ?>
                     <span style="white-space:nowrap;">
@@ -262,48 +262,48 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
             <div id='results_tbl' class='row'>
                 <div class="col-xs-12">
                     <?php
-                    try{
+                    try {
                         foreach ($papers as $paper) {
                             echo ResultItem::widget([
-                                "impact_indicators" => $impact_indicators,
-                                "internal_id" => $paper["internal_id"],
-                                "edit_perm" => $edit_perm,
-                                "doi" => $paper["doi"],
-                                "dois_num" => $paper["dois_num"],
-                                "openaire_id" => $paper["openaire_id"],
-                                "title" => $paper["title"],
-                                "authors" => $paper["authors"],
-                                "journal" => $paper["journal"],
-                                "year" => $paper["year"],
-                                "concepts" => $paper["concepts"],
-                                "relations" => $paper["relations"],
-                                "tags" => $paper["tags"],
-                                "involvements" => Yii::$app->params['involvement_fields'],
-                                "involved" => $paper["involvement"],
-                                "pop_score" => $paper["attrank"],
-                                "inf_score" => $paper["pagerank"],
-                                "imp_score" => $paper["3y_cc"],
-                                "cc_score" => $paper["citation_count"],
-                                "pop_class" => $paper["pop_class"],
-                                "inf_class" => $paper["inf_class"],
-                                "imp_class" => $paper["imp_class"],
-                                "cc_class" => $paper["cc_class"],
-                                "is_oa" => $paper["is_oa"],
-                                "type" => $paper["type"],
-                                "repo_url" => $paper["code_url"] ?? null,
-                                "view_mode" => $element_config['compact_view'] ?? 'full',
-                                "show" => [
-                                    "concepts" => true,
-                                    "relations" => true,
-                                    "tags" => false,
-                                    "involvement" => true,
+                                'impact_indicators' => $impact_indicators,
+                                'internal_id' => $paper['internal_id'],
+                                'edit_perm' => $edit_perm,
+                                'doi' => $paper['doi'],
+                                'dois_num' => $paper['dois_num'],
+                                'openaire_id' => $paper['openaire_id'],
+                                'title' => $paper['title'],
+                                'authors' => $paper['authors'],
+                                'journal' => $paper['journal'],
+                                'year' => $paper['year'],
+                                'concepts' => $paper['concepts'],
+                                'relations' => $paper['relations'],
+                                'tags' => $paper['tags'],
+                                'involvements' => Yii::$app->params['involvement_fields'],
+                                'involved' => $paper['involvement'],
+                                'pop_score' => $paper['attrank'],
+                                'inf_score' => $paper['pagerank'],
+                                'imp_score' => $paper['3y_cc'],
+                                'cc_score' => $paper['citation_count'],
+                                'pop_class' => $paper['pop_class'],
+                                'inf_class' => $paper['inf_class'],
+                                'imp_class' => $paper['imp_class'],
+                                'cc_class' => $paper['cc_class'],
+                                'is_oa' => $paper['is_oa'],
+                                'type' => $paper['type'],
+                                'repo_url' => $paper['code_url'] ?? null,
+                                'view_mode' => $element_config['compact_view'] ?? 'full',
+                                'show' => [
+                                    'concepts' => true,
+                                    'relations' => true,
+                                    'tags' => false,
+                                    'involvement' => true,
                                 ]
                             ]);
                         }
                     } catch (\Throwable $e) {
                         var_dump('Error inside ResultItem', $e->getMessage());
                         exit;
-                    }   
+                    }
                     ?>
                 </div>
             </div>
@@ -312,7 +312,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
 <?= CustomBootstrapModal::widget(['id' => 'versions-modal']) ?>
 <?= CustomBootstrapModal::widget(['id' => 'relations-modal']) ?>
     
-<?php if (!empty($noWorksMessage)): ?>
+<?php if (! empty($noWorksMessage)): ?>
     <?= $noWorksMessage ?>
 <?php elseif ($works_num === 0): ?>
     <div class="alert alert-warning text-center" role="alert">
@@ -321,7 +321,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
 <?php endif; ?>
 
 
-<?php if ($missing_papers_num > 0 && !isset($current_cv_narrative) && $show_missing_works): ?>
+<?php if ($missing_papers_num > 0 && ! isset($current_cv_narrative) && $show_missing_works): ?>
     <div id="missing-publications-toggle-<?= $list_id ?>" class="col-md-12 text-center">
         <button type="button" class="btn btn-link missing-publications-toggle main-green"
         data-toggle="collapse" data-target="#missing-publications-<?= $list_id ?>">
@@ -332,7 +332,7 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
         <div class="row" >
             <div class="col-md-8">
                 <h3>
-                    <span role="button" data-toggle="popover" data-placement="auto" title="Missing works" data-content="<div><span class='green-bip'></span><?= "This list contains works retrieved from ORCiD that BIP! software do not contain in its database" ?></div>"> Missing works  <small><i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></small></span>
+                    <span role="button" data-toggle="popover" data-placement="auto" title="Missing works" data-content="<div><span class='green-bip'></span><?= 'This list contains works retrieved from ORCiD that BIP! software do not contain in its database' ?></div>"> Missing works  <small><i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i></small></span>
                 </h3>
             </div>
         </div>
@@ -343,20 +343,20 @@ $headingType = !empty($element_config['heading_type']) ? $element_config['headin
                         <td class="col-xs-8">
 
                             <!-- title -->
-                            <div <?php if (isset($paper["title"]) && strlen($paper["title"]) > 90) { ?> title="<?= $paper['title'] ?>" <?php } ?>>
-                                <?= (!isset($paper["title"])) ? 'N/A' : Yii::$app->bipstring->shortenString($paper["title"], 180) ?>
+                            <div <?php if (isset($paper['title']) && strlen($paper['title']) > 90) { ?> title="<?= $paper['title'] ?>" <?php } ?>>
+                                <?= (! isset($paper['title'])) ? 'N/A' : Yii::$app->bipstring->shortenString($paper['title'], 180) ?>
                             </div>
 
                             <div class="year-venue-bookmarks">
 
                                 <!-- venue -->
-                                <span <?php if (isset($paper["journal"]) && strlen($paper["journal"]) > 60) { ?> title="<?= $paper['journal'] ?>" <?php } ?>>
-                                    <?= (!isset($paper["journal"]) || trim($paper["journal"]) == '') ? 'N/A' : Yii::$app->bipstring->shortenString($paper["journal"], 60)?>
+                                <span <?php if (isset($paper['journal']) && strlen($paper['journal']) > 60) { ?> title="<?= $paper['journal'] ?>" <?php } ?>>
+                                    <?= (! isset($paper['journal']) || trim($paper['journal']) == '') ? 'N/A' : Yii::$app->bipstring->shortenString($paper['journal'], 60)?>
                                 </span>&middot;
 
                                 <!-- year -->
                                 <span>
-                                    <?= (!isset($paper["year"]) || $paper["year"] == 0) ? "N/A" : $paper["year"] ?>
+                                    <?= (! isset($paper['year']) || $paper['year'] == 0) ? 'N/A' : $paper['year'] ?>
                                 </span>
                             </div>
                         </td>

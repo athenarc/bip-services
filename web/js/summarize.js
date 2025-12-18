@@ -36,76 +36,76 @@ $(document).ready(function () {
             return;
         }
 
-    $copyBtn.tooltip();
+        $copyBtn.tooltip();
 
         const allPaperIds = JSON.parse($button.attr('data-paper-ids') || '[]');
         const keywords = $button.attr('data-keywords') || '';
-    const maxAvailable = allPaperIds.length;
+        const maxAvailable = allPaperIds.length;
         const defaultLimit = Math.min(5, maxAvailable || 0);
         const summarizeThreshold = $button.data('threshold') || 20;
 
-    let quotaReached = false;
+        let quotaReached = false;
 
         if (maxAvailable > 0) {
             $summaryCount
                 .attr({
-        min: 1,
-        max: Math.min(20, maxAvailable)
+                    min: 1,
+                    max: Math.min(20, maxAvailable)
                 })
-                .val(Math.min(6, maxAvailable));
+                .val(Math.min(5, maxAvailable));
         }
 
-    checkQuotaOnLoad();
+        checkQuotaOnLoad();
 
-    function checkQuotaOnLoad() {
-        $.get(`${appBaseUrl}/site/check-summary-quota`, function (response) {
-            if (response.quotaReached) {
-                quotaReached = true;
+        function checkQuotaOnLoad() {
+            $.get(`${appBaseUrl}/site/check-summary-quota`, response => {
+                if (response.quotaReached) {
+                    quotaReached = true;
                     $button
-                    .prop('disabled', true)
-                    .addClass('disabled')
-                    .off('click')
-                    .attr('title', `You have reached the daily limit of ${summarizeThreshold} uses for this feature.`);
-                $summaryText.html('<span class="text-danger">You have reached your daily quota for summarizations.</span>').show();
-            }
+                        .prop('disabled', true)
+                        .addClass('disabled')
+                        .off('click')
+                        .attr('title', `You have reached the daily limit of ${summarizeThreshold} uses for this feature.`);
+                    $summaryText.html('<span class="text-danger">You have reached your daily quota for summarizations.</span>').show();
+                }
 
-            if (response.used !== undefined && response.limit !== undefined) {
-                updateUsageInfo(response.used, response.limit);
-            }
-        });
-    }
+                if (response.used !== undefined && response.limit !== undefined) {
+                    updateUsageInfo(response.used, response.limit);
+                }
+            });
+        }
 
-    function updateUsageInfo(used, limit) {
-        $summaryUsageInfo
-            .html(`You have used <b>${used}</b> out of <b>${limit}</b> AI Assistant attempts for today. Limit resets every 24 hours.`)
-            .show();
-    }
+        function updateUsageInfo(used, limit) {
+            $summaryUsageInfo
+                .html(`You have used <b>${used}</b> out of <b>${limit}</b> AI Assistant attempts for today. Limit resets every 24 hours.`)
+                .show();
+        }
 
-    function generateSummary(limit) {
+        function generateSummary(limit) {
             if (!allPaperIds.length) {
                 return;
             }
 
-        const paperIds = allPaperIds.slice(0, Math.min(limit, maxAvailable));
+            const paperIds = allPaperIds.slice(0, Math.min(limit, maxAvailable));
 
-        $copySummaryWrapper.hide();
-        $summaryText.hide();
-        $regenerateBox.hide();
-        $summaryUsageInfo.hide();
-        $summaryLoading.show();
+            $copySummaryWrapper.hide();
+            $summaryText.hide();
+            $regenerateBox.hide();
+            $summaryUsageInfo.hide();
+            $summaryLoading.show();
 
-        $.post(`${appBaseUrl}/site/summarize`, { paperIds, keywords, limit })
-            .done(function (response) {
-                $summaryLoading.hide();
+            $.post(`${appBaseUrl}/site/summarize`, { paperIds, keywords, limit })
+                .done(response => {
+                    $summaryLoading.hide();
 
-                if (response.error) {
-                    $summaryText.html(`<span class="text-danger">${response.error}</span>`).show();
-                    if (response.error.includes('quota')) {
-                        quotaReached = true;
+                    if (response.error) {
+                        $summaryText.html(`<span class="text-danger">${response.error}</span>`).show();
+                        if (response.error.includes('quota')) {
+                            quotaReached = true;
                             $button.prop('disabled', true).off('click');
+                        }
+                        return;
                     }
-                    return;
-                }
 
                     // Store per-instance summary so copy uses the correct text
                     if (!window.originalSummaries) {
@@ -114,35 +114,35 @@ $(document).ready(function () {
                     const key = listId || 'global';
                     window.originalSummaries[key] = response.plain;
 
-                $summaryText.html(response.html).show();
-                $regenerateBox.show();
-                $copySummaryWrapper.show();
+                    $summaryText.html(response.html).show();
+                    $regenerateBox.show();
+                    $copySummaryWrapper.show();
 
-                // Refresh quota display after each summary
-                $.get(`${appBaseUrl}/site/check-summary-quota`, function (quotaResp) {
-                    if (quotaResp.used !== undefined && quotaResp.limit !== undefined) {
-                        updateUsageInfo(quotaResp.used, quotaResp.limit);
-                    }
+                    // Refresh quota display after each summary
+                    $.get(`${appBaseUrl}/site/check-summary-quota`, quotaResp => {
+                        if (quotaResp.used !== undefined && quotaResp.limit !== undefined) {
+                            updateUsageInfo(quotaResp.used, quotaResp.limit);
+                        }
+                    });
+                })
+                .fail(() => {
+                    $summaryLoading.hide();
+                    $summaryText.html('Failed to generate summary.').show();
                 });
-            })
-            .fail(function () {
-                $summaryLoading.hide();
-                $summaryText.html('Failed to generate summary.').show();
-            });
-    }
+        }
 
         $button.on('click', function () {
-        if (quotaReached) return;
+            if (quotaReached) return;
 
-        const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
-        const hasSummary = !!$summaryText.html().trim();
+            const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
+            const hasSummary = !!$summaryText.html().trim();
 
-        $summaryPanel.collapse('toggle');
+            $summaryPanel.collapse('toggle');
 
-        if (isCollapsed && !hasSummary) {
+            if (isCollapsed && !hasSummary) {
                 generateSummary(defaultLimit || 5);
-        }
-    });
+            }
+        });
 
         // Regenerate button – global id on Finder/Readings, class+data-list-id for lists
         const regenerateSelector = isPerList
@@ -150,13 +150,13 @@ $(document).ready(function () {
             : '#regenerate-summary-btn';
 
         $(document).on('click', regenerateSelector, function () {
-        if (quotaReached) return;
+            if (quotaReached) return;
 
-        const topN = parseInt($summaryCount.val(), 10);
-        if (isNaN(topN) || topN < 1 || topN > 20) return;
+            const topN = parseInt($summaryCount.val(), 10);
+            if (isNaN(topN) || topN < 1 || topN > 20) return;
 
-        generateSummary(topN);
-    });
+            generateSummary(topN);
+        });
 
         // Enter on input – per list or global
         const countSelector = isPerList
@@ -164,31 +164,31 @@ $(document).ready(function () {
             : '#summary-count';
 
         $(document).on('keydown', countSelector, function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
+            if (e.key === 'Enter') {
+                e.preventDefault();
                 if (isPerList) {
                     $summaryPanel.find(regenerateSelector).click();
                 } else {
-            $('#regenerate-summary-btn').click();
+                    $('#regenerate-summary-btn').click();
                 }
-        }
-    });
+            }
+        });
 
         // Copy summary handler
-    $copyBtn.on('click', function () {
+        $copyBtn.on('click', function () {
             const key = listId || 'global';
             if (!window.originalSummaries || !window.originalSummaries[key]) return;
 
             navigator.clipboard.writeText(window.originalSummaries[key]).then(() => {
-            $copyBtn.attr('data-original-title', 'Summary copied!').tooltip('show').off('mouseenter focus');
+                $copyBtn.attr('data-original-title', 'Summary copied!').tooltip('show').off('mouseenter focus');
 
-            setTimeout(() => {
-                $copyBtn.tooltip('hide').removeAttr('data-original-title');
-            }, 1500);
-        }).catch(err => {
-            console.error('Failed to copy summary.', err);
+                setTimeout(() => {
+                    $copyBtn.tooltip('hide').removeAttr('data-original-title');
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy summary.', err);
+            });
         });
-    });
     }
 
     // New multi-instance usage for Contributions Lists

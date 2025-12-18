@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "{{%element_table}}".
  *
@@ -11,31 +9,23 @@ use Yii;
  * @property int $element_id
  * @property string $title
  * @property string|null $description
- * @property boolean|null $hide_when_empty
+ * @property bool|null $hide_when_empty
  * @property int|null $max_rows
  *
  *
  * @property Elements $element
  * @property ElementTableHeaders[] $ElementTableHeaders
  */
-class ElementTable extends \yii\db\ActiveRecord
-{
-
+class ElementTable extends \yii\db\ActiveRecord {
     public $table_data;        // Exists in ElementTableInstances, needed for getConfigTable
+
     public $last_updated;    // Exists in ElementTableInstances, needed for getConfigTable
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+
+    public static function tableName() {
         return '{{%element_table}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['element_id'], 'required'],
             [['element_id'], 'integer'],
@@ -43,18 +33,14 @@ class ElementTable extends \yii\db\ActiveRecord
             [['title'], 'string', 'max' => 1024],
             [['description'], 'string'],
             [['hide_when_empty'], 'boolean'],
-            [['hide_when_empty'], 'default', 'value'=> false],
+            [['hide_when_empty'], 'default', 'value' => false],
             [['element_id'], 'exist', 'skipOnError' => true, 'targetClass' => Elements::class, 'targetAttribute' => ['element_id' => 'id']],
             [['max_rows'], 'integer'],
             [['margin_top', 'margin_right', 'margin_bottom', 'margin_left'], 'string', 'max' => 50],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_id' => 'Element ID',
@@ -71,8 +57,7 @@ class ElementTable extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElement()
-    {
+    public function getElement() {
         return $this->hasOne(Elements::class, ['id' => 'element_id']);
     }
 
@@ -81,26 +66,23 @@ class ElementTable extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementTableHeaders()
-    {
+    public function getElementTableHeaders() {
         return $this->hasMany(ElementTableHeaders::class, ['element_table_id' => 'id'])->orderBy(['id' => SORT_ASC]);
     }
 
     public function getConfigTable($element_id, $template_id, $user_id) {
-
         // eager loading
-        $element_config = self::find()->with('elementTableHeaders')->where([ 'element_id' => $element_id ])->one();
+        $element_config = self::find()->with('elementTableHeaders')->where(['element_id' => $element_id])->one();
 
         // get info for table instances
         // TODO: fetch with one query: outer join
         $element_instance_config = ElementTableInstances::find()
-        ->where([
+            ->where([
             'element_id' => $element_id,
             'user_id' => $user_id,
             'template_id' => $template_id,
         ])
-        ->one();
-
+            ->one();
 
         if ($element_instance_config) {
             $element_config->table_data = json_decode($element_instance_config->table_data, true);

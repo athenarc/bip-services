@@ -1,12 +1,11 @@
 <?php
-use yii\helpers\Html;
-use yii\helpers\Url;
 use app\components\BookmarkIcon;
 use app\components\ImpactIcons;
+
 ?>
 
 
-<?php if(isset($warning)) { ?>
+<?php if (isset($warning)) { ?>
   <div class="alert alert-warning">
     <center><b>Note:</b> <?= $warning ?></center>
   </div>
@@ -16,22 +15,22 @@ use app\components\ImpactIcons;
 <table class="table table-hover">
 
   <tbody>
-    <?php foreach($papers as $paper){ ?>
+    <?php foreach ($papers as $paper) { ?>
         <tr>
-            <!-- <?= empty(trim($paper['authors'])) ? "N/A" : trim($paper['authors']) ?>, -->
+            <!-- <?= empty(trim($paper['authors'])) ? 'N/A' : trim($paper['authors']) ?>, -->
 
             <td style="width:83%">
               <div>
                 <b>
-                  <a href="<?= yii\helpers\Url::to(['site/details', 'id'=> $paper['doi']]) ?>" target="_blank" class='main-green' title = 'Show details'>
-                  <?= empty(trim($paper['title'])) ? "N/A" : trim($paper['title']) ?> <i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                  <a href="<?= yii\helpers\Url::to(['site/details', 'id' => $paper['doi']]) ?>" target="_blank" class='main-green' title = 'Show details'>
+                  <?= empty(trim($paper['title'])) ? 'N/A' : trim($paper['title']) ?> <i class="fa fa-info-circle" aria-hidden="true"></i></a>
                 </b>
               </div>
               <div>
-                <i><?= empty(trim($paper['journal'])) ? "N/A" : trim($paper['journal']) ?></i> &middot;
-                <i><?= (empty($paper['year']) || $paper['year'] == 0) ? "N/A" : $paper['year'] ?></i> &middot;
+                <i><?= empty(trim($paper['journal'])) ? 'N/A' : trim($paper['journal']) ?></i> &middot;
+                <i><?= (empty($paper['year']) || $paper['year'] == 0) ? 'N/A' : $paper['year'] ?></i> &middot;
                 <a href="https://doi.org/<?= $paper['doi'] ?>" target='_blank' class="grey-link"><?= $paper['doi'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a> 
-                <i><?= !empty($paper['relation_name']) ? "&middot; " . $paper['relation_name'] : "" ?></i>
+                <i><?= ! empty($paper['relation_name']) ? '&middot; ' . $paper['relation_name'] : '' ?></i>
               </div>
             </td>
 
@@ -52,7 +51,7 @@ use app\components\ImpactIcons;
 
             </td>
             
-            <?php if (!isset($hide_bookmark) || !$hide_bookmark): ?>
+            <?php if (! isset($hide_bookmark) || ! $hide_bookmark): ?>
               <td style = "text-align:right;">
                 <!-- bookmark -->
 

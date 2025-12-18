@@ -1,36 +1,34 @@
 <?php
 
-use Yii;
 use yii\helpers\Url;
-use yii\helpers\Html;
 
 $this->title = 'BIP! Services - Admin';
 // $this->registerCssFile('@web/css/home.css');
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
-$section_options = ($section === "options");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
+$section_options = ($section === 'options');
 
 ?>
 
 <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-    <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-    <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+    <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+    <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
     </li>
     <li class="<?= $section_spaces ? 'active' : ''?>">
-    <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+    <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
     </li>
     <li class="<?= $section_indicators ? 'active' : ''?>">
-    <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+    <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
     </li>
     <li class="<?= $section_profiles ? 'active' : ''?>">
-    <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
+    <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profile Templates</a>
     </li>
     <li class="<?= $section_options ? 'active' : ''?>">
-    <a class="" <?= !$section_options ? "href=" . Url::to(['site/admin-options']) : "" ?>>Options</a>
+    <a class="" <?= ! $section_options ? 'href=' . Url::to(['site/admin-options']) : '' ?>>Options</a>
     </li>
 </ul>
 

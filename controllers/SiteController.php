@@ -2,93 +2,74 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\base\Model;
-use app\models\Spaces;
-use app\models\SpacesAnnotations;
-use app\models\Indicators;
-use app\models\IndicatorsSearch;
-use yii\web\NotFoundHttpException;
-use yii\filters\AccessControl;
-use yii\web\Controller;
-use app\controllers\BaseController;
-use app\models\Researcher;
-use yii\web\UploadedFile;
-use yii\filters\VerbFilter;
-use yii\helpers\Url;
-use yii\helpers\StringHelper;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
-use yii\data\Pagination;
-use app\models\LoginForm;
-use app\models\SignupForm;
-use app\models\ContactForm;
-use app\models\SearchForm;
-use app\models\SurveyForm;
-use app\models\FeedbackForm;
-use app\models\Article;
-use app\models\PmcPaperPids;
-use app\models\Journal;
-use app\models\DoiToPmc;
-use app\models\UsersLikes;
-use app\models\User;
-use app\models\RequestresetForm;
-use app\models\PassresetForm;
-use app\models\PreviousUrlChecker;
-use app\models\UserViews;
-use app\models\GuestViews;
-use app\models\AuthorPaperFetcher;
-use app\models\PaperCitationHistories;
-use app\models\SurveyPaperKeywords;
-use app\models\SurveyCreditsForm;
-use app\models\TagsToPapers;
-use app\models\Concepts;
-use app\models\Relations;
-use app\models\CvNarrative;
-use app\models\OpenaireArticle;
+use app\models\AdminOptions;
 use app\models\AdminStats;
+use app\models\Article;
+use app\models\AuthorPaperFetcher;
+use app\models\ChangePasswordForm;
+use app\models\Concepts;
+use app\models\ContactForm;
+use app\models\ElementBulletedList;
+use app\models\ElementContributions;
+use app\models\ElementDividers;
+use app\models\ElementDividersForm;
+use app\models\ElementDropdown;
+use app\models\ElementDropdownOptions;
 use app\models\ElementFacets;
+use app\models\ElementFacetsForm;
 use app\models\ElementIndicators;
 use app\models\ElementIndicatorsForm;
 use app\models\ElementNarratives;
 use app\models\ElementNarrativesForm;
-use app\models\ElementContributions;
-use app\models\ElementDropdown;
-use app\models\ElementDropdownOptions;
-use app\models\ElementDividers;
-use app\models\ElementDividersForm;
-use app\models\ElementFacetsForm;
-use app\models\ElementBulletedList;
-use app\models\ElementTable;
-use app\models\ElementTableHeaders;
-use app\models\ProfileTemplateCategories;
-use app\models\ProfileTemplateCategoriesSearch;
-use app\models\Templates;
-use app\models\TemplatesSearch;
 use app\models\Elements;
 use app\models\ElementsSearch;
-use app\models\ElementNarrativesSearch;
+use app\models\ElementTable;
+use app\models\ElementTableHeaders;
 use app\models\Facets;
+use app\models\FeedbackForm;
 use app\models\GraphConnectionFactory;
-use app\models\Orcid;
-use app\models\SummaryUsage;
-use yii\web\Response;
-use yii\widgets\ActiveForm;
-use app\components\OrcidComponent;
-use app\models\ChangePasswordForm;
-use app\models\AdminOptions;
+use app\models\Indicators;
+use app\models\IndicatorsSearch;
+use app\models\Journal;
+use app\models\LikeDislikeAnnotations;
 use app\models\LikeDislikeRecords;
+use app\models\LoginForm;
+use app\models\OpenaireArticle;
+use app\models\Orcid;
+use app\models\PassresetForm;
+use app\models\PreviousUrlChecker;
+use app\models\ProfileTemplateCategories;
+use app\models\ProfileTemplateCategoriesSearch;
+use app\models\Relations;
+use app\models\RequestresetForm;
+use app\models\Researcher;
+use app\models\SearchForm;
+use app\models\SignupForm;
+use app\models\Spaces;
+use app\models\SpacesAnnotations;
+use app\models\SummaryUsage;
+use app\models\SurveyCreditsForm;
+use app\models\TagsToPapers;
+use app\models\Templates;
+use app\models\TemplatesSearch;
+use app\models\User;
+use app\models\UsersLikes;
+use Yii;
+use yii\base\Model;
+use yii\data\Pagination;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
+use yii\helpers\Url;
+use yii\web\NotFoundHttpException;
+use yii\web\Response;
+use yii\web\UploadedFile;
 
-class SiteController extends BaseController
-{
-
+class SiteController extends BaseController {
     public $enableCsrfValidation = false;
 
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
+    public function behaviors() {
         return [
             'access' => [
                 'class' => AccessControl::className(),
@@ -110,11 +91,7 @@ class SiteController extends BaseController
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function actions()
-    {
+    public function actions() {
         return [
             'error' => [
                 'class' => 'yii\web\ErrorAction',
@@ -133,31 +110,32 @@ class SiteController extends BaseController
      *
      * @author Thanasis Vergoulis
      */
-    public function actionIndex()
-    {
-
+    public function actionIndex() {
         // POST request handling
 
         //If the post keyword parameter signifying a search has been set, we redirect to prettyUrl GET link
-        if(Yii::$app->request->post('keywords') !== null) {
-
+        if (Yii::$app->request->post('keywords') !== null) {
             // space
             $space_url_suffix = Yii::$app->request->post('space_url_suffix');
             $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
             $space_model->prepareForRequest();
 
             // ordering, relevance, keywords
-            $keywords = trim(Yii::$app->request->post('keywords'), " ");
+            $keywords = trim(Yii::$app->request->post('keywords'), ' ');
             $ordering = Yii::$app->request->post('ordering');
             $user = User::findOne(Yii::$app->user->id);
-            $relevance = ($user) ? $user->getKeywordRelevance() : "high";
-            
-            if($ordering == "year") {
-                $relevance = "low";
+            // Determine the relevance setting:
+            // - If a space is selected ($space_url_suffix), use the space's relevance
+            // - Otherwise, if a user is logged in, use the user's keyword relevance
+            // - If neither, default to 'high'
+            $relevance = ($space_url_suffix) ? $space_model->relevance : (($user) ? $user->getKeywordRelevance() : 'high');
+
+            if ($ordering == 'year') {
+                $relevance = 'low';
             }
 
             $post_data_all = Yii::$app->request->post();
-            $post_request_array= [
+            $post_request_array = [
                 'ordering' => $ordering,
                 'relevance' => $relevance,
             ];
@@ -165,12 +143,10 @@ class SiteController extends BaseController
             // Filter values handling
             // check if the filters are present, by checking if one of them is present i.e popularity
             if (array_key_exists('popularity', $post_data_all)) {
-
                 $clear_all = Yii::$app->request->post('clear_all');
 
                 // if clear_all, all filter values will be taken from the current space model
-                if (!$clear_all) {
-
+                if (! $clear_all) {
                     // append the filter variables to post_request_array
 
                     // using array_values for reindexing after array_filter, to make possible the comparison with the space model
@@ -181,9 +157,12 @@ class SiteController extends BaseController
                     $post_request_array['influence'] = $post_data_all['influence'];
                     $post_request_array['impulse'] = $post_data_all['impulse'];
                     $post_request_array['cc'] = $post_data_all['cc'];
-                    // if no checkbox is selected, type & is_oa won't be present in post request
+                    // if no checkbox is selected (type, is_oa, pubmed_types, etc.), it will not be present in the POST request
                     $post_request_array['type'] = $post_data_all['type'] ?? [];
                     $post_request_array['is_oa'] = $post_data_all['is_oa'] ?? [];
+                    $post_request_array['pubmed_types'] = ! empty($post_data_all['pubmed_types']) ? explode(',', $post_data_all['pubmed_types']) : [];
+                    // convert checkbox array value to int (enable_annotations_flag is stored as boolean in the space model)
+                    $post_request_array['enable_annotations_flag'] = (int) ($post_data_all['enable_annotations_flag'][0] ?? 0);
                 }
             }
 
@@ -198,28 +177,28 @@ class SiteController extends BaseController
 
             //Redirect to same action but with parameters in prettyURL format!
             return $this->redirect(Url::to(array_merge(['site/index'], $get_request_array)));
-
         }
 
         // GET request handling
         // cases:
         // - the search page loads from url
         // - redirection from a search keyword that gets submitted as a POST request
-        
+
         [ $results, $search_model, $space_model ] = $this->doSearch();
 
         // Preload user votes for the current page of results (used in the index view)
         $user_votes = [];
-        if (!Yii::$app->user->isGuest
-            && isset($space_model->enable_like_dislike_records)
-            && $space_model->enable_like_dislike_records
-            && !empty($results['rows'] ?? [])
+
+        if (! Yii::$app->user->isGuest &&
+            isset($space_model->enable_like_dislike_records) &&
+            $space_model->enable_like_dislike_records &&
+            ! empty($results['rows'] ?? [])
         ) {
             $paper_ids = array_map(function ($result) {
                 return $result['internal_id'];
             }, $results['rows']);
 
-            if (!empty($paper_ids)) {
+            if (! empty($paper_ids)) {
                 $user_votes = LikeDislikeRecords::getUserVotesBatch(
                     Yii::$app->user->id,
                     $paper_ids,
@@ -236,7 +215,7 @@ class SiteController extends BaseController
 
         $researcher_count = 0;
 
-        if (!empty($keywords)) {
+        if (! empty($keywords)) {
             $search_model_researcher = new \app\models\ScholarSearchForm($keywords, 'name');
             $scholar_results = $search_model_researcher->search();
             $researcher_count = count($scholar_results['rows']);
@@ -254,53 +233,20 @@ class SiteController extends BaseController
     }
 
     public function doSearch() {
-
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
         // perform actual search
         $results = $search_model->search();
 
-        return [ 
+        return [
             $results,
             $search_model,
             $space_model,
         ];
     }
 
-    private function prepareSearchModels() {
-
-        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
-
-        [ $search_params, $space_model ] = Spaces::getSearchParams($space_url_suffix);
-
-        //Initialise the form model
-        $search_model = new SearchForm(
-            $search_params['ordering'],
-            $search_params['keywords'], 
-            $search_params['location'], 
-            $search_params['relevance'],
-            $search_params['topics'], 
-            $search_params['start_year'], 
-            $search_params['end_year'], 
-            $search_params['influence'],
-            $search_params['popularity'], 
-            $search_params['impulse'], 
-            $search_params['cc'], 
-            $search_params['type'],
-            $search_params['is_oa'],
-            $search_params['provided_by'],
-            $space_model
-        );
-
-        return [
-            $search_model,
-            $space_model,
-        ];
-    }
-
     public function actionGetTopTopics() {
-    
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
@@ -310,15 +256,14 @@ class SiteController extends BaseController
         // render top topics using partial view
         return $this->renderPartial('top_topics', [
             'top_topics' => $top_topics,
-        ]);  
-    
+        ]);
     }
 
     public function actionGetTopicEvolution() {
-
         $selected_topic = Yii::$app->request->get('selectedTopTopic');
-        if (!$selected_topic) {
-            throw new \yii\base\Exception("No topic is given");
+
+        if (! $selected_topic) {
+            throw new \yii\base\Exception('No topic is given');
         }
 
         [ $search_model, $space_model ] = $this->prepareSearchModels();
@@ -328,7 +273,7 @@ class SiteController extends BaseController
         return $this->renderPartial('topic_evolution', [
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
-        ]); 
+        ]);
     }
 
     /**
@@ -336,19 +281,17 @@ class SiteController extends BaseController
      *
      * @author Thanasis Vergoulis
      */
-    public function actionComparison()
-    {
+    public function actionComparison() {
         //Get cookies collection.
         $article_ids_str = $_COOKIE['bipComparison'];
-        $article_ids = explode(",",$article_ids_str);
+        $article_ids = explode(',', $article_ids_str);
 
         $articles = [];
 
-        $model = new SearchForm('','','');
+        $model = new SearchForm('', '', '');
 
-        foreach($article_ids as $article_id) {
-
-            if($article_id != "") {
+        foreach ($article_ids as $article_id) {
+            if ($article_id != '') {
                 $article = $model->searchById($article_id);
                 array_push($articles, $article);
             }
@@ -364,8 +307,7 @@ class SiteController extends BaseController
     /**
      * Displays the details of a particular article.
      */
-    public function actionDetails()
-    {
+    public function actionDetails() {
         $id = Yii::$app->request->get('id');
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
@@ -402,9 +344,8 @@ class SiteController extends BaseController
             ->where(['p.doi' => $doi])
             ->one();
 
-
-        if (!$article) {
-            throw new \yii\web\NotFoundHttpException("Article not found");
+        if (! $article) {
+            throw new \yii\web\NotFoundHttpException('Article not found');
         }
 
         $article->doi = $doi;
@@ -423,16 +364,16 @@ class SiteController extends BaseController
         $article_is_liked = $article->getUsersLikes()->where(['user_id' => Yii::$app->user->id, 'showit' => true])->exists();
 
         // add concepts
-        [ $article ] = Concepts::getConcepts([ $article ], 'internal_id');
+        [ $article ] = Concepts::getConcepts([$article], 'internal_id');
 
         // calculate total classes
-        [ $article ] = SearchForm::get_impact_class([ $article ]);
+        [ $article ] = SearchForm::get_impact_class([$article]);
         // calculate concepts classes
-        [ $article ] = SearchForm::get_concepts_impact_class([ $article ]);
+        [ $article ] = SearchForm::get_concepts_impact_class([$article]);
         // get relations
-        [ $article ] = Relations::getRelations([ $article ]);
+        [ $article ] = Relations::getRelations([$article]);
 
-        [ $article ] = Spaces::fetchAnnotations([ $article ], $space_model);
+        [ $article ] = Spaces::fetchAnnotations([$article], $space_model);
 
         // // Do not calculate pyramidStatistics for articles with NULL scores
         // if(isset($article['pagerank'])){
@@ -443,8 +384,6 @@ class SiteController extends BaseController
         //     // calculte journal classes
         //     $article->calculateJournalClasses();
         // }
-
-
 
         // calculate citation history
         // $history_dimensions = $article->calculateCitationHistory();
@@ -468,9 +407,9 @@ class SiteController extends BaseController
         // -returns null if user is not logged in or if paper was never liked (showit: 0 or 1)
         // -returns reading_status value (0,1,2) otherwise
         $user_like = $article->getUsersLikes()->where(['user_id' => Yii::$app->user->id])->one();
-        
+
         // if the article was never liked by user, initialize the value to 0
-        $article_reading_status = (isset($user_like)) ? $user_like->reading_status : "0";
+        $article_reading_status = (isset($user_like)) ? $user_like->reading_status : '0';
 
         $article->calculateChartData();
 
@@ -498,26 +437,26 @@ class SiteController extends BaseController
             'space_model' => $space_model,
         ]);
     }
+
     /**
-     * Redirects from local_identifier to details using DOI
+     * Redirects from local_identifier to details using DOI.
      */
-    public function actionDetailsByLocalId($local_identifier)
-    {
+    public function actionDetailsByLocalId($local_identifier) {
         // Find article by local identifier
         $article = Article::find()
             ->joinWith('pids p', true, 'INNER JOIN')
             ->where(['internal_id' => $local_identifier])
             ->one();
 
-        if (!$article) {
-            throw new \yii\web\NotFoundHttpException("Article not found");
+        if (! $article) {
+            throw new \yii\web\NotFoundHttpException('Article not found');
         }
 
         // Get the DOI from pids
         $doi = $article->getDoiFromPids();
 
-        if (!$doi) {
-            throw new \yii\web\NotFoundHttpException("DOI not found for this article");
+        if (! $doi) {
+            throw new \yii\web\NotFoundHttpException('DOI not found for this article');
         }
 
         // Redirect to actionDetails with the DOI
@@ -527,18 +466,16 @@ class SiteController extends BaseController
     /**
      * Displays the articles of a particular annotation.
      */
-    public function actionAnnotation()
-    {
+    public function actionAnnotation() {
         $annotation_id = Yii::$app->request->get('annotation_id');
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $space_annotation_id = Yii::$app->request->get('space_annotation_id');
-        $space_annotation = SpacesAnnotations::findOne(['id'=> $space_annotation_id]);
+        $space_annotation = SpacesAnnotations::findOne(['id' => $space_annotation_id]);
 
         $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
         $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
 
         try {
-
             $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
 
             // Annotation Info
@@ -550,14 +487,13 @@ class SiteController extends BaseController
             $dois_count = $rows[0][0];
 
             $pagination = new Pagination([
-                'pageSize' => 10, 
+                'pageSize' => 10,
                 'totalCount' => $dois_count,
             ]);
 
             // Annotation Dois
             [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $annotation_id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
             $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
-            
         } catch (\Exception $e) {
             throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
         }
@@ -571,7 +507,7 @@ class SiteController extends BaseController
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
             ->where(['in', 'doi', $dois])
             ->groupBy('internal_id')
-            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function($element) { return "\"$element\""; }, $dois)) . ')')])
+            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function ($element) { return "\"${element}\""; }, $dois)) . ')')])
             ->all();
 
         // add the impact class of each row
@@ -597,10 +533,8 @@ class SiteController extends BaseController
      *
      * @return string
      */
-    public function actionLogin()
-    {
-        if (!Yii::$app->user->isGuest)
-        {
+    public function actionLogin() {
+        if (! Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
@@ -608,8 +542,7 @@ class SiteController extends BaseController
         //Set message if we got here by POST method
         $model->postMsg = previousUrlChecker::msg_based_on_previous_url();
 
-        if ($model->load(Yii::$app->request->post()) && $model->login())
-        {
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
 
@@ -623,7 +556,7 @@ class SiteController extends BaseController
         /*
          * If we already are not guest, return to homepage
          */
-        if (!Yii::$app->user->isGuest) {
+        if (! Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
@@ -633,14 +566,13 @@ class SiteController extends BaseController
         // load sign up model with post data
         $model_loaded = $model->load(Yii::$app->request->post());
 
-        // when registering a new user WITH ORCID, 
+        // when registering a new user WITH ORCID,
         // generate a random password so that they can restore it later
-        if ($model_loaded && !$model->password){ 
+        if ($model_loaded && ! $model->password) {
             $model->password = Yii::$app->security->generateRandomString(10);
         }
 
-        if ($model_loaded && ($user = $model->signup())) {       
-
+        if ($model_loaded && ($user = $model->signup())) {
             // After signup is completed, log user in and go back
             $loginModel = new LoginForm();
             $loginModel->username = $model->username;
@@ -649,10 +581,9 @@ class SiteController extends BaseController
             // Attempt to log the user in
             if ($loginModel->login()) {
                 return $this->redirect(['site/index']);
-            } else {
-                // handle the case where login fails after signup
-                Yii::$app->session->setFlash('error', 'Login failed after signup. Please contact the administrators.');
             }
+            // handle the case where login fails after signup
+            Yii::$app->session->setFlash('error', 'Login failed after signup. Please contact the administrators.');
         }
 
         //Render signup view
@@ -664,9 +595,9 @@ class SiteController extends BaseController
      *
      * @return string
      */
-    public function actionLogout()
-    {
+    public function actionLogout() {
         Yii::$app->user->logout();
+
         return $this->goHome();
     }
 
@@ -675,14 +606,15 @@ class SiteController extends BaseController
      *
      * @return string
      */
-    public function actionContact()
-    {
+    public function actionContact() {
         $model = new ContactForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
             Yii::$app->session->setFlash('contactFormSubmitted');
 
             return $this->refresh();
         }
+
         return $this->render('contact', [
             'model' => $model,
         ]);
@@ -693,8 +625,7 @@ class SiteController extends BaseController
      *
      * @return string
      */
-    public function actionAbout()
-    {
+    public function actionAbout() {
         return $this->render('about');
     }
 
@@ -703,9 +634,9 @@ class SiteController extends BaseController
      *
      * @author Thanasis Vergoulis
      */
-    public function actionHelp()
-    {
+    public function actionHelp() {
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
+
         return $this->render('help', [
             'indicators' => $indicators
         ]);
@@ -714,8 +645,7 @@ class SiteController extends BaseController
     /*
      * Send mail to user requesting password reset
      */
-    public function actionSendmail()
-    {
+    public function actionSendmail() {
         $email = Yii::$app->request->get('email');
         $user_to_add_token = User::find()->where(['email' => $email])->one();
         $user_to_add_token->reset_key = Yii::$app->security->generateRandomString();
@@ -726,37 +656,34 @@ class SiteController extends BaseController
         $username = $user_to_add_token->username;
 
         //Update user with token
-        if ($user_to_add_token->update() !== false)
-        {
+        if ($user_to_add_token->update() !== false) {
             //Now send user mail
-            Yii::$app->mailer->compose('passwordReset', ['username' => $username,'token' => $token])
-            ->setFrom([Yii::$app->params['adminEmail'] => 'Bip! Services'])
-            ->setTo($email)
-            ->setSubject('Password Reset on BIP! Services')
-            ->send();
+            Yii::$app->mailer->compose('passwordReset', ['username' => $username, 'token' => $token])
+                ->setFrom([Yii::$app->params['adminEmail'] => 'Bip! Services'])
+                ->setTo($email)
+                ->setSubject('Password Reset on BIP! Services')
+                ->send();
         }
         //All urls redirecting to login or password reset, should remember url
         Url::remember();
+
         return $this->redirect(['site/login']);
     }
 
     /*
      * Enter mail to receive pass reset code
      */
-    public function actionRequestreset()
-    {
+    public function actionRequestreset() {
         $model = new RequestresetForm();
         //Load possible post params and validate
-        if ($model->load(Yii::$app->request->post()) && $model->validate())
-        {
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $this->redirect(['site/sendmail', 'email' => $model->email]);
         }
         //Otherwise, render same page, with messages on model
         return $this->render('forgot', ['model' => $model]);
     }
 
-    public function actionPassreset()
-    {
+    public function actionPassreset() {
         //Methods redirecting to login / password reset should remember urls
         Url::remember();
         $model = new PassresetForm();
@@ -767,21 +694,18 @@ class SiteController extends BaseController
         $model->load(Yii::$app->request->post());
 
         //If model validates, we update the user and redirect to login
-        if(Yii::$app->request->isPost)
-        {
-            if($model->validate())
-            {
-                    $current_user = User::find()->where(['username' => $model->username])->one();
-                    $current_user->setPassword($model->newPass);
-                    $current_user->reset_key = null;
-                    $current_user->expires = null;
-                    //Update user, set message
+        if (Yii::$app->request->isPost) {
+            if ($model->validate()) {
+                $current_user = User::find()->where(['username' => $model->username])->one();
+                $current_user->setPassword($model->newPass);
+                $current_user->reset_key = null;
+                $current_user->expires = null;
+                //Update user, set message
 
-                    //If action succceeds go to login, otherwise display the same  (add to form the message)
-                    if ($current_user->update())
-                    {
-                        $this->redirect(['site/successupdate']);
-                    }
+                //If action succceeds go to login, otherwise display the same  (add to form the message)
+                if ($current_user->update()) {
+                    $this->redirect(['site/successupdate']);
+                }
             }
         }
 
@@ -815,13 +739,12 @@ class SiteController extends BaseController
     /*
      * Ajax action for liking a paper
      */
-    public function actionAjaxlike()
-    {
-        $user_id  = Yii::$app->user->id;
+    public function actionAjaxlike() {
+        $user_id = Yii::$app->user->id;
         $paper_id = Yii::$app->request->post('paper_id');
         $exists = UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id])->exists();
-        if(!$exists)
-        {
+
+        if (! $exists) {
             $user_like = new UsersLikes();
             $user_like->user_id = $user_id;
             $user_like->paper_id = $paper_id;
@@ -832,43 +755,37 @@ class SiteController extends BaseController
          * If like already exists, it may have showit set to FALSE.
          * In this case we need to update the field
          */
-        else if(UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id, 'showit' => false])->exists())
-        {
+        elseif (UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id, 'showit' => false])->exists()) {
             $user_like = UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id, 'showit' => false])->one();
             $user_like->showit = true;
             $user_like->update();
-        }
-        else
-        {
+        } else {
             // bookmark already exists with showit=>true
-            throw new \yii\base\Exception;
+            throw new \yii\base\Exception();
         }
-        return;
     }
 
     /*
      * Ajax action for un-liking a paper
      */
-    public function actionAjaxunlike()
-    {
-        $user_id  = Yii::$app->user->id;
+    public function actionAjaxunlike() {
+        $user_id = Yii::$app->user->id;
         $paper_id = Yii::$app->request->post('paper_id');
         $exists = UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id, 'showit' => true])->exists();
-        if($exists)
-        {
+
+        if ($exists) {
             $user_like = UsersLikes::find()->where(['user_id' => $user_id, 'paper_id' => $paper_id, 'showit' => true])->one();
             $user_like->showit = false;
             $user_like->folder_id = null;
             $user_like->update();
         } else {
             // bookmark doesn't exist
-            throw new \yii\base\Exception;
+            throw new \yii\base\Exception();
         }
-        return;
     }
 
     public function actionAddTag() {
-        $user_id  = Yii::$app->user->id;
+        $user_id = Yii::$app->user->id;
         $tag_name = Yii::$app->request->post('tag_name');
         $paper_id = Yii::$app->request->post('paper_id');
 
@@ -882,7 +799,7 @@ class SiteController extends BaseController
     }
 
     public function actionRemoveTag() {
-        $user_id  = Yii::$app->user->id;
+        $user_id = Yii::$app->user->id;
         $tag_name = Yii::$app->request->post('tag_name');
         $paper_id = Yii::$app->request->post('paper_id');
 
@@ -914,14 +831,12 @@ class SiteController extends BaseController
      * ##################################################################################################
      */
 
-    public function actionLikeunavailable()
-    {
+    public function actionLikeunavailable() {
         Url::remember();
         $this->redirect(['site/login']);
     }
 
-    public function actionSuccessupdate()
-    {
+    public function actionSuccessupdate() {
         Url::remember();
         $this->redirect(['site/login']);
     }
@@ -932,38 +847,43 @@ class SiteController extends BaseController
     /*
      * Action to get autocomplete results for journal names in a magic search box
      */
-    public function actionAutoCompleteJournals($expansion, $max_num=7, $term)
-    {
+    public function actionAutoCompleteJournals($expansion, $max_num = 7, $term) {
         $journal_names = Journal::autocomplete($term, $max_num);
-        if(empty($journal_names)) $journal_names = ["No suggestions found"];
+
+        if (empty($journal_names)) {
+            $journal_names = ['No suggestions found'];
+        }
+
         return json_encode($journal_names);
     }
 
     /*
      * Action to get autocomplete results for concept names in a magic search box
      */
-    public function actionAutoCompleteConcepts($expansion, $max_num=7, $term)
-    {
+    public function actionAutoCompleteConcepts($expansion, $max_num = 7, $term) {
         $concepts = Concepts::autocomplete($term, $max_num);
-        if(empty($concepts)) $concepts = ["No suggestions found"];
+
+        if (empty($concepts)) {
+            $concepts = ['No suggestions found'];
+        }
+
         return json_encode($concepts);
     }
 
     /*
      * Action to redirect to page that displays papers of particular authors
      */
-    public function actionAuthor()
-    {
+    public function actionAuthor() {
         //IF post parameters are set, then continue with a redirect in order to get prettyURLs
-        if(!empty(Yii::$app->request->post()))
-        {
+        if (! empty(Yii::$app->request->post())) {
             $author = Yii::$app->request->post('author');
             $ordering = Yii::$app->request->post('ordering');
+
             return $this->redirect(Url::to(['site/author', 'ordering' => $ordering, 'author' => $author]));
         }
 
         //Get author keyword
-        $author=Yii::$app->request->get('author');
+        $author = Yii::$app->request->get('author');
         //Get ordering, if set
         $ordering = (Yii::$app->request->get('ordering') != '' && Yii::$app->request->get('ordering') != null) ? Yii::$app->request->get('ordering') : '';
 
@@ -973,9 +893,7 @@ class SiteController extends BaseController
         $distinct_names = $authors_paper_fetcher->synonym_author_list;
 
         //If there's a single author for that name, render his page
-        if($authors_paper_fetcher->full_name_given || count($distinct_names)== 1 || count($distinct_names)== 0)
-        {
-
+        if ($authors_paper_fetcher->full_name_given || count($distinct_names) == 1 || count($distinct_names) == 0) {
             //Get author name & surname
             $author_full_keyword = $authors_paper_fetcher->author_kwd;
 
@@ -983,43 +901,40 @@ class SiteController extends BaseController
             //$author = $authors_paper_fetcher->format_author_name($author_full_keyword);
 
             //Get author's papers
-            $author_papers = array();
+            $author_papers = [];
             $author_papers_data = $authors_paper_fetcher->get_author_papers();
             $author_papers = $author_papers_data['author_papers'];
             $pagination = $author_papers_data['pagination'];
             $actual_author = $authors_paper_fetcher->author_kwd;
             $found_results = true;
-            if(count($distinct_names) == 0)
-            {
+
+            if (count($distinct_names) == 0) {
                 $found_results = false;
             }
+
             return $this->render('authorpapers', ['author' => $actual_author, 'author_papers' => $author_papers, 'model' => $authors_paper_fetcher, 'ordering' => $ordering, 'pagination' => $pagination, 'found_results' => $found_results]);
         }
         //Redirect to name disambiguation in this case
-        else
-        {
-            //Apply the author formatting to each of them
-            $distinct_names = array_map(array($authors_paper_fetcher, 'format_author_name'), $distinct_names);
-            //Sort the names in order for them to appear alphabetically
-            sort($distinct_names, SORT_NATURAL);
 
-            //Paginate
-            $pagination = new Pagination(['totalCount'=>count($distinct_names)]);
+        //Apply the author formatting to each of them
+        $distinct_names = array_map([$authors_paper_fetcher, 'format_author_name'], $distinct_names);
+        //Sort the names in order for them to appear alphabetically
+        sort($distinct_names, SORT_NATURAL);
 
-            //Get statistics for authors found - ONLY in the currently examined range
-            $author_stats = $authors_paper_fetcher->get_synonym_author_stats(array_slice($distinct_names, $pagination->offset, $pagination->limit));
+        //Paginate
+        $pagination = new Pagination(['totalCount' => count($distinct_names)]);
 
+        //Get statistics for authors found - ONLY in the currently examined range
+        $author_stats = $authors_paper_fetcher->get_synonym_author_stats(array_slice($distinct_names, $pagination->offset, $pagination->limit));
 
-            return $this->render('authordisambiguation', ['author' => $author, 'synonym_list' => array_slice($distinct_names, $pagination->offset, $pagination->limit), 'author_stats_array' => $author_stats, 'pagination' => $pagination]);
-        }
+        return $this->render('authordisambiguation', ['author' => $author, 'synonym_list' => array_slice($distinct_names, $pagination->offset, $pagination->limit), 'author_stats_array' => $author_stats, 'pagination' => $pagination]);
     }
 
     // 	action used to render citations modal list via ajax
-    public function actionGetCitations(){
+    public function actionGetCitations() {
         $paper_id = Yii::$app->request->get('paper_id');
         $citations = Article::getCitations($paper_id);
         $citations = SearchForm::get_impact_class($citations);
-
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
@@ -1030,10 +945,10 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionGetReferences(){
+    public function actionGetReferences() {
         $paper_id = Yii::$app->request->get('paper_id');
         $references = Article::getReferences($paper_id);
-        $references = SearchForm::get_impact_class($references); 
+        $references = SearchForm::get_impact_class($references);
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [
@@ -1046,7 +961,7 @@ class SiteController extends BaseController
     public function actionGetVersions() {
         $openaire_id = Yii::$app->request->get('openaire_id');
         $versions = Article::getVersions($openaire_id);
-        $versions = SearchForm::get_impact_class($versions); 
+        $versions = SearchForm::get_impact_class($versions);
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [
@@ -1061,7 +976,7 @@ class SiteController extends BaseController
         $source_internal_id = Yii::$app->request->get('source_internal_id');
         $target_dois = Yii::$app->request->get('target_dois');
         $relations = Article::getRelationsData($target_dois, $source_internal_id);
-        $relations = SearchForm::get_impact_class($relations); 
+        $relations = SearchForm::get_impact_class($relations);
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->renderPartial('papers_list', [
@@ -1071,8 +986,7 @@ class SiteController extends BaseController
         ]);
     }
 
-    public function actionSaveSurveyCredits()
-    {
+    public function actionSaveSurveyCredits() {
         $model = new SurveyCreditsForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -1082,7 +996,7 @@ class SiteController extends BaseController
         }
     }
 
-    public function actionDataPolicy(){
+    public function actionDataPolicy() {
         return $this->render('data_policy');
     }
 
@@ -1091,14 +1005,13 @@ class SiteController extends BaseController
      *
      * @author: Kostis Zagganas (First Version: September 2018)
      */
-    public function actionPrivacySettings(){
+    public function actionPrivacySettings() {
         $form_params =
         [
             'action' => URL::toRoute(['site/privacy-settings']),
-            'options' =>
-            [
+            'options' => [
                 'class' => 'analytics_opt_out_form',
-                'id'=> "analytics_form"
+                'id' => 'analytics_form'
             ],
             'method' => 'GET'
         ];
@@ -1108,19 +1021,16 @@ class SiteController extends BaseController
          */
         $cookies = Yii::$app->request->cookies;
 
-        if (isset($_COOKIE['bipAnalyticsOptOut']) )
-        {
-            $cookieValue=false;
-        }
-        else
-        {
-            $cookieValue=true;
+        if (isset($_COOKIE['bipAnalyticsOptOut'])) {
+            $cookieValue = false;
+        } else {
+            $cookieValue = true;
         }
 
         /*
          * If form has submitted read the form field. If it hasn't use the cookie value.
          */
-        $boxValue = isset($_GET['analytics_opt_out']) ? (boolean) $_GET['analytics_opt_out'] : $cookieValue;
+        $boxValue = isset($_GET['analytics_opt_out']) ? (bool) $_GET['analytics_opt_out'] : $cookieValue;
 
         $boxLabel = $boxValue ? 'You are currently opted in. Click here to opt out.' : 'You are currently opted out. Click here to opt in.';
 
@@ -1129,31 +1039,24 @@ class SiteController extends BaseController
         /*
          * If the form has submitted
          */
-        if (isset($_GET['analytics_opt_out']))
-        {
+        if (isset($_GET['analytics_opt_out'])) {
             /*
              * If the checkbox is set or the cookie does not exist delete cookie or else add a new cookie
              */
-            if ($boxValue==true)
-            {
-
+            if ($boxValue == true) {
                 /*
                  * NOTE: For some weird reason, $cookie->remove does not work in Yii,
                  * so we have to do it manually with PHP.
                  */
                 unset($_COOKIE['bipAnalyticsOptOut']);
                 setcookie('bipAnalyticsOptOut', null, -1, '/');
-
-            }
-            else
-            {
+            } else {
                 /*
                  * NOTE: For some weird reason, the following commented code part does not work
                  */
-                setcookie('bipAnalyticsOptOut', 1, 0, "/");
+                setcookie('bipAnalyticsOptOut', 1, 0, '/');
             }
             // print_r($cookies);
-
         }
         /*
          * Load the opt-out page
@@ -1161,8 +1064,7 @@ class SiteController extends BaseController
         return $this->render('privacy_settings', ['form_params' => $form_params, 'boxValue' => $boxValue, 'boxLabel' => $boxLabel]);
     }
 
-    public function actionAcceptCookies()
-    {
+    public function actionAcceptCookies() {
         $cookies = Yii::$app->response->cookies;
         $cookies->add(new \yii\web\Cookie([
                             'name' => 'BipCookiesAccept',
@@ -1203,10 +1105,12 @@ class SiteController extends BaseController
 
         // if last char is '}', add a new line before it
         $last_char = substr($bibtex, -1);
-        if ($last_char == "}") {
+
+        if ($last_char == '}') {
             $bibtex = substr($bibtex, 0, -1);
-            $bibtex = $bibtex . "<br/>}";
+            $bibtex = $bibtex . '<br/>}';
         }
+
         return $bibtex;
     }
 
@@ -1222,6 +1126,7 @@ class SiteController extends BaseController
         $papers = [];
 
         $papers = SearchForm::getReadings($dois);
+
         return json_encode($papers);
     }
 
@@ -1249,13 +1154,14 @@ class SiteController extends BaseController
             'Work' => 'Article-level Indicators',
             'Researcher' => 'Researcher-level Indicators'
         ];
+
         foreach ($indicators as $indicator) {
             if (isset($indicator->level) && isset($levels[$indicator->level])) {
                 $category = $levels[$indicator->level];
             } else {
                 $category = 'Unknown Level'; // Default value for unknown or missing levels
             }
-            $family = $indicator->semantics.' Indicators';
+            $family = $indicator->semantics . ' Indicators';
 
             $organizedIndicators[$category][$family][$indicator->name] = [
                 'Intuition' => $indicator->intuition,
@@ -1266,8 +1172,8 @@ class SiteController extends BaseController
                 'Code' => $indicator->code,
                 'References' => $indicator->references,
             ];
-
         }
+
         return $this->render('indicators', [
             'indicators' => $organizedIndicators,
         ]);
@@ -1282,8 +1188,8 @@ class SiteController extends BaseController
         // When making changes to database tables the yii db cache should be flushed,
         // in order to immediately propagate those changes to active directory models
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         Yii::$app->cache->flush();
@@ -1292,11 +1198,10 @@ class SiteController extends BaseController
     }
 
     public function actionAdminOverview() {
+        $section = 'overview';
 
-        $section = "overview";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $stats = new AdminStats();
@@ -1311,48 +1216,44 @@ class SiteController extends BaseController
     }
 
     public function actionAdminSpaces() {
-        $section = "spaces";
+        $section = 'spaces';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
-        $space_id_update = Yii::$app->request->post("space_id_update");
+        $space_id_update = Yii::$app->request->post('space_id_update');
         $model = Spaces::fetchSpaces($space_id_update);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations] : $model->annotations ;
-
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
 
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
-
 
         return $this->render('admin/main', [
             'section' => $section,
             'spaces_data' => [
                 'model' => $model,
-                'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations] : $modelsSpacesAnnotations,
+                'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
                 'spacesArray' => $spacesArray
             ],
         ]);
     }
 
     public function actionAdminSaveSpaces() {
-        $section = "spaces";
+        $section = 'spaces';
 
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
-        $current_space_id = Yii::$app->request->post("Spaces")['id'];
+        $current_space_id = Yii::$app->request->post('Spaces')['id'];
         $model = Spaces::fetchSpaces($current_space_id);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations] : $model->annotations ;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
 
-        # create new or update existing
+        // create new or update existing
         if ($model->load(Yii::$app->request->post())) {
-
-            # before model validation
+            // before model validation
             $model->logo_upload = UploadedFile::getInstance($model, 'logo_upload');
 
             // Case: create
@@ -1372,63 +1273,61 @@ class SiteController extends BaseController
             $valid1 = $model->validate();
             $valid2 = Model::validateMultiple($modelsSpacesAnnotations);
 
-            if ($valid1 && $valid2){
-
+            if ($valid1 && $valid2) {
                 $model->uploadLogo();
 
                 $transaction = \Yii::$app->db->beginTransaction();
+
                 try {
                     // no need for 2nd validation
                     if ($flag = $model->save(false)) {
                         // Case: update
-                        if (isset($deletedIDs) && !empty($deletedIDs)) {
+                        if (isset($deletedIDs) && ! empty($deletedIDs)) {
                             SpacesAnnotations::deleteAll(['id' => $deletedIDs]);
                         }
+
                         foreach ($modelsSpacesAnnotations as $modelSpacesAnnotations) {
                             // give id, after $model is saved
                             $modelSpacesAnnotations->spaces_id = $model->id;
+
                             if (! ($flag = $modelSpacesAnnotations->save(false))) {
                                 $transaction->rollBack();
                                 break;
                             }
                         }
                     }
+
                     if ($flag) {
                         // Form is submitted and validation passes, save the spaces data
                         $transaction->commit();
-                        return $this->redirect(['site/admin-spaces']);
 
+                        return $this->redirect(['site/admin-spaces']);
                     }
                 } catch (Exception $e) {
                     $transaction->rollBack();
                 }
-
             }
-
         }
 
-        # if model load, validate or save fails, return model with errors
+        // if model load, validate or save fails, return model with errors
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
 
         return $this->render('admin/main', [
             'section' => $section,
             'spaces_data' => [
                 'model' => $model,
-                'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations] : $modelsSpacesAnnotations,
+                'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
                 'spacesArray' => $spacesArray
                     ],
         ]);
-
     }
 
     public function actionAdminDeleteSpaces() {
-
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
-        $space_id = Yii::$app->request->get("space_id");
+        $space_id = Yii::$app->request->get('space_id');
 
         $model = Spaces::fetchSpaces($space_id);
 
@@ -1441,16 +1340,14 @@ class SiteController extends BaseController
         $model->delete();
 
         return $this->redirect(['site/admin-spaces']);
-
     }
 
     /**
-     * Handles vote submission for papers
-     * 
+     * Handles vote submission for papers.
+     *
      * @return \yii\web\Response JSON response
      */
-    public function actionVotePaper()
-    {
+    public function actionVotePaper() {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         // Check if user is logged in
@@ -1464,16 +1361,16 @@ class SiteController extends BaseController
         }
 
         $user_id = Yii::$app->user->id;
-        $paper_id = (int)Yii::$app->request->post('paper_id');
+        $paper_id = (int) Yii::$app->request->post('paper_id');
         $vote_type = Yii::$app->request->post('vote_type');
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
         $query = Yii::$app->request->post('query');
         $ordering = Yii::$app->request->post('ordering');
-        $paper_rank = Yii::$app->request->post('paper_rank') ? (int)Yii::$app->request->post('paper_rank') : null;
-        $remove = (int)Yii::$app->request->post('remove', 0);
+        $paper_rank = Yii::$app->request->post('paper_rank') ? (int) Yii::$app->request->post('paper_rank') : null;
+        $remove = (int) Yii::$app->request->post('remove', 0);
 
         // Validate vote_type
-        if (!in_array($vote_type, ['like', 'dislike'])) {
+        if (! in_array($vote_type, ['like', 'dislike'])) {
             return [
                 'success' => false,
                 'message' => 'Invalid vote type',
@@ -1513,12 +1410,11 @@ class SiteController extends BaseController
     }
 
     /**
-     * Returns user's votes for multiple papers
-     * 
+     * Returns user's votes for multiple papers.
+     *
      * @return \yii\web\Response JSON response
      */
-    public function actionGetUserVotes()
-    {
+    public function actionGetUserVotes() {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         // If user is guest, return empty votes
@@ -1533,7 +1429,7 @@ class SiteController extends BaseController
         $paper_ids = Yii::$app->request->post('paper_ids', []);
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
 
-        if (empty($paper_ids) || !is_array($paper_ids)) {
+        if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [
                 'success' => false,
                 'votes' => [],
@@ -1554,6 +1450,7 @@ class SiteController extends BaseController
 
         // Build response array
         $votes_array = [];
+
         foreach ($votes as $vote) {
             $votes_array[$vote->paper_id] = $vote->action;
         }
@@ -1564,12 +1461,152 @@ class SiteController extends BaseController
         ];
     }
 
-    public function actionAdminOptions()
-    {
-        $section = "thresholds";
+    /**
+     * Handles vote submission for annotations.
+     *
+     * @return \yii\web\Response JSON response
+     */
+    public function actionVoteAnnotation() {
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
-        if (!AdminStats::hasAdminAccess()) {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        // Check if user is logged in
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'message' => 'You must be logged in to vote',
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int) Yii::$app->request->post('paper_id');
+        $annotation_id = Yii::$app->request->post('annotation_id');
+        $annotation_name = Yii::$app->request->post('annotation_name');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $vote_type = Yii::$app->request->post('vote_type');
+        $remove = (int) Yii::$app->request->post('remove', 0);
+
+        // Validate inputs
+        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+            return [
+                'success' => false,
+                'message' => 'Missing required parameters',
+            ];
+        }
+
+        // Validate vote_type
+        if (! in_array($vote_type, ['like', 'dislike'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid vote type',
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+
+        if (! $space_model || ! $space_model->enable_like_dislike_annotations) {
+            // Return success=false but don't show error message - buttons should be hidden
+            return [
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
+            ];
+        }
+
+        try {
+            if ($remove == 1) {
+                // Delete the vote
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                $message = 'Vote removed';
+            } else {
+                // Save or update vote
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                $message = 'Vote saved';
+            }
+
+            // Get updated user vote
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'user_vote' => $user_vote,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error processing vote: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Returns user's votes for annotations.
+     *
+     * @return \yii\web\Response JSON response
+     */
+    public function actionGetUserAnnotationVotes() {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        // If user is guest, return empty votes
+        if (Yii::$app->user->isGuest) {
+            return [
+                'success' => false,
+                'votes' => [],
+            ];
+        }
+
+        $user_id = Yii::$app->user->id;
+        $paper_id = (int) Yii::$app->request->post('paper_id');
+        $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+
+        if (empty($paper_id) || empty($space_url_suffix)) {
+            return [
+                'success' => false,
+                'message' => 'Missing required parameters',
+                'votes' => [],
+            ];
+        }
+
+        // Check if space has annotation voting enabled
+        $space_model = Spaces::find()->where(['url_suffix' => $space_url_suffix])->one();
+
+        if (! $space_model || ! $space_model->enable_like_dislike_annotations) {
+            return [
+                'success' => false,
+                'message' => 'Voting on annotations is not enabled for this space',
+                'silent_fail' => true, // Flag to indicate this is expected and shouldn't show alert
+                'votes' => [],
+            ];
+        }
+
+        // Get all votes for this paper
+        $votes = LikeDislikeAnnotations::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_id,
+                'space_url_suffix' => $space_url_suffix,
+            ])
+            ->all();
+
+        // Build response array: annotation_id => action
+        $votes_array = [];
+
+        foreach ($votes as $vote) {
+            $votes_array[$vote->annotation_id] = $vote->action;
+        }
+
+        return [
+            'success' => true,
+            'votes' => $votes_array,
+        ];
+    }
+
+    public function actionAdminOptions() {
+        $section = 'thresholds';
+
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $threshold = (int) AdminOptions::getValue('summarize_button_threshold');
@@ -1578,6 +1615,7 @@ class SiteController extends BaseController
             $newValue = (int) Yii::$app->request->post('threshold');
             AdminOptions::setValue('summarize_button_threshold', $newValue);
             Yii::$app->session->setFlash('success', 'Threshold updated successfully.');
+
             return $this->redirect(['site/admin-options']);
         }
 
@@ -1596,18 +1634,16 @@ class SiteController extends BaseController
 
         // unlink orcid profile
         $unlink_profile = Yii::$app->request->get('unlink_profile');
-        if ($unlink_profile == true) {
 
+        if ($unlink_profile == true) {
             if (isset($user->researcher)) {
                 $user->researcher->delete();
             }
 
             $has_profile = false;
-
         } else {
             $has_profile = isset($user->researcher);
         }
-
 
         return $this->render('settings', [
             'user' => $user,
@@ -1617,8 +1653,7 @@ class SiteController extends BaseController
     }
 
     public function actionAdminProfiles() {
-
-        $section = "profiles";
+        $section = 'profiles';
 
         $searchTemplateCategoryModel = new ProfileTemplateCategoriesSearch();
         $templateCategoryDataProvider = $searchTemplateCategoryModel->search($this->request->queryParams);
@@ -1632,11 +1667,10 @@ class SiteController extends BaseController
     }
 
     public function actionAdminIndicators() {
+        $section = 'indicators';
 
-        $section = "indicators";
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $searchIndicatorModel = new IndicatorsSearch();
@@ -1656,12 +1690,11 @@ class SiteController extends BaseController
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionViewIndicator($id)
-    {
-        $section = "indicators";
+    public function actionViewIndicator($id) {
+        $section = 'indicators';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         return $this->render('admin/indicators/view-indicator', [
@@ -1675,12 +1708,11 @@ class SiteController extends BaseController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreateIndicator()
-    {
-        $section = "indicators";
+    public function actionCreateIndicator() {
+        $section = 'indicators';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $indicatorModel = new Indicators();
@@ -1706,12 +1738,11 @@ class SiteController extends BaseController
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdateIndicator($id)
-    {
-        $section = "indicators";
+    public function actionUpdateIndicator($id) {
+        $section = 'indicators';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $indicatorModel = $this->findIndicatorModel($id);
@@ -1733,12 +1764,11 @@ class SiteController extends BaseController
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDeleteIndicator($id)
-    {
-        $section = "indicators";
+    public function actionDeleteIndicator($id) {
+        $section = 'indicators';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $this->findIndicatorModel($id)->delete();
@@ -1747,34 +1777,18 @@ class SiteController extends BaseController
     }
 
     /**
-     * Finds the Indicators model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Indicators the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findIndicatorModel($id)
-    {
-        if (($indicatorModel = Indicators::findOne(['id' => $id])) !== null) {
-            return $indicatorModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
      * Displays a single ProfileTemplateCategories model.
      * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionViewTemplateCategory($id)
-    {
-        $section = "profiles";
+    public function actionViewTemplateCategory($id) {
+        $section = 'profiles';
 
         $searchTemplatesModel = new TemplatesSearch();
         $templateDataProvider = $searchTemplatesModel->search($this->request->queryParams);
         $templateDataProvider->query->andFilterWhere(['profile_template_category_id' => $this->findTemplateCategoryModel($id)]);
+
         return $this->render('admin/profiles/view-template-category', [
             'section' => $section,
             'templateCategoryModel' => $this->findTemplateCategoryModel($id),
@@ -1787,12 +1801,11 @@ class SiteController extends BaseController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreateTemplateCategory()
-    {
-        $section = "profiles";
+    public function actionCreateTemplateCategory() {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $templateCategoryModel = new ProfileTemplateCategories();
@@ -1818,12 +1831,11 @@ class SiteController extends BaseController
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdateTemplateCategory($id)
-    {
-        $section = "profiles";
+    public function actionUpdateTemplateCategory($id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $templateCategoryModel = $this->findTemplateCategoryModel($id);
@@ -1845,37 +1857,14 @@ class SiteController extends BaseController
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDeleteTemplateCategory($id)
-    {
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+    public function actionDeleteTemplateCategory($id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $this->findTemplateCategoryModel($id)->delete();
 
         return $this->redirect(['admin-profiles']);
-    }
-
-    /**
-     * Finds the ProfileTemplateCategories model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return ProfileTemplateCategories the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findTemplateCategoryModel($id)
-    {
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
-        }
-
-        if (($templateCategoryModel = ProfileTemplateCategories::findOne(['id' => $id])) !== null) {
-            return $templateCategoryModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     /**
@@ -1885,12 +1874,11 @@ class SiteController extends BaseController
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionViewTemplate($id, $profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionViewTemplate($id, $profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $searchElementsModel = new ElementsSearch();
@@ -1900,17 +1888,18 @@ class SiteController extends BaseController
         $elementsTotalUsers = ElementsSearch::findElementsUsers($id);
 
         $user_id = Yii::$app->user->id;
-        $researcher = Researcher::findOne([ 'user_id' => $user_id ]);
+        $researcher = Researcher::findOne(['user_id' => $user_id]);
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
 
         // Generate the template URL if a researcher record is found
         $templateUrl = null;
+
         if ($researcher && $researcher->orcid && $templateModel) {
             $templateUrl = Yii::$app->urlManager->createAbsoluteUrl([
                 'scholar/profile/' . $researcher->orcid . '/' . $templateModel->url_name,
             ]);
         }
-       
+
         return $this->render('admin/profiles/view-template', [
             'section' => $section,
             'profile_template_category_id' => $profile_template_category_id,
@@ -1926,12 +1915,11 @@ class SiteController extends BaseController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreateTemplate($profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionCreateTemplate($profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $templateModel = new Templates();
@@ -1961,12 +1949,11 @@ class SiteController extends BaseController
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdateTemplate($id, $profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionUpdateTemplate($id, $profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $searchElementsModel = new ElementsSearch();
@@ -1996,33 +1983,14 @@ class SiteController extends BaseController
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDeleteTemplate($id, $profile_template_category_id)
-    {
-
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+    public function actionDeleteTemplate($id, $profile_template_category_id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $this->findTemplateModel($id, $profile_template_category_id)->delete();
 
         return $this->redirect(['view-template-category', 'id' => $profile_template_category_id]);
-    }
-
-    /**
-     * Finds the Templates model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @param int $profile_template_category_id Profile Template Category ID
-     * @return Templates the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findTemplateModel($id, $profile_template_category_id)
-    {
-        if (($templateModel = Templates::findOne(['id' => $id, 'profile_template_category_id' => $profile_template_category_id])) !== null) {
-            return $templateModel;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     /**
@@ -2032,12 +2000,11 @@ class SiteController extends BaseController
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionViewElement($id, $template_id, $profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionViewElement($id, $template_id, $profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $elementModel = $this->findElementModel($id, $template_id);
@@ -2059,8 +2026,7 @@ class SiteController extends BaseController
                     'status' => $element_indicator->status
                 ];
             }
-        }
-        else {
+        } else {
             $selected_indicators = [];
         }
 
@@ -2074,8 +2040,7 @@ class SiteController extends BaseController
                     'border_opt' => $element_facet->facet->border_opt,
                 ];
             }
-        }
-        else {
+        } else {
             $selected_facets = [];
         }
 
@@ -2100,25 +2065,24 @@ class SiteController extends BaseController
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreateElement($template_id, $profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionCreateElement($template_id, $profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $elementModel = new Elements();
         $indicatorList = Indicators::find()->orderBy(['level' => SORT_ASC, 'semantics' => SORT_ASC])->all();
-        
+
         $elementIndicatorsFormModel = new ElementIndicatorsForm();
         $elementNarrativesFormModel = new ElementNarrativesForm();
         $elementDividersFormModel = new ElementDividersForm();
         $elementContributionsModel = new ElementContributions();
         $elementDropdownModel = new ElementDropdown();
-        $elementDropdownOptionsModels = [new ElementDropdownOptions];
+        $elementDropdownOptionsModels = [new ElementDropdownOptions()];
         $elementTableModel = new ElementTable();
-        $elementTableHeadersModels = [new ElementTableHeaders];
+        $elementTableHeadersModels = [new ElementTableHeaders()];
         $elementFacetsFormModel = new ElementFacetsForm();
         $elementBulletedListModel = new ElementBulletedList();
         $elementNarrativesModel = new ElementNarratives();
@@ -2130,7 +2094,6 @@ class SiteController extends BaseController
 
         if ($this->request->isPost) {
             if ($elementModel->load($this->request->post()) && $elementModel->save()) {
-
                 $lastOrder = Elements::find()
                     ->select('MAX(`order`)')
                     ->where(['template_id' => $template_id])
@@ -2143,8 +2106,8 @@ class SiteController extends BaseController
                 switch ($elementModel->type) {
                     case 'Indicators':
                         if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
-
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
+
                             if (is_string($semanticsOrder)) {
                                 $semanticsOrder = json_decode($semanticsOrder, true);
                             }
@@ -2152,6 +2115,7 @@ class SiteController extends BaseController
                             $semanticsOrderIndex = array_flip($semanticsOrder);
 
                             $indicatorOrder = $elementIndicatorsFormModel->indicatorOrder;
+
                             if (is_string($indicatorOrder)) {
                                 $indicatorOrder = json_decode($indicatorOrder, true);
                             }
@@ -2163,32 +2127,33 @@ class SiteController extends BaseController
                             // Load margin data outside the loop
                             $elementIndicatorsForMargins->load($this->request->post());
 
-                            if (!empty($selectedIndicators)) {
+                            if (! empty($selectedIndicators)) {
                                 $firstIndicator = true;
+
                                 foreach ($selectedIndicators as $indicatorId => $status) {
-                                        $elementIndicators = new ElementIndicators();
-                                        $elementIndicators->element_id = $elementModel->id;
-                                        $elementIndicators->indicator_id = $indicatorId;
-                                        $elementIndicators->status = $status;
-                                        
-                                        $semantics = strtolower($elementIndicators->indicator->semantics);
-                                        $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
-                                        $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
-                                        $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
-                                        
-                                        // Store margins on the first ElementIndicators record only
-                                        if ($firstIndicator) {
-                                            $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
-                                            $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
-                                            $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
-                                            $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
-                                            $firstIndicator = false;
-                                        }
-        
-                                        $elementIndicators->save();
+                                    $elementIndicators = new ElementIndicators();
+                                    $elementIndicators->element_id = $elementModel->id;
+                                    $elementIndicators->indicator_id = $indicatorId;
+                                    $elementIndicators->status = $status;
+
+                                    $semantics = strtolower($elementIndicators->indicator->semantics);
+                                    $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
+                                    $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
+                                    $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
+
+                                    // Store margins on the first ElementIndicators record only
+                                    if ($firstIndicator) {
+                                        $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
+                                        $elementIndicators->margin_right = $elementIndicatorsForMargins->margin_right;
+                                        $elementIndicators->margin_bottom = $elementIndicatorsForMargins->margin_bottom;
+                                        $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
+                                        $firstIndicator = false;
+                                    }
+
+                                    $elementIndicators->save();
                                 }
                             }
-                        } else if ($elementIndicatorsFormModel->load($this->request->post())) {
+                        } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
                             $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
@@ -2215,24 +2180,23 @@ class SiteController extends BaseController
                         break;
                     case 'Dropdown':
                         if ($elementDropdownModel->load($this->request->post())) {
-
                             $elementDropdownModel->element_id = $elementModel->id;
 
                             $elementDropdownOptionsModels = SpacesAnnotations::createMultipleModels(ElementDropdownOptions::classname());
                             Model::loadMultiple($elementDropdownOptionsModels, $this->request->post());
-                
+
                             // validate all models
                             $valid1 = $elementDropdownModel->validate();
                             $valid2 = Model::validateMultiple($elementDropdownOptionsModels);
-                            
-                            if ($valid1 && $valid2) {
 
+                            if ($valid1 && $valid2) {
                                 $transaction = \Yii::$app->db->beginTransaction();
-                
+
                                 try {
                                     if ($dropdownFlag = $elementDropdownModel->save(false)) {
                                         foreach ($elementDropdownOptionsModels as $elementDropdownOptionsModel) {
                                             $elementDropdownOptionsModel->element_dropdown_id = $elementDropdownModel->id;
+
                                             if (! ($dropdownFlag = $elementDropdownOptionsModel->save(false))) {
                                                 $transaction->rollBack();
                                                 break;
@@ -2252,31 +2216,30 @@ class SiteController extends BaseController
                         break;
                     case 'Table':
                         if ($elementTableModel->load($this->request->post())) {
-
                             $elementTableModel->element_id = $elementModel->id;
 
                             $elementTableHeadersModels = SpacesAnnotations::createMultipleModels(ElementTableHeaders::classname());
                             Model::loadMultiple($elementTableHeadersModels, $this->request->post());
-                
+
                             // validate all models
                             $valid1 = $elementTableModel->validate();
                             $valid2 = Model::validateMultiple($elementTableHeadersModels);
-                            
-                            if ($valid1 && $valid2) {
 
+                            if ($valid1 && $valid2) {
                                 $transaction = \Yii::$app->db->beginTransaction();
-                
+
                                 try {
                                     if ($tableFlag = $elementTableModel->save(false)) {
                                         foreach ($elementTableHeadersModels as $elementTableHeadersModel) {
                                             $elementTableHeadersModel->element_table_id = $elementTableModel->id;
+
                                             if (! ($tableFlag = $elementTableHeadersModel->save(false))) {
                                                 $transaction->rollBack();
                                                 break;
                                             }
                                         }
                                     }
-                
+
                                     if ($tableFlag) {
                                         $transaction->commit();
                                     }
@@ -2317,7 +2280,7 @@ class SiteController extends BaseController
                                 $facet_type = $parts[0];
                                 $opts = $parts[1] ?? null;
 
-                                if (!isset($facets[$facet_type])) {
+                                if (! isset($facets[$facet_type])) {
                                     $facets[$facet_type] = [];
                                 }
 
@@ -2327,8 +2290,8 @@ class SiteController extends BaseController
                             }
 
                             $firstFacet = true;
-                            foreach ($facets as $facet_type => $opts) {
 
+                            foreach ($facets as $facet_type => $opts) {
                                 $newFacet = new Facets();
                                 $newFacet->selected = true;
                                 $newFacet->type = $facet_type;
@@ -2353,7 +2316,7 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
-                                
+
                                 // Store margins on the first ElementFacets record only
                                 if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
                                     $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
@@ -2362,10 +2325,10 @@ class SiteController extends BaseController
                                     $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
                                     $firstFacet = false;
                                 }
-                                
+
                                 $elementFacets->save();
                             }
-                        } else if ($elementFacetsFormModel->load($this->request->post())) {
+                        } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
                             $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
@@ -2383,14 +2346,14 @@ class SiteController extends BaseController
                 if ($validationPassed && $elementModel->save()) {
                     return $this->redirect(['update-template', 'id' => $elementModel->template_id,
                                             'profile_template_category_id' => $profile_template_category_id]);
-                } else if (!$validationPassed) {
+                } elseif (! $validationPassed) {
                     // Delete the element if validation failed
                     $elementModel->delete();
                 }
             }
         } else {
             $elementModel->loadDefaultValues();
-            // load the default values from table schema, instead of default null initialization 
+            // load the default values from table schema, instead of default null initialization
             $elementContributionsModel->loadDefaultValues();
             $elementBulletedListModel->loadDefaultValues();
         }
@@ -2406,9 +2369,9 @@ class SiteController extends BaseController
             'elementDividersFormModel' => $elementDividersFormModel,
             'elementContributionsModel' => $elementContributionsModel,
             'elementDropdownModel' => $elementDropdownModel,
-            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
+            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions()] : $elementDropdownOptionsModels,
             'elementTableModel' => $elementTableModel,
-            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
+            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders()] : $elementTableHeadersModels,
             'elementBulletedListModel' => $elementBulletedListModel,
             'elementNarrativesModel' => $elementNarrativesModel,
             'elementFacetsForMargins' => $elementFacetsForMargins,
@@ -2427,12 +2390,11 @@ class SiteController extends BaseController
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdateElement($id, $template_id, $profile_template_category_id)
-    {
-        $section = "profiles";
+    public function actionUpdateElement($id, $template_id, $profile_template_category_id) {
+        $section = 'profiles';
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
         $elementModel = $this->findElementModel($id, $template_id);
@@ -2451,15 +2413,16 @@ class SiteController extends BaseController
         $elementNarrativesFormModel = new ElementNarrativesForm();
         $elementDividersFormModel = new ElementDividersForm();
         $elementFacetsFormModel = new ElementFacetsForm();
-        
+
         // For margins: use first ElementFacets record if exists
         $elementFacetsForMargins = ($elementFacetsModel && count($elementFacetsModel) > 0) ? $elementFacetsModel[0] : new ElementFacets();
-        
+
         // For indicators margins: use first ElementIndicators record that has margins, if exists
         $elementIndicatorsForMargins = new ElementIndicators();
+
         if ($elementIndicatorsModel && count($elementIndicatorsModel) > 0) {
             foreach ($elementIndicatorsModel as $ei) {
-                if (!empty($ei->margin_top) || !empty($ei->margin_right) || !empty($ei->margin_bottom) || !empty($ei->margin_left)) {
+                if (! empty($ei->margin_top) || ! empty($ei->margin_right) || ! empty($ei->margin_bottom) || ! empty($ei->margin_left)) {
                     $elementIndicatorsForMargins = $ei;
                     break;
                 }
@@ -2470,6 +2433,7 @@ class SiteController extends BaseController
         $indicatorOrder = [];
 
         $existing_facets = [];
+
         if ($elementFacetsModel) {
             foreach ($elementFacetsModel as $element_facet) {
                 $existing_facets[] = [
@@ -2484,6 +2448,7 @@ class SiteController extends BaseController
         }
 
         $existing_indicators = [];
+
         if ($elementIndicatorsModel) {
             foreach ($elementIndicatorsModel as $element_indicator) {
                 $existing_indicators[] = [
@@ -2499,7 +2464,6 @@ class SiteController extends BaseController
 
         if ($this->request->isPost) {
             if ($elementModel->load($this->request->post()) && $elementModel->save()) {
-
                 $validationPassed = true;
 
                 switch ($elementModel->type) {
@@ -2508,13 +2472,15 @@ class SiteController extends BaseController
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
+
                             if (is_string($semanticsOrder)) {
                                 $semanticsOrder = json_decode($semanticsOrder, true);
                             }
                             $semanticsOrder = is_array($semanticsOrder) ? array_map('strtolower', $semanticsOrder) : [];
                             $semanticsOrderIndex = array_flip($semanticsOrder);
-    
+
                             $indicatorOrder = $elementIndicatorsFormModel->indicatorOrder;
+
                             if (is_string($indicatorOrder)) {
                                 $indicatorOrder = json_decode($indicatorOrder, true);
                             }
@@ -2525,8 +2491,10 @@ class SiteController extends BaseController
                             $elementIndicatorsForMargins->load($this->request->post());
 
                             ElementIndicators::deleteAll(['element_id' => $id]);
-                            if (!empty($selectedIndicators)) {
+
+                            if (! empty($selectedIndicators)) {
                                 $firstIndicator = true;
+
                                 foreach ($selectedIndicators as $indicatorId => $status) {
                                     $elementIndicators = new ElementIndicators();
                                     $elementIndicators->element_id = $id;
@@ -2537,7 +2505,7 @@ class SiteController extends BaseController
                                     $elementIndicators->semantics_order = isset($semanticsOrderIndex[$semantics]) ? $semanticsOrderIndex[$semantics] + 1 : null;
                                     $elementIndicators->indicator_order = isset($indicatorOrderIndex[$indicatorId]) ? $indicatorOrderIndex[$indicatorId] + 1 : null;
                                     $elementIndicators->linked_contribution_element_id = $elementIndicatorsFormModel->linked_contribution_element_id ?? null;
-                                    
+
                                     // Store margins on the first ElementIndicators record only
                                     if ($firstIndicator) {
                                         $elementIndicators->margin_top = $elementIndicatorsForMargins->margin_top;
@@ -2546,11 +2514,11 @@ class SiteController extends BaseController
                                         $elementIndicators->margin_left = $elementIndicatorsForMargins->margin_left;
                                         $firstIndicator = false;
                                     }
-                                    
+
                                     $elementIndicators->save();
                                 }
                             }
-                        } else if ($elementIndicatorsFormModel->load($this->request->post())) {
+                        } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
                             $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
@@ -2588,27 +2556,26 @@ class SiteController extends BaseController
                     case 'Contributions List':
                         if ($elementContributionsModel->load($this->request->post())) {
                             // Only clear selected papers when switching between Top-K and Researcher selection modes
-                            $oldUserDefined = (int)$elementContributionsModel->getOldAttribute('user_defined');
+                            $oldUserDefined = (int) $elementContributionsModel->getOldAttribute('user_defined');
                             $oldTopK = $elementContributionsModel->getOldAttribute('top_k');
-                            $newUserDefined = (int)$elementContributionsModel->user_defined;
+                            $newUserDefined = (int) $elementContributionsModel->user_defined;
                             $newTopK = $elementContributionsModel->top_k;
-                            
+
                             // Determine if we're switching modes:
                             // - user_defined changed (researcher selection toggled on/off)
                             // - top_k changed from null to value or vice versa (top-k mode toggled)
                             $userDefinedChanged = ($oldUserDefined !== $newUserDefined);
                             $topKModeChanged = (($oldTopK === null) !== ($newTopK === null));
-                            
+
                             if ($userDefinedChanged || $topKModeChanged) {
                                 \app\models\Scholar::saveSelectedPapersForList($id, []);
                             }
-                            
+
                             $elementContributionsModel->save();
                         }
                         break;
                     case 'Dropdown':
                         if ($elementDropdownModel->load($this->request->post())) {
-
                             $oldIDs = ArrayHelper::map($elementDropdownOptionsModels, 'id', 'id');
                             $elementDropdownOptionsModels = SpacesAnnotations::createMultipleModels(ElementDropdownOptions::classname(), $elementDropdownOptionsModels);
                             Model::loadMultiple($elementDropdownOptionsModels, Yii::$app->request->post());
@@ -2619,25 +2586,25 @@ class SiteController extends BaseController
                             $valid2 = Model::validateMultiple($elementDropdownOptionsModels);
 
                             if ($valid1 && $valid2) {
-
                                 $transaction = \Yii::$app->db->beginTransaction();
-                
+
                                 try {
                                     if ($dropdownFlag = $elementDropdownModel->save(false)) {
-
-                                        if (isset($deletedIDs) && !empty($deletedIDs)) {
+                                        if (isset($deletedIDs) && ! empty($deletedIDs)) {
                                             ElementDropdownOptions::deleteAll(['id' => $deletedIDs]);
                                         }
+
                                         foreach ($elementDropdownOptionsModels as $elementDropdownOptionsModel) {
                                             // give id, after elementDropdownModel is updated
                                             $elementDropdownOptionsModel->element_dropdown_id = $elementDropdownModel->id;
+
                                             if (! ($dropdownFlag = $elementDropdownOptionsModel->save(false))) {
                                                 $transaction->rollBack();
                                                 break;
                                             }
                                         }
                                     }
-                
+
                                     if ($dropdownFlag) {
                                         $transaction->commit();
                                     }
@@ -2650,7 +2617,6 @@ class SiteController extends BaseController
                         break;
                     case 'Table':
                         if ($elementTableModel->load($this->request->post())) {
-
                             $oldIDs = ArrayHelper::map($elementTableHeadersModels, 'id', 'id');
                             $elementTableHeadersModels = SpacesAnnotations::createMultipleModels(ElementTableHeaders::classname(), $elementTableHeadersModels);
                             Model::loadMultiple($elementTableHeadersModels, Yii::$app->request->post());
@@ -2661,25 +2627,25 @@ class SiteController extends BaseController
                             $valid2 = Model::validateMultiple($elementTableHeadersModels);
 
                             if ($valid1 && $valid2) {
-
                                 $transaction = \Yii::$app->db->beginTransaction();
-                
+
                                 try {
                                     if ($tableFlag = $elementTableModel->save(false)) {
-
-                                        if (isset($deletedIDs) && !empty($deletedIDs)) {
+                                        if (isset($deletedIDs) && ! empty($deletedIDs)) {
                                             ElementTableHeaders::deleteAll(['id' => $deletedIDs]);
                                         }
+
                                         foreach ($elementTableHeadersModels as $elementTableHeadersModel) {
                                             // give id, after elementTableModel is updated
                                             $elementTableHeadersModel->element_table_id = $elementTableModel->id;
+
                                             if (! ($tableFlag = $elementTableHeadersModel->save(false))) {
                                                 $transaction->rollBack();
                                                 break;
                                             }
                                         }
                                     }
-                
+
                                     if ($tableFlag) {
                                         $transaction->commit();
                                     }
@@ -2709,7 +2675,7 @@ class SiteController extends BaseController
                                 $facet_type = $parts[0];
                                 $opts = $parts[1] ?? null;
 
-                                if (!isset($facets[$facet_type])) {
+                                if (! isset($facets[$facet_type])) {
                                     $facets[$facet_type] = [];
                                 }
 
@@ -2719,8 +2685,8 @@ class SiteController extends BaseController
                             }
 
                             $firstFacet = true;
-                            foreach ($facets as $facet_type => $opts) {
 
+                            foreach ($facets as $facet_type => $opts) {
                                 $newFacet = new Facets();
                                 $newFacet->selected = true;
                                 $newFacet->type = $facet_type;
@@ -2745,7 +2711,7 @@ class SiteController extends BaseController
                                 $elementFacets->element_id = $elementModel->id;
                                 $elementFacets->facet_id = $newFacet->id;
                                 $elementFacets->linked_contribution_element_id = $elementFacetsFormModel->linked_contribution_element_id ?? null;
-                                
+
                                 // Store margins on the first ElementFacets record only
                                 if ($firstFacet && $elementFacetsForMargins->load($this->request->post())) {
                                     $elementFacets->margin_top = $elementFacetsForMargins->margin_top;
@@ -2754,10 +2720,10 @@ class SiteController extends BaseController
                                     $elementFacets->margin_left = $elementFacetsForMargins->margin_left;
                                     $firstFacet = false;
                                 }
-                                
+
                                 $elementFacets->save();
                             }
-                       } else if ($elementFacetsFormModel->load($this->request->post())) {
+                        } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
                             $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
@@ -2768,7 +2734,7 @@ class SiteController extends BaseController
                             $elementBulletedListModel->save();
                         }
                         break;
-                }  
+                }
             }
 
             // Only redirect if validation passed
@@ -2791,9 +2757,9 @@ class SiteController extends BaseController
             'elementDividersModel' => $elementDividersModel,
             'elementContributionsModel' => $elementContributionsModel,
             'elementDropdownModel' => $elementDropdownModel,
-            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions] : $elementDropdownOptionsModels,
+            'elementDropdownOptionsModels' => (empty($elementDropdownOptionsModels)) ? [new ElementDropdownOptions()] : $elementDropdownOptionsModels,
             'elementTableModel' => $elementTableModel,
-            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders] : $elementTableHeadersModels,
+            'elementTableHeadersModels' => (empty($elementTableHeadersModels)) ? [new ElementTableHeaders()] : $elementTableHeadersModels,
             'elementFacetsFormModel' => $elementFacetsFormModel,
             'elementBulletedListModel' => $elementBulletedListModel,
             'elementFacetsForMargins' => $elementFacetsForMargins,
@@ -2814,31 +2780,27 @@ class SiteController extends BaseController
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDeleteElement($id, $template_id, $profile_template_category_id)
-    {
+    public function actionDeleteElement($id, $template_id, $profile_template_category_id) {
         $elementModel = $this->findElementModel($id, $template_id);
 
-        if (!AdminStats::hasAdminAccess())  {
-            throw new \yii\web\NotFoundHttpException("Page not Found");
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
         }
 
-        if ($elementModel->type == "Facets") {
+        if ($elementModel->type == 'Facets') {
             $elementFacetsModel = $elementModel->elementFacets;
 
             foreach ($elementFacetsModel as $element_facet) {
                 $facet = $element_facet->facet;
                 $facet->delete();
             }
-        }
-        elseif ($elementModel->type == "Section Divider") {
+        } elseif ($elementModel->type == 'Section Divider') {
             $elementDividersModel = $elementModel->elementDividers;
             $elementDividersModel->delete();
-        }
-        elseif ($elementModel->type == "Contributions List") {                    
+        } elseif ($elementModel->type == 'Contributions List') {
             $elementContributionsModel = $elementModel->elementContributions;
             $elementContributionsModel->delete();
-        }
-        elseif ($elementModel->type == "Bulleted List") {                    
+        } elseif ($elementModel->type == 'Bulleted List') {
             $elementBulletedListModel = $elementModel->elementBulletedList;
             $elementBulletedListModel->delete();
         }
@@ -2849,31 +2811,14 @@ class SiteController extends BaseController
         return $this->redirect(['update-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
     }
 
-    /**
-     * Finds the Elements model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @param int $template_id Template ID
-     * @return Elements the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findElementModel($id, $template_id)
-    {
-        if (($model = Elements::findOne(['id' => $id, 'template_id' => $template_id])) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    public function actionUpdateOrder()
-    {
+    public function actionUpdateOrder() {
         if (Yii::$app->request->isAjax) {
             $order = Yii::$app->request->post('order');
 
             // Update order values in the database
             foreach ($order as $index => $id) {
                 $model = Elements::findOne($id);
+
                 if ($model) {
                     $model->order = $index + 1; // +1 because order starts from 1
                     $model->save(false); // Skip validation for simplicity
@@ -2887,40 +2832,22 @@ class SiteController extends BaseController
         return json_encode(['success' => false]);
     }
 
-    /**
-     * Finds the ElementIndicators model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $indicator_id Indicator ID
-     * @param int $element_id Element ID
-     * @return ElementIndicators the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findElementIndicatorsModel($indicator_id, $element_id)
-    {
-        if (($model = ElementIndicators::findOne(['indicator_id' => $indicator_id, 'element_id' => $element_id])) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
     public function actionOrcidLogin() {
         $redirect_uri = Url::to(['site/orcid-callback'], true);
         $authUrl = Orcid::getAuthorizationUrl($redirect_uri);
+
         return $this->redirect($authUrl);
     }
 
     public function actionOrcidCallback() {
-
         $redirect_uri = Url::to(['site/orcid-callback'], true);
         $orcid_data = Orcid::authorize(Yii::$app->request->get('code'), $redirect_uri);
 
         if ($orcid_data) {
- 
             $auth_id = $orcid_data->orcid;
             $auth_provider = 'ORCID';
 
-            $researcher = Researcher::findOne([ 'orcid' => $auth_id ]);
+            $researcher = Researcher::findOne(['orcid' => $auth_id]);
 
             $user = null;
             // if a researcher is found with the ORCID, log them in
@@ -2929,12 +2856,11 @@ class SiteController extends BaseController
 
             // else check if a user is registered (through orcid) with the same ORCID
             } else {
-                $user = User::findOne([ 'auth_id' => $auth_id ]);
+                $user = User::findOne(['auth_id' => $auth_id]);
             }
-            
-            // no user is found, redirect to register user with orcid            
-            if (!$user) {
-                
+
+            // no user is found, redirect to register user with orcid
+            if (! $user) {
                 Yii::$app->session->set('auth_provider', 'ORCID');
                 Yii::$app->session->set('auth_id', $auth_id);
 
@@ -2947,11 +2873,11 @@ class SiteController extends BaseController
         }
 
         Yii::$app->session->setFlash('error', 'ORCID authentication failed.');
+
         return $this->redirect(['site/login']);
     }
-    
-    public function actionFeedback()
-    {
+
+    public function actionFeedback() {
         if (Yii::$app->user->isGuest) {
             throw new NotFoundHttpException('You must be logged in to submit feedback.');
         }
@@ -2969,25 +2895,25 @@ class SiteController extends BaseController
                 ->send();
 
             Yii::$app->session->setFlash('success', 'Your feedback has been submitted.');
+
             return $this->refresh();
         }
 
         return $this->render('feedback', ['model' => $model]);
     }
 
-    public function actionSummarize()
-    {
+    public function actionSummarize() {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         try {
             if (Yii::$app->user->isGuest) {
-                throw new \Exception("You must be logged in to use summarization.");
+                throw new \Exception('You must be logged in to use summarization.');
             }
 
             $userId = Yii::$app->user->id;
             $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
 
-            if (!SummaryUsage::logAndCheckQuota($userId)) {
+            if (! SummaryUsage::logAndCheckQuota($userId)) {
                 throw new \Exception("You have reached your daily quota of {$threshold} summarizations.");
             }
 
@@ -2996,7 +2922,7 @@ class SiteController extends BaseController
             $keywords = Yii::$app->request->post('keywords');
 
             if (empty($paperIds)) {
-                throw new \Exception("No papers provided");
+                throw new \Exception('No papers provided');
             }
 
             $papers = (new \yii\db\Query())
@@ -3010,12 +2936,12 @@ class SiteController extends BaseController
                 ->all();
 
             if (empty($papers)) {
-                throw new \Exception("No papers found");
+                throw new \Exception('No papers found');
             }
 
             $client = Yii::$app->httpClient;
             $response = $client->createRequest()
-                ->setMethod('POST') 
+                ->setMethod('POST')
                 ->setUrl(Yii::$app->params['summarizeService'] . '/summarize/')
                 ->addHeaders(['Content-Type' => 'application/json'])
                 ->setContent(Json::encode([
@@ -3023,7 +2949,7 @@ class SiteController extends BaseController
                     'topic_name' => $keywords,
                 ]))
                 ->send();
-            
+
             if ($response->isOk) {
                 $summary = $response->data['summary'] ?? 'No summary available';
                 $plainSummary = $summary;
@@ -3037,31 +2963,30 @@ class SiteController extends BaseController
                     $url = Url::to(['site/details', 'id' => $paper['doi']], true);
                     $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
                     $summary = str_replace($id, $link, $summary);
-                    $plainSummary = str_replace("$id", "[$index]", $plainSummary);
+                    $plainSummary = str_replace("${id}", "[${index}]", $plainSummary);
                     // Build references line
                     $title = $paper['title'] ?? 'Untitled';
                     $journal = $paper['journal'] ?? 'Unknown Journal';
                     $year = $paper['year'] ?? 'n.d.';
                     $doi = $paper['doi'] ?? '';
                     $doiUrl = $doi ? "https://doi.org/{$doi}" : '';
-                    $referenceLines[] = "[$index] $title. $journal, $year. $doiUrl";
+                    $referenceLines[] = "[${index}] ${title}. ${journal}, ${year}. ${doiUrl}";
                 }
 
-                if (!empty($referenceLines)) {
+                if (! empty($referenceLines)) {
                     $plainSummary .= "\n\nReferences:\n" . implode("\n", $referenceLines);
                 }
 
                 $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
                 $summary = nl2br($summary);
+
                 return [
                     'html' => $summary,
                     'plain' => $plainSummary,
                 ];
-
-            } else {
-                 throw new \Exception("Failed to summarize results.");
             }
 
+            throw new \Exception('Failed to summarize results.');
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
@@ -3079,25 +3004,142 @@ class SiteController extends BaseController
         }
 
         $userId = Yii::$app->user->id;
+
         return \app\models\SummaryUsage::isQuotaReached($userId);
     }
 
     public function actionChangePassword() {
         // if not logged in, redirect to login page
         $user = Yii::$app->user->identity;
-        if (!$user) {
+
+        if (! $user) {
             return $this->redirect(['site/login']);
         }
 
         $model = new ChangePasswordForm();
-        
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->changePassword($user)) {
                 Yii::$app->session->setFlash('success', 'Password changed successfully.');
+
                 return $this->refresh();
             }
         }
 
         return $this->render('change_password', ['model' => $model]);
+    }
+
+    /**
+     * Finds the Indicators model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return Indicators the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findIndicatorModel($id) {
+        if (($indicatorModel = Indicators::findOne(['id' => $id])) !== null) {
+            return $indicatorModel;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Finds the ProfileTemplateCategories model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return ProfileTemplateCategories the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findTemplateCategoryModel($id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
+        }
+
+        if (($templateCategoryModel = ProfileTemplateCategories::findOne(['id' => $id])) !== null) {
+            return $templateCategoryModel;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Finds the Templates model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @param int $profile_template_category_id Profile Template Category ID
+     * @return Templates the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findTemplateModel($id, $profile_template_category_id) {
+        if (($templateModel = Templates::findOne(['id' => $id, 'profile_template_category_id' => $profile_template_category_id])) !== null) {
+            return $templateModel;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Finds the Elements model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @param int $template_id Template ID
+     * @return Elements the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findElementModel($id, $template_id) {
+        if (($model = Elements::findOne(['id' => $id, 'template_id' => $template_id])) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Finds the ElementIndicators model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $indicator_id Indicator ID
+     * @param int $element_id Element ID
+     * @return ElementIndicators the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findElementIndicatorsModel($indicator_id, $element_id) {
+        if (($model = ElementIndicators::findOne(['indicator_id' => $indicator_id, 'element_id' => $element_id])) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    private function prepareSearchModels() {
+        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
+
+        [ $search_params, $space_model ] = Spaces::getSearchParams($space_url_suffix);
+
+        //Initialise the form model
+        $search_model = new SearchForm(
+            $search_params['ordering'],
+            $search_params['keywords'],
+            $search_params['location'],
+            $search_params['relevance'],
+            $search_params['topics'],
+            $search_params['start_year'],
+            $search_params['end_year'],
+            $search_params['influence'],
+            $search_params['popularity'],
+            $search_params['impulse'],
+            $search_params['cc'],
+            $search_params['type'],
+            $search_params['is_oa'],
+            $search_params['pubmed_types'],
+            $search_params['provided_by'],
+            $search_params['enable_annotations_flag'],
+            $space_model
+        );
+
+        return [
+            $search_model,
+            $space_model,
+        ];
     }
 }

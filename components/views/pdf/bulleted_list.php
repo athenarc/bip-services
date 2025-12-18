@@ -1,7 +1,7 @@
-<?php 
-    use yii\helpers\Html; 
+<?php
+    use yii\helpers\Html;
 
-    $elem = $this->context; 
+    $elem = $this->context;
 
 ?>
 
@@ -10,7 +10,7 @@
         <h3>
             <span 
                 role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>"
-                data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"><?= $elem->title ?>
+                data-content="<div><span class='green-bip'></span><?= (! empty($elem->description)) ? Html::encode($elem->description) : 'No description provided for this element.' ?></div>"><?= $elem->title ?>
             </span>
         </h3>
 

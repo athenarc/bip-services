@@ -1,13 +1,12 @@
-<?php 
-    use yii\helpers\Html; 
-    use yii\helpers\Url;
-    use yii\web\View;
+<?php
     use app\components\common\CommonUtils;
+    use yii\helpers\Html;
+    use yii\web\View;
 
-    $elem = $this->context; 
-    $headingText = isset($elem->title) ? $elem->title : '';
-    $headingType = !empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];
-   
+    $elem = $this->context;
+    $headingText = $elem->title ?? '';
+    $headingType = ! empty($elem->heading_type) ? $elem->heading_type : Yii::$app->params['defaultElementHeadingType'];
+
     // Include the JavaScript file
     $this->registerJsFile('@web/js/utils.js', ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]); // needed for { debounce }
     $this->registerJsFile('@web/js/components/bulleted_list.js', ['depends' => [\yii\web\JqueryAsset::class], 'position' => View::POS_END]);
@@ -23,7 +22,7 @@
 
             <div style="text-align: justify; font-style: italic;">
                 <?= $elem->description ?>
-                <?php if (!empty($elem->elements_number) && $elem->edit_perm): ?>
+                <?php if (! empty($elem->elements_number) && $elem->edit_perm): ?>
                     <p class="text-warning">        
                         Note that a maximum of <?= $elem->elements_number ?> items is allowed in this list.
                     </p>
@@ -31,7 +30,7 @@
             </div>
         <?php else: ?>
             <<?= $headingType ?>>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (!empty($elem->description)) ? Html::encode($elem->description) : "No description provided for this element." ?></div>"> <?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
+                <span role="button" data-toggle="popover" data-placement="auto" title="<?= $elem->title ?>" data-content="<div><span class='green-bip'></span><?= (! empty($elem->description)) ? Html::encode($elem->description) : 'No description provided for this element.' ?></div>"> <?= $elem->title ?> <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small></span>
             </<?= $headingType ?>>
         <?php endif; ?>
 
@@ -70,8 +69,8 @@
                                     title="<?= Yii::$app->formatter->asDatetime($elem->last_updated, 'php:Y-m-d H:i:s') . ' ' . date_default_timezone_get() ?>"
                                 <?php endif; ?>
                             >
-                                <?php if (!empty($elem->items)): ?>
-                                    <?= !empty($elem->last_updated) ? CommonUtils::timeSinceUpdate($elem->last_updated) : 'No updates yet' ?>
+                                <?php if (! empty($elem->items)): ?>
+                                    <?= ! empty($elem->last_updated) ? CommonUtils::timeSinceUpdate($elem->last_updated) : 'No updates yet' ?>
                                 <?php endif; ?>
                             </span>
 

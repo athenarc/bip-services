@@ -14,10 +14,11 @@ use yii\web\View;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class AppAsset extends AssetBundle
-{
+class AppAsset extends AssetBundle {
     public $basePath = '@webroot';
+
     public $baseUrl = '@web';
+
     public $css = [
         'css/site.css',
         'css/radarChart.css',
@@ -32,15 +33,14 @@ class AppAsset extends AssetBundle
         'css/bootsnippCheck.css',
         'css/lineChart.css'
     ];
-    
-    public $js = [
-        ['js/radarChart.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"], //at the body begining
-        ['js/third-party/d3/d3.min.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
-        // ['js/progress-circle.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
-        ['js/like_unlike.js', "position" => View::POS_BEGIN, "charset"=>"utf-8"], //For like/unlike action on hearts
-        // ['js/warnMobile.js', "position" => View::POS_BEGIN, "charset"=>"utf-8"], 
-        ['js/popover.js', "position" => View::POS_END, "charset"=>"utf-8"],
 
+    public $js = [
+        ['js/radarChart.js', 'position' => View::POS_BEGIN, 'charset' => 'utf-8'], //at the body begining
+        ['js/third-party/d3/d3.min.js', 'position' => View::POS_BEGIN, 'charset' => 'utf-8'],
+        // ['js/progress-circle.js',"position"=>View::POS_BEGIN,"charset"=>"utf-8"],
+        ['js/like_unlike.js', 'position' => View::POS_BEGIN, 'charset' => 'utf-8'], //For like/unlike action on hearts
+        // ['js/warnMobile.js', "position" => View::POS_BEGIN, "charset"=>"utf-8"],
+        ['js/popover.js', 'position' => View::POS_END, 'charset' => 'utf-8'],
 
         //Xgraph function - MOVE these to the view that requires them
         //['js/jquery.scrollTo-1.4.3.1-min.js', 'position' => View::POS_BEGIN, 'charset'=>'utf-8'],

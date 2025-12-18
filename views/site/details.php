@@ -1,25 +1,23 @@
 <?php
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\web\View;
-use app\components\CustomBootstrapModal;
-use bigpaulie\social\share\Share;
-use asu\tagcloud\TagCloud;
-use app\components\BookmarkIcon;
-use app\components\ImpactIcons;
-use app\components\ConceptPopover;
 use app\components\AnnotationPopover;
-
+use app\components\BookmarkIcon;
+use app\components\ConceptPopover;
+use app\components\CustomBootstrapModal;
+use app\components\ImpactIcons;
+use bigpaulie\social\share\Share;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
 
 $this->title = 'BIP! Finder - ' . $article->title;
 
 // polar area chart with ChartJS
-$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/chartjs_polar_area.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/chartjs_polar_area.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->registerJsFile('@web/js/getPDFLink.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/getPDFLink.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/details.css');
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
@@ -30,13 +28,17 @@ $show_overall_chart = (count($article->chart_data) > 0);
 $topic_chart_data = array_slice($article->chart_data, 1);
 $show_topic_charts = (count($topic_chart_data) > 0);
 
-$active_radar_chart = "active";
-$active_readers_panel = (empty($active_radar_chart)) ? "active" : "";
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
     $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
     $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+}
+
+// Register annotation like/dislike JS if enabled for this space
+if ($space_model->enable_like_dislike_annotations) {
+    $this->registerJsFile('@web/js/likeDislikeAnnotations.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 }
 ?>
 
@@ -45,11 +47,11 @@ if ($in_space) {
         <div class='article-header'>
                 <div id="flex-parent">
                     <div id="floating-title">
-                        <?php if (!empty($article->year)) { ?>
+                        <?php if (! empty($article->year)) { ?>
                             <span class="article-header-year"><?= $article->year ?> &bull;</span>
                         <?php } ?>
                         <?= $article->title ?>
-                        <?php if(!empty($article['retracted'])): ?>
+                        <?php if (! empty($article['retracted'])): ?>
                             <i class="retraction-alert fa fa-exclamation-triangle"></i>
                             <span class="retraction-alert-msg">This article has been retracted</span>
                         <?php endif; ?>
@@ -60,11 +62,11 @@ if ($in_space) {
 
                             <?php
                                 // $liked == null -> user not logged in or paper not liked
-                                echo Html::dropDownList("res_" . $article->internal_id . "_reading-status", $article_reading_status, Yii::$app->params['reading_fields'], [
-                                    'class' => "reading-status reading-status-color",
+                                echo Html::dropDownList('res_' . $article->internal_id . '_reading-status', $article_reading_status, Yii::$app->params['reading_fields'], [
+                                    'class' => 'reading-status reading-status-color',
                                     'id' => 'detailsReading',
-                                    'style' =>  ['visibility' => $liked != null ? "visible" : "hidden"],
-                                    'data-color'=> $article_reading_status,
+                                    'style' => ['visibility' => $liked != null ? 'visible' : 'hidden'],
+                                    'data-color' => $article_reading_status,
                                 ]);
                             ?>
                         </div>
@@ -86,13 +88,13 @@ if ($in_space) {
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('authors') ?>:</b> <?= $article->authors ?>
         </div>
-        <?php if (!empty($article->language)) : ?>
+        <?php if (! empty($article->language)) : ?>
             <div class='article-info'>
                 <b><?= $article->getAttributeLabel('language') ?>:</b> <?= $article->language ?>
             </div>
         <?php endif; ?>
         <div class='article-info'>
-            <b><?= $article->getAttributeLabel('journal') ?>:</b> <?= empty(trim($article->journal)) ? "N/A" : $article->journal ?>
+            <b><?= $article->getAttributeLabel('journal') ?>:</b> <?= empty(trim($article->journal)) ? 'N/A' : $article->journal ?>
         </div>
         <div class='article-info'>
             <b><?= $article->getAttributeLabel('type') ?>:</b> <i class="fa-solid <?= Yii::$app->params['work_types'][$article->type]['icon_class'] ?>" aria-hidden="true" title = "<?= Yii::$app->params['work_types'][$article->type]['title'] ?>"></i> <?= Yii::$app->params['work_types'][$article->type]['name'] ?>
@@ -101,22 +103,31 @@ if ($in_space) {
             <b><?= $article->getAttributeLabel('abstract') ?>:</b> <?= $article->abstract ?>
         </div> 
 
-        <!--Impact-->
-        <?= ImpactIcons::widget([
-            'popularity_class'   => $article->pop_class,
-            'influence_class'    => $article->inf_class,
-            'impulse_class'      => $article->imp_class,
-            'cc_class'           => $article->cc_class,
-            'popularity_score'   => $article->attrank,
-            'influence_score'    => $article->pagerank,
-            'impulse_score'      => $article->{'3y_cc'},
-            'cc_score'           => $article->citation_count,
-            'impact_indicators'  => $indicators,
-            'num_likes' => $article->getNumLikes(),
-            'num_views' => $article->getGuestViews() + $article->getUserViews(),
-            'options' => ['showScoreLabel' => true],
-        ]) ?>
-        
+        <div class='article-info'>
+            <b>Impact:</b>
+            <?= ImpactIcons::widget([
+                'popularity_class' => $article->pop_class,
+                'influence_class' => $article->inf_class,
+                'impulse_class' => $article->imp_class,
+                'cc_class' => $article->cc_class,
+                'popularity_score' => $article->attrank,
+                'influence_score' => $article->pagerank,
+                'impulse_score' => $article->{'3y_cc'},
+                'cc_score' => $article->citation_count,
+                'impact_indicators' => $indicators,
+                'options' => ['show_score_label' => true],
+            ]) ?>
+
+            <span>
+                <b>&nbsp;/ Attention:</b>
+                <span title="Bookmarks">
+                    <i class="fa fa-bookmark"></i> <span><?= $article->getNumLikes() ?></span>
+                </span>
+                <span title="Views">
+                    <i class="fa fa-eye"></i> <span><?= $article->getGuestViews() + $article->getUserViews() ?></span>
+                </span>
+            </span>
+        </div>
 
         <div class='article-info tag-region'>
 
@@ -126,7 +137,7 @@ if ($in_space) {
                 <?php if (empty($article->concepts)): ?>
                     N/A
                 <?php else: ?>
-                    <?php foreach($article->concepts as $concept):?>
+                    <?php foreach ($article->concepts as $concept):?>
                         <span class="tag label">
                             <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                             
@@ -134,16 +145,14 @@ if ($in_space) {
                                     data-toggle="popover" 
                                     data-placement="auto" 
                                     title="<b><?= $concept['display_name'] ?></b>" 
-                                    data-content="<?= $data_content ?>"
-                                    style="display: inline-block; line-height: 0.5; position: relative; top: 0.5px;">
+                                    data-content="<?= $data_content ?>">
                                     <?= $concept['display_name'] ?>
                             </span>
                         
                             <span   class= "concept-confidence" 
-                                    title = "Confidence: <?= round($concept['concept_score'],2) ?>" >
+                                    title = "Confidence: <?= round($concept['concept_score'], 2) ?>" >
                                 <i  class="fa-concept-confidence fa-solid fa-circle" 
-                                    style = "background-image: linear-gradient(to right, var(--main-color) <?= 100*round($concept['concept_score'],2) ?>%, #ddd 0%);
-                                display: inline-block; position: relative; top: 6px;">
+                                    style = "background-image: linear-gradient(to right, var(--main-color) <?= 100 * round($concept['concept_score'], 2) ?>%, #ddd 0%);">
                                 </i>
                             </span>
                         </span>
@@ -153,7 +162,7 @@ if ($in_space) {
             </div>
         </div>
 
-        <?php if (!empty($article->annotations)): ?>
+        <?php if (! empty($article->annotations)): ?>
             <div class='article-info tag-region'>
 
                 <div class="bootstrap-tagsinput">
@@ -161,9 +170,19 @@ if ($in_space) {
 
                     <?php foreach ($article->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $space_model->annotation_db, 'space_url_suffix' => $space_model->url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query'] ]); ?>
+                            <?php $annotation_content = AnnotationPopover::widget([
+                                'data' => $annotation['data'],
+                                'space_annotation_db' => $space_model->annotation_db,
+                                'space_url_suffix' => $space_model->url_suffix,
+                                'space_annotation_id' => $annotation['annotation_id'],
+                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                                'paper_id' => $article->internal_id,
+                                'annotation_name' => $annotation['label'],
+                                'annotation_id' => $annotation['id'] ?? null,
+                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false
+                            ]); ?>
                             <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
-                            <?php if (!empty($annotation['annotation_color'])):?>
+                            <?php if (! empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
                             <?php endif; ?>
                         </span>
@@ -175,9 +194,9 @@ if ($in_space) {
 
         <div class='article-info'>
             <b><?= $article->getPidName() ?>:</b>
-            <?php if(empty($article->doi)){
-                    echo "N/A";
-                } else if (!empty($article->doi)) { ?>
+            <?php if (empty($article->doi)) {
+                                echo 'N/A';
+                            } elseif (! empty($article->doi)) { ?>
                     <?php if ($article->getPidName() === 'DOI') :?>
                         <a href="https://doi.org/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php elseif ($article->getPidName() === 'PubMed Id') :?>
@@ -191,12 +210,12 @@ if ($in_space) {
                     
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
                     <b>External links:</b>
-                    <?php if(!empty($article->doi) && $article->getPidName() === 'DOI'){ ?>
+                    <?php if (! empty($article->doi) && $article->getPidName() === 'DOI') { ?>
                         <a href="https://search.crossref.org/search/works?q=<?= $article->doi ?>&from_ui=yes" target='_blank' class="main-green">Crossref <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php } ?>
 
 
-                    <?php if (!empty($article->doi)) { ?>
+                    <?php if (! empty($article->doi)) { ?>
                         <a href="https://explore.openaire.eu/search/advanced/research-outcomes?f0=pid&fv0=<?= $article->doi?>" target='_blank' class="main-green">OpenAIRE <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php } ?>
 
@@ -205,12 +224,12 @@ if ($in_space) {
                                 <i class="fa fa-search"></i> Similar Articles
                         </a> -->
                     <!-- altmetric badge -->
-                    <?php if(!empty($article->doi)){ ?>
+                    <?php if (! empty($article->doi)) { ?>
                         <!-- <div data-badge-popover="right" data-badge-type="1" data-doi="<?= $article->doi?>" data-hide-no-mentions="true" class="altmetric-embed"></div> -->
                     <?php } ?>
                 </div>
             </div>
-            <?php if (!empty($article->relations)): ?>
+            <?php if (! empty($article->relations)): ?>
                 <div class='col-xs-12'>
                     <!-- relations -->
                     <div class='article-info tag-region'>
@@ -219,7 +238,7 @@ if ($in_space) {
 
                         <?php foreach ($article->relations as $relation) { ?>
                             <span class="tag label">
-                                <span role="button" href="<?= Url::to(['site/get-relations-data', 'target_dois' => $relation['target_dois'], 'source_internal_id'=> $article->internal_id]) ?>" data-toggle="modal" data-remote="false" modal-title="Related works" data-target="#relations-modal"><?= $relation['type'] ?> <span class="badge badge-primary" style ="top: -1px;padding: 1px 5px; position: relative;"><?= count($relation['target_dois'])?></span></span>
+                                <span role="button" href="<?= Url::to(['site/get-relations-data', 'target_dois' => $relation['target_dois'], 'source_internal_id' => $article->internal_id]) ?>" data-toggle="modal" data-remote="false" modal-title="Related works" data-target="#relations-modal"><?= $relation['type'] ?> <span class="badge badge-primary" style ="top: -1px;padding: 1px 5px; position: relative;"><?= count($relation['target_dois'])?></span></span>
                                 
                             </span>
                         <?php } ?>
@@ -231,16 +250,16 @@ if ($in_space) {
             <div class='col-xs-12'>
                 <div class='article-buttons'>
                     
-                    <?php if(!empty($article->dois_num) && $article->dois_num > 1): ?>
+                    <?php if (! empty($article->dois_num) && $article->dois_num > 1): ?>
                         <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $article->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="btn btn-sm btn-custom-color">
                             <i class="fas fa-clone"></i> Found <?= $article->dois_num ?> versions
                         </a>
                     <?php endif; ?>
 
-                    <!-- <a href="<?= Url::to(['site/get-references', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fas fa-up-right-and-down-left-from-center&quot; aria-hidden=&quot;true&quot;></i> References" data-remote="false" data-toggle="modal" data-target="#references-modal" class="btn btn-sm btn-custom-color <?= ($article->references_count == 0) ? "disabled" : "" ?>">
+                    <!-- <a href="<?= Url::to(['site/get-references', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fas fa-up-right-and-down-left-from-center&quot; aria-hidden=&quot;true&quot;></i> References" data-remote="false" data-toggle="modal" data-target="#references-modal" class="btn btn-sm btn-custom-color <?= ($article->references_count == 0) ? 'disabled' : '' ?>">
                             <i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i> References (<?= $article->references_count ?>)
                     </a>
-                    <a href="<?= Url::to(['site/get-citations', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fa-solid fa-down-left-and-up-right-to-center&quot; aria-hidden=&quot;true&quot;></i> Citations (<?= $article->citation_count ?>)" data-remote="false" data-toggle="modal" data-target="#citations-modal" class="btn btn-sm btn-custom-color  <?= ($article->citation_count == 0) ? "disabled" : "" ?>">
+                    <a href="<?= Url::to(['site/get-citations', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fa-solid fa-down-left-and-up-right-to-center&quot; aria-hidden=&quot;true&quot;></i> Citations (<?= $article->citation_count ?>)" data-remote="false" data-toggle="modal" data-target="#citations-modal" class="btn btn-sm btn-custom-color  <?= ($article->citation_count == 0) ? 'disabled' : '' ?>">
                                 <i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i> Citations (<?= $article->citation_count ?>)
                     </a> -->
                     <a href="<?= Url::to(['site/download-bibtex', 'doi' => $article->doi]) ?>" modal-title="<i class=&quot;fas fa-quote-right&quot; aria-hidden=&quot;true&quot;></i> BibTex" data-remote="false" data-toggle="modal" data-target="#bibtex-modal" class="btn btn-sm btn-custom-color <?= $article->getPidName() === 'DOI' ? '' : 'disabled' ?>">
@@ -250,7 +269,7 @@ if ($in_space) {
                         <i class="fa fa-download" aria-hidden="true"></i> PDF
                     </a>
                     
-                    <?php if (!empty($article->repo_url)): ?>
+                    <?php if (! empty($article->repo_url)): ?>
                         <a href="<?= Html::encode($article->repo_url) ?>" class="btn btn-sm btn-custom-color "target="_blank">
                             <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i> Code
                         </a>
@@ -307,7 +326,7 @@ if ($in_space) {
             <!-- 	tab header	 -->
             <ul class="nav nav-tabs nav-justified green-nav-tabs">
 
-                <li class="<?= $active_radar_chart ?>">
+                <li class="active">
                     <a data-toggle="tab" href="#radar_chart_panel">
                         <!-- Impact aspects and other metrics -->
                         Topic-specific impact indicators
@@ -318,11 +337,11 @@ if ($in_space) {
     </div>
 
     <div class="tab-content">
-        <div id="radar_chart_panel" class="tab-pane fade in <?= $active_radar_chart ?> details-container">
+        <div id="radar_chart_panel" class="tab-pane fade in active details-container">
             <div class="row">
-                <?php foreach($topic_chart_data as $key => $topic_data)  { ?>
+                <?php foreach ($topic_chart_data as $key => $topic_data) { ?>
 
-                    <div class="radar-container col-md-<?= 12/(count($article->chart_data) - 1)?>" style="position: relative;">
+                    <div class="radar-container col-md-<?= 12 / (count($article->chart_data) - 1)?>" style="position: relative;">
                         <canvas id="chart-<?= $key ?>"></canvas>
                     </div>
 

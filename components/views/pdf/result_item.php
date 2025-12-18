@@ -1,11 +1,9 @@
 <?php
 
+use app\components\ConceptPopover;
+use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-use app\components\ImpactIcons;
-use app\components\ConceptPopover;
-use app\components\AnnotationPopover;
 
 $item = $this->context;
 
@@ -15,11 +13,12 @@ $item = $this->context;
     <div class="panel-heading">
 
         <!-- title -->
-        <div id="res_<?= $item->internal_id ?>_t" class="<?= (!empty($item->retracted)) ? 'retraction-alert' : ''?>"
+        <div id="res_<?= $item->internal_id ?>_t" class="<?= (! empty($item->retracted)) ? 'retraction-alert' : ''?>"
 
             <?php if (strlen($item->title) > 90) { ?> title="<?= $item->title ?>" <?php } ?>>
             <?php
                 $params = ['id' => $item->doi];
+
                 if (isset($item) && isset($item->space_url_suffix)) {
                     $params['space_url_suffix'] = $item->space_url_suffix;
                 }
@@ -30,13 +29,13 @@ $item = $this->context;
                 $url,
                 ['class' => 'main-green', 'title' => 'Show details', 'target' => '_blank']
             ); ?>
-            <?php if(!empty($item->retracted)): ?>
+            <?php if (! empty($item->retracted)): ?>
                 <i class="retraction-alert fa fa-exclamation-triangle" title="This article has been retracted"></i>
             <?php endif; ?>
         </div>
 
         <div>
-            <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
+            <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
                     <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
                         Found <?= $item->dois_num ?> versions</a>
             <?php endif; ?>
@@ -73,15 +72,15 @@ $item = $this->context;
                 <?= empty($item->year) ? 'N/A' : $item->year ?>
             </span>
         </div>
-        <?php if (isset($item->show["concepts"]) && $item->show['concepts']): ?>
+        <?php if (isset($item->show['concepts']) && $item->show['concepts']): ?>
         <!-- concepts -->
             <div id="res_<?= $item->internal_id ?>_conc" class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                     <?php
-                    if (empty($item->concepts))
-                        echo "&nbspN/A";
-                    else {
+                    if (empty($item->concepts)) {
+                        echo '&nbspN/A';
+                    } else {
                         foreach ($item->concepts as $concept) { ?>
                             <span class="tag label">
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
@@ -92,7 +91,8 @@ $item = $this->context;
                                 <span class="concept-confidence-container">
                                     <span class="concept-confidence-fill" style="width: <?= $concept_score ?>%;"></span>
                                 </span>
-                                <span class= "concept-class"> | <?= ImpactIcons::widget([
+                                <span class="concept-divider"> | </span>
+                                <?= ImpactIcons::widget([
                                     'popularity_class' => $concept['pop_class'],
                                     'influence_class' => $concept['inf_class'],
                                     'impulse_class' => $concept['imp_class'],
@@ -102,16 +102,16 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                    ]);?></span>
+                                ]);?>
                             </span>
                         <?php }
                     } ?>
                 </div>
             </div>
         <?php endif; ?>
-        <?php if (isset($item->show["relations"]) && $item->show['relations']): ?>
+        <?php if (isset($item->show['relations']) && $item->show['relations']): ?>
             <!-- relations -->
-            <?php if (!empty($item->relations)): ?>
+            <?php if (! empty($item->relations)): ?>
                 <div id="res_<?= $item->internal_id ?>_rel" class="tag-region grey-text">
                     <i class="fa-solid fa-paperclip fa-fw" aria-hidden="true" title="Relations"></i>
 
@@ -124,17 +124,16 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if (isset($item->show["annotations"]) && $item->show['annotations']): ?>
+        <?php if (isset($item->show['annotations']) && $item->show['annotations']): ?>
         <!-- annotations -->
-            <?php if (!empty($item->annotations)): ?>
+            <?php if (! empty($item->annotations)): ?>
                 <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
                     <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 'data' => $annotation['data'], 'space_annotation_db' => $item->space_annotation_db, 'space_url_suffix' => $item->space_url_suffix, 'space_annotation_id' => $annotation['annotation_id'], 'has_reverse_annotation_query' => $annotation['has_reverse_query'] ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> </b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
-                            <?php if (!empty($annotation['annotation_color'])):?>
+                            <?= $annotation['label'] ?>
+                            <?php if (! empty($annotation['annotation_color'])):?>
                                 <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
                             <?php endif; ?>
                         </span>
@@ -146,14 +145,14 @@ $item = $this->context;
         <?php endif; ?>
 
         <!-- tags -->
-        <?php if (isset($item->show["tags"]) && $item->show['tags']): ?>
+        <?php if (isset($item->show['tags']) && $item->show['tags']): ?>
 
             <div class="tag-region grey-text">
                 <i class="fa fa-tags fa-fw" aria-hidden="true" title="User-provided tags"></i>
                 <?php
-                if (empty($item->tags))
-                    echo "-";
-                else {
+                if (empty($item->tags)) {
+                    echo '-';
+                } else {
                     foreach (explode(',', $item->tags) as $tag) { ?>
                         <span class="tag label"><?= $tag ?></span>
                     <?php }
@@ -179,9 +178,9 @@ $item = $this->context;
             <div class="rd_status-region grey-text">
                 <i class="fas fa-glasses fa-fw" aria-hidden="true" title="Reading status"></i>
                 <?php
-                    echo Html::dropDownList("res_" . $item->internal_id . "_reading-status", $item->reading_status, $item->reading_status_choices, [
-                        'class' => "reading-status reading-status-color",
-                        'data-color'=> $item->reading_status,
+                    echo Html::dropDownList('res_' . $item->internal_id . '_reading-status', $item->reading_status, $item->reading_status_choices, [
+                        'class' => 'reading-status reading-status-color',
+                        'data-color' => $item->reading_status,
                     ]);
                 ?>
             </div>
@@ -205,11 +204,11 @@ $item = $this->context;
                 </span>
             </div>
 
-            <?php if (isset($item->show["notes"]) && $item->show['notes'] && $item->edit_perm): ?>
+            <?php if (isset($item->show['notes']) && $item->show['notes'] && $item->edit_perm): ?>
                 <!-- notes -->
                 <div>
                     <?php
-                        echo Html::a( (!empty($item->notes)) ? '<i class="fa-solid fa-pen-to-square"></i> Add notes' : '<i class="fa-regular fa-pen-to-square"></i> Add notes', Url::to(['readings/load-notes', 'paper_id' => $item->internal_id]), ['class' => 'show-notes btn btn-default btn-xs fs-inherit grey-link', 'id' => 'notes-' . $item->internal_id, 'title' => 'Notes on the article', 'data-toggle' => "modal",  'data-target'=>"#text-editor-modal"]);
+                        echo Html::a((! empty($item->notes)) ? '<i class="fa-solid fa-pen-to-square"></i> Add notes' : '<i class="fa-regular fa-pen-to-square"></i> Add notes', Url::to(['readings/load-notes', 'paper_id' => $item->internal_id]), ['class' => 'show-notes btn btn-default btn-xs fs-inherit grey-link', 'id' => 'notes-' . $item->internal_id, 'title' => 'Notes on the article', 'data-toggle' => 'modal',  'data-target' => '#text-editor-modal']);
                     ?>
                 </div>
             <?php endif; ?>
@@ -221,7 +220,7 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
 
-            <?php if (isset($item->show["copy_link"]) && $item->show['copy_link']): ?>
+            <?php if (isset($item->show['copy_link']) && $item->show['copy_link']): ?>
                 <!-- copy_link -->
                 <div>
                     <!-- <a class="copy-link btn btn-default btn-xs fs-inherit grey-link" role = "button" target="_blank" href="<?=Url::to(['site/details', 'id' => $item->doi], true)?>" data-toggle="tooltip"> -->

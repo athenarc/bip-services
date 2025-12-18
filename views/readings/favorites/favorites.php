@@ -1,21 +1,19 @@
 <?php
 
-use yii\helpers\Url;
-use yii\widgets\LinkPager;
-use yii\web\View;
-use yii\bootstrap\Modal;
-use yii\bootstrap\Button;
-use app\components\ScholarSidebar;
 use app\components\BookmarkedPaper;
+use app\components\ScholarSidebar;
+use yii\bootstrap\Modal;
+use yii\helpers\Url;
+use yii\web\View;
 
 $this->title = 'BIP! Scholar - User bookmarks';
 $this->registerJsFile('@web/js/third-party/bootstrap-tagsinput/bootstrap-tagsinput.min.js', ['position' => View::POS_END]);
-$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/deleteFolder.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/favoriteTags.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/tinymceModal.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/favoriteTags.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/tinymceModal.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/favorites.css');
 $this->registerCssFile('@web/css/full-screen.css');
 ?>
@@ -51,7 +49,7 @@ $this->registerCssFile('@web/css/full-screen.css');
         <div class=folder-content-width >
 
             <!-- Starter page -->
-            <?php if (!isset($folder_id)) :  ?>
+            <?php if (! isset($folder_id)) :  ?>
 
                 <!-- no bookmarked papers -->
                 <?php if ($user_likes_num == 0) : ?>
@@ -75,10 +73,10 @@ $this->registerCssFile('@web/css/full-screen.css');
                         <span style="white-space:nowrap;">
                             (<span class = "folder-articles" id = "fa_<?= $folder_id ?>" >
                                 <?php
-                                $folder_articles = $folder_info["num_articles"];
-                                $folder_read = $folder_info["total_read"];
-                                echo $folder_articles.(($folder_articles != 1) ? " articles" : " article");
-                                echo empty($folder_articles) ? "" : ' - '.round(100*($folder_read/$folder_articles),0). '% read';
+                                $folder_articles = $folder_info['num_articles'];
+                                $folder_read = $folder_info['total_read'];
+                                echo $folder_articles . (($folder_articles != 1) ? ' articles' : ' article');
+                                echo empty($folder_articles) ? '' : ' - ' . round(100 * ($folder_read / $folder_articles), 0) . '% read';
                                 ?>
                             </span>)
                         </span>
@@ -100,38 +98,38 @@ $this->registerCssFile('@web/css/full-screen.css');
                     <?php } ?>
                 </div>
 
-                <?php if(empty($folder_contents)) : ?>
+                <?php if (empty($folder_contents)) : ?>
                     <p>No bookmarks in this folder</p>
 
                 <?php else: ?>
                     <table class="table table-hover" data-folderid = "<?= $folder_id?>">
                         <tbody>
-                            <?php foreach($folder_contents as $cur_contents) {
+                            <?php foreach ($folder_contents as $cur_contents) {
                                     echo BookmarkedPaper::widget([
-                                        "internal_id" => $cur_contents["internal_id"],
-                                        "bookmark_id" => $cur_contents["id"],
-                                        "doi" => $cur_contents["doi"],
-                                        "title" => $cur_contents["title"],
-                                        "authors" => $cur_contents["authors"],
-                                        "journal" => $cur_contents["journal"],
-                                        "year" => $cur_contents["year"],
-                                        "reading_status" => $cur_contents["reading_status"],
-                                        "tags" => $cur_contents["tags"],
-                                        "pop_class" => $cur_contents["pop_class"],
-                                        "inf_class" => $cur_contents["inf_class"],
-                                        "imp_class" => $cur_contents["imp_class"],
-                                        "show" => [
-                                            "tags" => true, 
-                                            "involvement" => false,
-                                            "reading_status" => true,
-                                            "notes" => true,
-                                            "move" => true,
-                                            "impact_icons" => true, 
-                                            "bookmark_icon" => true,
-                                            "citations" => false,
+                                        'internal_id' => $cur_contents['internal_id'],
+                                        'bookmark_id' => $cur_contents['id'],
+                                        'doi' => $cur_contents['doi'],
+                                        'title' => $cur_contents['title'],
+                                        'authors' => $cur_contents['authors'],
+                                        'journal' => $cur_contents['journal'],
+                                        'year' => $cur_contents['year'],
+                                        'reading_status' => $cur_contents['reading_status'],
+                                        'tags' => $cur_contents['tags'],
+                                        'pop_class' => $cur_contents['pop_class'],
+                                        'inf_class' => $cur_contents['inf_class'],
+                                        'imp_class' => $cur_contents['imp_class'],
+                                        'show' => [
+                                            'tags' => true,
+                                            'involvement' => false,
+                                            'reading_status' => true,
+                                            'notes' => true,
+                                            'move' => true,
+                                            'impact_icons' => true,
+                                            'bookmark_icon' => true,
+                                            'citations' => false,
                                         ]
                                     ]);
-                            } ?>
+                                } ?>
 
                         </tbody>
                     </table>
@@ -150,7 +148,7 @@ $this->registerCssFile('@web/css/full-screen.css');
 
     Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'confirm-delete-folder'],
                     'size' => '',
-                    'closeButton' => False,
+                    'closeButton' => false,
                     'footer' => $footer
                 ]);
     echo "Are you sure you want to delete
@@ -162,8 +160,8 @@ $this->registerCssFile('@web/css/full-screen.css');
 <?php
     Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'text-editor-modal'],
                     'size' => 'modal-lg',
-                    'closeButton' => False,
-                    'clientOptions' => ['backdrop' => 'static', 'keyboard' => FALSE]
+                    'closeButton' => false,
+                    'clientOptions' => ['backdrop' => 'static', 'keyboard' => false]
                 ]);
 
     echo '

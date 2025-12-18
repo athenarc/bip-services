@@ -1,6 +1,5 @@
-
 function getLabelForValue(i) {
-    const labels = ["", "", "Top 10%", "Top 1%", "Top 0.1%", "Top 0.01%"]
+    const labels = ['', '', 'Top 10%', 'Top 1%', 'Top 0.1%', 'Top 0.01%'];
     return labels[i];
 }
 
@@ -19,7 +18,7 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
                 data,
                 icons: [
                     // unicode of fontawesome icons
-                    '\uf06d',  '\uf19c', '\uf10d', '\uf135',
+                    '\uf06d', '\uf19c', '\uf10d', '\uf135',
                 ],
                 backgroundColor: [
                     transparentChartColor,
@@ -32,8 +31,8 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
                 'Popularity',
                 'Influence',
                 'Citation Count',
-                'Impulse'
-            ]
+                'Impulse',
+            ],
         },
         options: {
             responsive: true,
@@ -45,17 +44,17 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
                 title: {
                     display: (title),
                     text: title,
-                    color: chartColor
+                    color: chartColor,
                 },
                 legend: {
-                    display: false
+                    display: false,
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            return "  In " + tooltips[context.dataIndex];
-                        }
-                    }
+                        label: function (context) {
+                            return `  In ${ tooltips[context.dataIndex]}`;
+                        },
+                    },
                 },
                 datalabels: {
                     formatter: (value, context) => context.dataset.icons[context.dataIndex],
@@ -63,10 +62,10 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
                         family: 'FontAwesome',
                         size: 16,
                     },
-                    anchor: "start",
-                    align: "end",
-                    textAlign: "center",
-                    offset: 20,  // Gets updated in onResize based on size of chart
+                    anchor: 'start',
+                    align: 'end',
+                    textAlign: 'center',
+                    offset: 20, // Gets updated in onResize based on size of chart
                 },
             },
             scales: {
@@ -74,10 +73,10 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
                     min: 0,
                     max: 5,
                     ticks: {
-                        callback: function(value, index, ticks) {
+                        callback: function (value, index, ticks) {
                             return getLabelForValue(value);
                         },
-                        stepSize: 1
+                        stepSize: 1,
                     },
                 },
 
@@ -85,20 +84,19 @@ function render_polar_area_chart(container_id, title, data, tooltips, color) {
             elements: {
                 arc: {
                     borderColor: chartColor,
-                    borderWidth : 1.5,
+                    borderWidth: 1.5,
                 },
 
             },
 
             animation: {
                 // updates the chart one time, needed to fix the shape of the icons
-                onProgress: function({ chart, initial}) {
+                onProgress: function ({ chart, initial }) {
                     if (initial) {
                         chart.update('none');
                     }
-
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
