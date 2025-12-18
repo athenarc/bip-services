@@ -22,7 +22,7 @@ $(document).ready(() => {
     $summaryCount.attr({
         min: 1,
         max: Math.min(20, maxAvailable),
-    }).val(Math.min(6, maxAvailable));
+    }).val(Math.min(5, maxAvailable));
 
     checkQuotaOnLoad();
 
