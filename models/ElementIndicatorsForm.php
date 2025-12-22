@@ -18,17 +18,14 @@ class ElementIndicatorsForm extends Model {
             ['selectedIndicators', 'safe'],
             ['semanticsOrder', 'string'],
             ['indicatorOrder', 'string'],
+            ['linked_contribution_element_id', 'required', 
+                'message' => 'Please select a Contributions List to link.',
+                'whenClient' => "function (attribute, value) {
+                    return $('#elements-type').val() === 'Indicators';
+                }"
+            ],
             ['linked_contribution_element_id', 'integer']
         ];
     }
 
-    public function validateRequired() {
-        if (empty($this->linked_contribution_element_id)) {
-            $this->addError('linked_contribution_element_id', 'Please select a Contributions List to link.');
-
-            return false;
-        }
-
-        return true;
-    }
 }

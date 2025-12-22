@@ -2105,7 +2105,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
 
                             if (is_string($semanticsOrder)) {
@@ -2155,7 +2155,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2270,7 +2269,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $facets = [];
@@ -2330,7 +2329,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2468,7 +2466,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
@@ -2520,7 +2518,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2657,7 +2654,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $elementFacetsModel = $elementModel->elementFacets;
@@ -2725,7 +2722,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
