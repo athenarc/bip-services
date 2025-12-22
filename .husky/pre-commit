@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run lint-staged to auto-fix files (but don't block commits on errors)
+npx lint-staged || true
+

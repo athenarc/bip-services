@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "{{%element_dropdown_options}}".
  *
@@ -14,21 +12,12 @@ use Yii;
  * @property ElementDropdown $elementDropdown
  * @property ElementDropdownInstances[] $elementDropdownInstances
  */
-class ElementDropdownOptions extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementDropdownOptions extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return '{{%element_dropdown_options}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             // the element_dropdown_id is assigned from ElementDropdown model, so no need for validation
             // [['element_dropdown_id'], 'integer'],
@@ -36,15 +25,10 @@ class ElementDropdownOptions extends \yii\db\ActiveRecord
             // [['element_dropdown_id'], 'exist', 'skipOnError' => true, 'targetClass' => ElementDropdown::class, 'targetAttribute' => ['element_dropdown_id' => 'id']],
             // [['option_name'], 'required'],
             [['option_name'], 'string', 'max' => 255],
-
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'element_dropdown_id' => 'Element Dropdown ID',
@@ -57,8 +41,7 @@ class ElementDropdownOptions extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementDropdown()
-    {
+    public function getElementDropdown() {
         return $this->hasOne(ElementDropdown::class, ['id' => 'element_dropdown_id']);
     }
 
@@ -67,8 +50,7 @@ class ElementDropdownOptions extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementDropdownInstances()
-    {
+    public function getElementDropdownInstances() {
         return $this->hasMany(ElementDropdownInstances::class, ['option_id' => 'id']);
     }
 }

@@ -1,6 +1,6 @@
 function toggleProfileVisibility(isPublic, callback) {
-    var csrfToken = $('meta[name="csrf-token"]').attr("content");
-    var newVisibility = isPublic ? 1 : 0;
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    const newVisibility = isPublic ? 1 : 0;
 
     if (newVisibility) {
         if (!confirm('You are about to make your BIP! Scholar profile public. This means that your profile information (research works, roles, tags, indicators, narratives) will be publicly available to anyone through BIP! Scholar’s UI and API. You can switch to a private profile anytime you want. Please confirm that you understood this and that you give your consent.')) {
@@ -17,23 +17,23 @@ function toggleProfileVisibility(isPublic, callback) {
         type: 'POST',
         data: {
             'is_public': newVisibility,
-            _csrf: csrfToken
+            _csrf: csrfToken,
         },
-        success: function() {
+        success: function () {
             if (callback) {
                 callback();
             }
         },
-        error: function() {
-            alert("There was an error processing your request!");
-        }
+        error: function () {
+            alert('There was an error processing your request!');
+        },
     });
 }
 
 function updateLockIcon(isPublic) {
-    var newClass = isPublic ? 'fa-lock-open' : 'fa-lock';
-    var colorClass = isPublic ? 'light-grey-link' : 'text-warning';
-    var newTitle = isPublic ? 'This profile is publicly visible (Switch to Private Profile).' : 'This profile is only visible to you (Switch to Public Profile).';
+    const newClass = isPublic ? 'fa-lock-open' : 'fa-lock';
+    const colorClass = isPublic ? 'light-grey-link' : 'text-warning';
+    const newTitle = isPublic ? 'This profile is publicly visible (Switch to Private Profile).' : 'This profile is only visible to you (Switch to Public Profile).';
 
     $('#profile-visibility-toggle')
         .removeClass('fa-lock fa-lock-open light-grey-link text-warning')
@@ -41,20 +41,20 @@ function updateLockIcon(isPublic) {
         .addClass(colorClass)
         .attr('title', newTitle);
 
-    $("#profile-visibility-text").text(isPublic ? "Public" : "Private");
+    $('#profile-visibility-text').text(isPublic ? 'Public' : 'Private');
 
     $('.cv-narrative-settings-toggle').toggle();
 }
 
-$(document).ready(function() {
-    $('#settings-public-switch').click(function(event) {
-        var isPublic = event.target.checked;
+$(document).ready(() => {
+    $('#settings-public-switch').click(event => {
+        const isPublic = event.target.checked;
         toggleProfileVisibility(isPublic);
     });
 
-    $('#profile-visibility-toggle').click(function() {
-        var isPublic = $(this).hasClass('fa-lock');
-        toggleProfileVisibility(isPublic, function() {
+    $('#profile-visibility-toggle').click(function () {
+        const isPublic = $(this).hasClass('fa-lock');
+        toggleProfileVisibility(isPublic, () => {
             updateLockIcon(isPublic);
         });
     });

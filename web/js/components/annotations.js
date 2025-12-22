@@ -16,12 +16,10 @@ if (typeof switchAnnotationTab === 'undefined') {
         var allContents = container.querySelectorAll('.annotation-content');
         allContents.forEach(function(contentEl) {
             contentEl.classList.remove('show');
-            // After animation completes, hide it completely
-            setTimeout(function() {
-                if (!contentEl.classList.contains('show')) {
-                    contentEl.style.display = 'none';
-                }
-            }, 400); // Match max-height transition duration
+
+            if (!contentEl.classList.contains('show')) {
+                contentEl.style.display = 'none';
+            }
         });
         
         // Remove active class from all tabs - CSS will handle the default state

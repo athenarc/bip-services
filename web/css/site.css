@@ -690,6 +690,9 @@ input[type="checkbox"].checkbox_filter:checked+label {
 .popover-content {
     text-align: justify;
     word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+
 }
 
 #results_tbl {
@@ -800,95 +803,26 @@ body {
     color: var(--main-color)
 }
 
-.impact-icons-wrapper {
-    margin: 6px 0 6px 6px;
+.space-nowrap {
+    white-space:nowrap;
+}
+
+.version-impact-icons-wrapper {
     display: flex;
-    gap: 8px;
     flex-wrap: wrap;
-    align-items: center;
-}
-
-.impact-section {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.impact-header {
-    font-weight: bold;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
-    color: #808080;
-}
-
-.impact-icons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.impact-score {
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
-    color: #808080;
-}
-
-.attention-section {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.attention-header {
-    font-weight: bold;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
-    color: #808080;
-}
-
-.attention-icon {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    color: #808080;
-}
-
-.citation-impact-icons {
-    
-    position: relative;
-    top: -3px;   
-    left: -4px;  
-    display: flex;
     justify-content: flex-end;
-    gap: 12px; 
+    align-items: center;
+    gap: 12px;
 }
 
 .version-link {
     font-size: 75%;
 }
 
-.tag.label .impact-icon i::before {
-    color: rgb(201, 201, 201) !important;
+.version-link-wrapper {
+  margin-bottom: 3px;
 }
 
-.citation-scores {
-    margin: 3px 0 4px 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.citation-impact-label {
-    font-weight: bold;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
-    color: #808080;
-    margin-right: 8px;
-}
-
-.tag.label > span[role="button"] {
-    line-height: 1;
-}
 
 .team-member-role {
     font-style: italic;
@@ -1165,4 +1099,10 @@ body {
     text-align: left;
     color: grey; 
     margin-top: 15px;
+}
+
+.help-inline-block {
+    display: inline-block;
+    margin-left: 5px;
+    color: #737373;
 }

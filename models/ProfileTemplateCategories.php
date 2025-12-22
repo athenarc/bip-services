@@ -2,33 +2,20 @@
 
 namespace app\models;
 
-use yii\helpers\ArrayHelper;
-
-use Yii;
-
 /**
  * This is the model class for table "profile_template_categories".
  *
  * @property int $id
  * @property string $name
  * @property string|null $description
- * @property boolean $hide
+ * @property bool $hide
  */
-class ProfileTemplateCategories extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ProfileTemplateCategories extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'profile_template_categories';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['name'], 'required'],
             [['description'], 'string'],
@@ -37,11 +24,7 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'name' => 'Name',
@@ -54,13 +37,10 @@ class ProfileTemplateCategories extends \yii\db\ActiveRecord
         return $this->hasMany(Templates::class, ['profile_template_category_id' => 'id']);
     }
 
-
     public function getTemplateDropdownData() {
-        
-        return ProfileTemplateCategories::find([ 'id', 'name', 'visible' ])
+        return self::find(['id', 'name', 'visible'])
             ->with(['templates' => function ($query) {
                 $query->andWhere(['visible' => true]);
             }])->all();
-            
     }
 }

@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -18,21 +17,12 @@ use yii\db\ActiveRecord;
  *
  * @property ElementDropdownOptions $option
  */
-class ElementDropdownInstances extends ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class ElementDropdownInstances extends ActiveRecord {
+    public static function tableName() {
         return '{{%element_dropdown_instances}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['user_id', 'template_id', 'element_id', 'option_id'], 'required'],
             [['user_id', 'template_id', 'element_id', 'option_id'], 'integer'],
@@ -41,11 +31,7 @@ class ElementDropdownInstances extends ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
@@ -56,8 +42,7 @@ class ElementDropdownInstances extends ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
+    public function behaviors() {
         return [
             'timestamp' => [
                 'class' => TimestampBehavior::class,
@@ -75,8 +60,7 @@ class ElementDropdownInstances extends ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getOption()
-    {
+    public function getOption() {
         return $this->hasOne(ElementDropdownOptions::class, ['id' => 'option_id']);
     }
 }

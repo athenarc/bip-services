@@ -1,0 +1,234 @@
+<?php
+
+$params = [
+    'graph_db_systems' => [
+        'neo4j' => 'Neo4j',
+        'avantgraph' => 'Avantgraph'
+    ],
+    'impact_fields' => [
+        'popularity' => 'attrank',
+        'influence' => 'pagerank',
+        'impulse' => '3y_cc',
+        'citation_count' => 'citation_count',
+        'year' => 'year',
+    ],
+    'impact_classes' => [
+        'A' => ['name' => 'top 0.01%'],
+        'B' => ['name' => 'top 0.1%'],
+        'C' => ['name' => 'top 1%'],
+        'D' => ['name' => 'top 10%'],
+        'E' => ['name' => 'bottom 90%', 'impact_icon_name' => 'Average'],
+    ],
+    'impact_classes_mapping' => [
+        'C1' => 'A',
+        'C2' => 'B',
+        'C3' => 'C',
+        'C4' => 'D',
+        'C5' => 'E',
+    ],
+    'impact_classes_to_chart_scores' => [
+        'A' => 5,
+        'B' => 4,
+        'C' => 3,
+        'D' => 2,
+        'E' => 1,
+    ],
+    'reading_fields' => [
+        '0' => 'Undefined', //default value always with key : '0'
+        '3' => 'To Read',
+        '1' => 'Reading',
+        '2' => 'Read',
+    ],
+    'involvement_fields' => [
+        '0' => 'Conceptualization',
+        '1' => 'Data curation',
+        '2' => 'Formal Analysis',
+        '3' => 'Funding acquisition',
+        '4' => 'Investigation',
+        '5' => 'Methodology',
+        '6' => 'Project administration',
+        '7' => 'Resources',
+        '8' => 'Software',
+        '9' => 'Supervision',
+        '10' => 'Validation',
+        '11' => 'Visualization',
+        '12' => 'Writing - original draft',
+        '13' => 'Writing - review and editing',
+    ],
+    'pubmed_types_fields' => [
+        '1' => 'Adaptive Clinical Trial',
+        '2' => 'Address',
+        '3' => 'Autobiography',
+        '4' => 'Bibliography',
+        '5' => 'Biography',
+        '6' => 'Case Reports',
+        '7' => 'Classical Article',
+        '8' => 'Clinical Conference',
+        '9' => 'Clinical Study',
+        '10' => 'Clinical Trial',
+        '11' => 'Clinical Trial, Phase I',
+        '12' => 'Clinical Trial, Phase II',
+        '13' => 'Clinical Trial, Phase III',
+        '14' => 'Clinical Trial, Phase IV',
+        '15' => 'Clinical Trial Protocol',
+        '16' => 'Clinical Trial, Veterinary',
+        '17' => 'Collected Work',
+        '18' => 'Comment',
+        '19' => 'Comparative Study',
+        '20' => 'Congress',
+        '21' => 'Consensus Development Conference',
+        '22' => 'Consensus Development Conference, NIH',
+        '23' => 'Controlled Clinical Trial',
+        '24' => 'Corrected and Republished Article',
+        '25' => 'Dataset',
+        '26' => 'Dictionary',
+        '27' => 'Directory',
+        '28' => 'Duplicate Publication',
+        '29' => 'Editorial',
+        '30' => 'Electronic Supplementary Materials',
+        '31' => 'English Abstract',
+        '32' => 'Equivalence Trial',
+        '33' => 'Evaluation Study',
+        '34' => 'Expression of Concern',
+        '35' => 'Festschrift',
+        '36' => 'Government Publication',
+        '37' => 'Guideline',
+        '38' => 'Historical Article',
+        '39' => 'Interactive Tutorial',
+        '40' => 'Interview',
+        '41' => 'Introductory Journal Article',
+        '42' => 'Journal Article',
+        '43' => 'Lecture',
+        '44' => 'Legal Case',
+        '45' => 'Legislation',
+        '46' => 'Letter',
+        '47' => 'Meta-Analysis',
+        '48' => 'Multicenter Study',
+        '49' => 'Network Meta-Analysis',
+        '50' => 'News',
+        '51' => 'Newspaper Article',
+        '52' => 'Observational Study',
+        '53' => 'Observational Study, Veterinary',
+        '54' => 'Overall',
+        '55' => 'Patient Education Handout',
+        '56' => 'Periodical Index',
+        '57' => 'Personal Narrative',
+        '58' => 'Portrait',
+        '59' => 'Practice Guideline',
+        '60' => 'Pragmatic Clinical Trial',
+        '61' => 'Preprint',
+        '62' => 'Published Erratum',
+        '63' => 'Randomized Controlled Trial',
+        '64' => 'Randomized Controlled Trial, Veterinary',
+        '65' => 'Research Support, American Recovery and Reinvestment Act',
+        '66' => 'Research Support, N.I.H., Extramural',
+        '67' => 'Research Support, N.I.H., Intramural',
+        '68' => 'Research Support, Non-U.S. Gov\'t',
+        '69' => 'Research Support, U.S. Gov\'t, Non-P.H.S.',
+        '70' => 'Research Support, U.S. Gov\'t, P.H.S.',
+        '71' => 'Retracted Publication',
+        '72' => 'Retraction Notice',
+        '73' => 'Review',
+        '74' => 'Scientific Integrity Review',
+        '75' => 'Scoping Review',
+        '76' => 'Systematic Review',
+        '77' => 'Technical Report',
+        '78' => 'Twin Study',
+        '79' => 'Validation Study',
+        '80' => 'Video-Audio Media',
+        '81' => 'Webcast',
+    ],
+    'openness' => [
+        '1' => [
+            'name' => 'Open Access',
+            'icon_class' => 'fa-lock-open',
+            'badge_class' => 'badge-success'
+        ],
+        '0' => [
+            'name' => 'Restricted/Closed access',
+            'icon_class' => 'fa-lock',
+            'badge_class' => 'badge-warning'
+        ],
+        '' =>  [
+            'name' => 'Unknown Access',
+            'icon_class' => 'fa-question',
+            'badge_class' => 'badge-light'
+        ]
+    ],
+    'work_types' => [
+        '0' => [
+            'name' => 'Publication',
+            'icon_class' => 'fa-newspaper',
+            'title' => 'Publication Resource',
+        ],
+        '1' => [
+            'name' => 'Dataset',
+            'icon_class' => 'fa-database',
+            'title' => 'Dataset resource',
+        ],
+        '2' => [
+            'name' => 'Software',
+            'icon_class' => 'fa-code',
+            'title' => 'Software resource',
+        ],
+        '3' => [
+            'name' => 'Other',
+            'icon_class' => 'fa-question',
+            'title' => 'Other Research Product',
+        ],
+    ],
+    // Data Sources
+    'data_sources' => [
+        'mag' => [
+            'url' => '',
+            'version' => 'Dec-2021',
+        ],
+        'crossref' => [
+            'url' => '',
+            'version' => 'Dec-2022',
+        ],
+        'opencitations' => [
+            'url' => '',
+            'version' => 'Dec-2022',
+        ],
+    ],
+    'services' => [
+        ['label' => 'Finder', 'url' => [ 'site/index' ], 'description' => 'Explore scientific literature by exploiting impact-based ranking'],
+        ['label' => 'Readings', 'url' => [ 'readings/index' ], 'description' => 'Manage your personal reading lists'],
+        ['label' => 'Scholar', 'url' => [ 'scholar/index' ], 'description' => 'Create and share your scholar profile'],
+        ['label' => 'Spaces', 'url' => [ 'spaces/index' ], 'description' => 'Get access to a customized version of BIP! Finder'],
+    ],
+    'openaireGraphVersion' => 'v6.0.0',
+    'defaultTemplateUrlName' => 'Inclusive_Profile',
+    'defaultElementHeadingType' => 'h3',
+    'spaceSolrNames' => [
+        'neuroscience-pilot' => [
+            [ 'value' => 'neuroscience-pilot', 'label' => 'OpenAIRE Graph (Neuroscience Pilot)'],
+            [ 'value' => 'neuroscience-pilot_ebrains', 'label' => 'EBRAINS'],
+        ],
+        'transport-ccam-pilot' => [
+            [ 'value' => 'transport-ccam-pilot', 'label' => 'OpenAIRE Graph (Transport CCAM Pilot)'],
+        ],
+        'transport-maritime-pilot' => [
+            [ 'value' => 'transport-maritime-pilot', 'label' => 'OpenAIRE Graph (Transport Maritime Pilot)'],
+        ],
+        'cancer-pilot' => [
+            [ 'value' => 'cancer-pilot', 'label' => 'OpenAIRE Graph (Cancer Pilot)'],
+        ],
+        'energy-pilot' => [
+            [ 'value' => 'energy-pilot', 'label' => 'OpenAIRE Graph (Energy Pilot)'],
+        ],
+        'flowcytogen-labs' => [
+           [ 'value' => 'cancer-pilot', 'label' => 'Clinical Knowledge Graph'],
+        ]
+    ],
+];
+
+// Merge with local configuration if it exists
+$localParamsFile = __DIR__ . '/params-local.php';
+if (file_exists($localParamsFile)) {
+    $localParams = require($localParamsFile);
+    $params = array_merge($params, $localParams);
+}
+
+return $params;

@@ -4,8 +4,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
-/** @var yii\web\View $this */
-/** @var int $threshold */
+/* @var yii\web\View $this */
+/* @var int $threshold */
 
 $this->title = 'Options';
 ?>

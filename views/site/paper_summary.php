@@ -1,9 +1,9 @@
 <?php
-/* 
+/*
  * Display paper title, year, and outlink
  */
 use yii\helpers\Url;
-use yii\helpers\Html;
+
 ?>
 
 <p>
@@ -33,7 +33,7 @@ use yii\helpers\Html;
 <p>
     <span class='details-header'>BIP! details: </span>
     <span class='details-inlink'>
-        <a href='<?= Url::to(['site/details', 'id'=> $article->pmc]) ?>' target='_blank' class="text-success">
+        <a href='<?= Url::to(['site/details', 'id' => $article->pmc]) ?>' target='_blank' class="text-success">
             <i class="fa fa-info-circle text-success" aria-hidden="true"></i>
         </a>
     </span>

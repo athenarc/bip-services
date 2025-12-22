@@ -20,21 +20,12 @@ use yii\helpers\ArrayHelper;
  *
  * @property Spaces $spaces
  */
-class SpacesAnnotations extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class SpacesAnnotations extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'spaces_annotations';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             // [['spaces_id'], 'required'],
             // [['spaces_id'], 'integer'],
@@ -46,15 +37,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
 
             [['reverse_query', 'reverse_query_count', 'reverse_query_info'], 'validateReverseFields'],
-
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'spaces_id' => 'Spaces ID',
@@ -68,12 +54,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
         ];
     }
 
-
     /**
      * Custom validation function to check that if one reverse_query field is filled, all are required.
      */
-    public function validateReverseFields($attribute, $params, $validator)
-    {
+    public function validateReverseFields($attribute, $params, $validator) {
         // If any one of these fields is filled, ensure that all are filled
         $filledFields = array_filter([
             $this->reverse_query,
@@ -91,26 +75,23 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSpaces()
-    {
+    public function getSpaces() {
         return $this->hasOne(Spaces::class, ['id' => 'spaces_id']);
     }
 
-
-        /**
+    /**
      * Creates and populates a set of models.
-     * https://github.com/wbraganca/yii2-dynamicform?tab=readme-ov-file#model-class
+     * https://github.com/wbraganca/yii2-dynamicform?tab=readme-ov-file#model-class.
      *
      * @param string $modelClass
      * @param array $multipleModels
      * @return array
      */
-    public static function createMultipleModels($modelClass, $multipleModels = [])
-    {
-        $model    = new $modelClass;
+    public static function createMultipleModels($modelClass, $multipleModels = []) {
+        $model = new $modelClass();
         $formName = $model->formName();
-        $post     = Yii::$app->request->post($formName);
-        $models   = [];
+        $post = Yii::$app->request->post($formName);
+        $models = [];
 
         if (! empty($multipleModels)) {
             $keys = array_keys(ArrayHelper::map($multipleModels, 'id', 'id'));
@@ -119,10 +100,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord
 
         if ($post && is_array($post)) {
             foreach ($post as $i => $item) {
-                if (isset($item['id']) && !empty($item['id']) && isset($multipleModels[$item['id']])) {
+                if (isset($item['id']) && ! empty($item['id']) && isset($multipleModels[$item['id']])) {
                     $models[] = $multipleModels[$item['id']];
                 } else {
-                    $models[] = new $modelClass;
+                    $models[] = new $modelClass();
                 }
             }
         }

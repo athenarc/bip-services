@@ -2,23 +2,12 @@
 
 namespace app\models;
 
-use Yii;
-
-class CvNarrative extends \yii\db\ActiveRecord
-{
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
+class CvNarrative extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'cv_narratives';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['title', 'user_id', 'description', 'papers'], 'required'],
             [['user_id'], 'integer'],
@@ -27,19 +16,13 @@ class CvNarrative extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
-            'id'  => 'CV Narrative ID',
+            'id' => 'CV Narrative ID',
             'title' => 'Title',
             'description' => 'Description',
             'user_id' => 'Owner',
             'papers' => 'Paper',
         ];
     }
-
-
 }

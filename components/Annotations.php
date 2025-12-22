@@ -22,6 +22,7 @@ class Annotations extends Widget
     public $internal_id;
     public $space_annotation_db;
     public $space_url_suffix;
+    public $enable_like_dislike_annotations;
 
     /*
      * Widget initialisation a.k.a. setting widget properties
@@ -78,6 +79,7 @@ class Annotations extends Widget
             'internal_id' => $this->internal_id,
             'space_annotation_db' => $this->space_annotation_db,
             'space_url_suffix' => $this->space_url_suffix,
+            'enable_like_dislike_annotations' => $this->enable_like_dislike_annotations ?? false,
         ]);
     }
 }

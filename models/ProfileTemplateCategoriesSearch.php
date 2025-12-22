@@ -4,42 +4,31 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\ProfileTemplateCategories;
 
 /**
  * ProfileTemplateCategoriesSearch represents the model behind the search form of `app\models\ProfileTemplateCategories`.
  */
-class ProfileTemplateCategoriesSearch extends ProfileTemplateCategories
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+class ProfileTemplateCategoriesSearch extends ProfileTemplateCategories {
+    public function rules() {
         return [
             [['id'], 'integer'],
             [['name', 'description', 'visible'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
-    {
+    public function scenarios() {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * Creates data provider instance with search query applied.
      *
      * @param array $params
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
-    {
+    public function search($params) {
         $query = ProfileTemplateCategories::find();
 
         // add conditions that should always apply here
@@ -50,7 +39,7 @@ class ProfileTemplateCategoriesSearch extends ProfileTemplateCategories
 
         $this->load($params);
 
-        if (!$this->validate()) {
+        if (! $this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
             return $dataProvider;

@@ -3,11 +3,8 @@
 namespace app\models;
 
 use Yii;
-use yii\helpers\Url;
 
-class Spaces extends \yii\db\ActiveRecord
-{
-
+class Spaces extends \yii\db\ActiveRecord {
     public $logo_upload;
 
     // use the default logo
@@ -16,28 +13,19 @@ class Spaces extends \yii\db\ActiveRecord
     // space name as indexed in solr
     public $solr_name;
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'spaces';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['url_suffix', 'display_name', 'ordering', 'relevance', 'popularity', 'influence', 'cc', 'impulse'], 'required'],
             [['url_suffix', 'display_name', 'ordering', 'relevance', 'popularity', 'influence', 'cc', 'impulse', 'topics'], 'string'],
             ['url_suffix', 'unique', 'message' => 'This url name already exists.'],
 
-            ['ordering', 'in', 'range' => ["popularity", "influence", "citation_count", "impulse", "year"]],
-            ['relevance', 'in', 'range' => ["high", "low"]],
-            [['popularity', 'influence', 'cc', 'impulse'], 'in', 'range' => ["all", "top001", "top01", "top1", "top10"]],
-
+            ['ordering', 'in', 'range' => ['popularity', 'influence', 'citation_count', 'impulse', 'year']],
+            ['relevance', 'in', 'range' => ['high', 'low']],
+            [['popularity', 'influence', 'cc', 'impulse'], 'in', 'range' => ['all', 'top001', 'top01', 'top1', 'top10']],
 
             [['start_year'], 'integer', 'min' => 1400, 'max' => date('Y') + 1],
             [['end_year'], 'integer', 'min' => 1400, 'max' => date('Y') + 1],
@@ -48,8 +36,10 @@ class Spaces extends \yii\db\ActiveRecord
             ['is_oa', 'default', 'value' => null],
             ['pubmed_types', 'default', 'value' => null],
             [['has_pubmed_types'], 'boolean'],
+            [['has_annotations_flag'], 'boolean'],
+            [['enable_annotations_flag'], 'boolean'],
 
-            ['logo_upload', 'image', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 1024*1024, 'wrongExtension' => 'Allowed extensions {extensions}'],
+            ['logo_upload', 'image', 'extensions' => 'png, jpg, jpeg', 'maxSize' => 1024 * 1024, 'wrongExtension' => 'Allowed extensions {extensions}'],
 
             ['logo_default', 'boolean'],
 
@@ -58,19 +48,21 @@ class Spaces extends \yii\db\ActiveRecord
 
             ['graph_db_system', 'string'],
             ['graph_db_system', 'default', 'value' => null],
-            
+
             [['annotation_db', 'graph_db_system'], 'safe'],
-            [['annotation_db', 'graph_db_system'], 'validateBothOrNone', 'skipOnEmpty' => false],   
+            [['annotation_db', 'graph_db_system'], 'validateBothOrNone', 'skipOnEmpty' => false],
 
             [['theme_color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['theme_color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
 
+            // Like/Dislike records feature
+            ['enable_like_dislike_records', 'boolean'],
+            // Confirm/Report annotations feature
+            ['enable_like_dislike_annotations', 'boolean'],
         ];
     }
 
-
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'url_suffix' => 'URL suffix',
@@ -85,75 +77,78 @@ class Spaces extends \yii\db\ActiveRecord
             'impulse' => 'Impulse',
             'topics' => 'Topics',
             'type' => 'Type',
-            'has_pubmed_types' => 'Enable Pubmed Types',
+            'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
+            'has_annotations_flag' => 'Show annotations flag',
+            'enable_annotations_flag' => 'Enable annotations flag',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
             'annotation_db' => 'Annotation Database',
-            'graph_db_system' => 'Graph Database System'
+            'graph_db_system' => 'Graph Database System',
+            'enable_like_dislike_records' => 'Enable Like/Dislike Records Feature',
+            'enable_like_dislike_annotations' => 'Enable Confirm/Report Annotations Feature',
         ];
     }
 
-    public function setLogoDefault(){
-
-        if(isset($this->logo)){
+    public function setLogoDefault() {
+        if (isset($this->logo)) {
             $this->logo_default = 0;
         } else {
             $this->logo_default = 1;
         }
-
     }
 
-    public function getTypeAsArray()
-    {
+    public function convertToArray($attribute) {
+        $this->$attribute = $this->$attribute !== null ? explode(',', $this->$attribute) : [];
+    }
+
+    public function getTypeAsArray() {
         // Convert type to an array
-        $this->type = $this->type !== null ? explode(',', $this->type) : [];
+        $this->convertToArray('type');
     }
 
-    public function getIsOaAsArray()
-    {
-        // Convert type to an array
-        $this->is_oa = $this->is_oa !== null ? explode(',', $this->is_oa) : [];
+    public function getIsOaAsArray() {
+        // Convert is_oa to an array
+        $this->convertToArray('is_oa');
     }
 
-    public function beforeValidate()
-    {
-        if (!parent::beforeValidate()) {
+    public function getPubmedTypesAsArray() {
+        // Convert pubmed_types to an array
+        $this->convertToArray('pubmed_types');
+    }
+
+    public function beforeValidate() {
+        if (! parent::beforeValidate()) {
             return false;
         }
 
-        // if a checkbox for type is selected
-        if ($this->type !== '' ) {
-            // transform the array of types (from request) to string
-            $this->type = implode(",", $this->type);
+        // if a checkbox for type, is_oa, pubmed_types is selected
+        foreach (['type', 'is_oa'] as $attr) {
+            if ($this->$attr !== '') {
+                // transform the array (from request) to string
+                $this->$attr = implode(',', $this->$attr);
+            }
         }
 
-        // if a checkbox for is_oa is selected
-        if ($this->is_oa !== '' ) {
-            // transform the array of is_oa (from request) to string
-            $this->is_oa = implode(",", $this->is_oa);
-        }
         return true;
     }
 
-    public static function fetchSpaces($id)
-    {
-
-        if (!empty($id)) {
+    public static function fetchSpaces($id) {
+        if (! empty($id)) {
             // Fetch the space model
-            $model = Spaces::findOne($id);
+            $model = self::findOne($id);
 
-            if (!$model) {
+            if (! $model) {
                 throw new \yii\web\NotFoundHttpException('The requested space does not exist.');
             }
             $model->setLogoDefault();
             $model->getTypeAsArray();
             $model->getIsOaAsArray();
-
+            $model->getPubmedTypesAsArray();
         } else {
             // Create a new space model
-            $model = new Spaces();
+            $model = new self();
             // preset only the not null default values
             $model->loadDefaultValues();
         }
@@ -161,19 +156,16 @@ class Spaces extends \yii\db\ActiveRecord
         return $model;
     }
 
-    public static function fetchSpacesBySuffix($url_suffix)
-    {
-
-        if (isset($url_suffix) && $url_suffix !== "") {
-            $space_model = Spaces::find()->where(['url_suffix' => $url_suffix])->one();
-
+    public static function fetchSpacesBySuffix($url_suffix) {
+        if (isset($url_suffix) && $url_suffix !== '') {
+            $space_model = self::find()->where(['url_suffix' => $url_suffix])->one();
 
             // if specified space model not found
-            if (!$space_model)  {
-                throw new \yii\web\NotFoundHttpException("Space Not Found");
+            if (! $space_model) {
+                throw new \yii\web\NotFoundHttpException('Space Not Found');
             }
         } else {
-            $space_model = New Spaces();
+            $space_model = new self();
             // preset all the default values (null included)
             $space_model->loadDefaultNullValues();
         }
@@ -181,13 +173,9 @@ class Spaces extends \yii\db\ActiveRecord
         return $space_model;
     }
 
-
-    public function uploadLogo()
-    {
-
+    public function uploadLogo() {
         // set the default logo
         if ($this->logo_default) {
-
             // previous logo exists
             if (isset($this->logo)) {
                 // remove previous logo
@@ -199,12 +187,10 @@ class Spaces extends \yii\db\ActiveRecord
 
             return true;
 
-
         // set new logo (a file is uploaded)
         // A logo image may already exists or not, and a new one is uploaded
         // save the new logo
-        } else if ($this->logo_upload) {
-
+        } elseif ($this->logo_upload) {
             // previous logo exists
             if (isset($this->logo)) {
                 // remove previous logo
@@ -214,6 +200,7 @@ class Spaces extends \yii\db\ActiveRecord
             // upload new logo and save its name in the db
             $file_name = Yii::$app->security->generateRandomString(8) . $this->logo_upload->baseName . '.' . $this->logo_upload->extension;
             $full_file_path = $this->uploadLogoPath(true) . $file_name;
+
             if ($this->logo_upload->saveAs($full_file_path)) {
                 $this->logo = $file_name;
 
@@ -227,25 +214,18 @@ class Spaces extends \yii\db\ActiveRecord
         // A logo image already exists, and no newer one is uploaded
         // keep the existing logo
         return true;
-
-
     }
 
-
     public function uploadLogoPath($full_path_type = null) {
-
         //  full @web path
         if ($full_path_type) {
             return Yii::getAlias('@webroot/img/spaces/');
         }
         // relative @web path
         return Yii::getAlias('@web/img/spaces/');
-
     }
 
-    public static function fetchGetRequestArray($space_model, $post_request_array)
-    {
-
+    public static function fetchGetRequestArray($space_model, $post_request_array) {
         // the array that will be used for the GET redirection
         $get_request_array = [];
 
@@ -254,16 +234,17 @@ class Spaces extends \yii\db\ActiveRecord
         foreach ($space_model->toArray() as $key => $value) {
             if (array_key_exists($key, $post_request_array)) {
                 // special handling for topics
-                if ($key === 'topics' or $key === 'type' or $key === 'is_oa') {
+                if ($key === 'topics' or $key === 'type' or $key === 'is_oa' or $key == 'pubmed_types') {
                     // sort arrays before comparison
                     $post_array = $post_request_array[$key];
                     sort($post_array);
                     sort($value);
-                    if( $post_array !== $value){
-                        if ($post_request_array[$key] === []){
+
+                    if ($post_array !== $value) {
+                        if ($post_request_array[$key] === []) {
                             // an empty array [] doesn't appear in the GET request, so we use [""] instead,
                             // we then remove it with array_filter(), after the request has been made
-                            $get_request_array[$key] = [""];
+                            $get_request_array[$key] = [''];
                         } else {
                             $get_request_array[$key] = $post_request_array[$key];
                         }
@@ -277,11 +258,11 @@ class Spaces extends \yii\db\ActiveRecord
         return $get_request_array;
     }
 
-    public function loadDefaultNullValues()
-    {
+    public function loadDefaultNullValues() {
         // same to the yii2 method loadDefaultValues,
         // but it also loads null default values
         $columns = static::getTableSchema()->columns;
+
         foreach ($this->attributes() as $name) {
             if (isset($columns[$name])) {
                 $defaultValue = $columns[$name]->defaultValue;
@@ -292,19 +273,17 @@ class Spaces extends \yii\db\ActiveRecord
         return $this;
     }
 
-
     public function prepareForRequest() {
-
         $this->solr_name = Yii::$app->params['spaceSolrNames'][$this->url_suffix] ?? null;
 
         // Convert topics to an array
         // split the string into an array using ',' as the delimiter and trim each element to remove leading and trailing spaces
         $this->topics = $this->topics !== null ? array_filter(array_map('trim', explode(',', $this->topics))) : [];
 
-        // Convert type to an array
+        // Convert type, is_oa, pubmed_types to an array
         $this->getTypeAsArray();
-        // Convert is_oa to an array
         $this->getIsOaAsArray();
+        $this->getPubmedTypesAsArray();
 
         // convert null->'' and integer->string
         $this->start_year = ($this->start_year === null) ? '' : strval($this->start_year);
@@ -313,48 +292,32 @@ class Spaces extends \yii\db\ActiveRecord
         return $this;
     }
 
-    private static function enrichAnnotations($rows, $space_annotation) {
-        
-        // add annotation color, description
-        foreach ($rows as $row => $row_data){
-            $doi = $row_data[0];
-            $annotations = $row_data[1];
-            foreach ($annotations as $annotation_row => $annotation_data) {
-                $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
-                $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
-                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
-                $rows[$row][1][$annotation_row]['has_reverse_query'] = !empty($space_annotation['reverse_query']);
-            }
-        }
-        
-        return $rows;
-    }
-
     public static function findAnnotationIds($query, $papers) {
         $pids = [];
+
         if (strpos($query, '$dois') !== false) {
-            $pids = [ "dois" => array_column($papers, 'doi') ];
+            $pids = ['dois' => array_column($papers, 'doi')];
         } elseif (strpos($query, '$ids') !== false) {
-            $pids = [ 
-                "ids" => array_map(function($id) {
+            $pids = [
+                'ids' => array_map(function ($id) {
                     return substr(strrchr($id, '|'), 1); // Get part after "|"
                 }, array_column($papers, 'openaire_id'))
             ];
         } else {
             throw new Exception("Invalid query: must contain either '\$dois' or '\$ids'");
         }
+
         return $pids;
     }
 
     public static function runAnnotationsQuery($papers, $annotation_db_name, $graph_db_system, $space_annotations) {
-
         $annotation_db = Yii::$app->params['annotation_dbs'][$annotation_db_name];
 
         $conn = GraphConnectionFactory::createConnection($graph_db_system, $annotation_db);
-       
-        $data = [];
-        foreach($space_annotations as $space_annotation) {
 
+        $data = [];
+
+        foreach ($space_annotations as $space_annotation) {
             // get the appropriate id types based on the annotation query (e.g., dois or openaire_ids)
             $pids = self::findAnnotationIds($space_annotation->query, $papers);
 
@@ -363,61 +326,58 @@ class Spaces extends \yii\db\ActiveRecord
 
             // enrich with annotations
             $data[] = self::enrichAnnotations($rows, $space_annotation);
-
         }
 
         return $data;
-
     }
 
     public static function fetchAnnotations($papers, $space_model) {
-
         $space_annotations = $space_model->annotations;
+
         if (empty($space_annotations)) {
             return $papers;
         }
-        
+
         // give dois as query param
         // one array per annotation query
         $dois_to_annotations_db_multiple = self::runAnnotationsQuery($papers, $space_model->annotation_db, $space_model->graph_db_system, $space_annotations);
 
         // Group by doi per annotation
         $dois_to_annotations_multiple = [];
-        foreach ($dois_to_annotations_db_multiple as $annotation_row => $dois_to_annotations_db){
-            foreach ($dois_to_annotations_db as $row => $row_data){
+
+        foreach ($dois_to_annotations_db_multiple as $annotation_row => $dois_to_annotations_db) {
+            foreach ($dois_to_annotations_db as $row => $row_data) {
                 $doi = $row_data[0];
                 $annotation_data = $row_data[1];
                 $dois_to_annotations_multiple[$annotation_row][$doi] = $annotation_data;
             }
         }
 
-        foreach ($papers as $paper => $paper_data){
-
+        foreach ($papers as $paper => $paper_data) {
             $doi = $paper_data['doi'];
             $openaire_id = substr(strrchr($paper_data['openaire_id'], '|'), 1); // openaire id in our db have an extra prefix "|"
 
             $annotations = [];
-            foreach ($dois_to_annotations_multiple as $annotation_row => $dois_to_annotations){
 
+            foreach ($dois_to_annotations_multiple as $annotation_row => $dois_to_annotations) {
                 // first merge by doi
                 if (array_key_exists($doi, $dois_to_annotations)) {
                     $annotations = array_merge($annotations, $dois_to_annotations[$doi]);
 
                 // if doi not found, try to find it by openaire_id
-                } else if (array_key_exists($openaire_id, $dois_to_annotations)) {
+                } elseif (array_key_exists($openaire_id, $dois_to_annotations)) {
                     $annotations = array_merge($annotations, $dois_to_annotations[$openaire_id]);
                 }
             }
             // Create annotation key to input array
-            $papers[$paper]["annotations"] = $annotations;
+            $papers[$paper]['annotations'] = $annotations;
         }
 
         return $papers;
     }
 
     public static function getSearchParams($space_url_suffix) {
-
-        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
+        $space_model = self::fetchSpacesBySuffix($space_url_suffix);
         $space_model->prepareForRequest();
 
         // all GET params
@@ -428,23 +388,23 @@ class Spaces extends \yii\db\ActiveRecord
         $space_model->setAttributes($get_data_all, false);
         $search_params = $space_model->toArray();
 
-        // revert topics, type, is_oa set in fetchGetRequestArray ([""] -> []) 
-        foreach (['topics', 'type', 'is_oa'] as $key) {
-            if (array_key_exists($key, $search_params) && $search_params[$key] === [""]) {
+        // revert topics, type, is_oa, pubmed_types set in fetchGetRequestArray ([""] -> [])
+        foreach (['topics', 'type', 'is_oa', 'pubmed_types'] as $key) {
+            if (array_key_exists($key, $search_params) && $search_params[$key] === ['']) {
                 $search_params[$key] = [];
             }
         }
 
-        // add keywords 
+        // add keywords
         if (array_key_exists('keywords', $get_data_all)) {
             $search_params['keywords'] = $get_data_all['keywords'];
         } else {
             // when loading the page without search query
-            $search_params['keywords'] = "";
+            $search_params['keywords'] = '';
         }
 
         // not used
-        $search_params['location'] = (Yii::$app->request->get('location') == null || Yii::$app->request->get('location') == '') ? "title-abstract" : Yii::$app->request->get('location');
+        $search_params['location'] = (Yii::$app->request->get('location') == null || Yii::$app->request->get('location') == '') ? 'title-abstract' : Yii::$app->request->get('location');
 
         // add provided_by
         if (array_key_exists('provided_by', $get_data_all)) {
@@ -452,26 +412,40 @@ class Spaces extends \yii\db\ActiveRecord
         } else {
             $search_params['provided_by'] = [];
         }
-        
+
         return [
             $search_params,
             $space_model
         ];
-
     }
 
-    public function getAnnotations()
-    {
+    public function getAnnotations() {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
     }
 
     /**
      * Custom validator to check that either both fields are empty or both are filled.
      */
-    public function validateBothOrNone($attribute, $params, $validator)
-    {
-        if (($this->annotation_db && !$this->graph_db_system) || (!$this->annotation_db && $this->graph_db_system)) {
+    public function validateBothOrNone($attribute, $params, $validator) {
+        if (($this->annotation_db && ! $this->graph_db_system) || (! $this->annotation_db && $this->graph_db_system)) {
             $this->addError($attribute, 'Both "Annotation Database" and "Graph Database System" fields must be set.');
         }
+    }
+
+    private static function enrichAnnotations($rows, $space_annotation) {
+        // add annotation color, description
+        foreach ($rows as $row => $row_data) {
+            $doi = $row_data[0];
+            $annotations = $row_data[1];
+
+            foreach ($annotations as $annotation_row => $annotation_data) {
+                $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
+                $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
+                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
+                $rows[$row][1][$annotation_row]['has_reverse_query'] = ! empty($space_annotation['reverse_query']);
+            }
+        }
+
+        return $rows;
     }
 }

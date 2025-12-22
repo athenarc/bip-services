@@ -1,8 +1,8 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
 $title = 'Privacy Settings';
 $this->title = 'BIP! Finder - Privacy Settings';
@@ -26,8 +26,8 @@ $this->registerCssFile('@web/css/third-party/google_analytics/analyticsOptOut.cs
 	<div class="opt-out-msg">
     	You may choose not to have Google analytics Enabled, to avoid the aggregation and analysis of data collected on this website.
 		<br />To make that choice, please click below to receive an opt-out cookie.</br> 
-	<?= Html::checkBox('analytics_opt_out_checkbox', $boxValue, ['id'=>"analytics_opt_out_checkbox"]) ?>
-	<?= Html::hiddenInput('analytics_opt_out', $boxValue, ['id'=>"analytics_opt_out"]) ?>
+	<?= Html::checkBox('analytics_opt_out_checkbox', $boxValue, ['id' => 'analytics_opt_out_checkbox']) ?>
+	<?= Html::hiddenInput('analytics_opt_out', $boxValue, ['id' => 'analytics_opt_out']) ?>
 	<?= Html::label($boxLabel) ?>
     </div>
 

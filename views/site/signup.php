@@ -4,10 +4,10 @@
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model app\models\LoginForm */
 
-use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
-use yii\helpers\Url;
 use yii\captcha\Captcha;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 $auth_provider = Yii::$app->session->get('auth_provider');
 $auth_id = Yii::$app->session->get('auth_id');
@@ -32,7 +32,7 @@ $this->title = 'Sign Up' . (($auth_provider) ? ' with ' . $auth_provider : '');
         <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'maxlength' => 30, 'class' => 'search-box form-control']) ?>
         <?= $form->field($model, 'email')->textInput(['maxlength' => 50, 'class' => 'search-box form-control']) ?>
 
-        <?php if (!$auth_id): ?>
+        <?php if (! $auth_id): ?>
             <?= $form->field($model, 'password')->passwordInput(['maxlength' => 50, 'class' => 'search-box form-control']) ?>
         <?php else: ?>
             <?= $form->field($model, 'auth_provider')->textInput(['value' => $auth_provider, 'readonly' => true, 'class' => 'search-box form-control']) ?>
@@ -44,7 +44,7 @@ $this->title = 'Sign Up' . (($auth_provider) ? ' with ' . $auth_provider : '');
 
         <?= /*$form->field($model, 'rememberMe')->checkbox([
             'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
-        ])*/"" ?>
+        ])*/'' ?>
 
         <div class="form-group">
             <div class="col-lg-offset-1 col-lg-11">

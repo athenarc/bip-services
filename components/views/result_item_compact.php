@@ -1,10 +1,9 @@
 <?php
 
+use app\components\BookmarkIcon;
+use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-use app\components\ImpactIcons;
-use app\components\BookmarkIcon;
 
 $item = $this->context;
 
@@ -15,8 +14,8 @@ $item = $this->context;
         <div class="row">
             <!-- title and basic info -->
             <div class="col-md-8">
-                <?php if (isset($item->show["bookmark"]) && $item->show['bookmark']
-                                && (!isset($item->edit_perm) || (isset($item->edit_perm) && $item->edit_perm))): ?>
+                <?php if (isset($item->show['bookmark']) && $item->show['bookmark'] &&
+                                (! isset($item->edit_perm) || (isset($item->edit_perm) && $item->edit_perm))): ?>
                     <!-- bookmark -->
                     <span class="bookmark-item" style="cursor: pointer;">
                     <?= BookmarkIcon::widget([
@@ -29,6 +28,7 @@ $item = $this->context;
                 <?php endif; ?>
                 <?php
                     $params = ['id' => $item->doi];
+
                     if (isset($item) && isset($item->space_url_suffix)) {
                         $params['space_url_suffix'] = $item->space_url_suffix;
                     }
@@ -39,7 +39,7 @@ $item = $this->context;
                     $url,
                     ['class' => 'main-green', 'title' => 'Show details', 'target' => '_blank']
                 ); ?>
-                <?php if(!empty($item->retracted)): ?>
+                <?php if (! empty($item->retracted)): ?>
                     <i class="retraction-alert fa fa-exclamation-triangle" title="This article has been retracted"></i>
                 <?php endif; ?>
                 
@@ -61,12 +61,12 @@ $item = $this->context;
 
             <!-- impact indicators -->
             <div class="col-md-4 text-right">
-                <div class="citation-impact-icons">
-                    <?php if(!empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <div class="version-link-wrapper small">
+                <div class="version-impact-icons-wrapper">
+                    <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
+                        <span class="version-link-wrapper">
                             <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
                                 <?= $item->dois_num ?> versions</a>
-                        </div>
+                        </span>
                     <?php endif; ?>
                     
                     <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -78,23 +78,26 @@ $item = $this->context;
                                         'impulse_score' => $item->imp_score,
                                         'cc_score' => $item->cc_score,
                                         'impact_indicators' => $item->impact_indicators,
-                                        'options' => ['mode' => 'compact', 'showScoreLabel' => false]
                                         ]);?>
                 </div>
             </div>
         </div>
 
         <!-- concepts (if enabled) -->
-        <?php if (isset($item->show["concepts"]) && $item->show['concepts'] && !empty($item->concepts)): ?>
+        <?php if (isset($item->show['concepts']) && $item->show['concepts'] && ! empty($item->concepts)): ?>
             <div class="compact-concepts grey-text small">
                 <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                 <?php
                 $concept_count = 0;
-                foreach ($item->concepts as $concept) { 
-                    if ($concept_count >= 3) break; // Show only first 3 concepts
+
+                foreach ($item->concepts as $concept) {
+                    if ($concept_count >= 3) {
+                        break;
+                    } // Show only first 3 concepts
                     echo '<span class="concept-tag">' . $concept['display_name'] . '</span>';
                     $concept_count++;
                 }
+
                 if (count($item->concepts) > 3) {
                     echo '<span class="concept-more">+' . (count($item->concepts) - 3) . ' more</span>';
                 }
@@ -108,28 +111,29 @@ $item = $this->context;
                 <div class="compact-involvement grey-text small">
                     <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
                     <span id="res_<?= $item->internal_id ?>_involvement_tags" class="tags-wrapper">
-                        <?php if (!empty($item->involved)) {
-                            foreach ($item->involved as $inv) {
-                                echo '<span class="concept-tag" data-roleid="' . Html::encode($inv) . '">' . Html::encode($item->involvements[$inv]) . '</span>';
-                            }
-                        } ?>
+                        <?php if (! empty($item->involved)) {
+                    foreach ($item->involved as $inv) {
+                        echo '<span class="concept-tag" data-roleid="' . Html::encode($inv) . '">' . Html::encode($item->involvements[$inv]) . '</span>';
+                    }
+                } ?>
                         <span class="involvement-region">
                             <?php
                                 $options_inv = [];
-                                foreach($item->involvements as $value => $field){
-                                    $options_inv[$value] = ["data-content" => "<span class='label involvement'>$field</span>"];
+
+                                foreach ($item->involvements as $value => $field) {
+                                    $options_inv[$value] = ['data-content' => "<span class='label involvement'>${field}</span>"];
                                 }
 
-                                echo Html::dropDownList("res_" . $item->internal_id . "_inv", $item->involved, $item->involvements, [
+                                echo Html::dropDownList('res_' . $item->internal_id . '_inv', $item->involved, $item->involvements, [
                                     'class' => 'selectpicker involvement-dropdown',
                                     'multiple' => '',
-                                    'data-live-search' => "false",
-                                    'title'=>"",
-                                    'data-style'=>"btn-sm",
-                                    'data-size'=>"7",
-                                    'data-multiple-separator' => " ",
-                                    'data-dropup-auto'=>"false",
-                                    'data-width'=>"fit",
+                                    'data-live-search' => 'false',
+                                    'title' => '',
+                                    'data-style' => 'btn-sm',
+                                    'data-size' => '7',
+                                    'data-multiple-separator' => ' ',
+                                    'data-dropup-auto' => 'false',
+                                    'data-width' => 'fit',
                                     'style' => 'display:none',
                                     'options' => $options_inv
                                 ]);

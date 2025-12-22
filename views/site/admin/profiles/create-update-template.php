@@ -1,35 +1,33 @@
 <?php
 
-use Yii;
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
-use yii\web\View;
-use yii\helpers\Url;
-use kartik\sortable\Sortable;
-use yii\bootstrap\Modal;
 use app\models\Elements;
+use kartik\select2\Select2;
+use Yii;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\ActiveForm;
 use yii\widgets\Pjax;
-use kartik\select2\Select2;
 
-/** @var yii\web\View $this */
-/** @var app\models\Templates $model */
+/* @var yii\web\View $this */
+/* @var app\models\Templates $model */
 
-$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/tinymceAdminPanel.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 // Include jQuery UI for draggable functionality
 $this->registerJsFile('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js', ['depends' => ['yii\web\JqueryAsset']]);
 
-$section_overview = ($section === "overview");
-$section_spaces = ($section === "spaces");
-$section_scholar = ($section === "scholar");
-$section_indicators = ($section === "indicators");
-$section_profiles = ($section === "profiles");
+$section_overview = ($section === 'overview');
+$section_spaces = ($section === 'spaces');
+$section_scholar = ($section === 'scholar');
+$section_indicators = ($section === 'indicators');
+$section_profiles = ($section === 'profiles');
 
-$back_url = ($templateModel->isNewRecord) 
-    ? ['view-template-category', 'id' => $profile_template_category_id] 
+$back_url = ($templateModel->isNewRecord)
+    ? ['view-template-category', 'id' => $profile_template_category_id]
     : ['view-template', 'id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id];
 
 ?>
@@ -61,17 +59,17 @@ $back_url = ($templateModel->isNewRecord)
 <div class="templates-create-update">
 
     <ul class="nav nav-tabs green-nav-tabs" style = "margin-bottom: 30px;">
-        <li class="<?= $section_overview == "overview" ? 'active' : ''?>">
-        <a class="" <?= !$section_overview ? "href=" . Url::to(['site/admin-overview']) : "" ?>>Overview</a>
+        <li class="<?= $section_overview == 'overview' ? 'active' : ''?>">
+        <a class="" <?= ! $section_overview ? 'href=' . Url::to(['site/admin-overview']) : '' ?>>Overview</a>
         </li>
         <li class="<?= $section_spaces ? 'active' : ''?>">
-        <a class="" <?= !$section_spaces ? "href=" . Url::to(['site/admin-spaces']) : "" ?>>Spaces</a>
+        <a class="" <?= ! $section_spaces ? 'href=' . Url::to(['site/admin-spaces']) : '' ?>>Spaces</a>
         </li>
         <li class="<?= $section_indicators ? 'active' : ''?>">
-        <a class="" <?= !$section_indicators ? "href=" . Url::to(['site/admin-indicators']) : "" ?>>Indicators</a>
+        <a class="" <?= ! $section_indicators ? 'href=' . Url::to(['site/admin-indicators']) : '' ?>>Indicators</a>
         </li>
         <li class="<?= $section_profiles ? 'active' : ''?>">
-        <a class="" <?= !$section_profiles ? "href=" . Url::to(['site/admin-profiles']) : "" ?>>Profile Templates</a>
+        <a class="" <?= ! $section_profiles ? 'href=' . Url::to(['site/admin-profiles']) : '' ?>>Profile Templates</a>
         </li>
     </ul>
 
@@ -116,11 +114,11 @@ $back_url = ($templateModel->isNewRecord)
             <!-- Hidden field to store elements data -->
             <?= Html::hiddenInput('elementsData', '', ['id' => 'elementsData']) ?>
 
-            <?php if (!$templateModel->isNewRecord): ?>
+            <?php if (! $templateModel->isNewRecord): ?>
                 
                 <h2><?= Html::encode('Elements') ?>
                
-                <?php if (!$templateModel->isNewRecord): ?>
+                <?php if (! $templateModel->isNewRecord): ?>
                     <?= Html::a('<i class="fa-solid fa-plus"></i> Add Element', ['create-element', 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id], ['class' => 'btn btn-success pull-right']) ?>
                 <?php endif ?>
             
@@ -144,25 +142,25 @@ $back_url = ($templateModel->isNewRecord)
                             'buttons' => [
                                 'view' => function ($url, $model, $key) {
                                     return Html::a(
-                                        '<i class="fas fa-eye"></i> View', 
-                                        $url, 
+                                        '<i class="fas fa-eye"></i> View',
+                                        $url,
                                         ['title' => 'View', 'class' => 'btn btn-sm btn-default']
                                     );
                                 },
                                 'update' => function ($url, $model, $key) {
                                     return Html::a(
-                                        '<i class="fas fa-edit"></i> Edit', 
-                                        $url, 
+                                        '<i class="fas fa-edit"></i> Edit',
+                                        $url,
                                         ['title' => 'Edit', 'class' => 'btn btn-sm btn-primary']
                                     );
                                 },
                                 'delete' => function ($url, $model, $key) {
                                     return Html::a(
-                                        '<i class="fas fa-trash"></i> Delete', 
-                                        $url, 
+                                        '<i class="fas fa-trash"></i> Delete',
+                                        $url,
                                         [
-                                            'title' => 'Delete', 
-                                            'class' => 'btn btn-sm btn-danger', 
+                                            'title' => 'Delete',
+                                            'class' => 'btn btn-sm btn-danger',
                                             'data-confirm' => 'Are you sure you want to delete this item?',
                                             'data-method' => 'post'
                                         ]
@@ -170,7 +168,8 @@ $back_url = ($templateModel->isNewRecord)
                                 },
                             ],
                             'urlCreator' => function ($action, Elements $model, $key, $index, $column) use ($profile_template_category_id) {
-                                $action .= "-element";
+                                $action .= '-element';
+
                                 return Url::toRoute([$action, 'id' => $model->id, 'template_id' => $model->template_id, 'profile_template_category_id' => $profile_template_category_id]);
                             }
                         ],

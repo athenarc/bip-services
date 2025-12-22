@@ -1,34 +1,29 @@
 <?php
 
-use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\widgets\LinkPager;
-use yii\web\View;
-use yii\bootstrap\Modal;
-use yii\bootstrap\Button;
-use yii\widgets\ActiveForm;
-use yii\widgets\Pjax;
-use yii\grid\GridView;;
-use app\components\BookmarkIcon;
-use app\components\ScholarSidebar;
-use app\components\ResultItem;
+use app\components\BulletedList;
+use app\components\ContributionsListItem;
+use app\components\DropdownElement;
 use app\components\FacetsItem;
 use app\components\IndicatorsItem;
-use app\components\ContributionsListItem;
 use app\components\NarrativeElement;
-use app\components\DropdownElement;
-use app\components\SectionDivider;
-use app\components\BulletedList;
-use app\components\TableElement;
 use app\components\ScholarNavbar;
-use kartik\date\DatePicker;
+use app\components\SectionDivider;
+use app\components\TableElement;
+use yii\bootstrap\Button;
+use yii\bootstrap\Modal;
+use yii\bootstrap\Nav;
+use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
+use yii\widgets\ActiveForm;
 
-$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/chartjs_radar.js',  ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/animateIndicators.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/chartjs_radar.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/countUp/countUp_v2.8.0.umd.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/animateIndicators.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/bootstrap-tagsinput/bootstrap-tagsinput.min.js', ['position' => View::POS_END]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -37,7 +32,7 @@ $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_
 $this->registerJsFile('@web/js/responsibleAcadAge.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js',  ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 // Use the generic smooth-scroll handler
@@ -67,11 +62,11 @@ $this->title = 'BIP! Services - Scholar';
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script> -->
 
 <?php
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
+use yii\widgets\Pjax;
+
 ?>
 
-<?php if (!isset($researcher->orcid)): ?>
+<?php if (! isset($researcher->orcid)): ?>
 
     <div class="container-fluid">
         <div class="row">
@@ -93,7 +88,7 @@ use yii\bootstrap\NavBar;
                     Link BIP! Scholar with your ORCiD account to allow us access your public ORCID records, your name and ORCiD ID.<br/>
                     Please, also ensure that your ORCiD profile has 'Visibility: Everyone' in your Account Settings, since we rely on the public records of you ORCiD profile to create the contents of your BIP! Scholar profile.
                     <div class="text-center" style="padding-top: 10px;">
-                        <?= Html::a('<i class="fa fa-link" aria-hidden="true"></i> Link with your ORCiD', 'https://orcid.org/oauth/authorize?client_id=' . Yii::$app->params['orcid_client_id'] . '&response_type=code&scope=/authenticate&redirect_uri=' . Url::to(['scholar/profile'], true), ['class'=>'btn btn-custom-color', 'style' => 'white-space: break-spaces']); ?>
+                        <?= Html::a('<i class="fa fa-link" aria-hidden="true"></i> Link with your ORCiD', 'https://orcid.org/oauth/authorize?client_id=' . Yii::$app->params['orcid_client_id'] . '&response_type=code&scope=/authenticate&redirect_uri=' . Url::to(['scholar/profile'], true), ['class' => 'btn btn-custom-color', 'style' => 'white-space: break-spaces']); ?>
                     </div>
                 </div>
             </div>
@@ -124,17 +119,17 @@ use yii\bootstrap\NavBar;
             'id' => 'scholar-form',
             'options' => ['style' => 'display: inline-block;'],
             'method' => 'GET',
-            'action' => Url::to(['scholar/profile/' . $researcher->orcid . (isset($template->url_name) ? ("/" . $template->url_name) : "")])
+            'action' => Url::to(['scholar/profile/' . $researcher->orcid . (isset($template->url_name) ? ('/' . $template->url_name) : '')])
         ]); ?>
 
         <?= Html::hiddenInput('list_id', '', ['id' => 'active_list_id']) ?>
         <?php
         // Pre-generate a hidden fct_field for each Contributions List so JS can set it on click
-        if (!empty($template_elements)) {
+        if (! empty($template_elements)) {
             foreach ($template_elements as $te) {
                 if (($te['type'] ?? null) === 'Contributions List') {
                     $lid = $te['element_id'];
-                    echo Html::hiddenInput("lists[$lid][fct_field]", '', ['id' => "lists-{$lid}-fct_field"]);
+                    echo Html::hiddenInput("lists[${lid}][fct_field]", '', ['id' => "lists-{$lid}-fct_field"]);
                 }
             }
         }
@@ -156,7 +151,7 @@ use yii\bootstrap\NavBar;
                                     
                                     <span>
                                         <small>
-                                            <a class="grey-link" href="<?= "https://orcid.org/" . $researcher->orcid ?>" target="_blank">
+                                            <a class="grey-link" href="<?= 'https://orcid.org/' . $researcher->orcid ?>" target="_blank">
                                                 <i class="fa-brands fa-orcid" title="Show profile on ORCiD"></i>
                                             </a>
                                         </small>
@@ -219,54 +214,56 @@ use yii\bootstrap\NavBar;
             </div>
 
             <?php
-                echo Html::hiddenInput("template_id", $template->id, [ 'id' => 'template_id' ]);
+                echo Html::hiddenInput('template_id', $template->id, ['id' => 'template_id']);
                 $indicatorIndex = 0;
                 $listIds = array_keys($contributions_indicators);
-                echo "<div id=\"scholar-profile\">";
-                echo "<div id=\"profile-toc-wrap\">";
-                echo "<div class=\"sidebar\"><div class=\"sidebar-body\"><ul id=\"profile-toc\"></ul></div></div>";
-                echo "<div class=\"main-content\" id=\"profile-content\">";
+                echo '<div id="scholar-profile">';
+                echo '<div id="profile-toc-wrap">';
+                echo '<div class="sidebar"><div class="sidebar-body"><ul id="profile-toc"></ul></div></div>';
+                echo '<div class="main-content" id="profile-content">';
 
                 foreach ($template_elements as $index => $element) {
-
-                    switch ($element["type"]) {
-                        case "Facets":
+                    switch ($element['type']) {
+                        case 'Facets':
                             // optionally pick a contributions list's facets (first one, or match by element ID if needed)
                             //$linked_id = $element['config']['linked_contribution_element_id'] ?? null;
                             $linked_id = null;
+
                             foreach ($element['config'] as $section) {
                                 if (is_array($section) && isset($section['linked_contribution_element_id'])) {
                                     $linked_id = $section['linked_contribution_element_id'];
                                     break;
                                 }
                             }
-                            if (!isset($contributions_lists[$linked_id])) {
-                                echo "<div class='text-danger'>Missing result for linked list ID: $linked_id</div>";
+
+                            if (! isset($contributions_lists[$linked_id])) {
+                                echo "<div class='text-danger'>Missing result for linked list ID: ${linked_id}</div>";
                                 break;
                             }
 
                             $selected = $contributions_selected_filters[$linked_id] ?? [];
-                        
+
                             $isLinkedUserDefined = false;
+
                             foreach ($template_elements as $te2) {
                                 if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_id) {
-                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    $isLinkedUserDefined = ! empty($te2['config']['user_defined']) && (int) $te2['config']['user_defined'] === 1;
                                     break;
                                 }
                             }
 
                             $lr = $contributions_lists[$linked_id] ?? null;
                             $hasLinkedSelection = $lr && (
-                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
-                                (!empty($lr['selected_papers_num']) && $lr['selected_papers_num'] > 0)
+                                (! empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (! empty($lr['selected_papers_num']) && $lr['selected_papers_num'] > 0)
                             );
 
-                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                            if ($isLinkedUserDefined && ! $hasLinkedSelection) {
                                 $contributions_lists[$linked_id]['facets'] = [
-                                    'topics'   => ['counts' => [], 'options' => []],
-                                    'roles'    => ['counts' => [], 'options' => []],
+                                    'topics' => ['counts' => [], 'options' => []],
+                                    'roles' => ['counts' => [], 'options' => []],
                                     'accesses' => ['counts' => [], 'options' => []],
-                                    'types'    => ['counts' => [], 'options' => []],
+                                    'types' => ['counts' => [], 'options' => []],
                                 ];
                                 $contributions_lists[$linked_id]['papers'] = [];
                                 $contributions_lists[$linked_id]['papers_num'] = 0;
@@ -274,24 +271,28 @@ use yii\bootstrap\NavBar;
 
                             // Build margin style from config _margins
                             $marginStyle = '';
-                            if (!empty($element['config']['_margins']['margin_top'])) {
+
+                            if (! empty($element['config']['_margins']['margin_top'])) {
                                 $marginStyle .= 'margin-top: ' . $element['config']['_margins']['margin_top'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_right'])) {
+
+                            if (! empty($element['config']['_margins']['margin_right'])) {
                                 $marginStyle .= 'margin-right: ' . $element['config']['_margins']['margin_right'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_bottom'])) {
+
+                            if (! empty($element['config']['_margins']['margin_bottom'])) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']['_margins']['margin_bottom'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_left'])) {
+
+                            if (! empty($element['config']['_margins']['margin_left'])) {
                                 $marginStyle .= 'margin-left: ' . $element['config']['_margins']['margin_left'] . '; ';
                             }
                             ?>
-                            <div id="facets-<?= $element['element_id'] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="facets-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                             echo FacetsItem::widget([
                                 'edit_perm' => $edit_perm,
-                                'result' =>  $contributions_lists[$linked_id],
+                                'result' => $contributions_lists[$linked_id],
                                 'formId' => 'scholar-form',
                                 'selected_topics' => $selected['topics'] ?? [],
                                 'selected_roles' => $selected['roles'] ?? [],
@@ -299,7 +300,7 @@ use yii\bootstrap\NavBar;
                                 'selected_types' => $selected['types'] ?? [],
                                 'current_cv_narrative' => null,
                                 'researcher' => $researcher,
-                                'element_config' => $element["config"],
+                                'element_config' => $element['config'],
                                 'selected_per_list' => $selected_per_list,
                                 'facets_linked_to_lists' => $facets_linked_to_lists,
                             ]);
@@ -308,23 +309,24 @@ use yii\bootstrap\NavBar;
                             <?php
                             break;
 
-                        case "Indicators":
-                            
+                        case 'Indicators':
+
                             $indicator_items = $element['config'];
                             $linked_list_id = $indicator_items[0]['linked_contribution_element_id'] ?? null;
 
-                            if (!$linked_list_id || !isset($contributions_indicators[$linked_list_id])) {
-                                echo "<div class='text-danger'> No indicators found for linked list ID: $linked_list_id</div>";
+                            if (! $linked_list_id || ! isset($contributions_indicators[$linked_list_id])) {
+                                echo "<div class='text-danger'> No indicators found for linked list ID: ${linked_list_id}</div>";
                                 break;
                             }
 
                             $indicators_local = $contributions_indicators[$linked_list_id];
-                            
+
                             // Check if the linked Contributions List is user-defined
                             $isLinkedUserDefined = false;
+
                             foreach ($template_elements as $te2) {
                                 if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
-                                    $isLinkedUserDefined = !empty($te2['config']['user_defined']) && (int)$te2['config']['user_defined'] === 1;
+                                    $isLinkedUserDefined = ! empty($te2['config']['user_defined']) && (int) $te2['config']['user_defined'] === 1;
                                     break;
                                 }
                             }
@@ -332,17 +334,18 @@ use yii\bootstrap\NavBar;
                             // See if that list already has saved selections
                             $lr = $contributions_lists[$linked_list_id] ?? null;
                             $hasLinkedSelection = $lr && (
-                                (!empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
-                                (!empty($lr['selected_papers_num']) && (int)$lr['selected_papers_num'] > 0)
+                                (! empty($lr['selected_papers']) && count($lr['selected_papers']) > 0) ||
+                                (! empty($lr['selected_papers_num']) && (int) $lr['selected_papers_num'] > 0)
                             );
 
                             // If user-defined and no selection → use an "empty" indicators payload
-                            if ($isLinkedUserDefined && !$hasLinkedSelection) {
+                            if ($isLinkedUserDefined && ! $hasLinkedSelection) {
                                 // find the linked Contributions List config to respect its admin toggles
                                 $linkedListShowMissing = true;
+
                                 foreach ($template_elements as $te2) {
                                     if (($te2['type'] ?? null) === 'Contributions List' && ($te2['element_id'] ?? null) == $linked_list_id) {
-                                        $linkedListShowMissing = isset($te2['config']['show_missing_papers']) ? (bool)$te2['config']['show_missing_papers'] : true;
+                                        $linkedListShowMissing = isset($te2['config']['show_missing_papers']) ? (bool) $te2['config']['show_missing_papers'] : true;
                                         break;
                                     }
                                 }
@@ -354,7 +357,7 @@ use yii\bootstrap\NavBar;
                                     'influential_works_count' => 0,
                                     'citations_num' => 0,
                                     'popularity' => ['number' => 0, 'exponent' => 'e0'],
-                                    'influence'  => ['number' => 0, 'exponent' => 'e0'],
+                                    'influence' => ['number' => 0, 'exponent' => 'e0'],
                                     'impulse' => 0,
                                     'h_index' => 0,
                                     'i10_index' => 0,
@@ -362,33 +365,37 @@ use yii\bootstrap\NavBar;
                                     'responsible_academic_age' => '-',
                                     'paper_min_year' => 0,
                                     'work_types_num' => [
-                                        'papers'   => 0,
+                                        'papers' => 0,
                                         'datasets' => 0,
                                         'software' => 0,
-                                        'other'    => 0,
+                                        'other' => 0,
                                     ],
                                     'openness' => [],
                                 ];
                             } else {
-                            $indicators_local = $contributions_indicators[$linked_list_id];
+                                $indicators_local = $contributions_indicators[$linked_list_id];
                             }
-                            
+
                             // Build margin style from config _margins
                             $marginStyle = '';
-                            if (!empty($element['config']['_margins']['margin_top'])) {
+
+                            if (! empty($element['config']['_margins']['margin_top'])) {
                                 $marginStyle .= 'margin-top: ' . $element['config']['_margins']['margin_top'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_right'])) {
+
+                            if (! empty($element['config']['_margins']['margin_right'])) {
                                 $marginStyle .= 'margin-right: ' . $element['config']['_margins']['margin_right'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_bottom'])) {
+
+                            if (! empty($element['config']['_margins']['margin_bottom'])) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']['_margins']['margin_bottom'] . '; ';
                             }
-                            if (!empty($element['config']['_margins']['margin_left'])) {
+
+                            if (! empty($element['config']['_margins']['margin_left'])) {
                                 $marginStyle .= 'margin-left: ' . $element['config']['_margins']['margin_left'] . '; ';
                             }
                             ?>
-                            <div id="indicators-list-<?= $element['element_id'] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="indicators-list-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                             echo IndicatorsItem::widget([
                                 'edit_perm' => $edit_perm,
@@ -413,26 +420,26 @@ use yii\bootstrap\NavBar;
                                 'openness' => $indicators_local['openness'] ?? [],
                                 'facets_selected' => $facets_selected,
                                 'rag_data' => $rag_data,
-                                'element_config' => $element["config"],
+                                'element_config' => $element['config'],
                             ]);
                             ?>
                             </div>
                             <?php
                             break;
 
-                        case "Contributions List":
-                            $list_id = $element["element_id"];
+                        case 'Contributions List':
+                            $list_id = $element['element_id'];
                             $element_id = $element['element_id'];
-                            
+
                             $list_result = $contributions_lists[$list_id] ?? [
                                 'papers' => [],
                                 'papers_num' => 0,
                                 'facets' => [],
                             ];
                             // decide if user can select works for this list
-                            $canUserSelect = !empty($element['config']['user_defined']) && (int)$element['config']['user_defined'] === 1 && $edit_perm;
+                            $canUserSelect = ! empty($element['config']['user_defined']) && (int) $element['config']['user_defined'] === 1 && $edit_perm;
                             $maxUserSelect = isset($element['config']['user_defined_max']) && $element['config']['user_defined_max'] !== ''
-                                ? (int)$element['config']['user_defined_max']
+                                ? (int) $element['config']['user_defined_max']
                                 : null;
                             // Always define a default for visible_papers
                             $visible_papers = $list_result['papers'] ?? [];
@@ -440,17 +447,18 @@ use yii\bootstrap\NavBar;
                             // If it's user-defined and there is no saved selection, hide the list contents
                             if ($canUserSelect) {
                                 $hasUserSelection = (
-                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
-                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                    (isset($list_result['selected_papers_num']) && (int) $list_result['selected_papers_num'] > 0) ||
+                                    (! empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
                                 );
-                                if (!$hasUserSelection) {
+
+                                if (! $hasUserSelection) {
                                     $visible_papers = [];
                                 }
                             }
-                    
+
                             if ($canUserSelect) {
                                 // Add Select Works button and modal trigger
-                                
+
                                 $selectWorksBtnHtml = Html::button('<i class="fa fa-check-square-o"></i> Select Works', [
                                     'class' => 'btn btn-custom-color',
                                     'style' => 'margin-bottom:10px;',
@@ -481,27 +489,33 @@ use yii\bootstrap\NavBar;
                                     'id' => 'select-works-modal-' . $list_id,
                                     'size' => 'modal-lg',
                                     'footer' => $footer
-                                ]);
-                                ?>
+                                ]); ?>
                                     <?php
                                     // collect already-saved IDs for this list
                                     $serverSelectedIds = [];
-                                    if (!empty($list_result['selected_papers']) && is_array($list_result['selected_papers'])) {
-                                        foreach ($list_result['selected_papers'] as $item) {
-                                            if (is_array($item)) {
-                                                $id = $item['internal_id'] ?? $item['id'] ?? null;
-                                                if ($id === null) {
-                                                    foreach ($item as $v) { if (!is_array($v)) { $id = $v; break; } }
+
+                                if (! empty($list_result['selected_papers']) && is_array($list_result['selected_papers'])) {
+                                    foreach ($list_result['selected_papers'] as $item) {
+                                        if (is_array($item)) {
+                                            $id = $item['internal_id'] ?? $item['id'] ?? null;
+
+                                            if ($id === null) {
+                                                foreach ($item as $v) {
+                                                    if (! is_array($v)) {
+                                                        $id = $v;
+                                                        break;
+                                                    }
                                                 }
-                                            } else {
-                                                $id = $item;
                                             }
-                                            if ($id !== null && $id !== '') {
-                                                $serverSelectedIds[] = (string)$id;
-                                            }
+                                        } else {
+                                            $id = $item;
+                                        }
+
+                                        if ($id !== null && $id !== '') {
+                                            $serverSelectedIds[] = (string) $id;
                                         }
                                     }
-                                    ?>
+                                } ?>
 
                                     <?= Html::hiddenInput('selected_papers_' . $list_id, implode(',', $serverSelectedIds), [
                                         'id' => 'selected_papers_' . $list_id,
@@ -526,12 +540,13 @@ use yii\bootstrap\NavBar;
                                                 'name' => 'papers-selection[]',
                                                 'contentOptions' => ['class' => 'papers-checkbox-column'],
                                                 'headerOptions' => ['class' => 'papers-checkbox-column'],
-                                                'checkboxOptions' => function ($model) use ($serverSelectedIds){
+                                                'checkboxOptions' => function ($model) use ($serverSelectedIds) {
                                                     $id = $model['internal_id'];
+
                                                     return [
                                                         'class' => 'papers-selection-checkbox green-checkbox',
                                                         'data-key' => $id,
-                                                        'checked'  => in_array($id, $serverSelectedIds, true),
+                                                        'checked' => in_array($id, $serverSelectedIds, true),
                                                     ];
                                                 },
                                                 'header' => Html::checkbox('select-all', false, [
@@ -540,34 +555,33 @@ use yii\bootstrap\NavBar;
                                             ],
 
                                             [
-                                                'label' => Html::tag('span', 'Select All', ['class' => 'text-muted select-all-toggle-label','data-list-id' => $list_id, 'style' => 'font-weight: normal;']),
+                                                'label' => Html::tag('span', 'Select All', ['class' => 'text-muted select-all-toggle-label', 'data-list-id' => $list_id, 'style' => 'font-weight: normal;']),
                                                 'encodeLabel' => false,
                                                 'format' => 'raw',
                                                 'value' => function ($data) {
-                                                    $row  = Html::beginTag('div', ['class' => 'article-info']);
-                                                    $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? "N/A" : $data['title']));
+                                                    $row = Html::beginTag('div', ['class' => 'article-info']);
+                                                    $row .= Html::tag('div', Html::tag('b', empty($data['title']) ? 'N/A' : $data['title']));
                                                     $row .= Html::beginTag('div');
-                                                    $row .= Html::tag('i', (empty($data['journal']) ? "N/A" : $data['journal']) . ' · ');
-                                                    $row .= Html::tag('i', empty($data['year']) ? "N/A" : $data['year']);
+                                                    $row .= Html::tag('i', (empty($data['journal']) ? 'N/A' : $data['journal']) . ' · ');
+                                                    $row .= Html::tag('i', empty($data['year']) ? 'N/A' : $data['year']);
                                                     $row .= Html::endTag('div');
                                                     $row .= Html::endTag('div');
+
                                                     return $row;
                                                 },
                                             ],
                                         ],
-                                    ]);
-                                    ?>
+                                    ]); ?>
 
                                 <?php Modal::end(); ?>
                                 <?php
                                 $hasUserSelection = (
-                                    (isset($list_result['selected_papers_num']) && (int)$list_result['selected_papers_num'] > 0)
-                                    || (!empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
-                                );
+                                        (isset($list_result['selected_papers_num']) && (int) $list_result['selected_papers_num'] > 0) ||
+                                    (! empty($list_result['selected_papers']) && count($list_result['selected_papers']) > 0)
+                                    );
 
-                                $shouldHidePapers = ($canUserSelect && !$hasUserSelection);
-                                $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []);
-                                ?>
+                                $shouldHidePapers = ($canUserSelect && ! $hasUserSelection);
+                                $visible_papers = $shouldHidePapers ? [] : ($list_result['papers'] ?? []); ?>
                             <?php
                             }
                             ?>
@@ -577,40 +591,45 @@ use yii\bootstrap\NavBar;
 
                             // Create no-works message if user can select but hasn't selected any works
                             $noWorksMessage = '';
-                            if ($canUserSelect && !$hasUserSelection) {
+
+                            if ($canUserSelect && ! $hasUserSelection) {
                                 $noWorksMessage = Html::tag('div', 'No works selected yet for this list.', [
                                     'class' => 'alert alert-warning text-center no-works-alert',
-                                    'role'  => 'alert',
+                                    'role' => 'alert',
                                 ]);
                             }
 
                             // Build margin style
                             $marginStyle = '';
-                            if (!empty($element['config']['margin_top'])) {
+
+                            if (! empty($element['config']['margin_top'])) {
                                 $marginStyle .= 'margin-top: ' . $element['config']['margin_top'] . '; ';
                             }
-                            if (!empty($element['config']['margin_right'])) {
+
+                            if (! empty($element['config']['margin_right'])) {
                                 $marginStyle .= 'margin-right: ' . $element['config']['margin_right'] . '; ';
                             }
-                            if (!empty($element['config']['margin_bottom'])) {
+
+                            if (! empty($element['config']['margin_bottom'])) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']['margin_bottom'] . '; ';
                             }
-                            if (!empty($element['config']['margin_left'])) {
+
+                            if (! empty($element['config']['margin_left'])) {
                                 $marginStyle .= 'margin-left: ' . $element['config']['margin_left'] . '; ';
                             }
 
                         ?>
-                            <div id="contributions-list-<?= $list_id ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="contributions-list-<?= $list_id ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                                     // Determine sort field: if top_k is set, use config value; otherwise check GET parameter (list-specific)
-                                    $currentSortField = !empty($element['config']['top_k'])
+                                    $currentSortField = ! empty($element['config']['top_k'])
                                         ? ($element['config']['sort'] ?? 'year')
                                         : Yii::$app->request->get('sort_' . $list_id, $element['config']['sort'] ?? 'year');
-                                    
+
                                     echo ContributionsListItem::widget([
                                         'impact_indicators' => $impact_indicators,
                                         'edit_perm' => $edit_perm,
-                                        'facets_selected' => !empty($list_result['facets']),
+                                        'facets_selected' => ! empty($list_result['facets']),
                                         'result' => $list_result,
                                         'papers' => $visible_papers,
                                         'works_num' => count($visible_papers),
@@ -628,7 +647,7 @@ use yii\bootstrap\NavBar;
                                         ],
                                         'formId' => 'scholar-form',
                                         'current_cv_narrative' => null,
-                                        'element_config' => $element["config"],
+                                        'element_config' => $element['config'],
                                         'facets_for_this_list' => $facets_for_this_list,
                                         'selected_topics' => $selected['topics'] ?? [],
                                         'selected_tags' => $selected['tags'] ?? [],
@@ -636,7 +655,7 @@ use yii\bootstrap\NavBar;
                                         'selected_accesses' => $selected['accesses'] ?? [],
                                         'selected_types' => $selected['types'] ?? [],
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
-                                        'show_pagination' => !empty($element['config']['show_pagination']),
+                                        'show_pagination' => ! empty($element['config']['show_pagination']),
                                         'noWorksMessage' => $noWorksMessage,
                                     ]);
                                 ?>
@@ -644,122 +663,135 @@ use yii\bootstrap\NavBar;
                         <?php
                             break;
 
-                        case "Narrative":
+                        case 'Narrative':
                             // Build margin style
                             $marginStyle = '';
-                            if (!empty($element['config']->margin_top)) {
+
+                            if (! empty($element['config']->margin_top)) {
                                 $marginStyle .= 'margin-top: ' . $element['config']->margin_top . '; ';
                             }
-                            if (!empty($element['config']->margin_right)) {
+
+                            if (! empty($element['config']->margin_right)) {
                                 $marginStyle .= 'margin-right: ' . $element['config']->margin_right . '; ';
                             }
-                            if (!empty($element['config']->margin_bottom)) {
+
+                            if (! empty($element['config']->margin_bottom)) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']->margin_bottom . '; ';
                             }
-                            if (!empty($element['config']->margin_left)) {
+
+                            if (! empty($element['config']->margin_left)) {
                                 $marginStyle .= 'margin-left: ' . $element['config']->margin_left . '; ';
                             }
                             ?>
-                            <div id="narrative-<?= $element["element_id"] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="narrative-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                                     echo NarrativeElement::widget([
                                         'index' => $index,
-                                        'element_id' => $element["element_id"],
-                                        'title' => $element["config"]->title,
-                                        'heading_type' => $element["config"]->heading_type,
-                                        'description' => $element["config"]->description,    
-                                        'hide_when_empty' => $element["config"]->hide_when_empty,
+                                        'element_id' => $element['element_id'],
+                                        'title' => $element['config']->title,
+                                        'heading_type' => $element['config']->heading_type,
+                                        'description' => $element['config']->description,
+                                        'tip' => $element['config']->tip,
+                                        'hide_when_empty' => $element['config']->hide_when_empty,
                                         'edit_perm' => $edit_perm,
-                                        'value' => $element["config"]->value,
-                                        'limit_value' => $element["config"]->limit_value,
-                                        'limit_type' => $element["config"]->limit_type,
-                                        'last_updated' => $element["config"]->last_updated,
-                                        'messages' => $element["messages"],
+                                        'value' => $element['config']->value,
+                                        'limit_value' => $element['config']->limit_value,
+                                        'limit_type' => $element['config']->limit_type,
+                                        'last_updated' => $element['config']->last_updated,
+                                        'messages' => $element['messages'],
                                     ]);
                                 ?>
                             </div>
                             <?php
                             break;
 
-                        case "Dropdown":
+                        case 'Dropdown':
                             // Build margin style
                             $marginStyle = '';
-                            if (!empty($element['config']->margin_top)) {
+
+                            if (! empty($element['config']->margin_top)) {
                                 $marginStyle .= 'margin-top: ' . $element['config']->margin_top . '; ';
                             }
-                            if (!empty($element['config']->margin_right)) {
+
+                            if (! empty($element['config']->margin_right)) {
                                 $marginStyle .= 'margin-right: ' . $element['config']->margin_right . '; ';
                             }
-                            if (!empty($element['config']->margin_bottom)) {
+
+                            if (! empty($element['config']->margin_bottom)) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']->margin_bottom . '; ';
                             }
-                            if (!empty($element['config']->margin_left)) {
+
+                            if (! empty($element['config']->margin_left)) {
                                 $marginStyle .= 'margin-left: ' . $element['config']->margin_left . '; ';
                             }
                             ?>
-                            <div id="dropdown-<?= $element["element_id"] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="dropdown-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                                     echo DropdownElement::widget([
                                         'index' => $index,
                                         'edit_perm' => $edit_perm,
-                                        'element_id' => $element["element_id"],
-                                        'title' => $element["config"]->title,
-                                        'heading_type' => $element["config"]->heading_type,
-                                        'description' => $element["config"]->description,    
-                                        'hide_when_empty' => $element["config"]->hide_when_empty,
-                                        'elementDropdownOptionsArray' => ArrayHelper::map($element["config"]->elementDropdownOptions, 'id', 'option_name'),
-                                        'option_id' => $element["config"]->option_id,
-                                        'last_updated' => $element["config"]->last_updated,
+                                        'element_id' => $element['element_id'],
+                                        'title' => $element['config']->title,
+                                        'heading_type' => $element['config']->heading_type,
+                                        'description' => $element['config']->description,
+                                        'hide_when_empty' => $element['config']->hide_when_empty,
+                                        'elementDropdownOptionsArray' => ArrayHelper::map($element['config']->elementDropdownOptions, 'id', 'option_name'),
+                                        'option_id' => $element['config']->option_id,
+                                        'last_updated' => $element['config']->last_updated,
                                     ]);
                                 ?>
                             </div>
                             <?php
                             break;
-                        
-                        case "Section Divider":
+
+                        case 'Section Divider':
                             echo SectionDivider::widget([
                                 'index' => $index,
-                                'element_id' => $element["element_id"],
-                                'title' => $element["config"]->title,
-                                'heading_type' => $element["config"]->heading_type,
-                                'description' => $element["config"]->description,
+                                'element_id' => $element['element_id'],
+                                'title' => $element['config']->title,
+                                'heading_type' => $element['config']->heading_type,
+                                'description' => $element['config']->description,
                                 'show_description_tooltip' => $element['config']->show_description_tooltip,
-                                'top_padding' => $element["config"]->top_padding,
-                                'bottom_padding' => $element["config"]->bottom_padding,
-                                'show_top_hr' => $element["config"]->show_top_hr,
-                                'show_bottom_hr' => $element["config"]->show_bottom_hr,
-                                'margin_top' => $element["config"]->margin_top ?? null,
-                                'margin_right' => $element["config"]->margin_right ?? null,
-                                'margin_bottom' => $element["config"]->margin_bottom ?? null,
-                                'margin_left' => $element["config"]->margin_left ?? null,
+                                'top_padding' => $element['config']->top_padding,
+                                'bottom_padding' => $element['config']->bottom_padding,
+                                'show_top_hr' => $element['config']->show_top_hr,
+                                'show_bottom_hr' => $element['config']->show_bottom_hr,
+                                'margin_top' => $element['config']->margin_top ?? null,
+                                'margin_right' => $element['config']->margin_right ?? null,
+                                'margin_bottom' => $element['config']->margin_bottom ?? null,
+                                'margin_left' => $element['config']->margin_left ?? null,
                                 'edit_perm' => $edit_perm,
                             ]);
                             break;
-                        case "Bulleted List":
+                        case 'Bulleted List':
                             // Build margin style
                             $marginStyle = '';
-                            if (!empty($element['config']->margin_top)) {
+
+                            if (! empty($element['config']->margin_top)) {
                                 $marginStyle .= 'margin-top: ' . $element['config']->margin_top . '; ';
                             }
-                            if (!empty($element['config']->margin_right)) {
+
+                            if (! empty($element['config']->margin_right)) {
                                 $marginStyle .= 'margin-right: ' . $element['config']->margin_right . '; ';
                             }
-                            if (!empty($element['config']->margin_bottom)) {
+
+                            if (! empty($element['config']->margin_bottom)) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']->margin_bottom . '; ';
                             }
-                            if (!empty($element['config']->margin_left)) {
+
+                            if (! empty($element['config']->margin_left)) {
                                 $marginStyle .= 'margin-left: ' . $element['config']->margin_left . '; ';
                             }
                             ?>
-                            <div id="bulleted-list-<?= $element["element_id"] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="bulleted-list-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                                     echo BulletedList::widget([
-                                        'element_id' => $element["element_id"],
-                                        'title' => $element["config"]->title,
-                                        'heading_type' => $element["config"]->heading_type,
-                                        'description' => $element["config"]->description,
-                                        'elements_number' => $element["config"]->elements_number,
-                                        'items' => $element["config"]->items,
+                                        'element_id' => $element['element_id'],
+                                        'title' => $element['config']->title,
+                                        'heading_type' => $element['config']->heading_type,
+                                        'description' => $element['config']->description,
+                                        'elements_number' => $element['config']->elements_number,
+                                        'items' => $element['config']->items,
                                         'edit_perm' => $edit_perm,
                                     ]);
                                 ?>
@@ -767,48 +799,52 @@ use yii\bootstrap\NavBar;
                             <?php
                             break;
 
-                        case "Table":
+                        case 'Table':
                             // Build margin style
                             $marginStyle = '';
-                            if (!empty($element['config']->margin_top)) {
+
+                            if (! empty($element['config']->margin_top)) {
                                 $marginStyle .= 'margin-top: ' . $element['config']->margin_top . '; ';
                             }
-                            if (!empty($element['config']->margin_right)) {
+
+                            if (! empty($element['config']->margin_right)) {
                                 $marginStyle .= 'margin-right: ' . $element['config']->margin_right . '; ';
                             }
-                            if (!empty($element['config']->margin_bottom)) {
+
+                            if (! empty($element['config']->margin_bottom)) {
                                 $marginStyle .= 'margin-bottom: ' . $element['config']->margin_bottom . '; ';
                             }
-                            if (!empty($element['config']->margin_left)) {
+
+                            if (! empty($element['config']->margin_left)) {
                                 $marginStyle .= 'margin-left: ' . $element['config']->margin_left . '; ';
                             }
                             ?>
-                            <div id="table-<?= $element["element_id"] ?>"<?= !empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
+                            <div id="table-<?= $element['element_id'] ?>"<?= ! empty($marginStyle) ? ' style="' . $marginStyle . '"' : '' ?>>
                                 <?php
                                     echo TableElement::widget([
                                         'edit_perm' => $edit_perm,
-                                        'element_id' => $element["element_id"],
-                                        'title' => $element["config"]->title,
-                                        'description' => $element["config"]->description,
-                                        'heading_type' => $element["config"]->heading_type,
-                                        'hide_when_empty' => $element["config"]->hide_when_empty,
-                                        'max_rows' => $element["config"]->max_rows,
-                                        'table_headers' => ArrayHelper::map($element["config"]->elementTableHeaders, 'header_name', 'header_width'),
-                                        'table_data' => $element["config"]->table_data,
-                                        'last_updated'  => $element["config"]->last_updated,
+                                        'element_id' => $element['element_id'],
+                                        'title' => $element['config']->title,
+                                        'description' => $element['config']->description,
+                                        'heading_type' => $element['config']->heading_type,
+                                        'hide_when_empty' => $element['config']->hide_when_empty,
+                                        'max_rows' => $element['config']->max_rows,
+                                        'table_headers' => ArrayHelper::map($element['config']->elementTableHeaders, 'header_name', 'header_width'),
+                                        'table_data' => $element['config']->table_data,
+                                        'last_updated' => $element['config']->last_updated,
                                     ]);
                                 ?>
                             </div>
                             <?php
                             break;
-                            
+
                         default:
                             break;
                     }
                 }
-                echo "</div>"; // end main-content
-                echo "</div>"; // end profile-toc-wrap
-                echo "</div>"; // end scholar-profile
+                echo '</div>'; // end main-content
+                echo '</div>'; // end profile-toc-wrap
+                echo '</div>'; // end scholar-profile
             ?>
         </div>
 
@@ -946,7 +982,7 @@ use yii\bootstrap\NavBar;
     */ ?>
 
     <!-- Report Profile Modal -->
-    <?php if (!$edit_perm && !Yii::$app->user->isGuest): ?>
+    <?php if (! $edit_perm && ! Yii::$app->user->isGuest): ?>
         <?php
         $footer = '
             <button class="btn btn-custom-color" type="button" id="submit-report-btn">Submit Report</button>

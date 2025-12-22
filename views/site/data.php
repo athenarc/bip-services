@@ -2,9 +2,7 @@
 
 /* @var $this yii\web\View */
 
-use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\web\Request;
 use yii\web\View;
 
 $this->title = 'BIP! Data & API';

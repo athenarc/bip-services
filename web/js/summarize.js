@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(() => {
     const $summarizeBtn = $('#summarizeBtn');
     const $summaryCount = $('#summary-count');
     const $summaryText = $('#summaryText');
@@ -21,13 +21,13 @@ $(document).ready(function () {
 
     $summaryCount.attr({
         min: 1,
-        max: Math.min(20, maxAvailable)
-    }).val(Math.min(6, maxAvailable));
+        max: Math.min(20, maxAvailable),
+    }).val(Math.min(5, maxAvailable));
 
     checkQuotaOnLoad();
 
     function checkQuotaOnLoad() {
-        $.get(`${appBaseUrl}/site/check-summary-quota`, function (response) {
+        $.get(`${appBaseUrl}/site/check-summary-quota`, response => {
             if (response.quotaReached) {
                 quotaReached = true;
                 $summarizeBtn
@@ -60,7 +60,7 @@ $(document).ready(function () {
         $summaryLoading.show();
 
         $.post(`${appBaseUrl}/site/summarize`, { paperIds, keywords, limit })
-            .done(function (response) {
+            .done(response => {
                 $summaryLoading.hide();
 
                 if (response.error) {
@@ -78,20 +78,20 @@ $(document).ready(function () {
                 $copySummaryWrapper.show();
 
                 // Refresh quota display after each summary
-                $.get(`${appBaseUrl}/site/check-summary-quota`, function (quotaResp) {
+                $.get(`${appBaseUrl}/site/check-summary-quota`, quotaResp => {
                     if (quotaResp.used !== undefined && quotaResp.limit !== undefined) {
                         updateUsageInfo(quotaResp.used, quotaResp.limit);
                     }
                 });
             })
-            .fail(function () {
+            .fail(() => {
                 $summaryLoading.hide();
                 $summaryText.html('Failed to generate summary.').show();
             });
     }
 
-    $summarizeBtn.on('click', function () {
-        if (quotaReached) return;
+    $summarizeBtn.on('click', () => {
+        if (quotaReached) { return; }
 
         const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
         const hasSummary = !!$summaryText.html().trim();
@@ -103,24 +103,24 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click', '#regenerate-summary-btn', function () {
-        if (quotaReached) return;
+    $(document).on('click', '#regenerate-summary-btn', () => {
+        if (quotaReached) { return; }
 
         const topN = parseInt($summaryCount.val(), 10);
-        if (isNaN(topN) || topN < 0 || topN > 20) return;
+        if (isNaN(topN) || topN < 0 || topN > 20) { return; }
 
         generateSummary(topN);
     });
 
-    $(document).on('keydown', '#summary-count', function (e) {
+    $(document).on('keydown', '#summary-count', e => {
         if (e.key === 'Enter') {
             e.preventDefault();
             $('#regenerate-summary-btn').click();
         }
     });
 
-    $copyBtn.on('click', function () {
-        if (!window.originalSummary) return;
+    $copyBtn.on('click', () => {
+        if (!window.originalSummary) { return; }
 
         navigator.clipboard.writeText(window.originalSummary).then(() => {
             $copyBtn.attr('data-original-title', 'Summary copied!').tooltip('show').off('mouseenter focus');

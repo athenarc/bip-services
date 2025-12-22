@@ -1,79 +1,78 @@
-function progressCircle( bar_color, number_color, percentage, div_id)
-{
-	var bluring_size = 1;
-	
-	var color = bar_color;
+function progressCircle(bar_color, number_color, percentage, div_id) {
+    const bluring_size = 1;
 
-	var radius = 100;
-	var border = 10;
-	var padding = 30;
-	var startPercent = percentage; 
-	var endPercent = percentage;
+    const color = bar_color;
 
-
-	var twoPi = Math.PI * 2;
-	var formatPercent = d3.format('.0%');
-	var boxSize = (radius + padding) * 2;
+    const radius = 100;
+    const border = 10;
+    const padding = 30;
+    const startPercent = percentage;
+    const endPercent = percentage;
 
 
-	var count = Math.abs((endPercent - startPercent) / 0.01);
-	var step = endPercent < startPercent ? -0.01 : 0.01;
+    const twoPi = Math.PI * 2;
+    const formatPercent = d3.format('.0%');
+    const boxSize = (radius + padding) * 2;
 
-	var arc = d3.svg.arc()
-		.startAngle(0)
-		.innerRadius(radius)
-		.outerRadius(radius - border);
 
-	var parent = d3.select('div#'+div_id);
+    const count = Math.abs((endPercent - startPercent) / 0.01);
+    const step = endPercent < startPercent ? -0.01 : 0.01;
 
-	var svg = parent.append('svg')
-		.attr('width', boxSize)
-		.attr('height', boxSize);
+    const arc = d3.svg.arc()
+        .startAngle(0)
+        .innerRadius(radius)
+        .outerRadius(radius - border);
 
-	var defs = svg.append('defs');
+    const parent = d3.select(`div#${div_id}`);
 
-	var filter = defs.append('filter')
-		.attr('id', 'blur');
+    const svg = parent.append('svg')
+        .attr('width', boxSize)
+        .attr('height', boxSize);
 
-	filter.append('feGaussianBlur')
-		.attr('in', 'SourceGraphic')
-		.attr('stdDeviation', bluring_size);
+    const defs = svg.append('defs');
 
-	var g = svg.append('g')
-		.attr('transform', 'translate(' + boxSize / 2 + ',' + boxSize / 2 + ')');
+    const filter = defs.append('filter')
+        .attr('id', 'blur');
 
-	var meter = g.append('g')
-		.attr('class', 'progress-meter');
+    filter.append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', bluring_size);
 
-	meter.append('path')
-		.attr('class', 'background')
-		.attr('fill', '#ccc')
-		.attr('fill-opacity', 0.5)
-		.attr('d', arc.endAngle(twoPi));
+    const g = svg.append('g')
+        .attr('transform', `translate(${ boxSize / 2 },${ boxSize / 2 })`);
 
-	var foreground = meter.append('path')
-		.attr('class', 'foreground')
-		.attr('fill', color)
-		.attr('fill-opacity', 1)
-		.attr('stroke', color)
-		.attr('stroke-width', 5)
-		.attr('stroke-opacity', 1)
-		.attr('filter', 'url(#blur)');
+    const meter = g.append('g')
+        .attr('class', 'progress-meter');
 
-	var front = meter.append('path')
-		.attr('class', 'foreground')
-		.attr('fill', color)
-		.attr('fill-opacity', 1);
+    meter.append('path')
+        .attr('class', 'background')
+        .attr('fill', '#ccc')
+        .attr('fill-opacity', 0.5)
+        .attr('d', arc.endAngle(twoPi));
 
-	var numberText = meter.append('text')
-		.attr('fill', number_color)
-		.attr('text-anchor', 'middle')
-		.attr('dy', '.35em');
+    const foreground = meter.append('path')
+        .attr('class', 'foreground')
+        .attr('fill', color)
+        .attr('fill-opacity', 1)
+        .attr('stroke', color)
+        .attr('stroke-width', 5)
+        .attr('stroke-opacity', 1)
+        .attr('filter', 'url(#blur)');
 
-	var progress = startPercent;
+    const front = meter.append('path')
+        .attr('class', 'foreground')
+        .attr('fill', color)
+        .attr('fill-opacity', 1);
 
-	foreground.attr('d', arc.endAngle(twoPi * progress));
-	front.attr('d', arc.endAngle(twoPi * progress));
-	numberText.text(formatPercent(progress)); 	
+    const numberText = meter.append('text')
+        .attr('fill', number_color)
+        .attr('text-anchor', 'middle')
+        .attr('dy', '.35em');
+
+    const progress = startPercent;
+
+    foreground.attr('d', arc.endAngle(twoPi * progress));
+    front.attr('d', arc.endAngle(twoPi * progress));
+    numberText.text(formatPercent(progress));
 }
 

@@ -1,15 +1,11 @@
-function cookieAcceptClick(link)
-{
+function cookieAcceptClick(link) {
+    const button = document.getElementsByClassName('cookie-container')[0];
 
-	var button=document.getElementsByClassName("cookie-container")[0];
+    button.style.display = 'none';
 
-	button.style.display="none";
-
-	$.ajax({
+    $.ajax({
     		url: link,
     		context: document.body,
-    		success: function(){ return 0;}
-			});
-
-
+    		success: function () { return 0; },
+    });
 }

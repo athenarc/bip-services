@@ -4,43 +4,32 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Elements;
 use yii\db\Query;
 
 /**
  * ElementsSearch represents the model behind the search form of `app\models\Elements`.
  */
-class ElementsSearch extends Elements
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+class ElementsSearch extends Elements {
+    public function rules() {
         return [
             [['id', 'template_id', 'order'], 'integer'],
             [['name', 'type'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
-    {
+    public function scenarios() {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * Creates data provider instance with search query applied.
      *
      * @param array $params
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
-    {
+    public function search($params) {
         $query = Elements::find();
 
         // add conditions that should always apply here
@@ -51,7 +40,7 @@ class ElementsSearch extends Elements
 
         $this->load($params);
 
-        if (!$this->validate()) {
+        if (! $this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
             return $dataProvider;
@@ -70,8 +59,7 @@ class ElementsSearch extends Elements
         return $dataProvider;
     }
 
-    public static function findElementsUsers($template_id)
-    {
+    public static function findElementsUsers($template_id) {
         $query1 = (new Query())
             ->select(['element_id', 'template_id', 'total_users' => 'COUNT(*)'])
             ->from(ElementTableInstances::tableName())

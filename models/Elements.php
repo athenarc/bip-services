@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use Yii;
-
 /**
  * This is the model class for table "elements".
  *
@@ -16,21 +14,12 @@ use Yii;
  * @property Templates $template
  * @property Indicators[] $indicators
  */
-class Elements extends \yii\db\ActiveRecord
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
+class Elements extends \yii\db\ActiveRecord {
+    public static function tableName() {
         return 'elements';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['template_id', 'name', 'type'], 'required'],
             [['template_id', 'order'], 'integer'],
@@ -40,11 +29,7 @@ class Elements extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'template_id' => 'Template ID',
@@ -59,8 +44,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTemplate()
-    {
+    public function getTemplate() {
         return $this->hasOne(Templates::class, ['id' => 'template_id']);
     }
 
@@ -69,8 +53,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFacets()
-    {
+    public function getFacets() {
         return $this->hasMany(Facets::class, ['id' => 'facet_id'])->viaTable('element_facets', ['element_id' => 'id']);
     }
 
@@ -79,8 +62,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementFacets()
-    {
+    public function getElementFacets() {
         return $this->hasMany(ElementFacets::class, ['element_id' => 'id']);
     }
 
@@ -89,8 +71,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getIndicators()
-    {
+    public function getIndicators() {
         return $this->hasMany(Indicators::class, ['id' => 'indicator_id'])->viaTable('element_indicators', ['element_id' => 'id']);
     }
 
@@ -99,8 +80,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementIndicators()
-    {
+    public function getElementIndicators() {
         return $this->hasMany(ElementIndicators::class, ['element_id' => 'id']);
     }
 
@@ -109,8 +89,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementNarratives()
-    {
+    public function getElementNarratives() {
         return $this->hasOne(ElementNarratives::class, ['element_id' => 'id']);
     }
 
@@ -119,8 +98,7 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementDividers()
-    {
+    public function getElementDividers() {
         return $this->hasOne(ElementDividers::class, ['element_id' => 'id']);
     }
 
@@ -129,18 +107,16 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementContributions()
-    {
+    public function getElementContributions() {
         return $this->hasOne(ElementContributions::class, ['element_id' => 'id']);
     }
-    
+
     /**
      * Gets query for [[ElementDropdown]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementDropdown()
-    {
+    public function getElementDropdown() {
         return $this->hasOne(ElementDropdown::class, ['element_id' => 'id']);
     }
 
@@ -149,23 +125,20 @@ class Elements extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementBulletedList()
-    {
+    public function getElementBulletedList() {
         return $this->hasOne(ElementBulletedList::class, ['element_id' => 'id']);
     }
 
-        /**
+    /**
      * Gets query for [[ElementTable]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getElementTable()
-    {
+    public function getElementTable() {
         return $this->hasOne(ElementTable::class, ['element_id' => 'id']);
     }
 
-    public function getLinkedContributionElement()
-    {
+    public function getLinkedContributionElement() {
         if ($this->type === 'Facets') {
             $relation = $this->elementFacets[0] ?? null;
         } elseif ($this->type === 'Indicators') {
@@ -175,11 +148,9 @@ class Elements extends \yii\db\ActiveRecord
         }
 
         if ($relation && $relation->linked_contribution_element_id) {
-            return Elements::findOne($relation->linked_contribution_element_id);
+            return self::findOne($relation->linked_contribution_element_id);
         }
 
         return null;
     }
-
-
 }

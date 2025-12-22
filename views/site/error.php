@@ -11,10 +11,10 @@ $this->title = $name;
 ?>
 <div class="container site-error">
     <?php if ($exception->statusCode == 404) { ?>
-        <?= Html::img("@web/img/bip_404.png", ['alt' => '404', 'class' => 'img-responsive center-block' ]) ?>
+        <?= Html::img('@web/img/bip_404.png', ['alt' => '404', 'class' => 'img-responsive center-block']) ?>
 
 
-    <? } else { ?>
+    <?php } else { ?>
         <h1>Holy BIP!</h1>
 
         <div class="alert alert-danger">
