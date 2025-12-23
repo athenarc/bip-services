@@ -1225,7 +1225,7 @@ class SiteController extends BaseController {
         $space_id_update = Yii::$app->request->post('space_id_update');
         $model = Spaces::fetchSpaces($space_id_update);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
 
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
 
@@ -1249,7 +1249,7 @@ class SiteController extends BaseController {
         $current_space_id = Yii::$app->request->post('Spaces')['id'];
         $model = Spaces::fetchSpaces($current_space_id);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
 
         // create new or update existing
         if ($model->load(Yii::$app->request->post())) {

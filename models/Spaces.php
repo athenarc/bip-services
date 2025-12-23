@@ -420,6 +420,10 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     public function getAnnotations() {
+        return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->where(['enabled' => 1]);
+    }
+
+    public function getAllAnnotations() {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
     }
 
