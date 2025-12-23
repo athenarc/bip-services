@@ -79,8 +79,8 @@ class Spaces extends \yii\db\ActiveRecord {
             'type' => 'Type',
             'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
-            'has_annotations_flag' => 'Show annotations flag',
-            'enable_annotations_flag' => 'Enable annotations flag',
+            'has_annotations_flag' => 'Show annotations filter',
+            'enable_annotations_flag' => 'Enable annotations filter',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
@@ -428,36 +428,40 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
-     * Get annotation descriptions as an array
+     * Get annotation descriptions as an array.
      * @return array Array of annotation descriptions
      */
     public function getEnabledAnnotationNames() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
         $annotation_descriptions = [];
-        if (!empty($all_annotations)) {
+
+        if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (!empty($annotation->description)) {
+                if (! empty($annotation->description)) {
                     $annotation_descriptions[] = $annotation->description;
                 }
             }
         }
+
         return $annotation_descriptions;
     }
 
     /**
-     * Get annotation IDs and descriptions as an associative array
+     * Get annotation IDs and descriptions as an associative array.
      * @return array Array with annotation_id as key and description as value
      */
     public function getEnabledAnnotationMap() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
         $annotation_map = [];
-        if (!empty($all_annotations)) {
+
+        if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (!empty($annotation->description)) {
+                if (! empty($annotation->description)) {
                     $annotation_map[$annotation->id] = $annotation->description;
                 }
             }
         }
+
         return $annotation_map;
     }
 

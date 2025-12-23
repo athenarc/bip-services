@@ -258,7 +258,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <h3>Annotations</h3>
 
-        <div><label class="control-label">Annotations Flag</label></div>
+        <div><label class="control-label">Anotations Filter</label></div>
 
         <?= $form->field($model, 'has_annotations_flag', [
             'enableClientValidation' => false,
