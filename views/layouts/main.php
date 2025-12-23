@@ -7,6 +7,7 @@ use app\assets\AppAsset;
 use app\components\CookieBox;
 use app\components\GoogleAnalytics;
 use app\components\Matomo;
+use app\components\EvaluationModeOverlay;
 use Yii;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -49,6 +50,12 @@ AppAsset::register($this);
 </head>
 <body>
 <?php $this->beginBody() ?>
+
+<?= EvaluationModeOverlay::widget([
+    'active' => $this->params['evaluationModeActive'] ?? false,
+    'label' => 'Evaluation Mode',
+    'color' => $this->params['evaluationModeColor'] ?? null,
+]) ?>
 
 <div id="overwrap">
     <div class="wrap">
