@@ -13,8 +13,20 @@
     display: inline-block !important;
 }
 
+.annotation-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 3px;
+    align-items: center;
+}
+
 .annotation-tab {
     transition: all 0.2s ease-in-out;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    margin-right: 4px;
+    text-decoration: none;
 }
 
 .annotation-tab:not(.active):not(:hover) {
@@ -24,16 +36,68 @@
 }
 
 .annotation-tab.active {
+    background-color: #e6e6e6 !important;
+    border-color: var(--main-color, #333) !important;
     color: var(--main-color, #333) !important;
-    background-color: var(--lighter-color, #e6e6e6) !important;
+}
+
+.annotation-tab.active span:not(.badge) {
+    color: var(--main-color, #333) !important;
+}
+
+.annotation-tab .badge {
+    background-color: #666 !important;
+    color: white !important;
+    top: -1px !important;
+    margin-left: 4px;
+}
+
+.annotation-tab.active .badge {
+    background-color: white !important;
+    color: var(--main-color, #333) !important;
+    border: 1px solid var(--main-color, #333) !important;
+}
+
+.expand-all-annotations-global-btn {
+    transition: all 0.2s ease-in-out;
+    height: 30px;
+    padding: 4px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    display: inline-flex;
+    align-items: center;
+}
+
+.expand-all-annotations-global-btn .expand-all-global-text {
+    margin-left: 3px;
+}
+
+.expand-all-annotations-global-btn:not(.active):not(:hover) {
+    background-color: unset !important;
+    border-color: unset !important;
+    color: unset !important;
+}
+
+.expand-all-annotations-global-btn:hover:not(.active) {
     border-color: var(--main-color, #adadad) !important;
-}
-
-.annotation-tab.active i.fa-tag {
     color: var(--main-color, #333) !important;
 }
 
-.annotation-tab.active span {
+.expand-all-annotations-global-btn.active {
+    background-color: #e6e6e6 !important;
+    border-color: var(--main-color, #333) !important;
     color: var(--main-color, #333) !important;
+}
+
+.annotation-group-label {
+    display: inline-block;
+    background-color: var(--darker-color, #333);
+    color: white;
+    padding: 2px 12px 2px 6px;
+    margin-right: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    vertical-align: middle;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
 

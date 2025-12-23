@@ -11,7 +11,7 @@ $(document).ready(() => {
 
     $copyBtn.tooltip();
 
-    const allPaperIds = JSON.parse($summarizeBtn.attr('data-paper-ids'));
+    const allPaperIds = JSON.parse($summarizeBtn.attr('data-paper-ids') || '[]');
     const keywords = $summarizeBtn.attr('data-keywords');
     const maxAvailable = allPaperIds.length;
     const defaultLimit = Math.min(5, maxAvailable);

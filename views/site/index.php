@@ -263,8 +263,8 @@ if ($in_space) {
                             $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
                         ?>
 
-                        <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
-                            <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                        <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                            <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
                                 <button id="summarizeBtn" class="btn btn-default btn-sm" 
                                         data-paper-ids='<?= json_encode(array_map(function ($result) {
                             return $result['internal_id'];
@@ -274,8 +274,8 @@ if ($in_space) {
                                     >
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
                                 </button>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <div id="summary_panel" class="collapse row">
@@ -325,6 +325,26 @@ if ($in_space) {
                         </div>
                     </div>
 
+                    <?php if ($in_space && ! empty($results['rows'])): ?>
+                        <?php 
+                            // Get enabled annotation names
+                            $annotation_names = array_map(function($name) {
+                                return Html::encode($name);
+                            }, $space_model->getEnabledAnnotationNames());
+                        ?>
+                        <?php if (!empty($annotation_names)): ?>
+                            <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
+                                <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                                    <span>This space provides annotations for <?= implode(', ', $annotation_names) ?>.</span>
+                                    <button id="expandAllAnnotationsBtn" class="btn btn-default btn-sm expand-all-annotations-global-btn" 
+                                            onclick="toggleAllAnnotationTabsGlobal(); return false;"
+                                            title="Expand/Collapse all annotation tabs">
+                                        <i class="fa-solid fa-angles-down"></i><span class="expand-all-global-text">Expand all</span>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
                             <?php
