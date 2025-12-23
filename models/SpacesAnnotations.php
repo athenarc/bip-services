@@ -71,6 +71,141 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
     }
 
     /**
+     * Validates query syntax for annotation queries.
+     * Checks if query has doi/DOI in RETURN and if COLLECT has id and label properties.
+     * 
+     * @param string $query The query string to validate
+     * @return array ['valid' => bool, 'errors' => array]
+     */
+    public static function validateQuerySyntax($query) {
+        if (empty($query)) {
+            return ['valid' => false, 'errors' => ['Query is empty']];
+        }
+        
+        $errors = [];
+        
+        // Check if query contains RETURN clause
+        if (!preg_match('/RETURN/i', $query)) {
+            $errors[] = 'Query must contain a RETURN clause';
+            return ['valid' => false, 'errors' => $errors];
+        }
+        
+        // Extract everything after RETURN (until ORDER BY/LIMIT/SKIP or end)
+        if (preg_match(
+            // Capture everything after RETURN up to ORDER BY / LIMIT / SKIP or end of string
+            '/RETURN\s+(.+?)(?=\s+(?:ORDER\s+BY|LIMIT|SKIP)|$)/is',
+            $query,
+            $matches
+        )) {
+            $returnClause = trim($matches[1]);
+            
+            // Check 1: Must contain doi or DOI
+            if (!preg_match('/\bdoi\b/i', $returnClause)) {
+                $errors[] = 'RETURN clause must contain doi or DOI property';
+            }
+            
+            // Check 2: Must have COLLECT
+            if (!preg_match('/COLLECT/i', $returnClause)) {
+                $errors[] = 'Query must contain COLLECT';
+            } else {
+                // Find COLLECT and extract its content (handle nested brackets)
+                $collectStart = stripos($returnClause, 'COLLECT');
+                $afterCollect = substr($returnClause, $collectStart);
+                
+                // Find opening bracket
+                $openPos = strpos($afterCollect, '(');
+                if ($openPos === false) {
+                    $openPos = strpos($afterCollect, '{');
+                    $closeChar = '}';
+                } else {
+                    $closeChar = ')';
+                }
+                
+                if ($openPos !== false) {
+                    // Extract content inside COLLECT brackets (handle nested)
+                    $collectContent = '';
+                    $depth = 0;
+                    for ($i = $openPos + 1; $i < strlen($afterCollect); $i++) {
+                        $char = $afterCollect[$i];
+                        if ($char === $closeChar && $depth === 0) {
+                            break;
+                        }
+                        if ($char === '(' || $char === '{') {
+                            $depth++;
+                        } elseif ($char === ')' || $char === '}') {
+                            $depth--;
+                        }
+                        $collectContent .= $char;
+                    }
+                    
+                    // Check for id property at top level of COLLECT (not nested in arrays [])
+                    // Must be "id: <value>" or "id = <value)" and value must not be empty
+                    $hasId = false;
+                    if (preg_match_all('/\bid\s*[:=]/i', $collectContent, $idMatches, PREG_OFFSET_CAPTURE)) {
+                        foreach ($idMatches[0] as $match) {
+                            $pos = $match[1];
+                            // Check if before this position there are unmatched [ brackets
+                            $before = substr($collectContent, 0, $pos);
+                            $openBrackets = substr_count($before, '[') - substr_count($before, ']');
+                            // If no unmatched [ brackets, it's top-level
+                            if ($openBrackets == 0) {
+                                // Now check that id has a non-empty value after : or =
+                                $fromId = substr($collectContent, $pos);
+                                if (preg_match('/\bid\s*[:=]\s*([^,\]\}]+)/i', $fromId, $valueMatch)) {
+                                    $idValue = trim($valueMatch[1]);
+                                    if ($idValue !== '') {
+                                        $hasId = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!$hasId) {
+                        $errors[] = 'COLLECT must contain id property with non-empty value';
+                    }
+                    
+                    // Check for label property at top level of COLLECT (not nested in arrays [])
+                    // Must be "label: <value>" or "label = <value)" and value must not be empty
+                    $hasLabel = false;
+                    if (preg_match_all('/\blabel\s*[:=]/i', $collectContent, $labelMatches, PREG_OFFSET_CAPTURE)) {
+                        foreach ($labelMatches[0] as $match) {
+                            $pos = $match[1];
+                            // Check if before this position there are unmatched [ brackets
+                            $before = substr($collectContent, 0, $pos);
+                            $openBrackets = substr_count($before, '[') - substr_count($before, ']');
+                            // If no unmatched [ brackets, it's top-level
+                            if ($openBrackets == 0) {
+                                // Now check that label has a non-empty value after : or =
+                                $fromLabel = substr($collectContent, $pos);
+                                if (preg_match('/\blabel\s*[:=]\s*([^,\]\}]+)/i', $fromLabel, $valueMatch)) {
+                                    $labelValue = trim($valueMatch[1]);
+                                    if ($labelValue !== '') {
+                                        $hasLabel = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!$hasLabel) {
+                        $errors[] = 'COLLECT must contain label property with non-empty value';
+                    }
+                } else {
+                    $errors[] = 'COLLECT syntax is invalid';
+                }
+            }
+        } else {
+            $errors[] = 'Query must contain a RETURN clause';
+        }
+        
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    /**
      * Gets query for [[Spaces]].
      *
      * @return \yii\db\ActiveQuery

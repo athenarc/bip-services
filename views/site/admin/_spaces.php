@@ -3,6 +3,7 @@
 use app\components\CustomBootstrapCheckboxList;
 use app\components\CustomBootstrapRadioList;
 use app\components\PubmedTypesModal;
+use app\models\SpacesAnnotations;
 use wbraganca\dynamicform\DynamicFormWidget;
 use Yii;
 use yii\helpers\Html;
@@ -362,7 +363,33 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div><!-- .row -->
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <?php
+                            $modelSpacesAnnotations->clearErrors('query');
+                            
+                            $query = $modelSpacesAnnotations->query;
+                            $fieldOptions = [];
+                            
+                            if (!empty($query)) {
+                                $validation = SpacesAnnotations::validateQuerySyntax($query);
+                                
+                                if (!$validation['valid']) {
+                                    $fieldOptions['options'] = ['class' => 'form-group has-error'];
+                                    $errorMessages = [];
+                                    foreach ($validation['errors'] as $error) {
+                                        $errorMessages[] = Html::encode($error);
+                                    }
+                                    $modelSpacesAnnotations->addError('query', implode('<br>', $errorMessages));
+                                }
+                            }
+                            
+                            $field = $form->field($modelSpacesAnnotations, "[{$i}]query", $fieldOptions);
+                            
+                            if (!empty($query) && isset($validation) && $validation['valid']) {
+                                $field = $field->hint('<span style="color: green;">Query validated</span>');
+                            }
+                            
+                            echo $field->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']);
+                        ?>
                     </div>
                 </div>
                 <div class="row">
