@@ -2,7 +2,7 @@
     opacity: 0;
     max-height: 0;
     overflow: hidden;
-    transition: opacity 0.3s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.3s ease-in-out;
+    transition: opacity 0.2s ease-in-out, max-height 0.2s ease-in-out, margin-top 0.2s ease-in-out;
     margin-top: 0;
 }
 
@@ -10,7 +10,7 @@
     opacity: 1;
     max-height: 2000px;
     margin-top: 3px;
-    display: inline-block !important;
+    display: block !important;
 }
 
 .annotation-tabs {
@@ -58,36 +58,6 @@
     border: 1px solid var(--main-color, #333) !important;
 }
 
-.expand-all-annotations-global-btn {
-    transition: all 0.2s ease-in-out;
-    height: 30px;
-    padding: 4px 12px;
-    font-size: 12px;
-    line-height: 1.5;
-    display: inline-flex;
-    align-items: center;
-}
-
-.expand-all-annotations-global-btn .expand-all-global-text {
-    margin-left: 3px;
-}
-
-.expand-all-annotations-global-btn:not(.active):not(:hover) {
-    background-color: unset !important;
-    border-color: unset !important;
-    color: unset !important;
-}
-
-.expand-all-annotations-global-btn:hover:not(.active) {
-    color: var(--main-color, #333) !important;
-}
-
-.expand-all-annotations-global-btn.active {
-    background-color: #e6e6e6 !important;
-    border-color: var(--main-color, #333) !important;
-    color: var(--main-color, #333) !important;
-}
-
 .annotation-group-label {
     display: inline-block;
     background-color: var(--darker-color, #333);
@@ -100,3 +70,13 @@
     clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
 
+/* Remove underline from annotation type links in all states */
+[data-annotation-id] {
+    text-decoration: none !important;
+}
+
+/* Prevent visited link color change for annotation type links */
+[data-annotation-id]:link,
+[data-annotation-id]:visited {
+    color: var(--main-color) !important;
+}

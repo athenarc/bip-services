@@ -445,6 +445,23 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
+     * Get annotation IDs and descriptions as an associative array
+     * @return array Array with annotation_id as key and description as value
+     */
+    public function getEnabledAnnotationMap() {
+        $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
+        $annotation_map = [];
+        if (!empty($all_annotations)) {
+            foreach ($all_annotations as $annotation) {
+                if (!empty($annotation->description)) {
+                    $annotation_map[$annotation->id] = $annotation->description;
+                }
+            }
+        }
+        return $annotation_map;
+    }
+
+    /**
      * Custom validator to check that either both fields are empty or both are filled.
      */
     public function validateBothOrNone($attribute, $params, $validator) {

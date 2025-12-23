@@ -327,20 +327,17 @@ if ($in_space) {
 
                     <?php if ($in_space && ! empty($results['rows'])): ?>
                         <?php 
-                            // Get enabled annotation names
-                            $annotation_names = array_map(function($name) {
-                                return Html::encode($name);
-                            }, $space_model->getEnabledAnnotationNames());
+                            // Get enabled annotation map (id => description)
+                            $annotation_map = $space_model->getEnabledAnnotationMap();
+                            $annotation_names_encoded = [];
+                            foreach ($annotation_map as $annotation_id => $description) {
+                                $annotation_names_encoded[] = '<a href="#" class="green-bip" data-annotation-id="' . Html::encode($annotation_id) . '" onclick="expandAnnotationType(' . Html::encode($annotation_id) . '); return false;">' . Html::encode($description) . '</a>';
+                            }
                         ?>
-                        <?php if (!empty($annotation_names)): ?>
+                        <?php if (!empty($annotation_names_encoded)): ?>
                             <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
                                 <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                                    <span>This space provides annotations for <?= implode(', ', $annotation_names) ?>.</span>
-                                    <button id="expandAllAnnotationsBtn" class="btn btn-default btn-sm expand-all-annotations-global-btn" 
-                                            onclick="toggleAllAnnotationTabsGlobal(); return false;"
-                                            title="Expand/Collapse all annotation tabs">
-                                        <i class="fa-solid fa-angles-down"></i><span class="expand-all-global-text">Expand all</span>
-                                    </button>
+                                    <span>This space provides annotations for <?= implode(', ', $annotation_names_encoded) ?>.</span>
                                 </div>
                             </div>
                         <?php endif; ?>
