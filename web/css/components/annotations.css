@@ -79,7 +79,6 @@
 }
 
 .expand-all-annotations-global-btn:hover:not(.active) {
-    border-color: var(--main-color, #adadad) !important;
     color: var(--main-color, #333) !important;
 }
 
