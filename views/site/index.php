@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\TinyColorAsset;
 use app\components\CustomBootstrapModal;
 use app\components\CustomFiltersCheckboxList;
 use app\components\CustomFiltersRadioList;
@@ -16,7 +17,9 @@ use yii\web\View;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'BIP! Services - Finder';
+// Check if we're in a space and set title accordingly
+$in_space = isset($space_model) && ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+$this->title = $in_space ? $space_model->display_name . ' - BIP! Space' : 'BIP! Services - Finder';
 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -25,7 +28,19 @@ $this->registerJsFile('@web/js/toggleFiltersSidebar.js', ['position' => View::PO
 $this->registerJsFile('@web/js/remove_filters.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/beforeSearchFormSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
+
+// Register space colors early if in space (right after tinycolor.js)
+if ($in_space) {
+    $spaceColor = $space_model->theme_color;
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
+}
+
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -47,14 +62,6 @@ $keywords = $model->keywords;
 $filters_count = $model->count_filters();
 $start_year = $model->start_year;
 $end_year = $model->end_year;
-
-$in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
-
-if ($in_space) {
-    $spaceColor = $space_model->theme_color;
-    $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
-    $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
-}
 ?>
 
 <div class="site-index">
