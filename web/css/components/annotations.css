@@ -1,0 +1,82 @@
+.annotation-content {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease-in-out, max-height 0.2s ease-in-out, margin-top 0.2s ease-in-out;
+    margin-top: 0;
+}
+
+.annotation-content.show {
+    opacity: 1;
+    max-height: 2000px;
+    margin-top: 3px;
+    display: block !important;
+}
+
+.annotation-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 3px;
+    align-items: center;
+}
+
+.annotation-tab {
+    transition: all 0.2s ease-in-out;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    margin-right: 4px;
+    text-decoration: none;
+}
+
+.annotation-tab:not(.active):not(:hover) {
+    background-color: unset !important;
+    border-color: unset !important;
+    color: unset !important;
+}
+
+.annotation-tab.active {
+    background-color: #e6e6e6 !important;
+    border-color: var(--main-color, #333) !important;
+    color: var(--main-color, #333) !important;
+}
+
+.annotation-tab.active span:not(.badge) {
+    color: var(--main-color, #333) !important;
+}
+
+.annotation-tab .badge {
+    background-color: #666 !important;
+    color: white !important;
+    top: -1px !important;
+    margin-left: 4px;
+}
+
+.annotation-tab.active .badge {
+    background-color: white !important;
+    color: var(--main-color, #333) !important;
+    border: 1px solid var(--main-color, #333) !important;
+}
+
+.annotation-group-label {
+    display: inline-block;
+    background-color: var(--darker-color, #333);
+    color: white;
+    padding: 2px 12px 2px 6px;
+    margin-right: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    vertical-align: middle;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+
+/* Remove underline from annotation type links in all states */
+[data-annotation-id] {
+    text-decoration: none !important;
+}
+
+/* Prevent visited link color change for annotation type links */
+[data-annotation-id]:link,
+[data-annotation-id]:visited {
+    color: var(--main-color) !important;
+}
