@@ -123,6 +123,34 @@ class Spaces extends \yii\db\ActiveRecord {
         $this->convertToArray('pubmed_types');
     }
 
+    /**
+     * Whether evaluation mode should be considered active for the given (or current) user.
+     *
+     * Evaluation mode is active only when:
+     * - we are inside a concrete space instance (has an id)
+     * - the user is logged in
+     * - at least one of the evaluation features is enabled for this space
+     *
+     * @param int|null $userId
+     * @return bool
+     */
+    public function isEvaluationModeActive(?int $userId = null): bool {
+        if (!isset($this->id)) {
+            return false;
+        }
+
+        if ($userId === null) {
+            $userId = \Yii::$app->user->id;
+        }
+
+        if (!isset($userId)) {
+            return false;
+        }
+
+        return (bool) (($this->enable_like_dislike_records ?? false)
+            || ($this->enable_like_dislike_annotations ?? false));
+    }
+
     public function beforeValidate() {
         if (! parent::beforeValidate()) {
             return false;

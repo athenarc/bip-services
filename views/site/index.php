@@ -62,6 +62,20 @@ $keywords = $model->keywords;
 $filters_count = $model->count_filters();
 $start_year = $model->start_year;
 $end_year = $model->end_year;
+
+$in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+
+// Determine evaluation mode flag using model logic
+$this->params['evaluationModeActive'] = $space_model->isEvaluationModeActive();
+
+if ($in_space) {
+    $spaceColor = $space_model->theme_color;
+    // Pass theme color of current space to layout for the evaluation overlay
+    $this->params['evaluationModeColor'] = $spaceColor;
+    $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
+    $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+}
+
 ?>
 
 <div class="site-index">
