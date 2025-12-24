@@ -161,8 +161,8 @@ class SiteController extends BaseController {
                     $post_request_array['type'] = $post_data_all['type'] ?? [];
                     $post_request_array['is_oa'] = $post_data_all['is_oa'] ?? [];
                     $post_request_array['pubmed_types'] = ! empty($post_data_all['pubmed_types']) ? explode(',', $post_data_all['pubmed_types']) : [];
-                    // convert checkbox array value to int (enable_annotations_flag is stored as boolean in the space model)
-                    $post_request_array['enable_annotations_flag'] = (int) ($post_data_all['enable_annotations_flag'][0] ?? 0);
+                    // annotations comes directly from the form (combines -1 for enable all and annotation IDs)
+                    $post_request_array['annotations'] = array_values(array_filter($post_data_all['annotations'] ?? []));
                 }
             }
 
@@ -1225,7 +1225,7 @@ class SiteController extends BaseController {
         $space_id_update = Yii::$app->request->post('space_id_update');
         $model = Spaces::fetchSpaces($space_id_update);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
 
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
 
@@ -1249,7 +1249,7 @@ class SiteController extends BaseController {
         $current_space_id = Yii::$app->request->post('Spaces')['id'];
         $model = Spaces::fetchSpaces($current_space_id);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
 
         // create new or update existing
         if ($model->load(Yii::$app->request->post())) {
@@ -2105,7 +2105,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
 
                             if (is_string($semanticsOrder)) {
@@ -2155,7 +2155,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2270,7 +2269,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $facets = [];
@@ -2330,7 +2329,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2468,7 +2466,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
@@ -2520,7 +2518,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2657,7 +2654,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $elementFacetsModel = $elementModel->elementFacets;
@@ -2725,7 +2722,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -3133,7 +3129,7 @@ class SiteController extends BaseController {
             $search_params['is_oa'],
             $search_params['pubmed_types'],
             $search_params['provided_by'],
-            $search_params['enable_annotations_flag'],
+            $search_params['annotations'] ?? [],
             $space_model
         );
 

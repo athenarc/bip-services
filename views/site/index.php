@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\TinyColorAsset;
 use app\components\CustomBootstrapModal;
 use app\components\CustomFiltersCheckboxList;
 use app\components\CustomFiltersRadioList;
@@ -16,16 +17,30 @@ use yii\web\View;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'BIP! Services - Finder';
+// Check if we're in a space and set title accordingly
+$in_space = isset($space_model) && ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+$this->title = $in_space ? $space_model->display_name . ' - BIP! Space' : 'BIP! Services - Finder';
 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/toggleFiltersSidebar.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/toggleFiltersSidebar.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/remove_filters.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/beforeSearchFormSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
+
+// Register space colors early if in space (right after tinycolor.js)
+if ($in_space) {
+    $spaceColor = $space_model->theme_color;
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
+}
+
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -50,11 +65,17 @@ $end_year = $model->end_year;
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
+// Determine evaluation mode flag using model logic
+$this->params['evaluationModeActive'] = $space_model->isEvaluationModeActive();
+
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
+    // Pass theme color of current space to layout for the evaluation overlay
+    $this->params['evaluationModeColor'] = $spaceColor;
     $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
     $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 }
+
 ?>
 
 <div class="site-index">
@@ -166,9 +187,20 @@ if ($in_space) {
                         <?php endif; ?>
 
                         <?php if ($space_model->has_annotations_flag): ?>
+                            <?php
+                            // Get enabled annotations for this space
+                            $enabled_annotations = $space_model->annotations;
+                            $annotation_options = [];
 
-                            <?= CustomFiltersCheckboxList::widget(['id' => 'enable_annotations_flag_filter', 'name' => 'enable_annotations_flag', 'model' => $model, 'form' => $form, 'items' => ['1' => 'Show only research products with annotations'], 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
-
+                            if (! empty($enabled_annotations)) {
+                                foreach ($enabled_annotations as $annotation) {
+                                    $annotation_options[$annotation->id] = $annotation->description ?? $annotation->name;
+                                }
+                            }
+                            ?>
+                            <?php if (! empty($annotation_options)): ?>
+                                <?= CustomFiltersCheckboxList::widget(['id' => 'annotations_filter', 'name' => 'annotations', 'model' => $model, 'form' => $form, 'items' => $annotation_options, 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
+                            <?php endif; ?>
                         <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
@@ -263,8 +295,8 @@ if ($in_space) {
                             $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
                         ?>
 
-                        <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
-                            <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                        <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                            <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
                                 <button id="summarizeBtn" class="btn btn-default btn-sm" 
                                         data-paper-ids='<?= json_encode(array_map(function ($result) {
                             return $result['internal_id'];
@@ -274,8 +306,8 @@ if ($in_space) {
                                     >
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
                                 </button>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <div id="summary_panel" class="collapse row">
@@ -325,6 +357,21 @@ if ($in_space) {
                         </div>
                     </div>
 
+                    <?php if ($in_space && ! empty($results['rows'])): ?>
+                        <?php
+                            // Get enabled annotation map (id => description)
+                            $annotation_ids = array_keys($space_model->getEnabledAnnotationMap());
+                        ?>
+                        <?php if (! empty($annotation_ids)): ?>
+                            <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
+                                <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center;">
+                                    <button type="button" class="btn btn-default btn-xs grey-link" id="expand-collapse-all-annotations" onclick="toggleAllAnnotations(); return false;">
+                                        <i class="fa fa-chevron-down" aria-hidden="true" id="expand-collapse-all-icon"></i> <span id="expand-collapse-all-text">Expand all annotations</span>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
                             <?php

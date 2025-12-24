@@ -9,6 +9,7 @@ $(document).ready(() => {
             $('#top_topics').hide();
             $('#summary_panel').hide();
             $('#researcher_panel').hide();
+            $('#annotation-expand-controls').hide();
 
             $('#loading_results').show();
             return true;

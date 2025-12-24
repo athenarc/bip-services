@@ -259,7 +259,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <h3>Annotations</h3>
 
-        <div><label class="control-label">Annotations Flag</label></div>
+        <div><label class="control-label">Anotations Filter</label></div>
 
         <?= $form->field($model, 'has_annotations_flag', [
             'enableClientValidation' => false,
@@ -405,6 +405,16 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 <div class="row">
                     <div class="col-xs-12">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_info")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
                     </div>
                 </div>
             </div>

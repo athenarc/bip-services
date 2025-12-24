@@ -3,6 +3,7 @@
 use app\components\AnnotationPopover;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
+use app\components\Annotations;
 use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -172,39 +173,15 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if (isset($item->show['annotations']) && $item->show['annotations']): ?>
         <!-- annotations -->
-            <?php if (! empty($item->annotations)): ?>
-                <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
-                    <div class="bootstrap-tagsinput">
-                    <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
-
-                    <?php foreach ($item->annotations as $annotation) { ?>
-                        <span class="tag label">
-                            <?php
-                            $annotation_content = AnnotationPopover::widget([
-                                'data' => $annotation['data'],
-                                'space_annotation_db' => $item->space_annotation_db,
-                                'space_url_suffix' => $item->space_url_suffix,
-                                'space_annotation_id' => $annotation['annotation_id'],
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
-                                'paper_id' => $item->internal_id,
-                                'annotation_name' => $annotation['label'],
-                                'annotation_id' => $annotation['id'] ?? null,
-                                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false
-                            ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
-                            <?php if (! empty($annotation['annotation_color'])):?>
-                                <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
-                            <?php endif; ?>
-                        </span>
-                    <?php } ?>
-
-                    </div>
-                </div>
-            <?php endif; ?>
-
-
+        <?php if (isset($item->show['annotations']) && $item->show['annotations']): ?>
+            <?= Annotations::widget([
+                'annotations' => $item->annotations ?? [],
+                'internal_id' => $item->internal_id,
+                'space_annotation_db' => $item->space_annotation_db,
+                'space_url_suffix' => $item->space_url_suffix,
+                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false,
+            ]) ?>
         <?php endif; ?>
 
         <!-- tags -->

@@ -1,0 +1,40 @@
+:root {
+    --evaluation-overlay-top-offset: 100px;
+    --evaluation-overlay-thickness: 42px;
+}
+
+.evaluation-mode-overlay {
+    position: fixed;
+    display: flex;
+    top: var(--evaluation-overlay-top-offset);
+    left: -1px;
+    z-index: 9999;
+    margin: 1px;
+    border-radius: 2px;
+    padding: 5px;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+    width: calc(((var(--evaluation-overlay-thickness) + var(--evaluation-overlay-top-offset)) / 0.7071) + 2px);
+    height: var(--evaluation-overlay-thickness);
+    transform-origin: bottom left;
+    transform: rotate(-45deg);
+    justify-content: center;
+    align-items: center;
+    /* Default color; can be overridden via inline style from widget */
+    background-color: rgba(0, 128, 128, 0.75);
+    color: #fff;
+}
+
+.evaluation-mode-overlay > div {
+    max-width: calc((var(--evaluation-overlay-top-offset) / 0.7071) - 2px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.evaluation-mode-overlay > div > h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+

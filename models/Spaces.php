@@ -13,6 +13,11 @@ class Spaces extends \yii\db\ActiveRecord {
     // space name as indexed in solr
     public $solr_name;
 
+    // selected annotation IDs for search filtering
+    public $selected_annotations = [];
+
+    public $provided_by;
+
     public static function tableName() {
         return 'spaces';
     }
@@ -79,8 +84,8 @@ class Spaces extends \yii\db\ActiveRecord {
             'type' => 'Type',
             'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
-            'has_annotations_flag' => 'Show annotations flag',
-            'enable_annotations_flag' => 'Enable annotations flag',
+            'has_annotations_flag' => 'Show annotations filter',
+            'enable_annotations_flag' => 'Enable annotations filter',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
@@ -116,6 +121,34 @@ class Spaces extends \yii\db\ActiveRecord {
     public function getPubmedTypesAsArray() {
         // Convert pubmed_types to an array
         $this->convertToArray('pubmed_types');
+    }
+
+    /**
+     * Whether evaluation mode should be considered active for the given (or current) user.
+     *
+     * Evaluation mode is active only when:
+     * - we are inside a concrete space instance (has an id)
+     * - the user is logged in
+     * - at least one of the evaluation features is enabled for this space
+     *
+     * @param int|null $userId
+     * @return bool
+     */
+    public function isEvaluationModeActive(?int $userId = null): bool {
+        if (!isset($this->id)) {
+            return false;
+        }
+
+        if ($userId === null) {
+            $userId = \Yii::$app->user->id;
+        }
+
+        if (!isset($userId)) {
+            return false;
+        }
+
+        return (bool) (($this->enable_like_dislike_records ?? false)
+            || ($this->enable_like_dislike_annotations ?? false));
     }
 
     public function beforeValidate() {
@@ -231,9 +264,14 @@ class Spaces extends \yii\db\ActiveRecord {
 
         // only the values that are different between the POST request and the current space model,
         // will appear in the GET request
+        // Skip annotations here - it's handled separately below
         foreach ($space_model->toArray() as $key => $value) {
+            if ($key === 'annotations') {
+                continue; // Skip annotations, handled separately
+            }
+
             if (array_key_exists($key, $post_request_array)) {
-                // special handling for topics
+                // special handling for topics, type, is_oa, pubmed_types
                 if ($key === 'topics' or $key === 'type' or $key === 'is_oa' or $key == 'pubmed_types') {
                     // sort arrays before comparison
                     $post_array = $post_request_array[$key];
@@ -252,6 +290,29 @@ class Spaces extends \yii\db\ActiveRecord {
                 } elseif ($post_request_array[$key] !== $value) {
                     $get_request_array[$key] = $post_request_array[$key];
                 }
+            }
+        }
+
+        // Handle annotations separately (not a Spaces model field)
+        // Always include annotations in GET params if present in POST
+        if (array_key_exists('annotations', $post_request_array)) {
+            $post_annotations = $post_request_array['annotations'];
+
+            if (empty($post_annotations)) {
+                // Empty array - user deselected all
+                $get_request_array['annotations'] = [''];
+            } else {
+                $get_request_array['annotations'] = $post_annotations;
+            }
+
+            // If enable_annotations_flag is set and true, set to all annotation IDs
+        // filtering with annotations is done from the admin panel
+        } elseif (array_key_exists('enable_annotations_flag', $post_request_array) &&
+                  $post_request_array['enable_annotations_flag']) {
+            $enabled_annotations = $space_model->annotations;
+
+            if (! empty($enabled_annotations)) {
+                $get_request_array['annotations'] = array_column($enabled_annotations, 'id');
             }
         }
 
@@ -386,6 +447,14 @@ class Spaces extends \yii\db\ActiveRecord {
 
         // merge the GET params into the space_model, to create the final SearchForm parameters
         $space_model->setAttributes($get_data_all, false);
+
+        // Parse request parameters that are not database fields
+        $space_model->parseAnnotations(
+            $get_data_all['annotations'] ?? null,
+            $get_data_all['enable_annotations_flag'] ?? null
+        );
+        $space_model->parseProvidedBy($get_data_all['provided_by'] ?? null);
+
         $search_params = $space_model->toArray();
 
         // revert topics, type, is_oa, pubmed_types set in fetchGetRequestArray ([""] -> [])
@@ -406,12 +475,9 @@ class Spaces extends \yii\db\ActiveRecord {
         // not used
         $search_params['location'] = (Yii::$app->request->get('location') == null || Yii::$app->request->get('location') == '') ? 'title-abstract' : Yii::$app->request->get('location');
 
-        // add provided_by
-        if (array_key_exists('provided_by', $get_data_all)) {
-            $search_params['provided_by'] = $get_data_all['provided_by'];
-        } else {
-            $search_params['provided_by'] = [];
-        }
+        // Get annotations and provided_by from prepareForRequest() (already parsed)
+        $search_params['annotations'] = $space_model->selected_annotations;
+        $search_params['provided_by'] = $space_model->provided_by;
 
         return [
             $search_params,
@@ -420,7 +486,49 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     public function getAnnotations() {
+        return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->where(['enabled' => 1]);
+    }
+
+    public function getAllAnnotations() {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
+    }
+
+    /**
+     * Get annotation descriptions as an array.
+     * @return array Array of annotation descriptions
+     */
+    public function getEnabledAnnotationNames() {
+        $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
+        $annotation_descriptions = [];
+
+        if (! empty($all_annotations)) {
+            foreach ($all_annotations as $annotation) {
+                if (! empty($annotation->description)) {
+                    $annotation_descriptions[] = $annotation->description;
+                }
+            }
+        }
+
+        return $annotation_descriptions;
+    }
+
+    /**
+     * Get annotation IDs and descriptions as an associative array.
+     * @return array Array with annotation_id as key and description as value
+     */
+    public function getEnabledAnnotationMap() {
+        $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
+        $annotation_map = [];
+
+        if (! empty($all_annotations)) {
+            foreach ($all_annotations as $annotation) {
+                if (! empty($annotation->description)) {
+                    $annotation_map[$annotation->id] = $annotation->description;
+                }
+            }
+        }
+
+        return $annotation_map;
     }
 
     /**
@@ -429,6 +537,72 @@ class Spaces extends \yii\db\ActiveRecord {
     public function validateBothOrNone($attribute, $params, $validator) {
         if (($this->annotation_db && ! $this->graph_db_system) || (! $this->annotation_db && $this->graph_db_system)) {
             $this->addError($attribute, 'Both "Annotation Database" and "Graph Database System" fields must be set.');
+        }
+    }
+
+    /**
+     * Parse annotations parameter from GET request
+     * Handles special cases like -1 (select all), empty arrays, and enable_annotations_flag.
+     * @param array|null $annotations Annotations array from GET params
+     * @param bool|null $enable_annotations_flag Enable annotations flag from GET params
+     */
+    protected function parseAnnotations($annotations = null, $enable_annotations_flag = null) {
+        $annotations_was_provided = $annotations !== null;
+        $annotations_explicitly_empty = false;
+
+        if ($annotations_was_provided) {
+            $annotations_raw = is_array($annotations) ? $annotations : [];
+
+            // Check if annotations was explicitly set to empty (user deselected all)
+            // It could be [] or [''] (the latter is used to ensure empty arrays appear in GET)
+            if (empty($annotations_raw) || (count($annotations_raw) === 1 && $annotations_raw[0] === '')) {
+                $annotations_explicitly_empty = true;
+                $this->selected_annotations = [];
+            } else {
+                $this->selected_annotations = array_values(array_filter($annotations_raw));
+            }
+        } else {
+            $this->selected_annotations = [];
+        }
+
+        // Convert enable_annotations_flag to all annotation IDs (only for initialization)
+        // This happens when enable_annotations_flag is set but annotations array is empty
+        if ($enable_annotations_flag !== null &&
+            $enable_annotations_flag &&
+            empty($this->selected_annotations) &&
+            ! $annotations_explicitly_empty) {
+            // Get all enabled annotation IDs
+            $enabled_annotations = $this->getAnnotations()->all();
+
+            if (! empty($enabled_annotations)) {
+                $this->selected_annotations = array_column($enabled_annotations, 'id');
+            }
+        }
+
+        // If space has enable_annotations_flag set and annotations were not provided in GET params,
+        // select all annotation IDs (only on initial page load, not when user explicitly deselected)
+        if ($this->enable_annotations_flag &&
+            empty($this->selected_annotations) &&
+            ! $annotations_was_provided &&
+            ! $annotations_explicitly_empty) {
+            // Get all enabled annotation IDs
+            $enabled_annotations = $this->getAnnotations()->all();
+
+            if (! empty($enabled_annotations)) {
+                $this->selected_annotations = array_column($enabled_annotations, 'id');
+            }
+        }
+    }
+
+    /**
+     * Parse provided_by parameter from GET request.
+     * @param array|null $provided_by Provided by array from GET params
+     */
+    protected function parseProvidedBy($provided_by = null) {
+        if ($provided_by !== null) {
+            $this->provided_by = is_array($provided_by) ? $provided_by : [];
+        } else {
+            $this->provided_by = [];
         }
     }
 
