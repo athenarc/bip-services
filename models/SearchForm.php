@@ -49,7 +49,7 @@ class SearchForm extends Model {
 
     public $provided_by;
 
-    public $enable_annotations_flag;
+    public $annotations = [];
 
     /*
          * Constructor method to help with validation
@@ -59,7 +59,7 @@ class SearchForm extends Model {
      *
      * @author Ilias Kanellos
      */
-    public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year = 0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $pubmed_types = [], $provided_by = [], $enable_annotations_flag = [], $space_model = null) {
+    public function __construct($ordering, $keywords, $location, $relevance = null, $topics = [], $start_year = 0, $end_year = 0, $influence = 'all', $popularity = 'all', $impulse = 'all', $cc = 'all', $type = [], $is_oa = [], $pubmed_types = [], $provided_by = [], $annotations = [], $space_model = null) {
         parent::__construct();
         $this->ordering = $ordering;
         $this->keywords = $keywords;
@@ -93,7 +93,7 @@ class SearchForm extends Model {
         $this->is_oa = $is_oa;
         $this->pubmed_types = $pubmed_types;
         $this->provided_by = $provided_by;
-        $this->enable_annotations_flag = $enable_annotations_flag;
+        $this->annotations = is_array($annotations) ? $annotations : [];
         $this->space_model = $space_model;
     }
 
@@ -154,7 +154,7 @@ class SearchForm extends Model {
             'provided_by' => 'Provided by',
             'is_oa' => 'Availability',
             'pubmed_types' => 'NLM Types',
-            'enable_annotations_flag' => 'Annotations',
+            'annotations' => 'Show results with',
         ];
     }
 
@@ -398,8 +398,9 @@ class SearchForm extends Model {
             $query->createFilterQuery('cc_filter')->setQuery('citation_count:[' . $min_impact_scores['cc'] . ' TO *]');
         }
 
-        // Check if solr_name is set
+        // Space-specific filters follow Check if solr_name is set
         if (! empty($this->space_model->solr_name)) {
+            // 1. Find the research products in the space
             $spaces_filter = [];
 
             // If $provided_by is set, filter solr_name accordingly
@@ -421,14 +422,9 @@ class SearchForm extends Model {
                 $spaces_filter_str = implode(' OR ', $spaces_filter);
                 $query->createFilterQuery('spaces_filter')->setQuery($spaces_filter_str);
             }
-        }
 
-        if ($this->enable_annotations_flag) {
-            if (! empty($this->space_model->solr_name)) {
-                // $space_suffix = $this->space_model->url_suffix;
-                $space_suffix = array_column($this->space_model->solr_name, 'value')[0];
-
-                // Get enabled annotations for this space
+            // 2. Filter by space annotations (only if user has selected annotations)
+            if (! empty($this->annotations)) {
                 $enabled_annotations = $this->space_model->annotations;
 
                 if (! empty($enabled_annotations)) {
@@ -437,17 +433,21 @@ class SearchForm extends Model {
                     // We match: annotations:<space_suffix>|<annotation_id>|*
                     $annotation_queries = [];
 
+                    // Get selected annotation IDs
+                    $selected_ids = array_map('intval', $this->annotations);
+
+                    // Filter to only selected annotation IDs
                     foreach ($enabled_annotations as $annotation) {
-                        $annotation_queries[] = 'annotations:' . $space_suffix . '|' . $annotation->id . '|*';
+                        if (in_array($annotation->id, $selected_ids)) {
+                            $annotation_queries[] = 'annotations:' . $this->space_model->url_suffix . '|' . $annotation->id . '|*';
+                        }
                     }
 
-                    // Combine with OR to match papers with any enabled annotation
-                    $annotation_query = '(' . implode(' OR ', $annotation_queries) . ')';
-
-                    $query->createFilterQuery('annotations_filter')->setQuery($annotation_query);
-                } else {
-                    // No enabled annotations, filter should match nothing
-                    $query->createFilterQuery('annotations_filter')->setQuery('id:__nonexistent__');
+                    if (! empty($annotation_queries)) {
+                        // Combine with OR to match papers with any selected annotation
+                        $annotation_query = '(' . implode(' OR ', $annotation_queries) . ')';
+                        $query->createFilterQuery('annotations_filter')->setQuery($annotation_query);
+                    }
                 }
             }
         }
@@ -830,7 +830,8 @@ class SearchForm extends Model {
             $count++;
         }
 
-        if ($this->enable_annotations_flag) {
+        // Check if annotations filter is enabled (annotations array is not empty)
+        if (! empty($this->annotations)) {
             $count++;
         }
 

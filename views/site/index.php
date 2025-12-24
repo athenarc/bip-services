@@ -166,9 +166,20 @@ if ($in_space) {
                         <?php endif; ?>
 
                         <?php if ($space_model->has_annotations_flag): ?>
+                            <?php
+                            // Get enabled annotations for this space
+                            $enabled_annotations = $space_model->annotations;
+                            $annotation_options = [];
 
-                            <?= CustomFiltersCheckboxList::widget(['id' => 'enable_annotations_flag_filter', 'name' => 'enable_annotations_flag', 'model' => $model, 'form' => $form, 'items' => ['1' => 'Show only research products with annotations'], 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
-
+                            if (! empty($enabled_annotations)) {
+                                foreach ($enabled_annotations as $annotation) {
+                                    $annotation_options[$annotation->id] = $annotation->description ?? $annotation->name;
+                                }
+                            }
+                            ?>
+                            <?php if (! empty($annotation_options)): ?>
+                                <?= CustomFiltersCheckboxList::widget(['id' => 'annotations_filter', 'name' => 'annotations', 'model' => $model, 'form' => $form, 'items' => $annotation_options, 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
+                            <?php endif; ?>
                         <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
@@ -326,15 +337,16 @@ if ($in_space) {
                     </div>
 
                     <?php if ($in_space && ! empty($results['rows'])): ?>
-                        <?php 
+                        <?php
                             // Get enabled annotation map (id => description)
                             $annotation_map = $space_model->getEnabledAnnotationMap();
                             $annotation_names_encoded = [];
+
                             foreach ($annotation_map as $annotation_id => $description) {
                                 $annotation_names_encoded[] = '<a href="#" class="green-bip" data-annotation-id="' . Html::encode($annotation_id) . '" onclick="expandAnnotationType(' . Html::encode($annotation_id) . '); return false;">' . Html::encode($description) . '</a>';
                             }
                         ?>
-                        <?php if (!empty($annotation_names_encoded)): ?>
+                        <?php if (! empty($annotation_names_encoded)): ?>
                             <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
                                 <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
                                     <span>This space provides annotations for <?= implode(', ', $annotation_names_encoded) ?>.</span>
