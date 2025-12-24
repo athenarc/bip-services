@@ -285,7 +285,147 @@ function expandAnnotationType(annotationId, toggle) {
     
     // Update bold styling for selected annotation types
     updateSelectedAnnotationTypeStyle();
+    
+    // Update expand/collapse all button state
+    updateExpandCollapseAllButtonState();
 }
 
+// Function to toggle all annotations (expand/collapse all)
+function toggleAllAnnotations() {
+    // Get all annotation tabs across all results
+    var allTabs = document.querySelectorAll('.annotation-tab');
+    var allAnnotationIds = new Set();
+    
+    // Collect all unique annotation IDs
+    allTabs.forEach(function(tab) {
+        var tabId = tab.id;
+        var match = tabId.match(/_annot_tab_(\d+)$/);
+        if (match) {
+            allAnnotationIds.add(parseInt(match[1], 10));
+        }
+    });
+    
+    var annotationIdsArray = Array.from(allAnnotationIds);
+    
+    if (annotationIdsArray.length === 0) {
+        return;
+    }
+    
+    // Get current selection state
+    var selectedTypes = getSelectedAnnotationTypes();
+    if (!Array.isArray(selectedTypes)) {
+        selectedTypes = [];
+    }
+    
+    // Check if all annotations are currently expanded
+    var allExpanded = annotationIdsArray.length > 0 && annotationIdsArray.every(function(id) {
+        return selectedTypes.indexOf(id) > -1;
+    });
+    
+    if (allExpanded) {
+        // Collapse all: remove all annotation IDs from selection
+        saveSelectedAnnotationTypes([]);
+        
+        // Collapse all annotation types by iterating through all containers
+        var allContainers = document.querySelectorAll('[id^="res_"][id$="_annot_tabs"]');
+        allContainers.forEach(function(container) {
+            var parentElement = container.parentElement;
+            var tabsContainer = parentElement ? parentElement.querySelector('.annotation-tabs') : null;
+            var allTabsInContainer = tabsContainer ? tabsContainer.querySelectorAll('.annotation-tab') : [];
+            
+            allTabsInContainer.forEach(function(tab) {
+                var contentId = tab.getAttribute('data-content-id');
+                if (!contentId) {
+                    return;
+                }
+                
+                var content = document.getElementById(contentId);
+                if (!content) {
+                    return;
+                }
+                
+                // Hide content with fade-out transition
+                content.classList.remove('show');
+                var contentToHide = content;
+                setTimeout(function() {
+                    if (contentToHide && !contentToHide.classList.contains('show')) {
+                        contentToHide.style.display = 'none';
+                    }
+                }, 200);
+                
+                // Remove active from tab
+                tab.classList.remove('active');
+                tab.style.color = '';
+                tab.style.backgroundColor = '';
+                tab.style.borderColor = '';
+            });
+        });
+    } else {
+        // Expand all: add all annotation IDs to selection
+        saveSelectedAnnotationTypes(annotationIdsArray);
+        
+        // Expand all annotation types
+        annotationIdsArray.forEach(function(annotationId) {
+            expandAnnotationType(annotationId, false); // false = don't toggle, just expand
+        });
+    }
+    
+    // Update bold styling and button state
+    updateSelectedAnnotationTypeStyle();
+    updateExpandCollapseAllButtonState();
+}
 
+// Function to update expand/collapse all button state
+function updateExpandCollapseAllButtonState() {
+    var buttonText = document.getElementById('expand-collapse-all-text');
+    var buttonIcon = document.getElementById('expand-collapse-all-icon');
+    
+    if (!buttonText || !buttonIcon) {
+        return;
+    }
+    
+    var allTabs = document.querySelectorAll('.annotation-tab');
+    var allAnnotationIds = new Set();
+    
+    // Collect all unique annotation IDs
+    allTabs.forEach(function(tab) {
+        var tabId = tab.id;
+        var match = tabId.match(/_annot_tab_(\d+)$/);
+        if (match) {
+            allAnnotationIds.add(parseInt(match[1], 10));
+        }
+    });
+    
+    var annotationIdsArray = Array.from(allAnnotationIds);
+    
+    if (annotationIdsArray.length === 0) {
+        return;
+    }
+    
+    var selectedTypes = getSelectedAnnotationTypes();
+    if (!Array.isArray(selectedTypes)) {
+        selectedTypes = [];
+    }
+    
+    var allExpanded = annotationIdsArray.every(function(id) {
+        return selectedTypes.indexOf(id) > -1;
+    });
+    
+    if (allExpanded) {
+        buttonText.textContent = 'Collapse all annotations';
+        buttonIcon.className = 'fa fa-chevron-up';
+    } else {
+        buttonText.textContent = 'Expand all annotations';
+        buttonIcon.className = 'fa fa-chevron-down';
+    }
+}
+
+// Update button state on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(updateExpandCollapseAllButtonState, 300);
+    });
+} else {
+    setTimeout(updateExpandCollapseAllButtonState, 300);
+}
 

@@ -339,17 +339,14 @@ if ($in_space) {
                     <?php if ($in_space && ! empty($results['rows'])): ?>
                         <?php
                             // Get enabled annotation map (id => description)
-                            $annotation_map = $space_model->getEnabledAnnotationMap();
-                            $annotation_names_encoded = [];
-
-                            foreach ($annotation_map as $annotation_id => $description) {
-                                $annotation_names_encoded[] = '<a href="#" class="green-bip" data-annotation-id="' . Html::encode($annotation_id) . '" onclick="expandAnnotationType(' . Html::encode($annotation_id) . '); return false;">' . Html::encode($description) . '</a>';
-                            }
+                            $annotation_ids = array_keys($space_model->getEnabledAnnotationMap());
                         ?>
-                        <?php if (! empty($annotation_names_encoded)): ?>
+                        <?php if (! empty($annotation_ids)): ?>
                             <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
-                                <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                                    <span>This space provides annotations for <?= implode(', ', $annotation_names_encoded) ?>.</span>
+                                <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center;">
+                                    <button type="button" class="btn btn-default btn-xs grey-link" id="expand-collapse-all-annotations" onclick="toggleAllAnnotations(); return false;">
+                                        <i class="fa fa-chevron-down" aria-hidden="true" id="expand-collapse-all-icon"></i> <span id="expand-collapse-all-text">Expand all annotations</span>
+                                    </button>
                                 </div>
                             </div>
                         <?php endif; ?>
