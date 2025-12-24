@@ -374,18 +374,22 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                                 
                                 if (!$validation['valid']) {
                                     $fieldOptions['options'] = ['class' => 'form-group has-error'];
-                                    $errorMessages = [];
+                                    $errorListItems = '';
                                     foreach ($validation['errors'] as $error) {
-                                        $errorMessages[] = Html::encode($error);
+                                        $errorListItems .= '<li>' . Html::encode($error) . '</li>';
                                     }
-                                    $modelSpacesAnnotations->addError('query', implode('<br>', $errorMessages));
+                                    $errorText = '<span class="label label-danger">The query is not valid</span><ul class="text-danger">' . $errorListItems . '</ul>';
                                 }
                             }
                             
                             $field = $form->field($modelSpacesAnnotations, "[{$i}]query", $fieldOptions);
                             
-                            if (!empty($query) && isset($validation) && $validation['valid']) {
-                                $field = $field->hint('<span style="color: green;">Query validated</span>');
+                            if (!empty($query) && isset($validation)) {
+                                if ($validation['valid']) {
+                                    $field = $field->hint('<span class="label label-success">The query is valid</span>');
+                                } else {
+                                    $field = $field->hint($errorText);
+                                }
                             }
                             
                             echo $field->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']);
