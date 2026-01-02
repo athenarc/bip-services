@@ -276,6 +276,36 @@ class SiteController extends BaseController {
         ]);
     }
 
+    public function actionGetTopAnnotations() {
+        // prepare search params and models
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        // perform facet search query
+        $top_annotations = $search_model->getAnnotationsFacet();
+
+        // render top annotations using partial view
+        return $this->renderPartial('top_annotations', [
+            'top_annotations' => $top_annotations,
+        ]);
+    }
+
+    public function actionGetAnnotationEvolution() {
+        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
+
+        if (! $selected_annotation) {
+            throw new \yii\base\Exception('No annotation is given');
+        }
+
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        [ $count_per_year, $citation_per_year ] = $search_model->getAnnotationEvolution($selected_annotation);
+
+        return $this->renderPartial('annotation_evolution', [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ]);
+    }
+
     /**
      * Displays the comparison page.
      *

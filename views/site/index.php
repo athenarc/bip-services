@@ -8,6 +8,7 @@ use app\components\MagicSearchBox;
 use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\TopTopicsItem;
+use app\components\TopAnnotationsItem;
 use app\models\SummaryUsage;
 use Yii;
 use yii\bootstrap\Modal;
@@ -42,6 +43,7 @@ if ($in_space) {
 }
 
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/annotationsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
@@ -278,6 +280,7 @@ if ($in_space) {
                 <div class='container-fluid'>
                     
                     <?= TopTopicsItem::widget([]) ?>
+                    <?= TopAnnotationsItem::widget([]) ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">

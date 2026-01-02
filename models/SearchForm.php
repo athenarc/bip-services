@@ -575,7 +575,7 @@ class SearchForm extends Model {
         $query = $this->prepareSearchQuery();
 
         if (! $query) {
-            return [];
+            return [[], []];
         }
 
         // do not return actual results, only facets
@@ -606,6 +606,184 @@ class SearchForm extends Model {
         $citation_per_year = $stats['year'] ?? [];
 
         // Determine the range of years
+        if (empty($count_per_year)) {
+            return [[], []];
+        }
+
+        $minYear = min(array_keys($count_per_year));
+        $maxYear = max(array_keys($count_per_year));
+
+        for ($year = $minYear; $year <= $maxYear; $year++) {
+            // Fill missing years with zero for research works and citation counts
+            if (! isset($count_per_year[$year])) {
+                $count_per_year[$year] = 0;
+            }
+
+            // Fill missing years with zero for citation counts or get their sum
+            if (! isset($citation_per_year[$year])) {
+                $citation_per_year[$year] = 0;
+            } else {
+                $citation_per_year[$year] = $citation_per_year[$year]->getSum();
+            }
+        }
+
+        // Sort the array by keys (years)
+        ksort($count_per_year);
+        ksort($citation_per_year);
+
+        // Keep only the latest 20 values
+        $count_per_year = array_slice($count_per_year, -20, 20, true);
+        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
+
+        return [
+            $count_per_year,
+            $citation_per_year
+        ];
+    }
+
+    public function getAnnotationsFacet($limit = 5) {
+        // prepare the search query
+        $query = $this->prepareSearchQuery();
+
+        if (! $query) {
+            return [];
+        }
+
+        // Only show annotations if we're in a space with annotations enabled
+        if (! $this->space_model || empty($this->space_model->annotations)) {
+            return [];
+        }
+
+        // do not return actual results, only facets
+        $query->setRows(0);
+
+        // set the facet field for annotations
+        $facetSet = $query->getFacetSet();
+        $facetField = $facetSet->createFacetField('top_annotations')
+            ->setField('annotations')
+            ->setLimit(100) // Get more to account for parsing
+            ->setMinCount(1); // exclude annotations with no results
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the facet results
+        $facet_values = $resultset->getFacetSet()->getFacet('top_annotations')->getValues();
+
+        // Parse annotation values to extract enrichment labels
+        // Format in Solr: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
+        $annotation_counts = [];
+        $space_suffix = $this->space_model->url_suffix;
+
+        foreach ($facet_values as $annotation_value => $count) {
+            // Parse the annotation value
+            $parts = explode('|', $annotation_value);
+            
+            // Check if it matches our space format
+            if (count($parts) >= 4 && $parts[0] === $space_suffix) {
+                $enrichment_label = $parts[2]; // The actual annotation name (e.g., "Disease X", "Drug Y")
+                
+                // Aggregate counts by enrichment label
+                if (!isset($annotation_counts[$enrichment_label])) {
+                    $annotation_counts[$enrichment_label] = 0;
+                }
+                $annotation_counts[$enrichment_label] += $count;
+            }
+        }
+
+        // Sort by count descending and take top N
+        arsort($annotation_counts);
+        $top_annotations = array_slice($annotation_counts, 0, $limit, true);
+
+        return $top_annotations;
+    }
+
+    public function getAnnotationEvolution($selected_annotation) {
+        // prepare the search query
+        $query = $this->prepareSearchQuery();
+
+        if (! $query) {
+            return [[], []];
+        }
+
+        // Only show annotations if we're in a space with annotations enabled
+        if (! $this->space_model || empty($this->space_model->annotations)) {
+            return [[], []];
+        }
+
+        // do not return actual results, only facets
+        $query->setRows(0);
+
+        // First, get all annotation facet values to find the full annotation values
+        // that match the selected enrichment_label
+        $facetSet = $query->getFacetSet();
+        $facetField = $facetSet->createFacetField('all_annotations')
+            ->setField('annotations')
+            ->setLimit(1000) // Get enough to find all matching annotations
+            ->setMinCount(1);
+
+        // Execute the query to get facet values
+        $resultset = Yii::$app->solr->select($query);
+        $facet_values = $resultset->getFacetSet()->getFacet('all_annotations')->getValues();
+
+        // Find all full annotation values that contain the selected enrichment_label
+        $space_suffix = $this->space_model->url_suffix;
+        $matching_annotation_values = [];
+        
+        foreach ($facet_values as $annotation_value => $count) {
+            // Parse the annotation value: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
+            $parts = explode('|', $annotation_value);
+            
+            // Check if it matches our space and has the selected enrichment_label
+            if (count($parts) >= 4 && $parts[0] === $space_suffix && $parts[2] === $selected_annotation) {
+                // Escape the full annotation value for Solr query
+                $escaped_value = $query->getHelper()->escapePhrase($annotation_value);
+                $matching_annotation_values[] = 'annotations:' . $escaped_value;
+            }
+        }
+
+        // If no matching annotations found, return empty
+        if (empty($matching_annotation_values)) {
+            return [[], []];
+        }
+
+        // Now prepare a fresh query with the annotation filter applied
+        // We need a new query because we already executed $query to get annotation facets
+        $query = $this->prepareSearchQuery();
+        if (! $query) {
+            return [[], []];
+        }
+        $query->setRows(0);
+
+        // Build filter query with all matching annotation values (OR them together)
+        $annotation_filter = '(' . implode(' OR ', $matching_annotation_values) . ')';
+        $query->createFilterQuery('selected_annotation_condition')->setQuery($annotation_filter);
+
+        // Add faceting on year
+        $facetSet = $query->getFacetSet();
+        $facet = $facetSet->createFacetField('years_facet')
+            ->setField('year')
+            ->setMinCount(1);
+
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the year facet results
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
+
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year = $stats['year'] ?? [];
+
+        // Determine the range of years
+        if (empty($count_per_year)) {
+            return [[], []];
+        }
+
         $minYear = min(array_keys($count_per_year));
         $maxYear = max(array_keys($count_per_year));
 
