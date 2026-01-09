@@ -1479,6 +1479,7 @@ class SiteController extends BaseController {
 
         $user_id = Yii::$app->user->id;
         $paper_id = (int) Yii::$app->request->post('paper_id');
+        $annotation_type_id = (int) Yii::$app->request->post('annotation_type_id');
         $annotation_id = Yii::$app->request->post('annotation_id');
         $annotation_name = Yii::$app->request->post('annotation_name');
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
@@ -1486,7 +1487,7 @@ class SiteController extends BaseController {
         $remove = (int) Yii::$app->request->post('remove', 0);
 
         // Validate inputs
-        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+        if (empty($paper_id) || empty($annotation_type_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
             return [
                 'success' => false,
                 'message' => 'Missing required parameters',
@@ -1516,16 +1517,16 @@ class SiteController extends BaseController {
         try {
             if ($remove == 1) {
                 // Delete the vote
-                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
                 $message = 'Vote removed';
             } else {
                 // Save or update vote
-                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
                 $message = 'Vote saved';
             }
 
             // Get updated user vote
-            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
 
             return [
                 'success' => true,

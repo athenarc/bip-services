@@ -74,11 +74,12 @@ $(document).ready(() => {
     function handleVote(buttonElement, voteType) {
         const container = buttonElement.closest('.like-dislike-annotation-buttons');
         const paperId = container.data('paper-id');
+        const annotationTypeId = container.data('annotation-type-id');
         const annotationId = container.data('annotation-id');
         const annotationName = container.data('annotation-name');
         const spaceUrlSuffix = container.data('space-url-suffix');
 
-        if (!paperId || !annotationId || !annotationName || !spaceUrlSuffix) {
+        if (!paperId || !annotationTypeId || !annotationId || !annotationName || !spaceUrlSuffix) {
             console.error('Missing required data attributes');
             return;
         }
@@ -106,6 +107,7 @@ $(document).ready(() => {
             type: 'POST',
             data: {
                 paper_id: paperId,
+                annotation_type_id: annotationTypeId,
                 annotation_id: annotationId,
                 annotation_name: annotationName,
                 space_url_suffix: spaceUrlSuffix,
@@ -185,9 +187,10 @@ $(document).ready(() => {
         // Load the correct state for this annotation
         const paperId = $container.data('paper-id');
         const spaceUrlSuffix = $container.data('space-url-suffix');
+        const annotationTypeId = $container.data('annotation-type-id');
         const annotationId = $container.data('annotation-id');
 
-        if (!paperId || !spaceUrlSuffix || !annotationId) { return; }
+        if (!paperId || !spaceUrlSuffix || !annotationTypeId || !annotationId) { return; }
 
         // Get CSRF token
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
