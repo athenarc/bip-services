@@ -480,50 +480,40 @@ class SiteController extends BaseController {
         $id = Yii::$app->request->get('id');
         $space_annotation = SpacesAnnotations::findOne(['id' => $annotation_id]);
 
-        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
-        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
-
-        try {
-            $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-
-            // Annotation Info
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $id]);
-            $annotation_info = $rows[0][0];
-
-            // Annotation Dois Count
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $id]);
-            $dois_count = $rows[0][0];
-
-            $pagination = new Pagination([
-                'pageSize' => 10,
-                'totalCount' => $dois_count,
-            ]);
-
-            // Annotation Dois
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
-            $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
-        } catch (\Exception $e) {
-            throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
+        if ($space_annotation === null) {
+            throw new \yii\web\NotFoundHttpException('Space annotation not found');
         }
 
-        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
 
-        $works = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
-            ->from('pmc_paper')
-            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
-            ->where(['in', 'doi', $dois])
-            ->groupBy('internal_id')
-            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function ($element) { return "\"${element}\""; }, $dois)) . ')')])
-            ->all();
+        if ($space_model === null) {
+            throw new \yii\web\NotFoundHttpException('Space not found');
+        }
 
-        // add the impact class of each row
-        $works = SearchForm::get_impact_class($works);
-        // get concepts and scores
-        $works = Concepts::getConcepts($works, 'internal_id');
-        // get impact scores per concept
-        $works = SearchForm::get_concepts_impact_class($works);
+        // Prepare and execute Solr query for annotation
+        $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id);
+        [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
+
+        // Get annotation info from graph DB (still needed for display)
+        $annotation_info = null;
+
+        if (! empty($space_annotation->reverse_query_info)) {
+            try {
+                $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+                $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+                [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $id]);
+
+                if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
+                    $annotation_info = $rows[0][0];
+                }
+            } catch (\Exception $e) {
+                // If annotation info query fails, continue without it
+                Yii::warning('Failed to fetch annotation info: ' . $e->getMessage());
+            }
+        }
+
+        // Get paper details from database
+        $works = SearchForm::prepareAnnotationResults($internal_ids);
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
