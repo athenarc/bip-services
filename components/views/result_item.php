@@ -1,9 +1,8 @@
 <?php
 
-use app\components\AnnotationPopover;
+use app\components\Annotations;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
-use app\components\Annotations;
 use app\components\ImpactIcons;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -370,10 +369,10 @@ $item = $this->context;
 
                         if (isset($item->user_vote_record)) {
                             if ($item->user_vote_record === 'like') {
-                                $like_class = $active_btn_class;
+                                $like_class = $active_btn_class . ' active-like';
                                 $like_style = $active_style;
                             } elseif ($item->user_vote_record === 'dislike') {
-                                $dislike_class = $active_btn_class;
+                                $dislike_class = $active_btn_class . ' active-dislike';
                                 $dislike_style = $active_style;
                             }
                         }
