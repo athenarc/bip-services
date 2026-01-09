@@ -14,9 +14,7 @@ use yii\helpers\ArrayHelper;
  * @property string|null $description
  * @property string|null $color
  * @property string|null $query
- * @property string|null $reverse_query
- * @property string|null $reverse_query_count
- * @property string|null $reverse_query_info
+ * @property string|null $metadata_query
  * @property int $enabled
  *
  * @property Spaces $spaces
@@ -32,14 +30,12 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             // [['spaces_id'], 'integer'],
             // [['spaces_id'], 'exist', 'skipOnError' => true, 'targetClass' => Spaces::class, 'targetAttribute' => ['spaces_id' => 'id']],
             [['query'], 'required'],
-            [['query', 'reverse_query', 'reverse_query_count', 'reverse_query_info'], 'string'],
+            [['query', 'metadata_query'], 'string'],
             [['name', 'description'], 'string', 'max' => 255],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
             [['enabled'], 'default', 'value' => 1],
-
-            [['reverse_query', 'reverse_query_count', 'reverse_query_info'], 'validateReverseFields'],
         ];
     }
 
@@ -51,33 +47,15 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'description' => 'Description',
             'color' => 'Color',
             'query' => 'Query',
-            'reverse_query' => 'Reverse Query',
-            'reverse_query_count' => 'Reverse Query Count',
-            'reverse_query_info' => 'Reverse Query Info',
+            'metadata_query' => 'Metadata Query',
             'enabled' => 'Enabled',
         ];
     }
 
     /**
-     * Custom validation function to check that if one reverse_query field is filled, all are required.
-     */
-    public function validateReverseFields($attribute, $params, $validator) {
-        // If any one of these fields is filled, ensure that all are filled
-        $filledFields = array_filter([
-            $this->reverse_query,
-            $this->reverse_query_count,
-            $this->reverse_query_info,
-        ]);
-
-        if (count($filledFields) > 0 && count($filledFields) < 3) {
-            $this->addError($attribute, 'If one of "Reverse Query", "Reverse Query Count", or "Reverse Query Info" is provided, all three fields are required.');
-        }
-    }
-
-    /**
      * Validates query syntax for annotation queries.
      * Checks if query has doi/DOI in RETURN and if COLLECT has id and label properties.
-     * 
+     *
      * @param string $query The query string to validate
      * @return array ['valid' => bool, 'errors' => array]
      */
@@ -85,15 +63,16 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
         if (empty($query)) {
             return ['valid' => false, 'errors' => ['Query is empty']];
         }
-        
+
         $errors = [];
-        
+
         // Check if query contains RETURN clause
-        if (!preg_match('/RETURN/i', $query)) {
+        if (! preg_match('/RETURN/i', $query)) {
             $errors[] = 'Query must contain a RETURN clause';
+
             return ['valid' => false, 'errors' => $errors];
         }
-        
+
         // Extract everything after RETURN (until ORDER BY/LIMIT/SKIP or end)
         if (preg_match(
             // Capture everything after RETURN up to ORDER BY / LIMIT / SKIP or end of string
@@ -102,38 +81,42 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             $matches
         )) {
             $returnClause = trim($matches[1]);
-            
+
             // Check 1: Must contain doi or DOI
-            if (!preg_match('/\bdoi\b/i', $returnClause)) {
+            if (! preg_match('/\bdoi\b/i', $returnClause)) {
                 $errors[] = 'RETURN clause must contain doi or DOI property';
             }
-            
+
             // Check 2: Must have COLLECT
-            if (!preg_match('/COLLECT/i', $returnClause)) {
+            if (! preg_match('/COLLECT/i', $returnClause)) {
                 $errors[] = 'Query must contain COLLECT';
             } else {
                 // Find COLLECT and extract its content (handle nested brackets)
                 $collectStart = stripos($returnClause, 'COLLECT');
                 $afterCollect = substr($returnClause, $collectStart);
-                
+
                 // Find opening bracket
                 $openPos = strpos($afterCollect, '(');
+
                 if ($openPos === false) {
                     $openPos = strpos($afterCollect, '{');
                     $closeChar = '}';
                 } else {
                     $closeChar = ')';
                 }
-                
+
                 if ($openPos !== false) {
                     // Extract content inside COLLECT brackets (handle nested)
                     $collectContent = '';
                     $depth = 0;
+
                     for ($i = $openPos + 1; $i < strlen($afterCollect); $i++) {
                         $char = $afterCollect[$i];
+
                         if ($char === $closeChar && $depth === 0) {
                             break;
                         }
+
                         if ($char === '(' || $char === '{') {
                             $depth++;
                         } elseif ($char === ')' || $char === '}') {
@@ -141,10 +124,11 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                         }
                         $collectContent .= $char;
                     }
-                    
+
                     // Check for id property at top level of COLLECT (not nested in arrays [])
                     // Must be "id: <value>" or "id = <value)" and value must not be empty
                     $hasId = false;
+
                     if (preg_match_all('/\bid\s*[:=]/i', $collectContent, $idMatches, PREG_OFFSET_CAPTURE)) {
                         foreach ($idMatches[0] as $match) {
                             $pos = $match[1];
@@ -155,8 +139,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                             if ($openBrackets == 0) {
                                 // Now check that id has a non-empty value after : or =
                                 $fromId = substr($collectContent, $pos);
+
                                 if (preg_match('/\bid\s*[:=]\s*([^,\]\}]+)/i', $fromId, $valueMatch)) {
                                     $idValue = trim($valueMatch[1]);
+
                                     if ($idValue !== '') {
                                         $hasId = true;
                                         break;
@@ -165,13 +151,15 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                             }
                         }
                     }
-                    if (!$hasId) {
+
+                    if (! $hasId) {
                         $errors[] = 'COLLECT must contain id property with non-empty value';
                     }
-                    
+
                     // Check for label property at top level of COLLECT (not nested in arrays [])
                     // Must be "label: <value>" or "label = <value)" and value must not be empty
                     $hasLabel = false;
+
                     if (preg_match_all('/\blabel\s*[:=]/i', $collectContent, $labelMatches, PREG_OFFSET_CAPTURE)) {
                         foreach ($labelMatches[0] as $match) {
                             $pos = $match[1];
@@ -182,8 +170,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                             if ($openBrackets == 0) {
                                 // Now check that label has a non-empty value after : or =
                                 $fromLabel = substr($collectContent, $pos);
+
                                 if (preg_match('/\blabel\s*[:=]\s*([^,\]\}]+)/i', $fromLabel, $valueMatch)) {
                                     $labelValue = trim($valueMatch[1]);
+
                                     if ($labelValue !== '') {
                                         $hasLabel = true;
                                         break;
@@ -192,7 +182,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                             }
                         }
                     }
-                    if (!$hasLabel) {
+
+                    if (! $hasLabel) {
                         $errors[] = 'COLLECT must contain label property with non-empty value';
                     }
                 } else {
@@ -202,7 +193,7 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
         } else {
             $errors[] = 'Query must contain a RETURN clause';
         }
-        
+
         return [
             'valid' => empty($errors),
             'errors' => $errors

@@ -2,6 +2,7 @@
 
 use app\components\ResultItem;
 use Yii;
+use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\LinkPager;
 
@@ -24,21 +25,31 @@ if ($in_space) {
 <div class='row'>
     <div class='col-xs-12'>
         <div class='article-header'>
-            <?= $annotation_info['label'] ?>
+            <?php if ($has_metadata_query && ! empty($annotation_info)): ?>
+                <?= Html::encode($space_annotation->name ?? $space_annotation->description ?? 'Annotation') ?>: <?= Html::encode($annotation_info['label'] ?? '') ?>
+            <?php else: ?>
+                <?= Html::encode($space_annotation->name ?? $space_annotation->description ?? 'Annotation') ?> with id: <?= Html::encode($annotation_id) ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <div class='row'>
     <div class='col-xs-12'>
-        <?php foreach ($annotation_info['data'] as $annotation_data): ?>
-            <div class='article-info' style = 'color:unset;'>
-                <b><?= ucfirst($annotation_data['label']) ?>:</b> <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value']))?>
-            </div>
-        <?php endforeach; ?>
+        <?php if ($has_metadata_query && ! empty($annotation_info)): ?>
+            <?php foreach ($annotation_info['data'] as $annotation_data): ?>
+                <div class='article-info' style = 'color:unset;'>
+                    <b><?= ucfirst($annotation_data['label']) ?>:</b> <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value']))?>
+                </div>
+            <?php endforeach; ?>
             <div class='article-info' style = 'color:unset;'>
                 <b>Source:</b> <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$space_model->annotation_db]['name'] . ' knowledge graph') ?>
             </div>
+        <?php else: ?>
+            <div class='article-info' style='color:unset;'>
+                <span class='text-warning'><i class='fa fa-exclamation-triangle'></i> No further information is available for this annotation.</span>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -175,7 +175,6 @@ if ($space_model->enable_like_dislike_annotations) {
                                 'space_annotation_db' => $space_model->annotation_db,
                                 'space_url_suffix' => $space_model->url_suffix,
                                 'annotation_type_id' => $annotation['annotation_id'],
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
                                 'paper_id' => $article->internal_id,
                                 'annotation_name' => $annotation['label'],
                                 'annotation_id' => $annotation['id'] ?? null,

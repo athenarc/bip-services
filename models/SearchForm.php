@@ -897,6 +897,107 @@ class SearchForm extends Model {
         return $rows;
     }
 
+    /**
+     * Prepare Solr query for annotation search.
+     * Pattern: annotations:"<space_url_suffix>|<annotation_id>|*|<id>"
+     * Using regex to allow any value for the name field (third position).
+     *
+     * @param string $space_url_suffix Space URL suffix
+     * @param int $annotation_id Space annotation ID
+     * @param string $id Annotation ID (e.g., DOID:0050687)
+     * @return \Solarium\QueryType\Select\Query\Query Solr query object
+     */
+    public static function prepareAnnotationQuery($space_url_suffix, $annotation_id, $id) {
+        $solr_query = Yii::$app->solr->createSelect();
+
+        // Escape special characters for regex
+        $escaped_id = preg_quote($id, '/');
+        $escaped_space_suffix = preg_quote($space_url_suffix, '/');
+        $escaped_annotation_id = preg_quote($annotation_id, '/');
+
+        // Build the annotation filter using regex to match the pattern
+        // Pattern: <space_url_suffix>|<annotation_id>|<any_name>|<id>
+        $annotation_filter = 'annotations:/' . $escaped_space_suffix . '\\|' . $escaped_annotation_id . '\\|.*\\|' . $escaped_id . '/';
+
+        $solr_query->createFilterQuery('annotation_filter')->setQuery($annotation_filter);
+        $solr_query->setFields(['internal_id']);
+
+        return $solr_query;
+    }
+
+    /**
+     * Execute annotation Solr query and return pagination and internal IDs.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object
+     * @param int $pageSize Page size for pagination
+     * @return array [Pagination, array of internal_ids]
+     */
+    public static function performAnnotationQuery($query, $pageSize = 20) {
+        // Create pagination object with temporary totalCount
+        // We'll update it after getting the actual count from Solr response
+        $pagination = new Pagination([
+            'pageSize' => $pageSize,
+            'totalCount' => 50000000000, // Temporary high value, will be updated
+        ]);
+
+        // Set pagination parameters and execute query
+        $query->setRows($pagination->limit);
+        $query->setStart($pagination->offset);
+        $result = Yii::$app->solr->select($query);
+        $response = $result->getData()['response'];
+
+        // Update pagination with actual total count from Solr response
+        $pagination->totalCount = $response['numFound'];
+
+        // Extract internal_ids from response
+        $internal_ids = [];
+
+        if (! empty($response['docs'])) {
+            $internal_ids = array_column($response['docs'], 'internal_id');
+        }
+
+        return [
+            $pagination,
+            $internal_ids
+        ];
+    }
+
+    /**
+     * Prepare annotation search results from database.
+     * Gets paper details for the given internal IDs, preserving order.
+     *
+     * @param array $internal_ids Array of internal IDs
+     * @return array Array of paper records
+     */
+    public static function prepareAnnotationResults($internal_ids) {
+        if (empty($internal_ids)) {
+            return [];
+        }
+
+        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+
+        $works = (new \yii\db\Query())
+            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->where(['in', 'internal_id', $internal_ids])
+            ->groupBy('internal_id')
+            ->orderBy([new Expression('FIELD(internal_id, ' . implode(',', array_map(function ($element) { return (int) $element; }, $internal_ids)) . ')')])
+            ->all();
+
+        // Add impact classes
+        $works = self::get_impact_class($works);
+
+        // Get concepts and scores
+        $works = Concepts::getConcepts($works, 'internal_id');
+
+        // Get impact scores per concept
+        $works = self::get_concepts_impact_class($works);
+
+        return $works;
+    }
+
     /*
      * Get the actual ordering method (column name)
      *
