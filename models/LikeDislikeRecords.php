@@ -23,7 +23,7 @@ class LikeDislikeRecords extends ActiveRecord {
 
     public function rules() {
         return [
-            [['user_id', 'space_url_suffix', 'paper_id', 'action'], 'required'],
+            [['user_id', 'space_url_suffix', 'paper_id', 'action', 'query', 'ordering'], 'required'],
             [['user_id', 'paper_id', 'paper_rank'], 'integer'],
             [['query'], 'string'],
             [['space_url_suffix'], 'string', 'max' => 255],
@@ -82,18 +82,32 @@ class LikeDislikeRecords extends ActiveRecord {
 
     /**
      * Get user's vote for a paper in a space.
+     * Only returns votes that match the provided query and ordering.
      *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
+     * @param string $query Query string to filter by (required)
+     * @param string $ordering Ordering to filter by (required)
      * @return string|null 'like', 'dislike', or null
+     * @throws \InvalidArgumentException if query or ordering is null or empty
      */
-    public static function getUserVote($user_id, $paper_id, $space_url_suffix) {
+    public static function getUserVote($user_id, $paper_id, $space_url_suffix, $query, $ordering) {
+        if (empty($query) || $query === null) {
+            throw new \InvalidArgumentException('Query parameter is required and cannot be null or empty');
+        }
+
+        if (empty($ordering) || $ordering === null) {
+            throw new \InvalidArgumentException('Ordering parameter is required and cannot be null or empty');
+        }
+
         $vote = self::find()
             ->where([
                 'user_id' => $user_id,
                 'paper_id' => $paper_id,
                 'space_url_suffix' => $space_url_suffix,
+                'query' => $query,
+                'ordering' => $ordering,
             ])
             ->one();
 
@@ -102,15 +116,27 @@ class LikeDislikeRecords extends ActiveRecord {
 
     /**
      * Get user's votes for multiple papers in a space (batch query).
+     * Only returns votes that match the provided query and ordering.
      *
      * @param int $user_id
      * @param array $paper_ids Array of paper IDs
      * @param string $space_url_suffix
+     * @param string $query Query string to filter by (required)
+     * @param string $ordering Ordering to filter by (required)
      * @return array Associative array with paper_id as key and 'like'/'dislike' as value
+     * @throws \InvalidArgumentException if query or ordering is null or empty
      */
-    public static function getUserVotesBatch($user_id, $paper_ids, $space_url_suffix) {
+    public static function getUserVotesBatch($user_id, $paper_ids, $space_url_suffix, $query, $ordering) {
         if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [];
+        }
+
+        if (empty($query) || $query === null) {
+            throw new \InvalidArgumentException('Query parameter is required and cannot be null or empty');
+        }
+
+        if (empty($ordering) || $ordering === null) {
+            throw new \InvalidArgumentException('Ordering parameter is required and cannot be null or empty');
         }
 
         $votes = self::find()
@@ -118,6 +144,8 @@ class LikeDislikeRecords extends ActiveRecord {
                 'user_id' => $user_id,
                 'paper_id' => $paper_ids,
                 'space_url_suffix' => $space_url_suffix,
+                'query' => $query,
+                'ordering' => $ordering,
             ])
             ->all();
 
@@ -132,35 +160,46 @@ class LikeDislikeRecords extends ActiveRecord {
 
     /**
      * Save or update a vote.
+     * Votes are unique per combination of user_id, paper_id, space_url_suffix, query, and ordering.
+     * This allows users to store different evaluations for the same paper with different query/ordering combinations.
      *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
      * @param string $action 'like' or 'dislike'
-     * @param string|null $query
-     * @param string|null $ordering
+     * @param string $query Query string (required)
+     * @param string $ordering Ordering (required)
      * @param int|null $paper_rank
      * @return bool
+     * @throws \InvalidArgumentException if query or ordering is null or empty
      */
-    public static function saveVote($user_id, $paper_id, $space_url_suffix, $action, $query = null, $ordering = null, $paper_rank = null) {
+    public static function saveVote($user_id, $paper_id, $space_url_suffix, $action, $query, $ordering, $paper_rank = null) {
+        if (empty($query) || $query === null) {
+            throw new \InvalidArgumentException('Query parameter is required and cannot be null or empty');
+        }
+
+        if (empty($ordering) || $ordering === null) {
+            throw new \InvalidArgumentException('Ordering parameter is required and cannot be null or empty');
+        }
+
         $vote = self::find()
             ->where([
                 'user_id' => $user_id,
                 'paper_id' => $paper_id,
                 'space_url_suffix' => $space_url_suffix,
+                'query' => $query,
+                'ordering' => $ordering,
             ])
             ->one();
 
         if ($vote) {
-            // Update existing vote
+            // Update existing vote for this specific query/ordering combination
             $vote->action = $action;
-            $vote->query = $query;
-            $vote->ordering = $ordering;
             $vote->paper_rank = $paper_rank;
 
             return $vote->save();
         }
-        // Create new vote
+        // Create new vote for this query/ordering combination
         $vote = new self();
         $vote->user_id = $user_id;
         $vote->paper_id = $paper_id;
@@ -175,17 +214,41 @@ class LikeDislikeRecords extends ActiveRecord {
 
     /**
      * Delete a vote.
+     * Deletes the vote matching the specific combination of user_id, paper_id, space_url_suffix, query, and ordering.
      *
      * @param int $user_id
      * @param int $paper_id
      * @param string $space_url_suffix
+     * @param string $query Query to match specific vote (required)
+     * @param string $ordering Ordering to match specific vote (required)
      * @return bool
+     * @throws \InvalidArgumentException if query or ordering is null or empty
      */
-    public static function deleteVote($user_id, $paper_id, $space_url_suffix) {
-        return self::deleteAll([
-            'user_id' => $user_id,
-            'paper_id' => $paper_id,
-            'space_url_suffix' => $space_url_suffix,
-        ]) > 0;
+    public static function deleteVote($user_id, $paper_id, $space_url_suffix, $query, $ordering) {
+        if (empty($query) || $query === null) {
+            throw new \InvalidArgumentException('Query parameter is required and cannot be null or empty');
+        }
+
+        if (empty($ordering) || $ordering === null) {
+            throw new \InvalidArgumentException('Ordering parameter is required and cannot be null or empty');
+        }
+
+        $records = self::find()
+            ->where([
+                'user_id' => $user_id,
+                'paper_id' => $paper_id,
+                'space_url_suffix' => $space_url_suffix,
+                'query' => $query,
+                'ordering' => $ordering,
+            ])
+            ->all();
+
+        if (empty($records)) {
+            return false;
+        }
+
+        $ids = array_column($records, 'id');
+
+        return self::deleteAll(['id' => $ids]) > 0;
     }
 }

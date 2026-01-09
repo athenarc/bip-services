@@ -25,7 +25,7 @@ class AnnotationPopover extends Widget {
 
     public $space_annotation_db;
 
-    public $space_annotation_id;
+    public $annotation_type_id;
 
     public $space_url_suffix;
 

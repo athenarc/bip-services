@@ -114,6 +114,20 @@ class SearchForm extends Model {
     }
 
     /**
+     * Serialize search parameters into a query string for storing in like_dislike_records.
+     * This creates a consistent string representation of the search query.
+     * Currently matches the format sent by JavaScript (just keywords) for backward compatibility,
+     * but can be extended to include all search parameters.
+     *
+     * @return string Serialized query string
+     */
+    public function serializeQuery() {
+        // For now, return just keywords to match what JavaScript sends
+        // This ensures votes are matched by the same query format
+        return $this->keywords ?? '';
+    }
+
+    /**
      * Get the validation rules.
      *
      * @return array containing the validation rules.

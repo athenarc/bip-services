@@ -50,7 +50,7 @@ use app\components\AnnotationPopover;
                                 'data' => $annotation['data'], 
                                 'space_annotation_db' => $space_annotation_db, 
                                 'space_url_suffix' => $space_url_suffix, 
-                                'space_annotation_id' => $annotation['annotation_id'], 
+                                'annotation_type_id' => $annotation['annotation_id'], 
                                 'has_reverse_annotation_query' => $annotation['has_reverse_query'],
                                 'paper_id' => $internal_id,
                                 'annotation_name' => $annotation['label'],

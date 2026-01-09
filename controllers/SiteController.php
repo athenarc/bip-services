@@ -199,11 +199,21 @@ class SiteController extends BaseController {
             }, $results['rows']);
 
             if (! empty($paper_ids)) {
-                $user_votes = LikeDislikeRecords::getUserVotesBatch(
-                    Yii::$app->user->id,
-                    $paper_ids,
-                    $space_model->url_suffix
-                );
+                // Serialize the current search query to match votes by query
+                $query_string = $search_model->serializeQuery();
+                // Get the current ordering (default to 'popularity' if not set)
+                $ordering = $search_model->ordering ?? 'popularity';
+
+                // Ensure query and ordering are not empty before calling getUserVotesBatch
+                if (! empty($query_string) && ! empty($ordering)) {
+                    $user_votes = LikeDislikeRecords::getUserVotesBatch(
+                        Yii::$app->user->id,
+                        $paper_ids,
+                        $space_model->url_suffix,
+                        $query_string,
+                        $ordering
+                    );
+                }
             }
         }
 
@@ -1379,13 +1389,23 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
         try {
             if ($remove == 1) {
-                // Delete the vote
-                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix);
+                // Delete the vote (matching query and ordering to delete the specific vote)
+                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix, $query, $ordering);
                 $message = 'Vote removed';
             } else {
-                // Save or update vote
+                // Save or update vote (query and ordering are now part of the unique key)
                 LikeDislikeRecords::saveVote($user_id, $paper_id, $space_url_suffix, $vote_type, $query, $ordering, $paper_rank);
                 $message = 'Vote saved';
             }
@@ -1428,6 +1448,8 @@ class SiteController extends BaseController {
         $user_id = Yii::$app->user->id;
         $paper_ids = Yii::$app->request->post('paper_ids', []);
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $query = Yii::$app->request->post('query');
+        $ordering = Yii::$app->request->post('ordering');
 
         if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [
@@ -1436,28 +1458,30 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'votes' => [],
+            ];
+        }
+
         // Convert paper_ids to integers
         $paper_ids = array_map('intval', $paper_ids);
 
-        // Get all votes for these papers
-        $votes = LikeDislikeRecords::find()
-            ->where([
-                'user_id' => $user_id,
-                'paper_id' => $paper_ids,
-                'space_url_suffix' => $space_url_suffix,
-            ])
-            ->all();
-
-        // Build response array
-        $votes_array = [];
-
-        foreach ($votes as $vote) {
-            $votes_array[$vote->paper_id] = $vote->action;
-        }
+        // Get votes filtered by query and ordering
+        $votes = LikeDislikeRecords::getUserVotesBatch(
+            $user_id,
+            $paper_ids,
+            $space_url_suffix,
+            $query,
+            $ordering
+        );
 
         return [
             'success' => true,
-            'votes' => $votes_array,
+            'votes' => $votes,
         ];
     }
 
@@ -1479,6 +1503,7 @@ class SiteController extends BaseController {
 
         $user_id = Yii::$app->user->id;
         $paper_id = (int) Yii::$app->request->post('paper_id');
+        $annotation_type_id = (int) Yii::$app->request->post('annotation_type_id');
         $annotation_id = Yii::$app->request->post('annotation_id');
         $annotation_name = Yii::$app->request->post('annotation_name');
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
@@ -1486,7 +1511,7 @@ class SiteController extends BaseController {
         $remove = (int) Yii::$app->request->post('remove', 0);
 
         // Validate inputs
-        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+        if (empty($paper_id) || empty($annotation_type_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
             return [
                 'success' => false,
                 'message' => 'Missing required parameters',
@@ -1516,16 +1541,16 @@ class SiteController extends BaseController {
         try {
             if ($remove == 1) {
                 // Delete the vote
-                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
                 $message = 'Vote removed';
             } else {
                 // Save or update vote
-                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
                 $message = 'Vote saved';
             }
 
             // Get updated user vote
-            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
 
             return [
                 'success' => true,
