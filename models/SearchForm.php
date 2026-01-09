@@ -898,6 +898,20 @@ class SearchForm extends Model {
     }
 
     /**
+     * Get the ranking field name for a given ordering method.
+     *
+     * @param string $method Ordering method (popularity, influence, etc.)
+     * @return string Database/Solr field name
+     */
+    public static function getRankingField($method) {
+        if (empty($method) || ! isset(Yii::$app->params['impact_fields'][$method])) {
+            return 'attrank'; // Default to popularity
+        }
+
+        return Yii::$app->params['impact_fields'][$method];
+    }
+
+    /**
      * Prepare Solr query for annotation search.
      * Pattern: annotations:"<space_url_suffix>|<annotation_id>|*|<id>"
      * Using regex to allow any value for the name field (third position).
@@ -905,9 +919,10 @@ class SearchForm extends Model {
      * @param string $space_url_suffix Space URL suffix
      * @param int $annotation_id Space annotation ID
      * @param string $id Annotation ID (e.g., DOID:0050687)
+     * @param string $ordering Ordering method (popularity, influence, citation_count, impulse, year)
      * @return \Solarium\QueryType\Select\Query\Query Solr query object
      */
-    public static function prepareAnnotationQuery($space_url_suffix, $annotation_id, $id) {
+    public static function prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering = 'popularity') {
         $solr_query = Yii::$app->solr->createSelect();
 
         // Escape special characters for regex
@@ -921,6 +936,10 @@ class SearchForm extends Model {
 
         $solr_query->createFilterQuery('annotation_filter')->setQuery($annotation_filter);
         $solr_query->setFields(['internal_id']);
+
+        // Add sorting based on ordering
+        // $sort_field = self::getRankingField($ordering);
+        $solr_query->addSort($ordering, $solr_query::SORT_DESC);
 
         return $solr_query;
     }
