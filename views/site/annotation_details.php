@@ -1,9 +1,9 @@
 <?php
 
+use app\assets\TinyColorAsset;
 use app\components\ResultItem;
 use app\components\SummaryPanel;
 use app\models\SummaryUsage;
-use Yii;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
@@ -14,16 +14,25 @@ $this->title = 'BIP! Services - Finder';
 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/chartjs_bar_plot.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/annotationEvolution.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/tags.css');
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
+// Register space colors early if in space (right after tinycolor.js)
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
-    $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
-    $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
 }
 ?>
 
@@ -61,6 +70,35 @@ if ($in_space) {
 <div class='row'>
     <div class='col-xs-12'>
         <?php if (! empty($works)) : ?>
+            <div id="annotation-evolution-data" 
+                 data-space-url-suffix="<?= Html::encode($space_url_suffix) ?>"
+                 data-annotation-id="<?= Html::encode($annotation_type_id) ?>"
+                 data-id="<?= Html::encode($annotation_id) ?>"
+                 style="display: none;"></div>
+            <div class='row'>
+                <div class='col-md-12'>
+                    <h4 class="grey-text">Annotation Evolution</h4>
+                </div>
+            </div>
+            <div id="annotation-charts-loading" class='row' style="min-height: 300px;">
+                <div class='col-md-12 text-center' style="padding-top: 100px;">
+                    <i class="fa fa-spinner fa-spin fa-3x grey-text"></i>
+                    <p class="grey-text" style="margin-top: 20px;">Loading visualization data...</p>
+                </div>
+            </div>
+            <div id="annotation-charts-container" class='row' style="display: none;">
+                <div class='col-md-6'>
+                    <div style="position:relative; height:100%; width:100%">
+                        <canvas id="annotation-evolution-bar-plot"></canvas>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div style="position:relative; height:100%; width:100%">
+                        <canvas id="annotation-citations-per-year-bar-plot"></canvas>
+                    </div>
+                </div>
+            </div>
+            <br/>
             <div class='row grey-text'>
                 <div class='col-xs-12 text-center'>
                     <div class = "inline-block-d" style = "margin:0 8px">
