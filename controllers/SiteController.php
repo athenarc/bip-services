@@ -476,11 +476,9 @@ class SiteController extends BaseController {
     /**
      * Displays the articles of a particular annotation.
      */
-    public function actionAnnotation() {
-        $annotation_id = Yii::$app->request->get('annotation_id');
-        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
-        $space_annotation_id = Yii::$app->request->get('space_annotation_id');
-        $space_annotation = SpacesAnnotations::findOne(['id' => $space_annotation_id]);
+    public function actionAnnotation($space_url_suffix, $annotation_id) {
+        $id = Yii::$app->request->get('id');
+        $space_annotation = SpacesAnnotations::findOne(['id' => $annotation_id]);
 
         $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
         $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
@@ -489,11 +487,11 @@ class SiteController extends BaseController {
             $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
 
             // Annotation Info
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $annotation_id]);
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $id]);
             $annotation_info = $rows[0][0];
 
             // Annotation Dois Count
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $annotation_id]);
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $id]);
             $dois_count = $rows[0][0];
 
             $pagination = new Pagination([
@@ -502,7 +500,7 @@ class SiteController extends BaseController {
             ]);
 
             // Annotation Dois
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $annotation_id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
+            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
             $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
         } catch (\Exception $e) {
             throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
