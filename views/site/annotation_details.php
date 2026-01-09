@@ -3,7 +3,9 @@
 use app\components\ResultItem;
 use Yii;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\web\View;
+use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
 $this->title = 'BIP! Services - Finder';
@@ -56,19 +58,50 @@ if ($in_space) {
 <div class='row'>
     <div class='col-xs-12'>
         <?php if (! empty($works)) : ?>
-
             <div id="results_hdr" class="row">
                 <div class='col-md-3 text-center results-header'><?= Yii::$app->formatter->asDecimal($pagination->totalCount, 0) ?> results (<?=  Yii::$app->formatter->asDecimal($pagination->pageCount, 0) ?> pages)</div>
-                <div class='col-md-6 text-center'><?= LinkPager::widget(['pagination' => $pagination,
+                <div class='col-md-6 text-center'><?= LinkPager::widget([
+                    'pagination' => $pagination,
                     'maxButtonCount' => 5,
                     'firstPageLabel' => '<i class="fa-solid fa-backward-fast"></i>',
-                    'lastPageLabel' => '<i class="fa-solid fa-forward-fast"></i>']);
+                    'lastPageLabel' => '<i class="fa-solid fa-forward-fast"></i>'
+                ]);
                 ?>
+                </div>
+                <div class='col-md-3 text-center grey-text'>
+                    <div class = "inline-block-d" style = "margin:0 8px">
+                        <?php
+                        $form = ActiveForm::begin([
+                            'method' => 'get',
+                            'action' => Url::to([
+                                'site/annotation',
+                                'space_url_suffix' => $space_model->url_suffix,
+                                'annotation_id' => $space_annotation->id,
+                                'id' => $annotation_id
+                            ]),
+                            'options' => ['class' => 'inline-form']
+                        ]);
+                        ?>
+                        <div class="form-group field-ordering" style="display: inline-block; margin: 0;">
+                            <?= Html::dropDownList('ordering', $ordering ?? 'popularity', [
+                                'popularity' => 'Popularity',
+                                'influence' => 'Influence',
+                                'citation_count' => 'Citation Count',
+                                'impulse' => 'Impulse',
+                                'year' => 'Year'
+                            ], [
+                                'onchange' => '$(this).closest(\'form\').submit()',
+                                'style' => ['display' => 'inline-block', 'width' => 'auto', 'color' => 'grey'],
+                                'class' => 'form-control'
+                            ]); ?>
+                        </div>
+                        <?php ActiveForm::end(); ?>
+                    </div>
                 </div>
             </div>
             <div id='results_tbl'>
                 <?php foreach ($works as $result) {
-                    echo ResultItem::widget([
+                                echo ResultItem::widget([
                         'impact_indicators' => $impact_indicators,
                         'internal_id' => $result['internal_id'],
                         'doi' => $result['doi'],
@@ -100,7 +133,7 @@ if ($in_space) {
                         'space_url_suffix' => $space_model->url_suffix,
                         'space_annotation_db' => $space_model->annotation_db
                     ]);
-                } ?>
+                            } ?>
             </div>
 
                 <?php endif; ?>

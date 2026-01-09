@@ -478,6 +478,7 @@ class SiteController extends BaseController {
      */
     public function actionAnnotation($space_url_suffix, $annotation_id) {
         $id = Yii::$app->request->get('id');
+        $ordering = Yii::$app->request->get('ordering', 'popularity');
         $space_annotation = SpacesAnnotations::findOne(['id' => $annotation_id]);
 
         if ($space_annotation === null) {
@@ -491,8 +492,14 @@ class SiteController extends BaseController {
         }
 
         // Prepare and execute Solr query for annotation
-        $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id);
+        $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering);
         [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
+
+        // Set pagination params to preserve query parameters
+        $pagination->params = [
+            'id' => $id,
+            'ordering' => $ordering
+        ];
 
         // Get annotation info from graph DB (if metadata_query is configured)
         $annotation_info = null;
@@ -527,6 +534,7 @@ class SiteController extends BaseController {
             'works' => $works,
             'pagination' => $pagination,
             'impact_indicators' => $impact_indicators,
+            'ordering' => $ordering,
         ]);
     }
 
