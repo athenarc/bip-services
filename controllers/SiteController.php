@@ -494,10 +494,11 @@ class SiteController extends BaseController {
         $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id);
         [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
 
-        // Get annotation info from graph DB (still needed for display)
+        // Get annotation info from graph DB (if metadata_query is configured)
         $annotation_info = null;
+        $has_metadata_query = ! empty($space_annotation->metadata_query);
 
-        if (! empty($space_annotation->metadata_query)) {
+        if ($has_metadata_query) {
             try {
                 $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
                 $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
@@ -519,7 +520,10 @@ class SiteController extends BaseController {
 
         return $this->render('annotation_details', [
             'space_model' => $space_model,
+            'space_annotation' => $space_annotation,
             'annotation_info' => $annotation_info,
+            'annotation_id' => $id,
+            'has_metadata_query' => $has_metadata_query,
             'works' => $works,
             'pagination' => $pagination,
             'impact_indicators' => $impact_indicators,
