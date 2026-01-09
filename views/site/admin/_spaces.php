@@ -365,45 +365,36 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     <div class="col-xs-12">
                         <?php
                             $modelSpacesAnnotations->clearErrors('query');
-                            
+
                             $query = $modelSpacesAnnotations->query;
                             $fieldOptions = [];
-                            
-                            if (!empty($query)) {
+
+                            if (! empty($query)) {
                                 $validation = SpacesAnnotations::validateQuerySyntax($query);
-                                
-                                if (!$validation['valid']) {
+
+                                if (! $validation['valid']) {
                                     $fieldOptions['options'] = ['class' => 'form-group has-error'];
                                     $errorListItems = '';
+
                                     foreach ($validation['errors'] as $error) {
                                         $errorListItems .= '<li>' . Html::encode($error) . '</li>';
                                     }
                                     $errorText = '<span class="label label-danger">The query is not valid</span><ul class="text-danger">' . $errorListItems . '</ul>';
                                 }
                             }
-                            
+
                             $field = $form->field($modelSpacesAnnotations, "[{$i}]query", $fieldOptions);
-                            
-                            if (!empty($query) && isset($validation)) {
+
+                            if (! empty($query) && isset($validation)) {
                                 if ($validation['valid']) {
                                     $field = $field->hint('<span class="label label-success">The query is valid</span>');
                                 } else {
                                     $field = $field->hint($errorText);
                                 }
                             }
-                            
+
                             echo $field->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']);
                         ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_count")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
                 </div>
                 <div class="row">
