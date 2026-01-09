@@ -651,6 +651,78 @@ class SearchForm extends Model {
         ];
     }
 
+    /**
+     * Get evolution data for annotation papers (count and citations per year)
+     * 
+     * @param string $space_url_suffix Space URL suffix
+     * @param int $annotation_id Space annotation ID
+     * @param string $id Annotation ID (e.g., DOID:0050687)
+     * @return array [count_per_year, citation_per_year]
+     */
+    public static function getAnnotationEvolution($space_url_suffix, $annotation_id, $id) {
+        // Prepare annotation query
+        $query = self::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, 'popularity');
+
+        // do not return actual results, only facets
+        $query->setRows(0);
+
+        // Add faceting on year
+        $facetSet = $query->getFacetSet();
+        $facet = $facetSet->createFacetField('years_facet')
+            ->setField('year')
+            ->setMinCount(1);
+
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the count per year from facet results
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
+
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year = $stats['year'] ?? [];
+
+        // Determine the range of years
+        if (!empty($count_per_year)) {
+            $minYear = min(array_keys($count_per_year));
+            $maxYear = max(array_keys($count_per_year));
+
+            for ($year = $minYear; $year <= $maxYear; $year++) {
+                // Fill missing years with zero for research works and citation counts
+                if (! isset($count_per_year[$year])) {
+                    $count_per_year[$year] = 0;
+                }
+
+                // Fill missing years with zero for citation counts or get their sum
+                if (! isset($citation_per_year[$year])) {
+                    $citation_per_year[$year] = 0;
+                } else {
+                    $citation_per_year[$year] = $citation_per_year[$year]->getSum();
+                }
+            }
+
+            // Sort the array by keys (years)
+            ksort($count_per_year);
+            ksort($citation_per_year);
+
+            // Keep only the latest 20 values
+            $count_per_year = array_slice($count_per_year, -20, 20, true);
+            $citation_per_year = array_slice($citation_per_year, -20, 20, true);
+        } else {
+            $count_per_year = [];
+            $citation_per_year = [];
+        }
+
+        return [
+            $count_per_year,
+            $citation_per_year
+        ];
+    }
+
     public function addMetadata($rows) {
         // add the impact class of each row
         $rows = self::get_impact_class($rows);
@@ -935,7 +1007,8 @@ class SearchForm extends Model {
         $annotation_filter = 'annotations:/' . $escaped_space_suffix . '\\|' . $escaped_annotation_id . '\\|.*\\|' . $escaped_id . '/';
 
         $solr_query->createFilterQuery('annotation_filter')->setQuery($annotation_filter);
-        $solr_query->setFields(['internal_id']);
+        // Include fields needed for faceting and stats
+        $solr_query->setFields(['internal_id', 'year', 'citation_count']);
 
         // Add sorting based on ordering
         // $sort_field = self::getRankingField($ordering);

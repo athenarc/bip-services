@@ -287,6 +287,28 @@ class SiteController extends BaseController {
     }
 
     /**
+     * Get annotation evolution data for AJAX requests
+     */
+    public function actionGetAnnotationEvolution() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
+        $annotation_id = Yii::$app->request->get('annotation_id');
+        $id = Yii::$app->request->get('id');
+        
+        if (!$space_url_suffix || !$annotation_id || !$id) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameters');
+        }
+        
+        [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
+        
+        return [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ];
+    }
+
+    /**
      * Displays the comparison page.
      *
      * @author Thanasis Vergoulis
@@ -495,8 +517,11 @@ class SiteController extends BaseController {
         $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering);
         [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
 
-        // Set pagination params to preserve query parameters
+        // Set pagination route and params to preserve both route and query parameters
+        $pagination->route = 'site/annotation';
         $pagination->params = [
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_id' => $annotation_id,
             'id' => $id,
             'ordering' => $ordering
         ];
@@ -535,6 +560,8 @@ class SiteController extends BaseController {
             'pagination' => $pagination,
             'impact_indicators' => $impact_indicators,
             'ordering' => $ordering,
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_type_id' => $annotation_id,
         ]);
     }
 
