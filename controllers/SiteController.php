@@ -497,11 +497,11 @@ class SiteController extends BaseController {
         // Get annotation info from graph DB (still needed for display)
         $annotation_info = null;
 
-        if (! empty($space_annotation->reverse_query_info)) {
+        if (! empty($space_annotation->metadata_query)) {
             try {
                 $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
                 $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-                [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $id]);
+                [ $stats, $rows ] = $conn->run($space_annotation->metadata_query, ['annotation_id' => $id]);
 
                 if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
                     $annotation_info = $rows[0][0];

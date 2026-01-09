@@ -399,7 +399,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_info")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
                 </div>
                 <div class="row">
