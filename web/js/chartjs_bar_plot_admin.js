@@ -79,7 +79,7 @@ function render_admin_bar_plot(container_id, keys, values, labelText) {
                 },
                 title: {
                     display: true,
-                    text: `${labelText} per month`,
+                    text: labelText,
                 },
             },
         },

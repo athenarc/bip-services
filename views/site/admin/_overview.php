@@ -24,9 +24,13 @@ $this->registerCssFile('@web/css/admin-graphs.css');
                     <div class="chart-box">
                         <canvas id="user-activity-pie-chart"></canvas>
                     </div>
+                    <div class="chart-box">
+                        <canvas id="user-registration-bar-plot"></canvas>
+                    </div>
                     <script>
-                        render_admin_bar_plot('registered_users-bar-plot', <?= Json::encode($stats->monthly_user_data['labels']) ?>, <?= Json::encode($stats->monthly_user_data['data']) ?>, 'Registered users');
+                        render_admin_bar_plot('registered_users-bar-plot', <?= Json::encode($stats->monthly_user_data['labels']) ?>, <?= Json::encode($stats->monthly_user_data['data']) ?>, 'Registered users per month');
                         render_admin_pie_chart('user-activity-pie-chart', <?= Json::encode($stats->user_activity_data['labels']) ?>, <?= Json::encode($stats->user_activity_data['data']) ?>, 'User activity');
+                        render_admin_bar_plot('user-registration-bar-plot', <?= Json::encode($stats->user_registration_data['labels']) ?>, <?= Json::encode($stats->user_registration_data['data']) ?>, 'User registration method');
                     </script>
                 </div>
             </div>
