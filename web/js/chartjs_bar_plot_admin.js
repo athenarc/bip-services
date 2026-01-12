@@ -63,9 +63,13 @@ function render_admin_bar_plot(container_id, keys, values, labelText) {
         options: {
             scales: {
                 y: {
-
-                    min: Math.min(...values) > 0 ? Math.min(...values) - 1 : 0,
                     beginAtZero: false,
+                    min: (() => {
+                        const minValue = Math.min(...values);
+                        if (minValue <= 0) return 0;
+                        // Round down to the nearest hundred
+                        return Math.floor(minValue / 100) * 100;
+                    })(),
                     ticks: {
                         stepSize: 1,
                     },
