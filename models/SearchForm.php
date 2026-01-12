@@ -712,7 +712,7 @@ class SearchForm extends Model {
         return $top_annotations;
     }
 
-    public function getAnnotationEvolution($selected_annotation) {
+    public function getTopAnnotationEvolution($selected_annotation) {
         // prepare the search query
         $query = $this->prepareSearchQuery();
 

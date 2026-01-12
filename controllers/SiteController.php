@@ -299,7 +299,7 @@ class SiteController extends BaseController {
         ]);
     }
 
-    public function actionGetAnnotationEvolution() {
+    public function actionGetTopAnnotationEvolution() {
         $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
 
         if (! $selected_annotation) {
@@ -308,7 +308,7 @@ class SiteController extends BaseController {
 
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
-        [ $count_per_year, $citation_per_year ] = $search_model->getAnnotationEvolution($selected_annotation);
+        [ $count_per_year, $citation_per_year ] = $search_model->getTopAnnotationEvolution($selected_annotation);
 
         return $this->renderPartial('annotation_evolution', [
             'count_per_year' => $count_per_year,
