@@ -19,6 +19,8 @@ class AdminStats extends Model {
 
     public $researcher_profile_visibility;
 
+    public $user_registration_data;
+
     public function getStats() {
         $this->total_users_likes = self::getTotalUserLikes();
         $this->total_users_with_likes = self::getTotalUserswithLikes();
@@ -26,6 +28,7 @@ class AdminStats extends Model {
         $this->user_activity_data = self::getUserActivityData();
         $this->monthly_researcher_data = self::getMonthlyData(Researcher::class, 'created_at');
         $this->researcher_profile_visibility = self::getProfileVisibilityData();
+        $this->user_registration_data = self::getUserRegistrationData();
     }
 
     public static function getTotalScholarProfiles() {
@@ -42,6 +45,26 @@ class AdminStats extends Model {
 
     public static function getTotalUserswithLikes() {
         return UsersLikes::find()->where(['showit' => 1])->select('COUNT(DISTINCT user_id)')->scalar();
+    }
+
+    public static function getUserRegistrationData() {
+        // Get both counts in a single query using conditional aggregation
+        $result = User::find()
+            ->select([
+                'SUM(CASE WHEN auth_provider = "ORCID" THEN 1 ELSE 0 END) as orcid_users',
+                'COUNT(*) as total_users'
+            ])
+            ->asArray()
+            ->one();
+
+        $orcid_users = (int) ($result['orcid_users'] ?? 0);
+        $total_users = (int) ($result['total_users'] ?? 0);
+        $native_users = $total_users - $orcid_users;
+
+        return [
+            'labels' => ['ORCID Users', 'Native Users'],
+            'data' => [$orcid_users, $native_users],
+        ];
     }
 
     public static function hasAdminAccess() {
