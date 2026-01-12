@@ -130,12 +130,9 @@ class Spaces extends \yii\db\ActiveRecord {
      * - we are inside a concrete space instance (has an id)
      * - the user is logged in
      * - at least one of the evaluation features is enabled for this space
-     *
-     * @param int|null $userId
-     * @return bool
      */
     public function isEvaluationModeActive(?int $userId = null): bool {
-        if (!isset($this->id)) {
+        if (! isset($this->id)) {
             return false;
         }
 
@@ -143,12 +140,12 @@ class Spaces extends \yii\db\ActiveRecord {
             $userId = \Yii::$app->user->id;
         }
 
-        if (!isset($userId)) {
+        if (! isset($userId)) {
             return false;
         }
 
-        return (bool) (($this->enable_like_dislike_records ?? false)
-            || ($this->enable_like_dislike_annotations ?? false));
+        return (bool) (($this->enable_like_dislike_records ?? false) ||
+            ($this->enable_like_dislike_annotations ?? false));
     }
 
     public function beforeValidate() {
@@ -616,7 +613,6 @@ class Spaces extends \yii\db\ActiveRecord {
                 $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
                 $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
                 $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
-                $rows[$row][1][$annotation_row]['has_reverse_query'] = ! empty($space_annotation['reverse_query']);
             }
         }
 

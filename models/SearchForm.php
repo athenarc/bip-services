@@ -114,6 +114,20 @@ class SearchForm extends Model {
     }
 
     /**
+     * Serialize search parameters into a query string for storing in like_dislike_records.
+     * This creates a consistent string representation of the search query.
+     * Currently matches the format sent by JavaScript (just keywords) for backward compatibility,
+     * but can be extended to include all search parameters.
+     *
+     * @return string Serialized query string
+     */
+    public function serializeQuery() {
+        // For now, return just keywords to match what JavaScript sends
+        // This ensures votes are matched by the same query format
+        return $this->keywords ?? '';
+    }
+
+    /**
      * Get the validation rules.
      *
      * @return array containing the validation rules.
@@ -815,6 +829,78 @@ class SearchForm extends Model {
         ];
     }
 
+    /**
+     * Get evolution data for annotation papers (count and citations per year)
+     * 
+     * @param string $space_url_suffix Space URL suffix
+     * @param int $annotation_id Space annotation ID
+     * @param string $id Annotation ID (e.g., DOID:0050687)
+     * @return array [count_per_year, citation_per_year]
+     */
+    public static function getAnnotationEvolution($space_url_suffix, $annotation_id, $id) {
+        // Prepare annotation query
+        $query = self::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, 'popularity');
+
+        // do not return actual results, only facets
+        $query->setRows(0);
+
+        // Add faceting on year
+        $facetSet = $query->getFacetSet();
+        $facet = $facetSet->createFacetField('years_facet')
+            ->setField('year')
+            ->setMinCount(1);
+
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the count per year from facet results
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
+
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year = $stats['year'] ?? [];
+
+        // Determine the range of years
+        if (!empty($count_per_year)) {
+            $minYear = min(array_keys($count_per_year));
+            $maxYear = max(array_keys($count_per_year));
+
+            for ($year = $minYear; $year <= $maxYear; $year++) {
+                // Fill missing years with zero for research works and citation counts
+                if (! isset($count_per_year[$year])) {
+                    $count_per_year[$year] = 0;
+                }
+
+                // Fill missing years with zero for citation counts or get their sum
+                if (! isset($citation_per_year[$year])) {
+                    $citation_per_year[$year] = 0;
+                } else {
+                    $citation_per_year[$year] = $citation_per_year[$year]->getSum();
+                }
+            }
+
+            // Sort the array by keys (years)
+            ksort($count_per_year);
+            ksort($citation_per_year);
+
+            // Keep only the latest 20 values
+            $count_per_year = array_slice($count_per_year, -20, 20, true);
+            $citation_per_year = array_slice($citation_per_year, -20, 20, true);
+        } else {
+            $count_per_year = [];
+            $citation_per_year = [];
+        }
+
+        return [
+            $count_per_year,
+            $citation_per_year
+        ];
+    }
+
     public function addMetadata($rows) {
         // add the impact class of each row
         $rows = self::get_impact_class($rows);
@@ -1059,6 +1145,127 @@ class SearchForm extends Model {
         $rows = self::get_impact_class($rows);
 
         return $rows;
+    }
+
+    /**
+     * Get the ranking field name for a given ordering method.
+     *
+     * @param string $method Ordering method (popularity, influence, etc.)
+     * @return string Database/Solr field name
+     */
+    public static function getRankingField($method) {
+        if (empty($method) || ! isset(Yii::$app->params['impact_fields'][$method])) {
+            return 'attrank'; // Default to popularity
+        }
+
+        return Yii::$app->params['impact_fields'][$method];
+    }
+
+    /**
+     * Prepare Solr query for annotation search.
+     * Pattern: annotations:"<space_url_suffix>|<annotation_id>|*|<id>"
+     * Using regex to allow any value for the name field (third position).
+     *
+     * @param string $space_url_suffix Space URL suffix
+     * @param int $annotation_id Space annotation ID
+     * @param string $id Annotation ID (e.g., DOID:0050687)
+     * @param string $ordering Ordering method (popularity, influence, citation_count, impulse, year)
+     * @return \Solarium\QueryType\Select\Query\Query Solr query object
+     */
+    public static function prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering = 'popularity') {
+        $solr_query = Yii::$app->solr->createSelect();
+
+        // Escape special characters for regex
+        $escaped_id = preg_quote($id, '/');
+        $escaped_space_suffix = preg_quote($space_url_suffix, '/');
+        $escaped_annotation_id = preg_quote($annotation_id, '/');
+
+        // Build the annotation filter using regex to match the pattern
+        // Pattern: <space_url_suffix>|<annotation_id>|<any_name>|<id>
+        $annotation_filter = 'annotations:/' . $escaped_space_suffix . '\\|' . $escaped_annotation_id . '\\|.*\\|' . $escaped_id . '/';
+
+        $solr_query->createFilterQuery('annotation_filter')->setQuery($annotation_filter);
+        // Include fields needed for faceting and stats
+        $solr_query->setFields(['internal_id', 'year', 'citation_count']);
+
+        // Add sorting based on ordering
+        // $sort_field = self::getRankingField($ordering);
+        $solr_query->addSort($ordering, $solr_query::SORT_DESC);
+
+        return $solr_query;
+    }
+
+    /**
+     * Execute annotation Solr query and return pagination and internal IDs.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object
+     * @param int $pageSize Page size for pagination
+     * @return array [Pagination, array of internal_ids]
+     */
+    public static function performAnnotationQuery($query, $pageSize = 20) {
+        // Create pagination object with temporary totalCount
+        // We'll update it after getting the actual count from Solr response
+        $pagination = new Pagination([
+            'pageSize' => $pageSize,
+            'totalCount' => 50000000000, // Temporary high value, will be updated
+        ]);
+
+        // Set pagination parameters and execute query
+        $query->setRows($pagination->limit);
+        $query->setStart($pagination->offset);
+        $result = Yii::$app->solr->select($query);
+        $response = $result->getData()['response'];
+
+        // Update pagination with actual total count from Solr response
+        $pagination->totalCount = $response['numFound'];
+
+        // Extract internal_ids from response
+        $internal_ids = [];
+
+        if (! empty($response['docs'])) {
+            $internal_ids = array_column($response['docs'], 'internal_id');
+        }
+
+        return [
+            $pagination,
+            $internal_ids
+        ];
+    }
+
+    /**
+     * Prepare annotation search results from database.
+     * Gets paper details for the given internal IDs, preserving order.
+     *
+     * @param array $internal_ids Array of internal IDs
+     * @return array Array of paper records
+     */
+    public static function prepareAnnotationResults($internal_ids) {
+        if (empty($internal_ids)) {
+            return [];
+        }
+
+        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+
+        $works = (new \yii\db\Query())
+            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->from('pmc_paper')
+            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
+            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
+            ->where(['in', 'internal_id', $internal_ids])
+            ->groupBy('internal_id')
+            ->orderBy([new Expression('FIELD(internal_id, ' . implode(',', array_map(function ($element) { return (int) $element; }, $internal_ids)) . ')')])
+            ->all();
+
+        // Add impact classes
+        $works = self::get_impact_class($works);
+
+        // Get concepts and scores
+        $works = Concepts::getConcepts($works, 'internal_id');
+
+        // Get impact scores per concept
+        $works = self::get_concepts_impact_class($works);
+
+        return $works;
     }
 
     /*

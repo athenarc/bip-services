@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
  * Annotations view - displays annotations grouped by type
@@ -6,13 +6,13 @@
  * (First Version: Dec 2024)
  */
 
-use yii\helpers\Html;
 use app\components\AnnotationPopover;
+use yii\helpers\Html;
 
 ?>
 
 <div id="res_<?= $internal_id ?>_annot">
-    <?php 
+    <?php
     $tab_container_id = "res_{$internal_id}_annot_tabs";
     ?>
     
@@ -20,7 +20,7 @@ use app\components\AnnotationPopover;
     <div class="annotation-tabs tag-region grey-text">
         <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
         <?php foreach ($grouped_annotations as $annotation_id => $group): ?>
-            <?php 
+            <?php
             $tab_id = "res_{$internal_id}_annot_tab_{$annotation_id}";
             $content_id = "res_{$internal_id}_annot_content_{$annotation_id}";
             ?>
@@ -37,8 +37,8 @@ use app\components\AnnotationPopover;
     
     <!-- Tab Content -->
     <div id="<?= $tab_container_id ?>" class="annotation-tab-content">
-        <?php 
-        foreach ($grouped_annotations as $annotation_id => $group): 
+        <?php
+        foreach ($grouped_annotations as $annotation_id => $group):
             $content_id = "res_{$internal_id}_annot_content_{$annotation_id}";
         ?>
             <div class="tag-region grey-text annotation-content" id="<?= $content_id ?>">
@@ -46,12 +46,11 @@ use app\components\AnnotationPopover;
                     <span class="annotation-group-label"><?= Html::encode($group['type_name']) ?></span>
                     <?php foreach ($group['items'] as $annotation): ?>
                         <span class="tag label">
-                            <?php $annotation_content = AnnotationPopover::widget([ 
-                                'data' => $annotation['data'], 
-                                'space_annotation_db' => $space_annotation_db, 
-                                'space_url_suffix' => $space_url_suffix, 
-                                'space_annotation_id' => $annotation['annotation_id'], 
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                            <?php $annotation_content = AnnotationPopover::widget([
+                                'data' => $annotation['data'],
+                                'space_annotation_db' => $space_annotation_db,
+                                'space_url_suffix' => $space_url_suffix,
+                                'annotation_type_id' => $annotation['annotation_id'],
                                 'paper_id' => $internal_id,
                                 'annotation_name' => $annotation['label'],
                                 'annotation_id' => $annotation['id'] ?? null,

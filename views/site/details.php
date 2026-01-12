@@ -1,4 +1,5 @@
 <?php
+use app\assets\TinyColorAsset;
 use app\components\AnnotationPopover;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
@@ -15,13 +16,15 @@ $this->title = 'BIP! Finder - ' . $article->title;
 $this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/chartjs_polar_area.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerJsFile('@web/js/getPDFLink.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/details.css');
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
 
 $show_overall_chart = (count($article->chart_data) > 0);
 
@@ -30,10 +33,13 @@ $show_topic_charts = (count($topic_chart_data) > 0);
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
+// Register space colors early if in space (right after tinycolor.js)
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
-    $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
-    $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
 }
 
 // Register annotation like/dislike JS if enabled for this space
@@ -174,8 +180,7 @@ if ($space_model->enable_like_dislike_annotations) {
                                 'data' => $annotation['data'],
                                 'space_annotation_db' => $space_model->annotation_db,
                                 'space_url_suffix' => $space_model->url_suffix,
-                                'space_annotation_id' => $annotation['annotation_id'],
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                                'annotation_type_id' => $annotation['annotation_id'],
                                 'paper_id' => $article->internal_id,
                                 'annotation_name' => $annotation['label'],
                                 'annotation_id' => $annotation['id'] ?? null,

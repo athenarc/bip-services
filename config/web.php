@@ -117,6 +117,9 @@ $config = [
                 'site/auto-complete-journals/<expansion>/<max_num>' => 'site/auto-complete-journals',
                 'site/auto-complete-concepts/<expansion>/<max_num>' => 'site/auto-complete-concepts',
 
+                // annotation pages
+                '<space_url_suffix>/annotation/<annotation_id>' => 'site/annotation',
+
                 // scholar pages
                 'scholar' => 'scholar/index',
                 'scholar/profile/<orcid>' => 'scholar/profile',

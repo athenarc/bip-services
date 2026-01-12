@@ -21,12 +21,13 @@ foreach ($this->context->data as $annotation_data): ?>
         <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name'] . ' knowledge graph') ?>
     </div>
 
-    <?php if ($this->context->has_reverse_annotation_query): ?>
-        <div>
-            <span class='green-bip'> All relevant works:</span>
-            <a href='<?= Url::to(['site/annotation', 'annotation_id' => $annotation_id, 'space_url_suffix' => $this->context->space_url_suffix, 'space_annotation_id' => $this->context->space_annotation_id]) ?>' target='_blank'><i class='fa-solid fa-arrow-up-right-from-square'></i></a>
-        </div>
-    <?php endif; ?>
+    <div>
+        <a href='<?= Url::to(['site/annotation', 'space_url_suffix' => $this->context->space_url_suffix, 'annotation_id' => $this->context->annotation_type_id, 'id' => $annotation_id]) ?>' target='_blank' style='text-decoration: none;'>
+            <span class='green-bip'> 
+                Show all relevant works <i class='fa-solid fa-arrow-up-right-from-square'></i>
+            </span>
+        </a>
+    </div>
 
     <?php
 
@@ -43,10 +44,10 @@ foreach ($this->context->data as $annotation_data): ?>
         $paper_id = $this->context->paper_id;
         $annotation_name = $this->context->annotation_name;
         $space_url_suffix = $this->context->space_url_suffix;
+        $annotation_type_id = $this->context->annotation_type_id;
 
-        // Get user vote (server-side) or use provided value
         $user_vote_annotation = $this->context->user_vote_annotation
-            ?? LikeDislikeAnnotations::getUserVote(Yii::$app->user->id, $paper_id, $annotation_id, $space_url_suffix);
+            ?? ($annotation_type_id ? LikeDislikeAnnotations::getUserVote(Yii::$app->user->id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix) : null);
 
         // Determine button classes & styles based on user vote
         $inactive_class = 'btn btn-default grey-link btn-xs';
@@ -61,6 +62,7 @@ foreach ($this->context->data as $annotation_data): ?>
         <div style='margin-top: 5px; padding-top: 5px;'>
             <div class='like-dislike-annotation-buttons' style='text-align: right;'
                  data-paper-id='<?= Html::encode($paper_id) ?>' 
+                 data-annotation-type-id='<?= Html::encode($this->context->annotation_type_id) ?>'
                  data-annotation-id='<?= Html::encode($annotation_id) ?>'
                  data-annotation-name='<?= Html::encode($annotation_name) ?>'
                  data-space-url-suffix='<?= Html::encode($space_url_suffix) ?>'>

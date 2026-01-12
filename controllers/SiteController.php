@@ -199,11 +199,21 @@ class SiteController extends BaseController {
             }, $results['rows']);
 
             if (! empty($paper_ids)) {
-                $user_votes = LikeDislikeRecords::getUserVotesBatch(
-                    Yii::$app->user->id,
-                    $paper_ids,
-                    $space_model->url_suffix
-                );
+                // Serialize the current search query to match votes by query
+                $query_string = $search_model->serializeQuery();
+                // Get the current ordering (default to 'popularity' if not set)
+                $ordering = $search_model->ordering ?? 'popularity';
+
+                // Ensure query and ordering are not empty before calling getUserVotesBatch
+                if (! empty($query_string) && ! empty($ordering)) {
+                    $user_votes = LikeDislikeRecords::getUserVotesBatch(
+                        Yii::$app->user->id,
+                        $paper_ids,
+                        $space_model->url_suffix,
+                        $query_string,
+                        $ordering
+                    );
+                }
             }
         }
 
@@ -304,6 +314,28 @@ class SiteController extends BaseController {
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
         ]);
+    }
+
+    /**
+     * Get annotation evolution data for AJAX requests
+     */
+    public function actionGetAnnotationEvolution() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
+        $annotation_id = Yii::$app->request->get('annotation_id');
+        $id = Yii::$app->request->get('id');
+        
+        if (!$space_url_suffix || !$annotation_id || !$id) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameters');
+        }
+        
+        [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
+        
+        return [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ];
     }
 
     /**
@@ -496,65 +528,70 @@ class SiteController extends BaseController {
     /**
      * Displays the articles of a particular annotation.
      */
-    public function actionAnnotation() {
-        $annotation_id = Yii::$app->request->get('annotation_id');
-        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
-        $space_annotation_id = Yii::$app->request->get('space_annotation_id');
-        $space_annotation = SpacesAnnotations::findOne(['id' => $space_annotation_id]);
+    public function actionAnnotation($space_url_suffix, $annotation_id) {
+        $id = Yii::$app->request->get('id');
+        $ordering = Yii::$app->request->get('ordering', 'popularity');
+        $space_annotation = SpacesAnnotations::findOne(['id' => $annotation_id]);
 
-        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
-        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
-
-        try {
-            $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-
-            // Annotation Info
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $annotation_id]);
-            $annotation_info = $rows[0][0];
-
-            // Annotation Dois Count
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $annotation_id]);
-            $dois_count = $rows[0][0];
-
-            $pagination = new Pagination([
-                'pageSize' => 10,
-                'totalCount' => $dois_count,
-            ]);
-
-            // Annotation Dois
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $annotation_id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
-            $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
-        } catch (\Exception $e) {
-            throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
+        if ($space_annotation === null) {
+            throw new \yii\web\NotFoundHttpException('Space annotation not found');
         }
 
-        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
 
-        $works = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
-            ->from('pmc_paper')
-            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
-            ->where(['in', 'doi', $dois])
-            ->groupBy('internal_id')
-            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function ($element) { return "\"${element}\""; }, $dois)) . ')')])
-            ->all();
+        if ($space_model === null) {
+            throw new \yii\web\NotFoundHttpException('Space not found');
+        }
 
-        // add the impact class of each row
-        $works = SearchForm::get_impact_class($works);
-        // get concepts and scores
-        $works = Concepts::getConcepts($works, 'internal_id');
-        // get impact scores per concept
-        $works = SearchForm::get_concepts_impact_class($works);
+        // Prepare and execute Solr query for annotation
+        $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering);
+        [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
+
+        // Set pagination route and params to preserve both route and query parameters
+        $pagination->route = 'site/annotation';
+        $pagination->params = [
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_id' => $annotation_id,
+            'id' => $id,
+            'ordering' => $ordering
+        ];
+
+        // Get annotation info from graph DB (if metadata_query is configured)
+        $annotation_info = null;
+        $has_metadata_query = ! empty($space_annotation->metadata_query);
+
+        if ($has_metadata_query) {
+            try {
+                $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+                $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+                [ $stats, $rows ] = $conn->run($space_annotation->metadata_query, ['annotation_id' => $id]);
+
+                if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
+                    $annotation_info = $rows[0][0];
+                }
+            } catch (\Exception $e) {
+                // If annotation info query fails, continue without it
+                Yii::warning('Failed to fetch annotation info: ' . $e->getMessage());
+            }
+        }
+
+        // Get paper details from database
+        $works = SearchForm::prepareAnnotationResults($internal_ids);
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->render('annotation_details', [
             'space_model' => $space_model,
+            'space_annotation' => $space_annotation,
             'annotation_info' => $annotation_info,
+            'annotation_id' => $id,
+            'has_metadata_query' => $has_metadata_query,
             'works' => $works,
             'pagination' => $pagination,
             'impact_indicators' => $impact_indicators,
+            'ordering' => $ordering,
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_type_id' => $annotation_id,
         ]);
     }
 
@@ -1409,13 +1446,23 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
         try {
             if ($remove == 1) {
-                // Delete the vote
-                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix);
+                // Delete the vote (matching query and ordering to delete the specific vote)
+                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix, $query, $ordering);
                 $message = 'Vote removed';
             } else {
-                // Save or update vote
+                // Save or update vote (query and ordering are now part of the unique key)
                 LikeDislikeRecords::saveVote($user_id, $paper_id, $space_url_suffix, $vote_type, $query, $ordering, $paper_rank);
                 $message = 'Vote saved';
             }
@@ -1458,6 +1505,8 @@ class SiteController extends BaseController {
         $user_id = Yii::$app->user->id;
         $paper_ids = Yii::$app->request->post('paper_ids', []);
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $query = Yii::$app->request->post('query');
+        $ordering = Yii::$app->request->post('ordering');
 
         if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [
@@ -1466,28 +1515,30 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'votes' => [],
+            ];
+        }
+
         // Convert paper_ids to integers
         $paper_ids = array_map('intval', $paper_ids);
 
-        // Get all votes for these papers
-        $votes = LikeDislikeRecords::find()
-            ->where([
-                'user_id' => $user_id,
-                'paper_id' => $paper_ids,
-                'space_url_suffix' => $space_url_suffix,
-            ])
-            ->all();
-
-        // Build response array
-        $votes_array = [];
-
-        foreach ($votes as $vote) {
-            $votes_array[$vote->paper_id] = $vote->action;
-        }
+        // Get votes filtered by query and ordering
+        $votes = LikeDislikeRecords::getUserVotesBatch(
+            $user_id,
+            $paper_ids,
+            $space_url_suffix,
+            $query,
+            $ordering
+        );
 
         return [
             'success' => true,
-            'votes' => $votes_array,
+            'votes' => $votes,
         ];
     }
 
@@ -1509,6 +1560,7 @@ class SiteController extends BaseController {
 
         $user_id = Yii::$app->user->id;
         $paper_id = (int) Yii::$app->request->post('paper_id');
+        $annotation_type_id = (int) Yii::$app->request->post('annotation_type_id');
         $annotation_id = Yii::$app->request->post('annotation_id');
         $annotation_name = Yii::$app->request->post('annotation_name');
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
@@ -1516,7 +1568,7 @@ class SiteController extends BaseController {
         $remove = (int) Yii::$app->request->post('remove', 0);
 
         // Validate inputs
-        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+        if (empty($paper_id) || empty($annotation_type_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
             return [
                 'success' => false,
                 'message' => 'Missing required parameters',
@@ -1546,16 +1598,16 @@ class SiteController extends BaseController {
         try {
             if ($remove == 1) {
                 // Delete the vote
-                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
                 $message = 'Vote removed';
             } else {
                 // Save or update vote
-                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
                 $message = 'Vote saved';
             }
 
             // Get updated user vote
-            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
 
             return [
                 'success' => true,
