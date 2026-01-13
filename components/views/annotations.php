@@ -43,7 +43,7 @@ use yii\helpers\Html;
         ?>
             <div class="tag-region grey-text annotation-content" id="<?= $content_id ?>">
                 <div class="bootstrap-tagsinput">
-                    <span class="annotation-group-label"><?= Html::encode($group['type_name']) ?></span>
+                    <span class="annotation-group-label" style="background-color: <?= Html::encode($group['type_color']) ?>;"><?= Html::encode($group['type_name']) ?></span>
                     <?php foreach ($group['items'] as $annotation): ?>
                         <span class="tag label">
                             <?php $annotation_content = AnnotationPopover::widget([

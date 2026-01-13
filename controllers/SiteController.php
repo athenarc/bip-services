@@ -186,6 +186,12 @@ class SiteController extends BaseController {
 
         [ $results, $search_model, $space_model ] = $this->doSearch();
 
+        // Fetch synonyms for annotations with search expansion enabled
+        $synonyms_data = ['synonyms' => [], 'entity_name' => null];
+        if (!empty($search_model->keywords)) {
+            $synonyms_data = Spaces::fetchSynonyms($search_model->keywords, $space_model);
+        }
+
         // Preload user votes for the current page of results (used in the index view)
         $user_votes = [];
 
@@ -239,6 +245,8 @@ class SiteController extends BaseController {
             'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
             'user_votes' => $user_votes,
+            'synonyms' => $synonyms_data['synonyms'] ?? [],
+            'synonyms_entity_name' => $synonyms_data['entity_name'] ?? null,
         ]);
     }
 
@@ -365,6 +373,7 @@ class SiteController extends BaseController {
         
         // No valid parameters provided
         throw new \yii\web\BadRequestHttpException('Missing required parameters. Provide either selectedTopAnnotation (for search) or space_url_suffix, annotation_id, and id (for annotation details)');
+
     }
 
     /**
@@ -585,15 +594,16 @@ class SiteController extends BaseController {
             'ordering' => $ordering
         ];
 
-        // Get annotation info from graph DB (if metadata_query is configured)
+        // Get annotation info from graph DB (build query from graph entity fields)
         $annotation_info = null;
-        $has_metadata_query = ! empty($space_annotation->metadata_query);
+        $metadata_query = $space_annotation->buildMetadataQuery();
+        $has_metadata_query = ! empty($metadata_query);
 
         if ($has_metadata_query) {
             try {
                 $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
                 $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-                [ $stats, $rows ] = $conn->run($space_annotation->metadata_query, ['annotation_id' => $id]);
+                [ $stats, $rows ] = $conn->run($metadata_query, ['annotation_id' => $id]);
 
                 if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
                     $annotation_info = $rows[0][0];
