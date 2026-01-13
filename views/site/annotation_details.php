@@ -53,7 +53,22 @@ if ($in_space) {
         <?php if ($has_metadata_query && ! empty($annotation_info)): ?>
             <?php foreach ($annotation_info['data'] as $annotation_data): ?>
                 <div class='article-info' style = 'color:unset;'>
-                    <b><?= ucfirst($annotation_data['label']) ?>:</b> <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value']))?>
+                    <b><?= ucfirst($annotation_data['label']) ?>:</b> 
+                    <?php
+                    $value = $annotation_data['value'] ?? null;
+
+                    if (empty($value)) {
+                        echo 'N/A';
+                    } elseif (is_array($value)) {
+                        // Handle array values: join with comma and space
+                        $formattedValue = implode(', ', array_map(function ($item) {
+                            return ucfirst(str_replace('"', "'", (string) $item));
+                        }, $value));
+                        echo $formattedValue;
+                    } else {
+                        echo ucfirst(str_replace('"', "'", (string) $value));
+                    }
+                    ?>
                 </div>
             <?php endforeach; ?>
             <div class='article-info' style = 'color:unset;'>

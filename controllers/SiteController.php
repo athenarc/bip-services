@@ -287,21 +287,21 @@ class SiteController extends BaseController {
     }
 
     /**
-     * Get annotation evolution data for AJAX requests
+     * Get annotation evolution data for AJAX requests.
      */
     public function actionGetAnnotationEvolution() {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $annotation_id = Yii::$app->request->get('annotation_id');
         $id = Yii::$app->request->get('id');
-        
-        if (!$space_url_suffix || !$annotation_id || !$id) {
+
+        if (! $space_url_suffix || ! $annotation_id || ! $id) {
             throw new \yii\web\BadRequestHttpException('Missing required parameters');
         }
-        
+
         [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
-        
+
         return [
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
@@ -526,15 +526,16 @@ class SiteController extends BaseController {
             'ordering' => $ordering
         ];
 
-        // Get annotation info from graph DB (if metadata_query is configured)
+        // Get annotation info from graph DB (build query from graph entity fields)
         $annotation_info = null;
-        $has_metadata_query = ! empty($space_annotation->metadata_query);
+        $metadata_query = $space_annotation->buildMetadataQuery();
+        $has_metadata_query = ! empty($metadata_query);
 
         if ($has_metadata_query) {
             try {
                 $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
                 $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-                [ $stats, $rows ] = $conn->run($space_annotation->metadata_query, ['annotation_id' => $id]);
+                [ $stats, $rows ] = $conn->run($metadata_query, ['annotation_id' => $id]);
 
                 if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
                     $annotation_info = $rows[0][0];

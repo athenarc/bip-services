@@ -318,6 +318,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 'graph_entity',
                 'graph_entity_identifier',
                 'graph_entity_label',
+                'metadata_fields',
             ],
         ]);
     ?>
@@ -383,6 +384,11 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_fields")->textInput(['maxlength' => 500, 'class' => 'search-box form-control'])->hint('Comma-separated list of fields to display (e.g., description, type, status)') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
                         <?php
                             $modelSpacesAnnotations->clearErrors('query');
 
@@ -415,11 +421,6 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
                             echo $field->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']);
                         ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
                 </div>
                 <div class="row">
