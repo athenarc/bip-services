@@ -19,6 +19,8 @@ use yii\helpers\ArrayHelper;
  * @property string|null $graph_entity_identifier
  * @property string|null $graph_entity_label
  * @property string|null $metadata_fields
+ * @property int $perform_search_expansion
+ * @property string|null $expansion_field
  * @property int $enabled
  *
  * @property Spaces $spaces
@@ -35,13 +37,25 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             // [['spaces_id'], 'exist', 'skipOnError' => true, 'targetClass' => Spaces::class, 'targetAttribute' => ['spaces_id' => 'id']],
             [['query'], 'required'],
             [['query', 'description'], 'string'],
-            [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'string', 'max' => 255],
+            [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label', 'expansion_field'], 'string', 'max' => 255],
             [['metadata_fields'], 'string', 'max' => 500],
             [['graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'required'],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
-            [['enabled'], 'boolean'],
+            [['enabled', 'perform_search_expansion'], 'boolean'],
             [['enabled'], 'default', 'value' => 1],
+            [['perform_search_expansion'], 'default', 'value' => 0],
+            [['expansion_field'], 'required', 'when' => function($model) {
+                return !empty($model->perform_search_expansion);
+            }, 'whenClient' => "function (attribute, value) {
+                var fieldId = attribute.id || '';
+                var indexMatch = fieldId.match(/\\d+/);
+                if (!indexMatch) return false;
+                var index = indexMatch[0];
+                var checkboxSelector = 'input[name*=\"[' + index + ']perform_search_expansion\"]';
+                var checkbox = $(checkboxSelector);
+                return checkbox.length > 0 && checkbox.is(':checked');
+            }"],
         ];
     }
 
@@ -58,6 +72,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'graph_entity_identifier' => 'Graph entity identifier',
             'graph_entity_label' => 'Graph entity label',
             'metadata_fields' => 'Metadata fields',
+            'perform_search_expansion' => 'Perform search expansion',
+            'expansion_field' => 'Expansion field',
             'enabled' => 'Enabled',
         ];
     }

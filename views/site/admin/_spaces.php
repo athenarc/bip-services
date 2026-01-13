@@ -319,6 +319,8 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 'graph_entity_identifier',
                 'graph_entity_label',
                 'metadata_fields',
+                'perform_search_expansion',
+                'expansion_field',
             ],
         ]);
     ?>
@@ -384,7 +386,23 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_fields")->textInput(['maxlength' => 500, 'class' => 'search-box form-control'])->hint('Comma-separated list of fields to display (e.g., description, type, status)') ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_fields")->textInput(['maxlength' => 500, 'class' => 'search-box form-control'])->hint('Comma-separated list of fields to display (e.g., description, type, status); if empty, all fields are displayed') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <div style="padding-top: 25px;">
+                            <?= $form->field($modelSpacesAnnotations, "[{$i}]perform_search_expansion", [
+                                'enableClientValidation' => false,
+                                'options' => ['tag' => false],
+                                'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                                'labelOptions' => ['style' => 'font-weight: bold;'],
+                                'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\" style=\"margin-top: 0;\">{input}{label}{error}</div>"
+                            ])->checkbox([], false) ?>
+                        </div>
+                    </div>
+                    <div class="col-xs-8">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]expansion_field")->textInput(['maxlength' => 255, 'class' => 'search-box form-control expansion-field-input', 'disabled' => !$modelSpacesAnnotations->perform_search_expansion]) ?>
                     </div>
                 </div>
                 <div class="row">
