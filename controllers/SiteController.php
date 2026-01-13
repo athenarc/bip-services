@@ -290,52 +290,64 @@ class SiteController extends BaseController {
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
+        // Get annotation type filter from request (default: 'all')
+        $annotation_type_id = Yii::$app->request->get('annotation_type_id', 'all');
+        if ($annotation_type_id === 'all') {
+            $annotation_type_id = null;
+        }
+
         // perform facet search query
-        $top_annotations = $search_model->getAnnotationsFacet();
+        $top_annotations = $search_model->getAnnotationsFacet(5, $annotation_type_id);
+
+        // Get annotation types for dropdown
+        $annotation_types = [];
+        if ($space_model && !empty($space_model->annotations)) {
+            $annotation_types = $space_model->getEnabledAnnotationMap();
+        }
 
         // render top annotations using partial view
         return $this->renderPartial('top_annotations', [
             'top_annotations' => $top_annotations,
-        ]);
-    }
-
-    public function actionGetAnnotationEvolution() {
-        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
-
-        if (! $selected_annotation) {
-            throw new \yii\base\Exception('No annotation is given');
-        }
-
-        [ $search_model, $space_model ] = $this->prepareSearchModels();
-
-        [ $count_per_year, $citation_per_year ] = $search_model->getAnnotationEvolution($selected_annotation);
-
-        return $this->renderPartial('annotation_evolution', [
-            'count_per_year' => $count_per_year,
-            'citation_per_year' => $citation_per_year,
+            'annotation_types' => $annotation_types,
         ]);
     }
 
     /**
-     * Get annotation evolution data for AJAX requests
+     * Get annotation evolution data for both search page and tissue/annotation detail pages
+     * - Search page: uses selectedTopAnnotation parameter, returns HTML partial
+     * - Tissue/Annotation page: uses space_url_suffix, annotation_id, id parameters, returns JSON
      */
     public function actionGetAnnotationEvolution() {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $annotation_id = Yii::$app->request->get('annotation_id');
         $id = Yii::$app->request->get('id');
         
-        if (!$space_url_suffix || !$annotation_id || !$id) {
-            throw new \yii\web\BadRequestHttpException('Missing required parameters');
+        // Handle search page case (selectedTopAnnotation parameter)
+        if ($selected_annotation) {
+            [ $search_model, $space_model ] = $this->prepareSearchModels();
+            [ $count_per_year, $citation_per_year ] = $search_model->getAnnotationEvolution($selected_annotation);
+            
+            return $this->renderPartial('annotation_evolution', [
+                'count_per_year' => $count_per_year,
+                'citation_per_year' => $citation_per_year,
+            ]);
         }
         
-        [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
+        // Handle tissue/annotation detail page case (space_url_suffix, annotation_id, id parameters)
+        if ($space_url_suffix && $annotation_id && $id) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            
+            [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolutionByParams($space_url_suffix, $annotation_id, $id);
+            
+            return [
+                'count_per_year' => $count_per_year,
+                'citation_per_year' => $citation_per_year,
+            ];
+        }
         
-        return [
-            'count_per_year' => $count_per_year,
-            'citation_per_year' => $citation_per_year,
-        ];
+        // No valid parameters provided
+        throw new \yii\web\BadRequestHttpException('Missing required parameters. Provide either selectedTopAnnotation (for search) or space_url_suffix, annotation_id, and id (for annotation details)');
     }
 
     /**

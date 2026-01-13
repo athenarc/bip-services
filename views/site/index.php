@@ -281,7 +281,7 @@ if ($in_space) {
                 <div class='container-fluid'>
                     
                     <?= TopTopicsItem::widget([]) ?>
-                    <?= TopAnnotationsItem::widget([]) ?>
+                    <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">

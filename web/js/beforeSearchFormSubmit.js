@@ -7,9 +7,13 @@ $(document).ready(() => {
             $('#results_ftr').hide();
             $('#results_set').hide();
             $('#top_topics').hide();
+            $('#top_annotations').hide();
             $('#summary_panel').hide();
             $('#researcher_panel').hide();
             $('#annotation-expand-controls').hide();
+
+            // Reset annotation type filter dropdown to 'all' on new search
+            $('#annotation_type_filter').val('all');
 
             $('#loading_results').show();
             return true;

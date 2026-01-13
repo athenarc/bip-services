@@ -655,7 +655,7 @@ class SearchForm extends Model {
         ];
     }
 
-    public function getAnnotationsFacet($limit = 5) {
+    public function getAnnotationsFacet($limit = 5, $annotation_type_id = null) {
         // prepare the search query
         $query = $this->prepareSearchQuery();
 
@@ -695,6 +695,13 @@ class SearchForm extends Model {
             
             // Check if it matches our space format
             if (count($parts) >= 4 && $parts[0] === $space_suffix) {
+                // If annotation_type_id is specified, filter by it
+                if ($annotation_type_id !== null && $annotation_type_id !== 'all') {
+                    if ($parts[1] != $annotation_type_id) {
+                        continue; // Skip annotations that don't match the selected type
+                    }
+                }
+                
                 $enrichment_label = $parts[2]; // The actual annotation name (e.g., "Disease X", "Drug Y")
                 
                 // Aggregate counts by enrichment label
@@ -831,13 +838,14 @@ class SearchForm extends Model {
 
     /**
      * Get evolution data for annotation papers (count and citations per year)
+     * Used for tissue/annotation detail pages with specific annotation parameters
      * 
      * @param string $space_url_suffix Space URL suffix
      * @param int $annotation_id Space annotation ID
      * @param string $id Annotation ID (e.g., DOID:0050687)
      * @return array [count_per_year, citation_per_year]
      */
-    public static function getAnnotationEvolution($space_url_suffix, $annotation_id, $id) {
+    public static function getAnnotationEvolutionByParams($space_url_suffix, $annotation_id, $id) {
         // Prepare annotation query
         $query = self::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, 'popularity');
 

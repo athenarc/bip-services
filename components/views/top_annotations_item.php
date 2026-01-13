@@ -1,10 +1,27 @@
+<?php
+use yii\helpers\Html;
+?>
 <div id="top_annotations" class="row grey-text">
     <div class="text-left col-md-2" style="font-size: 1.2em; white-space: nowrap;" title="List of the most common annotations related to the results displayed.">
         Key annotations <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>:
     </div>
-    <div id="top_annotations_in_results" class="col-md-10">
-        <!-- This will be populated by AJAX -->
-        Loading...
+    <div class="col-md-10">
+        <div style="display: inline-block; margin-right: 10px; margin-bottom: 5px;">
+            <?= Html::dropDownList(
+                'annotation_type_filter',
+                'all', // Default value is 'all'
+                array_merge(['all' => 'All'], $annotation_types ?? []),
+                [
+                    'id' => 'annotation_type_filter',
+                    'class' => 'form-control',
+                    'style' => 'display: inline-block; width: auto; min-width: 150px; padding: 1px 3px; height: 2em; font-size: 0.9em;',
+                ]
+            ) ?>
+        </div>
+        <div id="top_annotations_in_results" style="display: inline-block;">
+            <!-- This will be populated by AJAX -->
+            Loading...
+        </div>
     </div>
 </div>
 
