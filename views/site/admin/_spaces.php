@@ -319,8 +319,6 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 'graph_entity_identifier',
                 'graph_entity_label',
                 'metadata_fields',
-                'perform_search_expansion',
-                'expansion_field',
             ],
         ]);
     ?>
@@ -390,22 +388,6 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-4">
-                        <div style="padding-top: 25px;">
-                            <?= $form->field($modelSpacesAnnotations, "[{$i}]perform_search_expansion", [
-                                'enableClientValidation' => false,
-                                'options' => ['tag' => false],
-                                'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
-                                'labelOptions' => ['style' => 'font-weight: bold;'],
-                                'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\" style=\"margin-top: 0;\">{input}{label}{error}</div>"
-                            ])->checkbox([], false) ?>
-                        </div>
-                    </div>
-                    <div class="col-xs-8">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]expansion_field")->textInput(['maxlength' => 255, 'class' => 'search-box form-control expansion-field-input', 'disabled' => !$modelSpacesAnnotations->perform_search_expansion]) ?>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col-xs-12">
                         <?php
                             $modelSpacesAnnotations->clearErrors('query');
@@ -444,6 +426,87 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 <div class="row">
                     <div class="col-xs-12">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    </div>
+    <?php DynamicFormWidget::end(); ?>
+
+    <?php
+        // Use synonyms expansion models passed from controller
+        // Ensure we have at least one model for the dynamic form widget
+        if (empty($modelsSpacesSynonymsExpansion)) {
+            $modelsSpacesSynonymsExpansion = [new \app\models\SpacesSynonymsExpansion()];
+        }
+        
+        DynamicFormWidget::begin([
+            'widgetContainer' => 'dynamicform_wrapper_synonyms',
+            'widgetBody' => '.container-items-synonyms',
+            'widgetItem' => '.item-synonyms',
+            'limit' => 10,
+            'min' => 0,
+            'insertButton' => '.add-item-synonyms',
+            'deleteButton' => '.remove-item-synonyms',
+            'model' => $modelsSpacesSynonymsExpansion[0],
+            'formId' => 'space-form',
+            'formFields' => [
+                'display_name',
+                'graph_entity',
+                'graph_entity_label',
+                'expansion_field',
+                'enabled',
+            ],
+        ]);
+    ?>
+    <div style="margin-bottom:10px; margin-top: 30px;">
+        <label class="pull-left" style="font-size: inherit;">Synonyms Expansion</label>
+        <div class="pull-right">
+            <button type="button" class="add-item-synonyms btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="container-items-synonyms"><!-- widgetContainer -->
+    <?php foreach ($modelsSpacesSynonymsExpansion as $i => $modelSpacesSynonymsExpansion): ?>
+        <div class="item-synonyms panel panel-default"><!-- widgetBody -->
+            <div class="panel-heading panel-heading-unset">
+                <div class="pull-right">
+                    <button type="button" class="remove-item-synonyms btn btn-danger btn-xs"><i class="glyphicon glyphicon-minus"></i></button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <?php
+                    // necessary for update action.
+                    if (! $modelSpacesSynonymsExpansion->isNewRecord) {
+                        echo Html::activeHiddenInput($modelSpacesSynonymsExpansion, "[{$i}]id");
+                    }
+                ?>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]display_name")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Display name (e.g., "Disease")') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Entity type in graph DB (e.g., "Disease")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field to match against (e.g., "name")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]expansion_field")->textInput(['maxlength' => 255, 'class' => 'search-box form-control'])->hint('Field to return (e.g., "synonyms")') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]enabled", [
                             'enableClientValidation' => false,
                             'options' => ['tag' => false],
                             'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],

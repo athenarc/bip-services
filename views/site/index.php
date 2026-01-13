@@ -108,7 +108,7 @@ if ($in_space) {
         <?php endif; ?>
 
         <?php
-            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Enter keywords to retrieve articles...', 'class' => 'search-box form-control'];
+            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Search publications, software, datasets, and more...', 'class' => 'search-box form-control', 'autocomplete' => 'off'];
             $fieldOptions = ['template' => "{input}<span class='glyphicon glyphicon-search form-control-feedback'></span>"];
 
             if ($keywords != '') {
@@ -116,7 +116,7 @@ if ($in_space) {
             }
 
                 // loading and some filter validation on form submit happens in beforeSearchFormSubmit.js file
-                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => []]);
+                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => ['autocomplete' => 'off']]);
             ?>
             <?= Html::hiddenInput('space_url_suffix', $space_model->url_suffix, ['id' => 'space_url_suffix']) ?>
 
@@ -278,19 +278,21 @@ if ($in_space) {
                 </div>
             </div>
 
-            <?php if (! empty($results['rows'])) { ?>
+            <?php if (! empty($synonyms_expansions)): ?>
                 <div class='container-fluid'>
-                    
-                    <?= TopTopicsItem::widget([]) ?>
-                    <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
-                    
                     <?= Synonyms::widget([
-                        'synonyms' => $synonyms ?? [],
+                        'synonyms_expansions' => $synonyms_expansions ?? [],
                         'space_url_suffix' => $space_model->url_suffix ?? null,
                         'current_keywords' => $model->keywords ?? null,
                         'current_params' => Yii::$app->request->get(),
-                        'entity_name' => $synonyms_entity_name ?? null,
                     ]) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (! empty($results['rows'])) { ?>
+                <div class='container-fluid'>
+                    <?= TopTopicsItem::widget([]) ?>
+                    <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">
