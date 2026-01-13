@@ -311,9 +311,13 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             'formId' => 'space-form',
             'formFields' => [
                 'name',
+                'display_name_plural',
                 'description',
                 'color',
                 'query',
+                'graph_entity',
+                'graph_entity_identifier',
+                'graph_entity_label',
             ],
         ]);
     ?>
@@ -358,9 +362,25 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]description")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]display_name_plural")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
                     </div>
                 </div><!-- .row -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]description")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_identifier")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-12">
                         <?php

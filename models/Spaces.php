@@ -491,8 +491,8 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
-     * Get annotation descriptions as an array.
-     * @return array Array of annotation descriptions
+     * Get annotation display names (plural) as an array.
+     * @return array Array of annotation display names (plural)
      */
     public function getEnabledAnnotationNames() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
@@ -500,8 +500,8 @@ class Spaces extends \yii\db\ActiveRecord {
 
         if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (! empty($annotation->description)) {
-                    $annotation_descriptions[] = $annotation->description;
+                if (! empty($annotation->display_name_plural)) {
+                    $annotation_descriptions[] = $annotation->display_name_plural;
                 }
             }
         }
@@ -510,8 +510,8 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
-     * Get annotation IDs and descriptions as an associative array.
-     * @return array Array with annotation_id as key and description as value
+     * Get annotation IDs and display names (plural) as an associative array.
+     * @return array Array with annotation_id as key and display_name_plural as value
      */
     public function getEnabledAnnotationMap() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
@@ -519,8 +519,8 @@ class Spaces extends \yii\db\ActiveRecord {
 
         if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (! empty($annotation->description)) {
-                    $annotation_map[$annotation->id] = $annotation->description;
+                if (! empty($annotation->display_name_plural)) {
+                    $annotation_map[$annotation->id] = $annotation->display_name_plural;
                 }
             }
         }
@@ -604,7 +604,7 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     private static function enrichAnnotations($rows, $space_annotation) {
-        // add annotation color, description
+        // add annotation color, display_name_plural
         foreach ($rows as $row => $row_data) {
             $doi = $row_data[0];
             $annotations = $row_data[1];
@@ -612,7 +612,7 @@ class Spaces extends \yii\db\ActiveRecord {
             foreach ($annotations as $annotation_row => $annotation_data) {
                 $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
                 $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
-                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
+                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['display_name_plural'];
             }
         }
 

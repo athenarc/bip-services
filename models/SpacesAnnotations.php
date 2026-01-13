@@ -11,10 +11,14 @@ use yii\helpers\ArrayHelper;
  * @property int $id
  * @property int $spaces_id
  * @property string|null $name
+ * @property string|null $display_name_plural
  * @property string|null $description
  * @property string|null $color
  * @property string|null $query
  * @property string|null $metadata_query
+ * @property string|null $graph_entity
+ * @property string|null $graph_entity_identifier
+ * @property string|null $graph_entity_label
  * @property int $enabled
  *
  * @property Spaces $spaces
@@ -30,8 +34,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             // [['spaces_id'], 'integer'],
             // [['spaces_id'], 'exist', 'skipOnError' => true, 'targetClass' => Spaces::class, 'targetAttribute' => ['spaces_id' => 'id']],
             [['query'], 'required'],
-            [['query', 'metadata_query'], 'string'],
-            [['name', 'description'], 'string', 'max' => 255],
+            [['query', 'metadata_query', 'description'], 'string'],
+            [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'string', 'max' => 255],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
@@ -44,10 +48,14 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'id' => 'ID',
             'spaces_id' => 'Spaces ID',
             'name' => 'Name',
+            'display_name_plural' => 'Display name (plural)',
             'description' => 'Description',
             'color' => 'Color',
             'query' => 'Query',
             'metadata_query' => 'Metadata Query',
+            'graph_entity' => 'Graph entity',
+            'graph_entity_identifier' => 'Graph entity identifier',
+            'graph_entity_label' => 'Graph entity label',
             'enabled' => 'Enabled',
         ];
     }

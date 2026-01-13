@@ -195,7 +195,7 @@ if ($in_space) {
 
                             if (! empty($enabled_annotations)) {
                                 foreach ($enabled_annotations as $annotation) {
-                                    $annotation_options[$annotation->id] = $annotation->description ?? $annotation->name;
+                                    $annotation_options[$annotation->id] = $annotation->display_name_plural ?? $annotation->name;
                                 }
                             }
                             ?>

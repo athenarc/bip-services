@@ -40,9 +40,9 @@ if ($in_space) {
     <div class='col-xs-12'>
         <div class='article-header'>
             <?php if ($has_metadata_query && ! empty($annotation_info)): ?>
-                <?= Html::encode($space_annotation->name ?? $space_annotation->description ?? 'Annotation') ?>: <?= Html::encode($annotation_info['label'] ?? '') ?>
+                <?= Html::encode($space_annotation->name ?? $space_annotation->display_name_plural ?? 'Annotation') ?>: <?= Html::encode($annotation_info['label'] ?? '') ?>
             <?php else: ?>
-                <?= Html::encode($space_annotation->name ?? $space_annotation->description ?? 'Annotation') ?> with id: <?= Html::encode($annotation_id) ?>
+                <?= Html::encode($space_annotation->name ?? $space_annotation->display_name_plural ?? 'Annotation') ?> with id: <?= Html::encode($annotation_id) ?>
             <?php endif; ?>
         </div>
     </div>
