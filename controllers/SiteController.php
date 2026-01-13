@@ -312,6 +312,23 @@ class SiteController extends BaseController {
         ]);
     }
 
+    public function actionGetTopAnnotationEvolution() {
+        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
+
+        if (! $selected_annotation) {
+            throw new \yii\base\Exception('No annotation is given');
+        }
+
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        [ $count_per_year, $citation_per_year ] = $search_model->getTopAnnotationEvolution($selected_annotation);
+
+        return $this->renderPartial('annotation_evolution', [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ]);
+    }
+
     /**
      * Get annotation evolution data for both search page and tissue/annotation detail pages
      * - Search page: uses selectedTopAnnotation parameter, returns HTML partial

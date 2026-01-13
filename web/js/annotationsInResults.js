@@ -92,7 +92,7 @@ $(document).ready(() => {
 
         // Perform AJAX request
         $.ajax({
-            url: `${appBaseUrl}/site/get-annotation-evolution${queryString}`,
+            url: `${appBaseUrl}/site/get-top-annotation-evolution${queryString}`,
             type: 'GET',
             data: { selectedTopAnnotation: annotationName },
             success: function (data) {
