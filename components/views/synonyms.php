@@ -1,6 +1,24 @@
 <?php
 use yii\helpers\Html;
-use yii\helpers\Url;
+
+// Wrap each term in parentheses only if it contains multiple words (spaces)
+$wrapIfMultipleWords = function ($term) {
+    return (strpos(trim($term), ' ') !== false) ? '(' . $term . ')' : $term;
+};
+
+// Function to build expanded keywords for a specific set of synonyms
+$buildExpandedKeywords = function ($keywords, $synonymTerms) use ($wrapIfMultipleWords) {
+    $expandedKeywords = trim($keywords ?? '');
+    $wrappedSynonyms = ! empty($synonymTerms) ? array_map($wrapIfMultipleWords, $synonymTerms) : [];
+
+    if (! empty($expandedKeywords) && ! empty($wrappedSynonyms)) {
+        return $wrapIfMultipleWords($expandedKeywords) . ' OR ' . implode(' OR ', $wrappedSynonyms);
+    } elseif (! empty($wrappedSynonyms)) {
+        return implode(' OR ', $wrappedSynonyms);
+    }
+
+    return ! empty($expandedKeywords) ? $wrapIfMultipleWords($expandedKeywords) : '';
+};
 
 ?>
 
@@ -9,40 +27,29 @@ use yii\helpers\Url;
         <div class="panel panel-default">
             <div class="panel-body grey-text" style="text-align: left;">
                 <?php
-                // Build expanded keywords with OR logic
-                $expandedKeywords = trim($current_keywords ?? '');
-                $synonymTermsForQuery = [];
-                $synonymTermsForDisplay = [];
+                foreach ($synonyms_expansions as $index => $expansion) {
+                    $expansionSynonyms = $expansion['synonyms'] ?? [];
+                    $displayName = Html::encode($expansion['display_name'] ?? 'entity');
 
-                foreach ($synonyms as $synonym) {
-                    $synonymTermsForQuery[] = $synonym; // Use original for query
-                    $synonymTermsForDisplay[] = Html::encode($synonym); // Encode for display
+                    if (! empty($expansionSynonyms)) {
+                        $expansionTermsForDisplay = array_map(function ($syn) {
+                            return Html::encode($syn);
+                        }, $expansionSynonyms);
+
+                        $synonymsText = implode(', ', $expansionTermsForDisplay);
+
+                        // Build expanded keywords for this specific expansion
+                        $expandedKeywords = $buildExpandedKeywords($current_keywords, $expansionSynonyms); ?>
+                        <div style="<?= $index > 0 ? 'margin-top: 15px;' : '' ?>">
+                            Looking for a <?= $displayName ?>? You can broaden your search by including related terms and identifiers such as: <i><?= $synonymsText ?></i>
+                            <button type="button" class="btn btn-custom-color btn-xs expand-search-btn" style="margin-left: 10px;" data-expanded-keywords="<?= Html::encode($expandedKeywords) ?>">
+                                <i class="fa fa-play" aria-hidden="true"></i> Expand search
+                            </button>
+                        </div>
+                        <?php
+                    }
                 }
-
-                // Build OR query: original_keywords OR synonym1 OR synonym2 OR ...
-                if (! empty($expandedKeywords) && ! empty($synonymTermsForQuery)) {
-                    $expandedKeywords = $expandedKeywords . ' OR ' . implode(' OR ', $synonymTermsForQuery);
-                } elseif (! empty($synonymTermsForQuery)) {
-                    $expandedKeywords = implode(' OR ', $synonymTermsForQuery);
-                }
-
-                // Start with current params to preserve all filters
-                $searchParams = $current_params ?? [];
-
-                // Update keywords with OR-expanded version
-                $searchParams['keywords'] = $expandedKeywords;
-
-                // Ensure space_url_suffix is set
-                if (! empty($space_url_suffix)) {
-                    $searchParams['space_url_suffix'] = $space_url_suffix;
-                }
-
-                $searchUrl = Url::to(array_merge(['site/index'], $searchParams));
-                $synonymsText = implode(', ', $synonymTermsForDisplay);
-                $entityDisplayName = ! empty($entity_name) ? Html::encode($entity_name) : 'entity';
                 ?>
-                Looking for a <?= $entityDisplayName ?>? You can broaden your search by including related terms and identifiers such as: <i><?= $synonymsText ?></i>
-                <?= Html::a('<i class="fa fa-play" aria-hidden="true"></i> Expand search', $searchUrl, ['class' => 'btn btn-custom-color btn-xs', 'style' => 'margin-left: 10px;', 'encode' => false]) ?>
             </div>
         </div>
     </div>

@@ -65,4 +65,15 @@ $(document).ready(() => {
         // Submit search form
         $('#search-form').submit();
     });
+
+    // Handle expand search button click
+    $(document).on('click', '.expand-search-btn', function() {
+        const expandedKeywords = $(this).data('expanded-keywords');
+        
+        // Update keywords field (find input with name containing 'keywords' in the search form)
+        $('#search-form input[name*="keywords"]').val(expandedKeywords);
+        
+        // Submit the form (this will trigger the loading indicator)
+        $('#search-form').submit();
+    });
 });
