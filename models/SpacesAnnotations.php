@@ -277,6 +277,37 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
     }
 
     /**
+     * Builds a Cypher query to fetch synonyms based on search keywords.
+     * Matches entities by name field and returns their synonyms field.
+     * 
+     * @param string $keywords Search keywords entered by the user
+     * @return string|null The generated synonym query or null if expansion is not enabled
+     */
+    public function buildSynonymQuery($keywords) {
+        if (empty($this->perform_search_expansion) || empty($this->expansion_field)) {
+            return null;
+        }
+
+        if (empty($keywords)) {
+            return null;
+        }
+
+        $entityType = $this->graph_entity;
+        $labelField = $this->graph_entity_label; // This is the 'name' field (e.g., 'name')
+        $expansionField = $this->expansion_field; // This is the 'synonyms' field
+
+        // Escape the keywords for use in Cypher query
+        $escapedKeywords = str_replace("'", "\\'", trim($keywords));
+
+        // Build the query: MATCH entity by name, return synonyms field
+        $query = "MATCH (n:{$entityType}) ";
+        $query .= "WHERE n.{$labelField} = '{$escapedKeywords}' ";
+        $query .= "RETURN n.{$expansionField} AS synonyms";
+
+        return $query;
+    }
+
+    /**
      * Gets query for [[Spaces]].
      *
      * @return \yii\db\ActiveQuery

@@ -434,6 +434,78 @@ class Spaces extends \yii\db\ActiveRecord {
         return $papers;
     }
 
+    /**
+     * Fetches synonyms based on search keywords using expansion_field.
+     * 
+     * @param string $keywords Search keywords entered by the user
+     * @param Spaces $space_model The space model
+     * @return array Array of synonym values
+     */
+    public static function fetchSynonyms($keywords, $space_model) {
+        $space_annotations = $space_model->annotations;
+        $synonyms = [];
+        $entity_name = null;
+
+        if (empty($space_annotations) || empty($keywords)) {
+            return ['synonyms' => [], 'entity_name' => null];
+        }
+
+        // Create database connection once (shared by all annotations)
+        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+        $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+
+        // Find annotations with search expansion enabled
+        foreach ($space_annotations as $space_annotation) {
+            if (!empty($space_annotation->perform_search_expansion) && !empty($space_annotation->expansion_field)) {
+                // Get entity name from the first annotation with expansion enabled
+                if ($entity_name === null && !empty($space_annotation->name)) {
+                    $entity_name = $space_annotation->name;
+                }
+                
+                $synonym_query = $space_annotation->buildSynonymQuery($keywords);
+                
+                if (!empty($synonym_query)) {
+                    try {
+                        [$stats, $rows] = $conn->run($synonym_query, []);
+                        
+                        // Extract synonyms from results
+                        // The synonyms field might be an array or a string
+                        foreach ($rows as $row) {
+                            if (!empty($row[0])) { // synonyms is first column
+                                $synonyms_data = $row[0];
+                                
+                                // Handle array of synonyms
+                                if (is_array($synonyms_data)) {
+                                    foreach ($synonyms_data as $synonym) {
+                                        if (!empty($synonym)) {
+                                            $synonyms[] = $synonym;
+                                        }
+                                    }
+                                } elseif (is_string($synonyms_data)) {
+                                    // If it's a comma-separated string, split it
+                                    $synonym_list = array_map('trim', explode(',', $synonyms_data));
+                                    foreach ($synonym_list as $synonym) {
+                                        if (!empty($synonym)) {
+                                            $synonyms[] = $synonym;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Log error but continue
+                        Yii::error("Error fetching synonyms: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+
+        return [
+            'synonyms' => array_unique($synonyms),
+            'entity_name' => $entity_name
+        ];
+    }
+
     public static function getSearchParams($space_url_suffix) {
         $space_model = self::fetchSpacesBySuffix($space_url_suffix);
         $space_model->prepareForRequest();

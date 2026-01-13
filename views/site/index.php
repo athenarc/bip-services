@@ -9,6 +9,7 @@ use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\SummaryPanel;
 use app\components\TopTopicsItem;
+use app\components\Synonyms;
 use app\models\SummaryUsage;
 use Yii;
 use yii\bootstrap\Modal;
@@ -279,6 +280,14 @@ if ($in_space) {
                 <div class='container-fluid'>
                     
                     <?= TopTopicsItem::widget([]) ?>
+                    
+                    <?= Synonyms::widget([
+                        'synonyms' => $synonyms ?? [],
+                        'space_url_suffix' => $space_model->url_suffix ?? null,
+                        'current_keywords' => $model->keywords ?? null,
+                        'current_params' => Yii::$app->request->get(),
+                        'entity_name' => $synonyms_entity_name ?? null,
+                    ]) ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">

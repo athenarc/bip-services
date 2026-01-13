@@ -186,6 +186,12 @@ class SiteController extends BaseController {
 
         [ $results, $search_model, $space_model ] = $this->doSearch();
 
+        // Fetch synonyms for annotations with search expansion enabled
+        $synonyms_data = ['synonyms' => [], 'entity_name' => null];
+        if (!empty($search_model->keywords)) {
+            $synonyms_data = Spaces::fetchSynonyms($search_model->keywords, $space_model);
+        }
+
         // Preload user votes for the current page of results (used in the index view)
         $user_votes = [];
 
@@ -239,6 +245,8 @@ class SiteController extends BaseController {
             'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
             'user_votes' => $user_votes,
+            'synonyms' => $synonyms_data['synonyms'] ?? [],
+            'synonyms_entity_name' => $synonyms_data['entity_name'] ?? null,
         ]);
     }
 

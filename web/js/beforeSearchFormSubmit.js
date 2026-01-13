@@ -10,6 +10,7 @@ $(document).ready(() => {
             $('#summary_panel').hide();
             $('#researcher_panel').hide();
             $('#annotation-expand-controls').hide();
+            $('#synonyms').hide();
 
             $('#loading_results').show();
             return true;
