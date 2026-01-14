@@ -73,7 +73,7 @@ $colors_json = json_encode($colors);
 
 <script>
 // Render first diagram: Publication counts
-window.renderTopicEvolutionChart({
+renderTopicEvolutionChart({
     containerId: 'top-topics-sankey',
     data: <?= $sankey_data_json ?>,
     years: <?= $years_json ?>,
@@ -104,7 +104,7 @@ $sankey_citations_data_json = json_encode($sankey_citations_data);
 ?>
 
 // Render second diagram: Citation counts
-window.renderTopicEvolutionChart({
+renderTopicEvolutionChart({
     containerId: 'top-topics-citations-sankey',
     data: <?= $sankey_citations_data_json ?>,
     years: <?= $years_json ?>,
