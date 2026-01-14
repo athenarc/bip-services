@@ -18,7 +18,7 @@ foreach ($this->context->data as $annotation_data): ?>
 <?php endforeach; ?>
     <div>
         <span class='green-bip'><?= 'Source' ?>:</span>
-        <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name'] . ' knowledge graph') ?>
+        <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name']) ?>
     </div>
 
     <div>
