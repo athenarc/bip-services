@@ -8,6 +8,7 @@ use app\components\MagicSearchBox;
 use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\SummaryPanel;
+use app\components\Synonyms;
 use app\components\TopTopicsItem;
 use app\models\SummaryUsage;
 use Yii;
@@ -105,7 +106,7 @@ if ($in_space) {
         <?php endif; ?>
 
         <?php
-            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Enter keywords to retrieve articles...', 'class' => 'search-box form-control'];
+            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Search publications, software, datasets, and more...', 'class' => 'search-box form-control', 'autocomplete' => 'off'];
             $fieldOptions = ['template' => "{input}<span class='glyphicon glyphicon-search form-control-feedback'></span>"];
 
             if ($keywords != '') {
@@ -113,7 +114,7 @@ if ($in_space) {
             }
 
                 // loading and some filter validation on form submit happens in beforeSearchFormSubmit.js file
-                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => []]);
+                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => ['autocomplete' => 'off']]);
             ?>
             <?= Html::hiddenInput('space_url_suffix', $space_model->url_suffix, ['id' => 'space_url_suffix']) ?>
 
@@ -195,7 +196,7 @@ if ($in_space) {
 
                             if (! empty($enabled_annotations)) {
                                 foreach ($enabled_annotations as $annotation) {
-                                    $annotation_options[$annotation->id] = $annotation->description ?? $annotation->name;
+                                    $annotation_options[$annotation->id] = $annotation->display_name_plural ?? $annotation->name;
                                 }
                             }
                             ?>
@@ -274,6 +275,17 @@ if ($in_space) {
                     Loading results (it may take a couple of seconds)...
                 </div>
             </div>
+
+            <?php if (! empty($synonyms_expansions)): ?>
+                <div class='container-fluid'>
+                    <?= Synonyms::widget([
+                        'synonyms_expansions' => $synonyms_expansions ?? [],
+                        'space_url_suffix' => $space_model->url_suffix ?? null,
+                        'current_keywords' => $model->keywords ?? null,
+                        'current_params' => Yii::$app->request->get(),
+                    ]) ?>
+                </div>
+            <?php endif; ?>
 
             <?php if (! empty($results['rows'])) { ?>
                 <div class='container-fluid'>

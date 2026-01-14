@@ -186,6 +186,13 @@ class SiteController extends BaseController {
 
         [ $results, $search_model, $space_model ] = $this->doSearch();
 
+        // Fetch synonyms for annotations with search expansion enabled
+        $synonyms_data = ['synonyms_expansions' => []];
+
+        if (! empty($search_model->keywords)) {
+            $synonyms_data = Spaces::fetchSynonyms($search_model->keywords, $space_model);
+        }
+
         // Preload user votes for the current page of results (used in the index view)
         $user_votes = [];
 
@@ -239,6 +246,7 @@ class SiteController extends BaseController {
             'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
             'user_votes' => $user_votes,
+            'synonyms_expansions' => $synonyms_data['synonyms_expansions'] ?? [],
         ]);
     }
 
@@ -287,21 +295,21 @@ class SiteController extends BaseController {
     }
 
     /**
-     * Get annotation evolution data for AJAX requests
+     * Get annotation evolution data for AJAX requests.
      */
     public function actionGetAnnotationEvolution() {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $annotation_id = Yii::$app->request->get('annotation_id');
         $id = Yii::$app->request->get('id');
-        
-        if (!$space_url_suffix || !$annotation_id || !$id) {
+
+        if (! $space_url_suffix || ! $annotation_id || ! $id) {
             throw new \yii\web\BadRequestHttpException('Missing required parameters');
         }
-        
+
         [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
-        
+
         return [
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
@@ -526,15 +534,16 @@ class SiteController extends BaseController {
             'ordering' => $ordering
         ];
 
-        // Get annotation info from graph DB (if metadata_query is configured)
+        // Get annotation info from graph DB (build query from graph entity fields)
         $annotation_info = null;
-        $has_metadata_query = ! empty($space_annotation->metadata_query);
+        $metadata_query = $space_annotation->buildMetadataQuery();
+        $has_metadata_query = ! empty($metadata_query);
 
         if ($has_metadata_query) {
             try {
                 $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
                 $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-                [ $stats, $rows ] = $conn->run($space_annotation->metadata_query, ['annotation_id' => $id]);
+                [ $stats, $rows ] = $conn->run($metadata_query, ['annotation_id' => $id]);
 
                 if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
                     $annotation_info = $rows[0][0];
@@ -1263,6 +1272,7 @@ class SiteController extends BaseController {
         $model = Spaces::fetchSpaces($space_id_update);
 
         $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
+        $modelsSpacesSynonymsExpansion = $model->isNewRecord ? [new \app\models\SpacesSynonymsExpansion()] : (empty($model->allSynonymsExpansion) ? [new \app\models\SpacesSynonymsExpansion()] : $model->allSynonymsExpansion);
 
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
 
@@ -1271,6 +1281,7 @@ class SiteController extends BaseController {
             'spaces_data' => [
                 'model' => $model,
                 'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
+                'modelsSpacesSynonymsExpansion' => (empty($modelsSpacesSynonymsExpansion)) ? [new \app\models\SpacesSynonymsExpansion()] : $modelsSpacesSynonymsExpansion,
                 'spacesArray' => $spacesArray
             ],
         ]);
@@ -1287,6 +1298,7 @@ class SiteController extends BaseController {
         $model = Spaces::fetchSpaces($current_space_id);
 
         $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
+        $modelsSpacesSynonymsExpansion = $model->isNewRecord ? [new \app\models\SpacesSynonymsExpansion()] : (empty($model->allSynonymsExpansion) ? [new \app\models\SpacesSynonymsExpansion()] : $model->allSynonymsExpansion);
 
         // create new or update existing
         if ($model->load(Yii::$app->request->post())) {
@@ -1298,19 +1310,45 @@ class SiteController extends BaseController {
                 $modelsSpacesAnnotations = SpacesAnnotations::createMultipleModels(SpacesAnnotations::classname());
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
 
+                $modelsSpacesSynonymsExpansion = \app\models\SpacesSynonymsExpansion::createMultipleModels(\app\models\SpacesSynonymsExpansion::classname());
+                Model::loadMultiple($modelsSpacesSynonymsExpansion, Yii::$app->request->post());
+
+                $deletedSynonymsIDs = []; // No deletions for new records
+
             // Case: update
             } else {
                 $oldIDs = ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id');
                 $modelsSpacesAnnotations = SpacesAnnotations::createMultipleModels(SpacesAnnotations::classname(), $modelsSpacesAnnotations);
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id')));
+
+                $oldSynonymsIDs = ArrayHelper::map($modelsSpacesSynonymsExpansion, 'id', 'id');
+                $modelsSpacesSynonymsExpansion = \app\models\SpacesSynonymsExpansion::createMultipleModels(\app\models\SpacesSynonymsExpansion::classname(), $modelsSpacesSynonymsExpansion);
+                Model::loadMultiple($modelsSpacesSynonymsExpansion, Yii::$app->request->post());
+                $deletedSynonymsIDs = array_diff($oldSynonymsIDs, array_filter(ArrayHelper::map($modelsSpacesSynonymsExpansion, 'id', 'id')));
+            }
+
+            // Filter out empty new models before validation (to avoid validation errors)
+            $modelsSpacesSynonymsExpansionToValidate = [];
+
+            foreach ($modelsSpacesSynonymsExpansion as $synModel) {
+                // Skip empty new models for validation
+                if ($synModel->isNewRecord &&
+                    empty($synModel->display_name) &&
+                    empty($synModel->graph_entity) &&
+                    empty($synModel->graph_entity_label) &&
+                    empty($synModel->expansion_field)) {
+                    continue;
+                }
+                $modelsSpacesSynonymsExpansionToValidate[] = $synModel;
             }
 
             // validate all models
             $valid1 = $model->validate();
             $valid2 = Model::validateMultiple($modelsSpacesAnnotations);
+            $valid3 = empty($modelsSpacesSynonymsExpansionToValidate) ? true : Model::validateMultiple($modelsSpacesSynonymsExpansionToValidate);
 
-            if ($valid1 && $valid2) {
+            if ($valid1 && $valid2 && $valid3) {
                 $model->uploadLogo();
 
                 $transaction = \Yii::$app->db->beginTransaction();
@@ -1318,7 +1356,7 @@ class SiteController extends BaseController {
                 try {
                     // no need for 2nd validation
                     if ($flag = $model->save(false)) {
-                        // Case: update
+                        // Case: update - delete removed annotations
                         if (isset($deletedIDs) && ! empty($deletedIDs)) {
                             SpacesAnnotations::deleteAll(['id' => $deletedIDs]);
                         }
@@ -1330,6 +1368,29 @@ class SiteController extends BaseController {
                             if (! ($flag = $modelSpacesAnnotations->save(false))) {
                                 $transaction->rollBack();
                                 break;
+                            }
+                        }
+
+                        // Case: update - delete removed synonyms expansions
+                        if ($flag && isset($deletedSynonymsIDs) && ! empty($deletedSynonymsIDs)) {
+                            \app\models\SpacesSynonymsExpansion::deleteAll(['id' => $deletedSynonymsIDs]);
+                        }
+
+                        if ($flag) {
+                            // Use the filtered list for saving (non-empty models only)
+                            foreach ($modelsSpacesSynonymsExpansionToValidate as $modelSpacesSynonymsExpansion) {
+                                // give id, after $model is saved
+                                $modelSpacesSynonymsExpansion->spaces_id = $model->id;
+
+                                // Ensure enabled has a default value if not set
+                                if ($modelSpacesSynonymsExpansion->enabled === null || $modelSpacesSynonymsExpansion->enabled === '') {
+                                    $modelSpacesSynonymsExpansion->enabled = 1;
+                                }
+
+                                if (! ($flag = $modelSpacesSynonymsExpansion->save(false))) {
+                                    $transaction->rollBack();
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1354,6 +1415,7 @@ class SiteController extends BaseController {
             'spaces_data' => [
                 'model' => $model,
                 'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
+                'modelsSpacesSynonymsExpansion' => (empty($modelsSpacesSynonymsExpansion)) ? [new \app\models\SpacesSynonymsExpansion()] : $modelsSpacesSynonymsExpansion,
                 'spacesArray' => $spacesArray
                     ],
         ]);

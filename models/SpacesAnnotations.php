@@ -11,10 +11,14 @@ use yii\helpers\ArrayHelper;
  * @property int $id
  * @property int $spaces_id
  * @property string|null $name
+ * @property string|null $display_name_plural
  * @property string|null $description
  * @property string|null $color
  * @property string|null $query
- * @property string|null $metadata_query
+ * @property string|null $graph_entity
+ * @property string|null $graph_entity_identifier
+ * @property string|null $graph_entity_label
+ * @property string|null $metadata_fields
  * @property int $enabled
  *
  * @property Spaces $spaces
@@ -30,8 +34,10 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             // [['spaces_id'], 'integer'],
             // [['spaces_id'], 'exist', 'skipOnError' => true, 'targetClass' => Spaces::class, 'targetAttribute' => ['spaces_id' => 'id']],
             [['query'], 'required'],
-            [['query', 'metadata_query'], 'string'],
-            [['name', 'description'], 'string', 'max' => 255],
+            [['query', 'description'], 'string'],
+            [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'string', 'max' => 255],
+            [['metadata_fields'], 'string', 'max' => 500],
+            [['graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'required'],
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
@@ -44,10 +50,14 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'id' => 'ID',
             'spaces_id' => 'Spaces ID',
             'name' => 'Name',
+            'display_name_plural' => 'Display name (plural)',
             'description' => 'Description',
             'color' => 'Color',
             'query' => 'Query',
-            'metadata_query' => 'Metadata Query',
+            'graph_entity' => 'Graph entity',
+            'graph_entity_identifier' => 'Graph entity identifier',
+            'graph_entity_label' => 'Graph entity label',
+            'metadata_fields' => 'Metadata fields',
             'enabled' => 'Enabled',
         ];
     }
@@ -199,6 +209,57 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'errors' => $errors
         ];
     }
+
+    /**
+     * Builds metadata query from graph entity fields.
+     * If metadata_fields is empty, returns all fields of the entity.
+     *
+     * @return string The generated metadata query
+     */
+    public function buildMetadataQuery() {
+        $entityType = $this->graph_entity;
+        $identifierField = $this->graph_entity_identifier;
+        $labelField = $this->graph_entity_label;
+
+        // Parse metadata fields (comma-separated)
+        $fields = [];
+
+        if (! empty($this->metadata_fields)) {
+            $fields = array_map('trim', explode(',', $this->metadata_fields));
+            $fields = array_filter($fields); // Remove empty values
+        }
+
+        // If metadata_fields is empty, get all fields dynamically using keys()
+        if (empty($fields)) {
+            // Use Cypher list comprehension to get all properties dynamically
+            // Format: [key IN keys(n) | {label: key, value: n[key]}]
+            $dataArray = "[key IN keys(n) | {label: key, value: coalesce(n[key], '')}]";
+        } else {
+            // Build data array with specified metadata fields
+            $dataItems = [];
+
+            foreach ($fields as $field) {
+                $field = trim($field);
+
+                if (! empty($field)) {
+                    // Escape single quotes in field names
+                    $escapedField = str_replace("'", "\\'", $field);
+                    // Return value as-is (can be string, number, array, etc.)
+                    // Arrays will be preserved and handled in PHP display code
+                    $dataItems[] = "{label: '{$escapedField}', value: coalesce(n.{$field}, '')}";
+                }
+            }
+            $dataArray = '[' . implode(', ', $dataItems) . ']';
+        }
+
+        // Build the full Cypher query
+        // Format: MATCH (n:EntityType {identifierField: $annotation_id}) RETURN {label: n.labelField, data: [...]}
+        $query = "MATCH (n:{$entityType} {{$identifierField}: \$annotation_id}) ";
+        $query .= "RETURN {label: n.{$labelField}, data: {$dataArray}}";
+
+        return $query;
+    }
+
 
     /**
      * Gets query for [[Spaces]].

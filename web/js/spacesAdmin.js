@@ -87,4 +87,5 @@ $(document).ready(() => {
             .prop('disabled', !this.checked)
             .prop('checked', false);
     });
+
 });

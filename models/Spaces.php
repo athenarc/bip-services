@@ -434,6 +434,81 @@ class Spaces extends \yii\db\ActiveRecord {
         return $papers;
     }
 
+    /**
+     * Fetches synonyms based on search keywords using spaces_synonyms_expansion table.
+     *
+     * @param string $keywords Search keywords entered by the user
+     * @param Spaces $space_model The space model
+     * @return array Array of synonym values
+     */
+    public static function fetchSynonyms($keywords, $space_model) {
+        $synonyms_expansions = SpacesSynonymsExpansion::find()
+            ->where(['spaces_id' => $space_model->id, 'enabled' => 1])
+            ->all();
+
+        $synonyms_expansions_data = [];
+
+        if (empty($synonyms_expansions) || empty($keywords)) {
+            return ['synonyms_expansions' => []];
+        }
+
+        // Create database connection once (shared by all expansions)
+        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+        $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+
+        // Process each synonyms expansion configuration
+        foreach ($synonyms_expansions as $synonyms_expansion) {
+            $expansion_synonyms = [];
+
+            $synonym_query = $synonyms_expansion->buildSynonymQuery($keywords);
+
+            if (! empty($synonym_query)) {
+                try {
+                    [$stats, $rows] = $conn->run($synonym_query, []);
+
+                    // Extract synonyms from results
+                    foreach ($rows as $row) {
+                        if (empty($row[0])) {
+                            continue;
+                        }
+
+                        $synonyms_data = $row[0];
+                        $synonym_list = [];
+
+                        // Handle array or comma-separated string
+                        if (is_array($synonyms_data)) {
+                            $synonym_list = $synonyms_data;
+                        } elseif (is_string($synonyms_data)) {
+                            $synonym_list = array_map('trim', explode(',', $synonyms_data));
+                        }
+
+                        // Add non-empty synonyms
+                        foreach ($synonym_list as $synonym) {
+                            if (! empty($synonym)) {
+                                $expansion_synonyms[] = $synonym;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue
+                    Yii::error('Error fetching synonyms: ' . $e->getMessage());
+                }
+            }
+
+            // Only add expansion if it has synonyms
+            if (! empty($expansion_synonyms)) {
+                $synonyms_expansions_data[] = [
+                    'display_name' => $synonyms_expansion->display_name ?? 'entity',
+                    'synonyms' => array_unique($expansion_synonyms)
+                ];
+            }
+        }
+
+        return [
+            'synonyms_expansions' => $synonyms_expansions_data
+        ];
+    }
+
     public static function getSearchParams($space_url_suffix) {
         $space_model = self::fetchSpacesBySuffix($space_url_suffix);
         $space_model->prepareForRequest();
@@ -486,13 +561,26 @@ class Spaces extends \yii\db\ActiveRecord {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->where(['enabled' => 1]);
     }
 
+    /**
+     * Gets query for [[SpacesSynonymsExpansion]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSynonymsExpansions() {
+        return $this->hasMany(SpacesSynonymsExpansion::class, ['spaces_id' => 'id']);
+    }
+
+    public function getAllSynonymsExpansion() {
+        return $this->hasMany(SpacesSynonymsExpansion::class, ['spaces_id' => 'id']);
+    }
+
     public function getAllAnnotations() {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
     }
 
     /**
-     * Get annotation descriptions as an array.
-     * @return array Array of annotation descriptions
+     * Get annotation display names (plural) as an array.
+     * @return array Array of annotation display names (plural)
      */
     public function getEnabledAnnotationNames() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
@@ -500,8 +588,8 @@ class Spaces extends \yii\db\ActiveRecord {
 
         if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (! empty($annotation->description)) {
-                    $annotation_descriptions[] = $annotation->description;
+                if (! empty($annotation->display_name_plural)) {
+                    $annotation_descriptions[] = $annotation->display_name_plural;
                 }
             }
         }
@@ -510,8 +598,8 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
-     * Get annotation IDs and descriptions as an associative array.
-     * @return array Array with annotation_id as key and description as value
+     * Get annotation IDs and display names (plural) as an associative array.
+     * @return array Array with annotation_id as key and display_name_plural as value
      */
     public function getEnabledAnnotationMap() {
         $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
@@ -519,8 +607,8 @@ class Spaces extends \yii\db\ActiveRecord {
 
         if (! empty($all_annotations)) {
             foreach ($all_annotations as $annotation) {
-                if (! empty($annotation->description)) {
-                    $annotation_map[$annotation->id] = $annotation->description;
+                if (! empty($annotation->display_name_plural)) {
+                    $annotation_map[$annotation->id] = $annotation->display_name_plural;
                 }
             }
         }
@@ -604,7 +692,7 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     private static function enrichAnnotations($rows, $space_annotation) {
-        // add annotation color, description
+        // add annotation color, display_name_plural
         foreach ($rows as $row => $row_data) {
             $doi = $row_data[0];
             $annotations = $row_data[1];
@@ -612,7 +700,7 @@ class Spaces extends \yii\db\ActiveRecord {
             foreach ($annotations as $annotation_row => $annotation_data) {
                 $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
                 $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
-                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
+                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['display_name_plural'];
             }
         }
 
