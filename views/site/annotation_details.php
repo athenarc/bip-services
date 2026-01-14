@@ -72,7 +72,7 @@ if ($in_space) {
                 </div>
             <?php endforeach; ?>
             <div class='article-info' style = 'color:unset;'>
-                <b>Source:</b> <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$space_model->annotation_db]['name']) ?>
+                <b>Provided by:</b> <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$space_model->annotation_db]['name']) ?>
             </div>
         <?php else: ?>
             <div class='article-info' style='color:unset;'>
