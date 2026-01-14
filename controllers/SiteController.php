@@ -294,6 +294,35 @@ class SiteController extends BaseController {
         ]);
     }
 
+    public function actionGetTopTopicsEvolution() {
+        // prepare search params and models
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        // Get evolution for top 5 topics (returns both counts and citations)
+        $evolution_data = $search_model->getTopTopicsEvolution(5);
+        
+        // Handle backward compatibility - if array is returned directly, it's old format
+        if (isset($evolution_data['counts']) && isset($evolution_data['citations'])) {
+            $topics_evolution = $evolution_data['counts'];
+            $topics_citations = $evolution_data['citations'];
+        } else {
+            // Old format - only counts
+            $topics_evolution = is_array($evolution_data) ? $evolution_data : [];
+            $topics_citations = [];
+        }
+        
+        // Ensure citations is always an array
+        if (!is_array($topics_citations)) {
+            $topics_citations = [];
+        }
+
+        // render top topics evolution using partial view
+        return $this->renderPartial('top_topics_evolution', [
+            'topics_evolution' => $topics_evolution,
+            'topics_citations' => $topics_citations,
+        ]);
+    }
+
     /**
      * Get annotation evolution data for AJAX requests.
      */
