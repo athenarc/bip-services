@@ -1,4 +1,4 @@
-function render_bar_plot(container_id, keys, values, labelText) {
+function render_bar_plot(container_id, keys, values, labelText, yAxisLabel, xAxisLabel) {
     const chartColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
     const transparentChartColor = `${chartColor}${Math.round(255 * 0.5).toString(16)}`;
 
@@ -20,6 +20,24 @@ function render_bar_plot(container_id, keys, values, labelText) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    title: {
+                        display: yAxisLabel ? true : false,
+                        text: yAxisLabel || '',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: xAxisLabel ? true : false,
+                        text: xAxisLabel || '',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
                 },
             },
             responsive: true,
@@ -29,8 +47,7 @@ function render_bar_plot(container_id, keys, values, labelText) {
                     position: 'bottom',
                 },
                 title: {
-                    display: true,
-                    text: `${labelText} per year`,
+                    display: false,
                 },
             },
         },

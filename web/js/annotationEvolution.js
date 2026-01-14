@@ -47,8 +47,8 @@ $(document).ready(function() {
                 $('#annotation-charts-loading').hide();
                 $('#annotation-charts-container').show();
                 
-                render_bar_plot('annotation-evolution-bar-plot', years, counts, 'Number of research works');
-                render_bar_plot('annotation-citations-per-year-bar-plot', years, citations, 'Citation count');
+                render_bar_plot('annotation-evolution-bar-plot', years, counts, 'Number of research works', 'Research products per year', 'Publication year');
+                render_bar_plot('annotation-citations-per-year-bar-plot', years, citations, 'Citation count', 'Citation count', 'Publication year');
             } else {
                 $('#annotation-charts-loading').hide();
                 $('#annotation-charts-container').hide();
