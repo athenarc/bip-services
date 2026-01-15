@@ -88,6 +88,10 @@ class ResultItem extends Widget {
 
     public $relations;
 
+    public $has_dataset;
+
+    public $has_software;
+
     public $space_url_suffix;
 
     public $space_annotation_db;
