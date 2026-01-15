@@ -17,7 +17,7 @@ $this->title = $in_space ? $space_model->display_name . ' - BIP! Space' : 'BIP! 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/chartjs_bar_plot.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/chartjs_bar_plot.js?v=' . filemtime(Yii::getAlias('@webroot/js/chartjs_bar_plot.js')), ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/annotationEvolution.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -103,11 +103,13 @@ if ($in_space) {
             </div>
             <div id="annotation-charts-container" class='row' style="display: none;">
                 <div class='col-md-6'>
+                    <h4 class="grey-text text-center" style="margin-bottom: 10px;">Number of research products per year</h4>
                     <div style="position:relative; height:100%; width:100%">
                         <canvas id="annotation-evolution-bar-plot"></canvas>
                     </div>
                 </div>
                 <div class='col-md-6'>
+                    <h4 class="grey-text text-center" style="margin-bottom: 10px;">Citation count per year</h4>
                     <div style="position:relative; height:100%; width:100%">
                         <canvas id="annotation-citations-per-year-bar-plot"></canvas>
                     </div>

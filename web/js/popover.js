@@ -8,8 +8,16 @@ function StartPopover() {
     });
 
     // set a different title when hovering on the element
-    $('.impact-icon').each(function () {
-        $(this).attr('title', $(this).attr('data-hover-title'));
+    $('.impact-icon, .reproducibility-badge').each(function () {
+        const hoverTitle = $(this).attr('data-hover-title');
+        if (hoverTitle) {
+            $(this).on('mouseenter', function() {
+                $(this).attr('title', hoverTitle);
+            }).on('mouseleave', function() {
+                // Remove title to prevent conflict with popover
+                $(this).removeAttr('title');
+            });
+        }
     });
 }
 
