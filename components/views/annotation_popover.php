@@ -21,6 +21,7 @@ foreach ($this->context->data as $annotation_data): ?>
         <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name']) ?>
     </div>
 
+    <?php if ($annotation_id && $this->context->has_graph_entity_fields): ?>
     <div>
         <a href='<?= Url::to(['site/annotation', 'space_url_suffix' => $this->context->space_url_suffix, 'annotation_id' => $this->context->annotation_type_id, 'id' => $annotation_id]) ?>' target='_blank' style='text-decoration: none;'>
             <span class='green-bip'> 
@@ -28,6 +29,7 @@ foreach ($this->context->data as $annotation_data): ?>
             </span>
         </a>
     </div>
+    <?php endif; ?>
 
     <?php
 

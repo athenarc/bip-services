@@ -39,6 +39,8 @@ class AnnotationPopover extends Widget {
 
     public $user_vote_annotation; // 'like', 'dislike', or null
 
+    public $has_graph_entity_fields = false; // Whether graph entity fields are configured
+
     /*
      * Widget initialisation a.k.a. setting widget properties
      */

@@ -37,7 +37,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             [['query', 'description'], 'string'],
             [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'string', 'max' => 255],
             [['metadata_fields'], 'string', 'max' => 500],
-            [['graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'required'],
+            // graph_entity, graph_entity_identifier, and graph_entity_label are optional
+            // If not provided, the annotation details page and "Show all relevant works" link will be disabled
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
@@ -260,6 +261,15 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
         return $query;
     }
 
+    /**
+     * Check if all required graph entity fields are set.
+     * @return bool
+     */
+    public function hasGraphEntityFields() {
+        return ! empty($this->graph_entity) &&
+               ! empty($this->graph_entity_identifier) &&
+               ! empty($this->graph_entity_label);
+    }
 
     /**
      * Gets query for [[Spaces]].
