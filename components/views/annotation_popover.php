@@ -13,7 +13,7 @@ $annotation_id = $this->context->annotation_id ?? null;
 foreach ($this->context->data as $annotation_data): ?>
     <div>
         <span class='green-bip'><?= ucfirst($annotation_data['label']) ?>:</span>
-        <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value'])) ?>
+        <?= (! isset($annotation_data['value']) || $annotation_data['value'] === null || $annotation_data['value'] === '') ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value'])) ?>
     </div>
 <?php endforeach; ?>
     <div>
