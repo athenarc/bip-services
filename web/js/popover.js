@@ -8,12 +8,7 @@ function StartPopover() {
     });
 
     // set a different title when hovering on the element
-    $('.impact-icon').each(function () {
-        $(this).attr('title', $(this).attr('data-hover-title'));
-    });
-
-    // set hover title for reproducibility badges (Bootstrap popover removes native title)
-    $('.reproducibility-badge').each(function () {
+    $('.impact-icon, .reproducibility-badge').each(function () {
         const hoverTitle = $(this).attr('data-hover-title');
         if (hoverTitle) {
             $(this).on('mouseenter', function() {

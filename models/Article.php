@@ -62,6 +62,10 @@ namespace app\models;
 
         public $relations;
 
+        public $has_dataset;
+
+        public $has_software;
+
         public $annotations;
 
         public $chart_data = [];
@@ -371,7 +375,7 @@ namespace app\models;
         }
 
         public function calculatePyramidStatisticsJournal() {
-        // COUNT PYRAMID STATICS WITH MySQL
+            // COUNT PYRAMID STATICS WITH MySQL
             // // count all articles in the same journal
             // $articles_in_journal = Article::find()->where(['journal' => $this->journal])->count();
             // $more_popular_in_journal = Article::find()->where(['journal' => $this->journal])->andWhere(['>=','attrank', $this->attrank])->count();
@@ -424,7 +428,7 @@ namespace app\models;
             $this->calculatePyramidStatisticsJournal();
 
             if ($this->journal) {
-            // calculate classes
+                // calculate classes
                 $this->inf_journal_class = SearchForm::transformPercentageToClass($this->inf_journal);
                 $this->pop_journal_class = SearchForm::transformPercentageToClass($this->pop_journal);
                 $this->imp_journal_class = SearchForm::transformPercentageToClass($this->imp_journal);
@@ -528,7 +532,7 @@ namespace app\models;
         }
 
         public function getTopics() {
-        // get topics and their weights for topics chart
+            // get topics and their weights for topics chart
             $weights = (new \yii\db\Query())
                 ->select(['topic_id AS label', 'weight AS value'])
                 ->from('papers_to_topics_new')

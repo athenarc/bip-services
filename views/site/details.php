@@ -5,6 +5,7 @@ use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\CustomBootstrapModal;
 use app\components\ImpactIcons;
+use app\components\ReproducibilityBadges;
 use bigpaulie\social\share\Share;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -197,11 +198,20 @@ if ($space_model->enable_like_dislike_annotations) {
             </div>
         <?php endif; ?>
 
+        <?php if ($article->has_dataset || $article->has_software): ?>
+            <div class='article-info'>
+                <b>Reproducibility readiness:</b>
+                <?= ReproducibilityBadges::widget([
+                    'has_dataset' => $article->has_dataset ?? false,
+                    'has_software' => $article->has_software ?? false,
+                ]); ?>
+            </div>
+        <?php endif; ?>
         <div class='article-info'>
             <b><?= $article->getPidName() ?>:</b>
             <?php if (empty($article->doi)) {
-                                echo 'N/A';
-                            } elseif (! empty($article->doi)) { ?>
+                    echo 'N/A';
+                } elseif (! empty($article->doi)) { ?>
                     <?php if ($article->getPidName() === 'DOI') :?>
                         <a href="https://doi.org/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php elseif ($article->getPidName() === 'PubMed Id') :?>
