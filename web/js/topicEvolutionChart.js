@@ -173,8 +173,54 @@ function renderTopicEvolutionChart(options) {
     });
     }
     
-    // Set up dimensions
-    const margin = { top: 20, right: 30, bottom: showLegend ? 100 : 60, left: 60 };
+    // Calculate legend lines first if legend is shown
+    const legendPadding = 10;
+    const legendItemSpacing = 20;
+    const legendItemHeight = 20;
+    const legendLineSpacing = 5;
+    const colorBoxSize = 15;
+    
+    let legendNumLines = 1;
+    if (showLegend) {
+        const container = d3.select('#' + containerId);
+        const containerNode = container.node();
+        if (containerNode) {
+            const tempWidth = containerNode.clientWidth - 60 - 30; // Estimate width without full margin calculation
+            const availableWidth = tempWidth - (legendPadding * 2);
+            const legendItems = [];
+            let currentLine = [];
+            let currentLineWidth = 0;
+            
+            topics.forEach(function(topic) {
+                const textWidth = topic.length * 8;
+                const itemWidth = colorBoxSize + 8 + textWidth;
+                const totalItemWidth = itemWidth + (currentLine.length > 0 ? legendItemSpacing : 0);
+                
+                if (currentLine.length > 0 && currentLineWidth + totalItemWidth > availableWidth) {
+                    legendItems.push(currentLine);
+                    currentLine = [topic];
+                    currentLineWidth = itemWidth;
+                } else {
+                    currentLine.push(topic);
+                    currentLineWidth += totalItemWidth;
+                }
+            });
+            if (currentLine.length > 0) {
+                legendItems.push(currentLine);
+            }
+            legendNumLines = legendItems.length;
+        }
+    }
+    
+    // Calculate legend height for positioning
+    const legendHeight = showLegend ? (legendItemHeight * legendNumLines) + (legendLineSpacing * (legendNumLines - 1)) + (legendPadding * 2) + 10 : 0;
+    
+    // Adjust chart height based on legend lines (reduce height when legend wraps)
+    const legendHeightAdjustment = showLegend && legendNumLines > 1 ? (legendNumLines - 1) * 25 : 0;
+    const adjustedHeight = height - legendHeightAdjustment;
+    
+    // Set up dimensions - adjust top margin for legend at top
+    const margin = { top: showLegend ? legendHeight + 20 : 20, right: 30, bottom: 60, left: 60 };
     const container = d3.select('#' + containerId);
     const containerNode = container.node();
     if (!containerNode) {
@@ -182,10 +228,11 @@ function renderTopicEvolutionChart(options) {
     return;
     }
     const width = containerNode.clientWidth - margin.left - margin.right;
-    const chartHeight = height - margin.top - margin.bottom;
+    const chartHeight = adjustedHeight - margin.top - margin.bottom;
     
-    // Create SVG
-    const svgHeight = showLegend ? chartHeight + margin.top + margin.bottom + 100 : chartHeight + margin.top + margin.bottom + 20;
+    // Create SVG - adjust height for multi-line legend
+    const legendExtraHeight = showLegend && legendNumLines > 1 ? (legendNumLines - 1) * 25 : 0;
+    const svgHeight = chartHeight + margin.top + margin.bottom + 20 + legendExtraHeight;
     const svg = container
     .append('svg')
     .attr('width', width + margin.left + margin.right)
@@ -419,70 +466,112 @@ svg.append('text')
     .style('font-weight', 'bold')
     .text('Publication year');
 
-// Add legend if requested
-if (showLegend) {
-    const legendPadding = 10;
-    const legendItemSpacing = 20;
-    const legendItemHeight = 20;
-    const legendRectHeight = legendItemHeight + (legendPadding * 2);
-    
-    let legendTotalWidth = legendPadding;
-    topics.forEach(function(topic) {
-    const textWidth = topic.length * 8;
-    legendTotalWidth += 15 + 8 + textWidth + legendItemSpacing;
-    });
-    legendTotalWidth += legendPadding - legendItemSpacing;
-    
-    const legendStartX = (width - legendTotalWidth) / 2;
-    const legendY = chartHeight + 70;
-    
-    svg.append('rect')
-    .attr('x', legendStartX)
-    .attr('y', legendY - legendPadding)
-    .attr('width', legendTotalWidth)
-    .attr('height', legendRectHeight)
-    .attr('fill', 'white')
-    .attr('stroke', '#ccc')
-    .attr('stroke-width', 1)
-    .attr('rx', 4);
-    
-    let currentX = legendStartX + legendPadding;
-    const legend = svg.selectAll('.legend')
-    .data(topics)
-    .enter()
-    .append('g')
-    .attr('class', 'legend')
-    .attr('transform', function(d, i) {
-        if (i > 0) {
-            let xPos = legendStartX + legendPadding;
-            for (let j = 0; j < i; j++) {
-                const prevTopic = topics[j];
-                const textWidth = prevTopic.length * 8;
-                xPos += 15 + 8 + textWidth + legendItemSpacing;
+    // Add legend if requested
+    if (showLegend) {
+        // Calculate item widths and distribute across lines
+        const availableWidth = width - (legendPadding * 2);
+        const legendItems = [];
+        let currentLine = [];
+        let currentLineWidth = 0;
+        
+        topics.forEach(function(topic) {
+            const textWidth = topic.length * 8;
+            const itemWidth = colorBoxSize + 8 + textWidth;
+            const totalItemWidth = itemWidth + (currentLine.length > 0 ? legendItemSpacing : 0);
+            
+            // Check if item fits on current line
+            if (currentLine.length > 0 && currentLineWidth + totalItemWidth > availableWidth) {
+                // Move to next line
+                legendItems.push(currentLine);
+                currentLine = [topic];
+                currentLineWidth = itemWidth;
+            } else {
+                // Add to current line
+                currentLine.push(topic);
+                currentLineWidth += totalItemWidth;
             }
-            return 'translate(' + xPos + ', ' + legendY + ')';
-        } else {
-            return 'translate(' + currentX + ', ' + legendY + ')';
+        });
+        
+        // Add the last line
+        if (currentLine.length > 0) {
+            legendItems.push(currentLine);
         }
-    });
-    
-    const legendItemCenterY = legendItemHeight / 2;
-    const colorBoxSize = 15;
-    const colorBoxY = (legendItemHeight - colorBoxSize) / 2;
-    
-    legend.append('rect')
-    .attr('width', colorBoxSize)
-    .attr('height', colorBoxSize)
-    .attr('y', colorBoxY)
-    .attr('fill', function(d) { return colors[d]; })
-    .attr('stroke', function(d) { return colors[d].replace('0.7', '1.0'); })
-    .attr('stroke-width', 0.5);
-    
-        legend.append('text')
-            .attr('x', colorBoxSize + 8)
-            .attr('y', legendItemCenterY)
-            .attr('dy', '0.35em')
-            .style('font-size', '12px')
-            .text(function(d) { return d; });
+        
+        // Calculate legend dimensions
+        const numLines = legendItems.length;
+        const legendRectHeight = (legendItemHeight * numLines) + (legendLineSpacing * (numLines - 1)) + (legendPadding * 2);
+        // Position legend at the top, above chart content (negative Y relative to translated group)
+        const legendY = -margin.top + legendPadding;
+        
+        // Calculate maximum line width for centering
+        let maxLineWidth = 0;
+        const lineWidths = [];
+        legendItems.forEach(function(line) {
+            let lineWidth = legendPadding;
+            line.forEach(function(topic) {
+                const textWidth = topic.length * 8;
+                lineWidth += colorBoxSize + 8 + textWidth + legendItemSpacing;
+            });
+            lineWidth += legendPadding - legendItemSpacing;
+            lineWidths.push(lineWidth);
+            if (lineWidth > maxLineWidth) {
+                maxLineWidth = lineWidth;
+            }
+        });
+        
+        // Draw legend background rectangle (centered based on max width)
+        const legendStartX = (width - maxLineWidth) / 2;
+        svg.append('rect')
+            .attr('x', legendStartX)
+            .attr('y', legendY - legendPadding)
+            .attr('width', maxLineWidth)
+            .attr('height', legendRectHeight)
+            .attr('fill', 'white')
+            .attr('stroke', '#ccc')
+            .attr('stroke-width', 1)
+            .attr('rx', 4);
+        
+        // Create legend items
+        legendItems.forEach(function(line, lineIndex) {
+            // Calculate the width of this line
+            const currentLineWidth = lineWidths[lineIndex];
+            // Center this line within the max width
+            const lineStartX = (width - currentLineWidth) / 2 + legendPadding;
+            
+            let xPos = lineStartX;
+            const yPos = legendY + (lineIndex * (legendItemHeight + legendLineSpacing));
+            
+            line.forEach(function(topic) {
+                const legendGroup = svg.append('g')
+                    .attr('class', 'legend')
+                    .attr('transform', 'translate(' + xPos + ', ' + yPos + ')');
+                
+                const colorBoxY = (legendItemHeight - colorBoxSize) / 2;
+                const legendItemCenterY = legendItemHeight / 2;
+                
+                // Color box
+                legendGroup.append('rect')
+                    .attr('width', colorBoxSize)
+                    .attr('height', colorBoxSize)
+                    .attr('y', colorBoxY)
+                    .attr('fill', colors[topic])
+                    .attr('stroke', colors[topic].replace('0.7', '1.0'))
+                    .attr('stroke-width', 0.5);
+                
+                // Text
+                legendGroup.append('text')
+                    .attr('x', colorBoxSize + 8)
+                    .attr('y', legendItemCenterY)
+                    .attr('dy', '0.35em')
+                    .style('font-size', '12px')
+                    .text(topic);
+                
+                // Move x position for next item
+                const textWidth = topic.length * 8;
+                xPos += colorBoxSize + 8 + textWidth + legendItemSpacing;
+            });
+        });
+        
+        // SVG height already adjusted for multi-line legend in initial calculation
     }
 }
