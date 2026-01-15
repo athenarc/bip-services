@@ -673,10 +673,42 @@ class SearchForm extends Model {
 
         // set the facet field for annotations
         $facetSet = $query->getFacetSet();
+        $space_suffix = $this->space_model->url_suffix;
+        
+        // If a specific annotation type is selected, filter facets to that type only
+        // Note: We keep the sidebar filter (annotations_filter) active, so facets are counted
+        // only from papers that pass the sidebar filter
+        if ($annotation_type_id !== null && $annotation_type_id !== 'all') {
+            $annotation_type_id = (int)$annotation_type_id;
+            
+            // Each annotation ID represents a distinct type (e.g., 3=Diseases, 4=Drugs, etc.)
+            // Use the selected annotation ID directly for facet prefix filtering
+            $facet_prefix = $space_suffix . '|' . $annotation_type_id . '|';
+            
         $facetField = $facetSet->createFacetField('top_annotations')
             ->setField('annotations')
-            ->setLimit(100) // Get more to account for parsing
-            ->setMinCount(1); // exclude annotations with no results
+                ->setLimit($limit)
+                ->setMinCount(1);
+            
+            // Set facet prefix to filter facets at Solr level
+            // This limits facets to the selected type, but papers are still filtered by sidebar
+            try {
+                if (method_exists($facetField, 'setLocalParameters')) {
+                    $facetField->setLocalParameters(['prefix' => $facet_prefix]);
+                } else {
+                    $facetField->setOptions(['prefix' => $facet_prefix]);
+                }
+            } catch (\Exception $e) {
+                // If setting prefix fails, continue without it
+            }
+        } else {
+            // No filter - get all annotations
+            // Use higher limit to ensure we get enough unique enrichment_labels after aggregation
+            $facetField = $facetSet->createFacetField('top_annotations')
+                ->setField('annotations')
+                ->setLimit(1000) // Get more to ensure we have enough for aggregation
+                ->setMinCount(1);
+        }
 
         // Execute the query
         $resultset = Yii::$app->solr->select($query);
@@ -687,7 +719,9 @@ class SearchForm extends Model {
         // Parse annotation values to extract enrichment labels
         // Format in Solr: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
         $annotation_counts = [];
-        $space_suffix = $this->space_model->url_suffix;
+        
+        // Store the selected annotation_type_id for filtering (if not 'all')
+        $selected_annotation_id = ($annotation_type_id !== null && $annotation_type_id !== 'all') ? (int)$annotation_type_id : null;
 
         foreach ($facet_values as $annotation_value => $count) {
             // Parse the annotation value
@@ -695,14 +729,15 @@ class SearchForm extends Model {
             
             // Check if it matches our space format
             if (count($parts) >= 4 && $parts[0] === $space_suffix) {
-                // If annotation_type_id is specified, filter by it
-                if ($annotation_type_id !== null && $annotation_type_id !== 'all') {
-                    if ($parts[1] != $annotation_type_id) {
-                        continue; // Skip annotations that don't match the selected type
+                // If a specific type is selected, filter by annotation_id
+                if ($selected_annotation_id !== null) {
+                    $solr_annotation_id = (int)$parts[1];
+                    if ($solr_annotation_id !== $selected_annotation_id) {
+                        continue; // Skip annotations that don't belong to the selected type
                     }
                 }
                 
-                $enrichment_label = $parts[2]; // The actual annotation name (e.g., "Disease X", "Drug Y")
+                $enrichment_label = $parts[2];
                 
                 // Aggregate counts by enrichment label
                 if (!isset($annotation_counts[$enrichment_label])) {
@@ -1497,13 +1532,6 @@ class SearchForm extends Model {
 
         // execute the query
         $result = Yii::$app->solr->select($query);
-
-        // // Access debug information
-        // $debugData = $result->getQuery()->getDebug();
-
-        // // Print the actual Solr query
-        // print_r($debugData);
-
         $response = $result->getData()['response'];
 
         $pagination->totalCount = $response['numFound'];
@@ -1517,3 +1545,4 @@ class SearchForm extends Model {
         ];
     }
 }
+

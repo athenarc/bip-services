@@ -309,14 +309,22 @@ class SiteController extends BaseController {
 
         // Get annotation types for dropdown
         $annotation_types = [];
+        $annotation_type_colors = [];
         if ($space_model && !empty($space_model->annotations)) {
             $annotation_types = $space_model->getEnabledAnnotationMap();
+            // Map annotation_id => color from admin-spaces
+            if (method_exists($space_model, 'getEnabledAnnotationColorMap')) {
+                $annotation_type_colors = $space_model->getEnabledAnnotationColorMap();
+            }
         }
 
         // render top annotations using partial view
         return $this->renderPartial('top_annotations', [
             'top_annotations' => $top_annotations,
             'annotation_types' => $annotation_types,
+            'annotation_type_colors' => $annotation_type_colors,
+            // null means "All" – in αυτό το case κρατάμε το default border color
+            'selected_annotation_type_id' => $annotation_type_id,
         ]);
     }
 
@@ -362,13 +370,13 @@ class SiteController extends BaseController {
         // Handle tissue/annotation detail page case (space_url_suffix, annotation_id, id parameters)
         if ($space_url_suffix && $annotation_id && $id) {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            
+        
             [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolutionByParams($space_url_suffix, $annotation_id, $id);
-            
-            return [
-                'count_per_year' => $count_per_year,
-                'citation_per_year' => $citation_per_year,
-            ];
+        
+        return [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ];
         }
         
         // No valid parameters provided

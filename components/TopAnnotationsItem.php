@@ -10,6 +10,7 @@ namespace app\components;
  * Includes
  */
 use yii\base\Widget;
+use yii\web\View;
 use app\models\Spaces;
 
 /*
@@ -29,6 +30,13 @@ class TopAnnotationsItem extends Widget {
      * Running the widget
      */
     public function run() {
+        // Register JS that initializes the dropdown to 'all' as early as possible
+        $view = $this->getView();
+        $view->registerJsFile(
+            '@web/js/components/topAnnotationsInit.js',
+            ['depends' => 'yii\web\JqueryAsset', 'position' => View::POS_HEAD]
+        );
+
         // Get annotation types for dropdown
         $annotation_types = [];
         if ($this->space_url_suffix) {

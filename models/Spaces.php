@@ -598,22 +598,45 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
-     * Get annotation IDs and display names (plural) as an associative array.
-     * @return array Array with annotation_id as key and display_name_plural as value
+     * Get annotation IDs and display names as an associative array.
+     * Uses the same logic as the sidebar filter: display_name_plural ?? name
+     * @return array Array with annotation_id as key and display name as value
      */
     public function getEnabledAnnotationMap() {
-        $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
+        $enabled_annotations = $this->annotations;
         $annotation_map = [];
 
-        if (! empty($all_annotations)) {
-            foreach ($all_annotations as $annotation) {
-                if (! empty($annotation->display_name_plural)) {
-                    $annotation_map[$annotation->id] = $annotation->display_name_plural;
+        if (! empty($enabled_annotations)) {
+            foreach ($enabled_annotations as $annotation) {
+                // Display_name_plural ?? name
+                $display_name = $annotation->display_name_plural ?? $annotation->name;
+                if (! empty($display_name)) {
+                    $annotation_map[$annotation->id] = $display_name;
                 }
             }
         }
 
         return $annotation_map;
+    }
+
+    /**
+     * Get annotation IDs and colors as an associative array.
+     * Uses the annotation color defined in admin-spaces (color picker) for each type.
+     * @return array Array with annotation_id as key and hex color (e.g. #ffaa00) as value
+     */
+    public function getEnabledAnnotationColorMap() {
+        $enabled_annotations = $this->annotations;
+        $color_map = [];
+
+        if (! empty($enabled_annotations)) {
+            foreach ($enabled_annotations as $annotation) {
+                if (! empty($annotation->color)) {
+                    $color_map[$annotation->id] = $annotation->color;
+                }
+            }
+        }
+
+        return $color_map;
     }
 
     /**

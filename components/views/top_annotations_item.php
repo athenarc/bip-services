@@ -2,26 +2,34 @@
 use yii\helpers\Html;
 ?>
 <div id="top_annotations" class="row grey-text">
-    <div class="text-left col-md-2" style="font-size: 1.2em; white-space: nowrap;" title="List of the most common annotations related to the results displayed.">
-        Key annotations <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>:
-    </div>
-    <div class="col-md-10">
-        <div style="display: inline-block; margin-right: 10px; margin-bottom: 5px;">
+    <div class="text-left col-md-2" style="font-size: 1.2em;" title="List of the most common annotations related to the results displayed.">
+        <span style="white-space: nowrap;">Key annotations <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>:</span>
+        <div class="inline-block-d" style="margin: 5px 0 0 0;">
+            <?php
+            // Convert annotation IDs to strings to preserve them in dropdown
+            // Html::dropDownList may convert numeric keys to 0, 1, 2... so we use string keys
+            $dropdown_options = ['all' => 'All'];
+            if (!empty($annotation_types)) {
+                foreach ($annotation_types as $id => $name) {
+                    $dropdown_options[(string)$id] = $name;
+                }
+            }
+            ?>
             <?= Html::dropDownList(
                 'annotation_type_filter',
                 'all', // Default value is 'all'
-                array_merge(['all' => 'All'], $annotation_types ?? []),
+                $dropdown_options,
                 [
                     'id' => 'annotation_type_filter',
                     'class' => 'form-control',
-                    'style' => 'display: inline-block; width: auto; min-width: 150px; padding: 1px 3px; height: 2em; font-size: 0.9em;',
+                    'style' => ['display' => 'inline-block', 'width' => '160px', 'color' => 'grey'],
                 ]
             ) ?>
         </div>
-        <div id="top_annotations_in_results" style="display: inline-block;">
-            <!-- This will be populated by AJAX -->
-            Loading...
-        </div>
+    </div>
+    <div id="top_annotations_in_results" class="col-md-10">
+        <!-- This will be populated by AJAX -->
+        Loading...
     </div>
 </div>
 
