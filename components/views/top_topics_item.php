@@ -1,13 +1,16 @@
-<div id="top_topics" class="row grey-text">
-    <div class="text-left col-md-2" style="font-size: 1.2em;">
-        Key topics <small><i class="fa fa-info-circle" aria-hidden="true" title="List of the most common topics related to the results displayed."></i></small>: 
-        <button type="button" class="btn btn-xs btn-default" id="visualize-topic-evolution-btn" data-toggle="modal" data-target="#top-topics-modal" title="Visualize topic evolution" style="margin-left: 10px;">
-            <i class="fa-solid fa-chart-line"></i> Visualize topic evolution
-        </button>
-    </div>
-    <div id="top_topics_in_results" class="col-md-10">
-        <!-- This will be populated by AJAX -->
-        Loading...
+<div id="top_topics" class="row grey-text" style="margin-bottom: 15px; align-items: center;">
+    <div class="col-md-12" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 10px; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 5px; font-size: 1.2em; font-weight: 500; white-space: nowrap; flex-shrink: 0;">
+                <span>Key topics</span>
+                <i class="fa fa-info-circle" aria-hidden="true" title="List of the most common topics related to the results displayed." style="font-size: 0.9em; opacity: 0.7;"></i>
+            </div>
+            <div id="top_topics_in_results" style="min-width: 0; overflow: hidden;">
+                <!-- This will be populated by AJAX -->
+                Loading...
+            </div>
+        </div>
+        <i class="fa-solid fa-chart-line" id="visualize-topic-evolution-btn" data-toggle="modal" data-target="#top-topics-modal" title="Visualize topic evolution" style="font-size: 1.3em; cursor: pointer; color: var(--main-color, #4CAF50); transition: opacity 0.2s; flex-shrink: 0;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'"></i>
     </div>
 </div>
 
