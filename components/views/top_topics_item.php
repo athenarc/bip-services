@@ -5,9 +5,10 @@
                 <span>Key topics</span>
                 <i class="fa fa-info-circle" aria-hidden="true" title="List of the most common topics related to the results displayed." style="font-size: 0.9em; opacity: 0.7;"></i>
             </div>
-            <div id="top_topics_in_results" style="min-width: 0; overflow: hidden;">
+            <div id="top_topics_in_results" style="flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <!-- This will be populated by AJAX -->
-                Loading...
+                <i class="fa fa-spinner fa-spin grey-text"></i>
+                <span>Loading...</span>
             </div>
         </div>
         <i class="fa-solid fa-chart-line" id="visualize-topic-evolution-btn" data-toggle="modal" data-target="#top-topics-modal" title="Visualize topic evolution" style="font-size: 1.3em; cursor: pointer; color: var(--main-color, #4CAF50); transition: opacity 0.2s; flex-shrink: 0;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'"></i>
