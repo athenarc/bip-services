@@ -2,8 +2,17 @@
 use yii\helpers\Html;
 ?>
 <div id="top_annotations" class="row grey-text">
-    <div class="text-left col-md-2" style="font-size: 1.2em;" title="List of the most common annotations related to the results displayed.">
-        <span style="white-space: nowrap;">Key annotations <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>:</span>
+    <div class="text-left col-md-2" style="font-size: 1.2em;">
+        <span style="white-space: nowrap;">
+            Key annotations
+            <small>
+                <i
+                    class="fa fa-info-circle"
+                    aria-hidden="true"
+                    title="List of the most common annotations related to the results displayed."
+                ></i>
+            </small>:
+        </span>
         <div class="inline-block-d" style="margin: 5px 0 0 0;">
             <?php
             // Convert annotation IDs to strings to preserve them in dropdown
