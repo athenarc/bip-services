@@ -27,6 +27,6 @@
 </div>
 
 <script>
-    render_bar_plot('topic-evolution-bar-plot', <?= $years ?>, <?= $counts ?>, 'Number of research products', 'Research products per year', 'Publication year');
+    render_bar_plot('topic-evolution-bar-plot', <?= $years ?>, <?= $counts ?>, 'Number of research products', 'Number of research products', 'Publication year');
     render_bar_plot('citations-per-year-bar-plot', <?= $years ?>, <?= $citation_per_year ?>, 'Citation count', 'Citation count', 'Publication year');
 </script>

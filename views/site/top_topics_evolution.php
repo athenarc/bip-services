@@ -82,7 +82,7 @@ renderTopicEvolutionChart({
     yAxisLabel: 'Number of research products',
     valueLabel: 'papers',
     height: 500,
-    showLegend: false
+    showLegend: true
 });
 
 <?php if ($has_citations): ?>
@@ -113,7 +113,7 @@ renderTopicEvolutionChart({
     yAxisLabel: 'Citation count',
     valueLabel: 'citations',
     height: 500,
-    showLegend: true
+    showLegend: false
 });
 <?php endif; ?>
 </script>
