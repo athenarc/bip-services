@@ -10,7 +10,9 @@ use yii\web\View;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'BIP! Services - Finder';
+// Check if we're in a space and set title accordingly
+$in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+$this->title = $in_space ? $space_model->display_name . ' - BIP! Space' : 'BIP! Space';
 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -23,8 +25,6 @@ $this->registerCssFile('@web/css/tags.css');
 
 // Register tinycolor.js as an asset bundle
 TinyColorAsset::register($this);
-
-$in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
 // Register space colors early if in space (right after tinycolor.js)
 if ($in_space) {
