@@ -21,8 +21,8 @@
 </div>
 
 <script>
-    render_bar_plot('annotation-evolution-bar-plot', <?= $years ?>, <?= $counts ?>, 'Number of research works');
-    render_bar_plot('citations-per-year-annotation-bar-plot', <?= $years ?>, <?= $citation_per_year ?>, 'Citation count');
+    render_bar_plot('annotation-evolution-bar-plot', <?= $years ?>, <?= $counts ?>, 'Number of research products', 'Number of research products', 'Publication year');
+    render_bar_plot('citations-per-year-annotation-bar-plot', <?= $years ?>, <?= $citation_per_year ?>, 'Citation count', 'Citation count', 'Publication year');
 </script>
 
 
