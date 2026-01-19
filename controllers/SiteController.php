@@ -264,6 +264,18 @@ class SiteController extends BaseController {
         ];
     }
 
+    /**
+     * Returns the top topic facets for the current search results.
+     * 
+     * This action is called via AJAX from the search results page to display
+     * the most common topics (concepts) found in the current search results.
+     * The results are filtered by the current search query parameters.
+     * 
+     * Route: /site/get-top-topics
+     * Called from: web/js/topicsInResults.js
+     * 
+     * @return string HTML partial view containing the top topics list
+     */
     public function actionGetTopTopics() {
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
@@ -277,6 +289,20 @@ class SiteController extends BaseController {
         ]);
     }
 
+    /**
+     * Returns evolution data (counts and citations per year) for a single topic
+     * filtered by the current search results.
+     * 
+     * This action is called when a user clicks on a topic pill in the search results.
+     * It shows how many papers with that topic were published each year, filtered
+     * by the current search query (keywords, filters, space, etc.).
+     * 
+     * Route: /site/get-topic-evolution
+     * Called from: web/js/topicsInResults.js
+     * 
+     * @return string HTML partial view containing charts for topic evolution
+     * @throws \yii\base\Exception if selectedTopTopic parameter is missing
+     */
     public function actionGetTopicEvolution() {
         $selected_topic = Yii::$app->request->get('selectedTopTopic');
 
@@ -294,6 +320,18 @@ class SiteController extends BaseController {
         ]);
     }
 
+    /**
+     * Returns the top annotation facets for the current search results.
+     * 
+     * This action is called via AJAX from the search results page to display
+     * the most common annotations found in the current search results.
+     * Supports filtering by annotation type via the annotation_type_id parameter.
+     * 
+     * Route: /site/get-top-annotations
+     * Called from: web/js/annotationsInResults.js
+     * 
+     * @return string HTML partial view containing the top annotations list with type filter dropdown
+     */
     public function actionGetTopAnnotations() {
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
@@ -305,7 +343,9 @@ class SiteController extends BaseController {
         }
 
         // perform facet search query
-        $top_annotations = $search_model->getAnnotationsFacet(5, $annotation_type_id);
+        $annotations_result = $search_model->getAnnotationsFacet(5, $annotation_type_id);
+        $top_annotations = $annotations_result['counts'];
+        $annotation_type_map = $annotations_result['types'];
 
         // Get annotation types for dropdown
         $annotation_types = [];
@@ -321,6 +361,7 @@ class SiteController extends BaseController {
         // render top annotations using partial view
         return $this->renderPartial('top_annotations', [
             'top_annotations' => $top_annotations,
+            'annotation_type_map' => $annotation_type_map, // Map of annotation_name => type_id
             'annotation_types' => $annotation_types,
             'annotation_type_colors' => $annotation_type_colors,
             // null means "All" – in αυτό το case κρατάμε το default border color
@@ -328,16 +369,35 @@ class SiteController extends BaseController {
         ]);
     }
 
+    /**
+     * Returns evolution data (counts and citations per year) for all annotations of a specific type
+     * filtered by the current search results.
+     * 
+     * This action is called when a user clicks on an annotation type in the search results.
+     * It shows how many papers with annotations of that type were published each year, filtered
+     * by the current search query (keywords, filters, space, etc.).
+     * 
+     * Note: This differs from actionGetAnnotationEvolution() which returns data for
+     * ALL papers with an annotation (not filtered by search) and returns JSON instead of HTML.
+     * 
+     * Route: /site/get-top-annotation-evolution
+     * Called from: web/js/annotationsInResults.js
+     * 
+     * @return string HTML partial view containing charts for annotation evolution
+     * @throws \yii\base\Exception if annotation_type_id parameter is missing
+     */
     public function actionGetTopAnnotationEvolution() {
-        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
+        $annotation_type_id = Yii::$app->request->get('annotation_type_id');
 
-        if (! $selected_annotation) {
-            throw new \yii\base\Exception('No annotation is given');
+        if (! $annotation_type_id) {
+            throw new \yii\base\Exception('No annotation type ID is given');
         }
+
+        $annotation_type_id = (int)$annotation_type_id;
 
         [ $search_model, $space_model ] = $this->prepareSearchModels();
 
-        [ $count_per_year, $citation_per_year ] = $search_model->getTopAnnotationEvolution($selected_annotation);
+        [ $count_per_year, $citation_per_year ] = $search_model->getTopAnnotationEvolution($annotation_type_id);
 
         return $this->renderPartial('annotation_evolution', [
             'count_per_year' => $count_per_year,
@@ -346,42 +406,86 @@ class SiteController extends BaseController {
     }
 
     /**
-     * Get annotation evolution data for both search page and tissue/annotation detail pages
-     * - Search page: uses selectedTopAnnotation parameter, returns HTML partial
-     * - Tissue/Annotation page: uses space_url_suffix, annotation_id, id parameters, returns JSON
+     * Returns evolution data (counts and citations per year) for the top 5 topics
+     * filtered by the current search results.
+     * 
+     * This action is called when a user clicks the visualization button next to
+     * "Key topics" in the search results. It shows evolution charts for the top 5
+     * topics found in the current search, allowing comparison across multiple topics.
+     * 
+     * Route: /site/get-top-topics-evolution
+     * Called from: web/js/topicsInResults.js
+     * 
+     * @return string HTML partial view containing charts for multiple topics evolution
+     */
+    public function actionGetTopTopicsEvolution() {
+        // prepare search params and models
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        // Get evolution for top 5 topics (returns both counts and citations)
+        $evolution_data = $search_model->getTopTopicsEvolution(5);
+        
+        // Handle backward compatibility - if array is returned directly, it's old format
+        if (isset($evolution_data['counts']) && isset($evolution_data['citations'])) {
+            $topics_evolution = $evolution_data['counts'];
+            $topics_citations = $evolution_data['citations'];
+        } else {
+            // Old format - only counts
+            $topics_evolution = is_array($evolution_data) ? $evolution_data : [];
+            $topics_citations = [];
+        }
+        
+        // Ensure citations is always an array
+        if (!is_array($topics_citations)) {
+            $topics_citations = [];
+        }
+
+        // render top topics evolution using partial view
+        return $this->renderPartial('top_topics_evolution', [
+            'topics_evolution' => $topics_evolution,
+            'topics_citations' => $topics_citations,
+        ]);
+    }
+
+    /**
+     * Returns evolution data (counts and citations per year) for a specific annotation
+     * from annotation detail pages (NOT filtered by search results).
+     * 
+     * This action is called from annotation detail pages to show evolution charts
+     * for ALL papers that have a specific annotation, regardless of any search filters.
+     * It uses specific annotation identifiers (space_url_suffix, annotation_id, id)
+     * rather than annotation names from search facets.
+     * 
+     * Note: This differs from actionGetTopAnnotationEvolution() which:
+     * - Filters by current search results
+     * - Uses annotation names from search facets
+     * - Returns HTML partial instead of JSON
+     * 
+     * Route: /site/get-annotation-evolution
+     * Called from: web/js/annotationEvolution.js
+     * 
+     * @return array JSON response containing:
+     *   - count_per_year: array of year => count pairs
+     *   - citation_per_year: array of year => citation_count pairs
+     * @throws \yii\web\BadRequestHttpException if required parameters are missing
      */
     public function actionGetAnnotationEvolution() {
-        $selected_annotation = Yii::$app->request->get('selectedTopAnnotation');
         $space_url_suffix = Yii::$app->request->get('space_url_suffix');
         $annotation_id = Yii::$app->request->get('annotation_id');
         $id = Yii::$app->request->get('id');
         
-        // Handle search page case (selectedTopAnnotation parameter)
-        if ($selected_annotation) {
-            [ $search_model, $space_model ] = $this->prepareSearchModels();
-            [ $count_per_year, $citation_per_year ] = $search_model->getAnnotationEvolution($selected_annotation);
-            
-            return $this->renderPartial('annotation_evolution', [
-                'count_per_year' => $count_per_year,
-                'citation_per_year' => $citation_per_year,
-            ]);
+        if (!$space_url_suffix || !$annotation_id || !$id) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameters: space_url_suffix, annotation_id, and id are required');
         }
         
-        // Handle tissue/annotation detail page case (space_url_suffix, annotation_id, id parameters)
-        if ($space_url_suffix && $annotation_id && $id) {
-            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         
-            [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolutionByParams($space_url_suffix, $annotation_id, $id);
+        [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
         
         return [
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
         ];
-        }
-        
-        // No valid parameters provided
-        throw new \yii\web\BadRequestHttpException('Missing required parameters. Provide either selectedTopAnnotation (for search) or space_url_suffix, annotation_id, and id (for annotation details)');
-
     }
 
     /**

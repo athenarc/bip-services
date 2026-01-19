@@ -715,7 +715,9 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     private static function enrichAnnotations($rows, $space_annotation) {
-        // add annotation color, display_name_plural
+        // add annotation color, display_name_plural, and has_graph_entity_fields flag
+        $has_graph_entity_fields = $space_annotation->hasGraphEntityFields();
+
         foreach ($rows as $row => $row_data) {
             $doi = $row_data[0];
             $annotations = $row_data[1];
@@ -724,6 +726,7 @@ class Spaces extends \yii\db\ActiveRecord {
                 $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
                 $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
                 $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['display_name_plural'];
+                $rows[$row][1][$annotation_row]['has_graph_entity_fields'] = $has_graph_entity_fields;
             }
         }
 

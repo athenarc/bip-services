@@ -365,6 +365,8 @@ if ($in_space) {
                                     'concepts' => $result['concepts'],
                                     'annotations' => $result['annotations'] ?? null,
                                     'relations' => $result['relations'],
+                                    'has_dataset' => $result['has_dataset'] ?? false,
+                                    'has_software' => $result['has_software'] ?? false,
                                     'user_id' => $result['user_id'],
                                     'pop_score' => $result['attrank'],
                                     'inf_score' => $result['pagerank'],

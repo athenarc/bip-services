@@ -372,14 +372,21 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-xs-12">
+                        <p class="help-block" style="margin-bottom: 10px; color: #666;">
+                            <i class="fa fa-info-circle"></i> <strong>Graph Entity Fields (Optional):</strong> The fields <strong>Graph entity</strong>, <strong>Graph entity identifier</strong>, and <strong>Graph entity label</strong> are optional. These fields are used for the annotation details page. If any of these fields is not provided, the "Show all relevant works" link will not appear in annotation popovers, and the annotation details page will show a warning message instead of metadata.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-xs-4">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Entity type in graph DB (e.g., "Disease", "Product")') ?>
                     </div>
                     <div class="col-xs-4">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_identifier")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_identifier")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field used to identify the entity (e.g., "id")') ?>
                     </div>
                     <div class="col-xs-4">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field used as the display label (e.g., "name", "title")') ?>
                     </div>
                 </div>
                 <div class="row">
@@ -445,7 +452,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
         if (empty($modelsSpacesSynonymsExpansion)) {
             $modelsSpacesSynonymsExpansion = [new \app\models\SpacesSynonymsExpansion()];
         }
-        
+
         DynamicFormWidget::begin([
             'widgetContainer' => 'dynamicform_wrapper_synonyms',
             'widgetBody' => '.container-items-synonyms',

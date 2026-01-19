@@ -37,7 +37,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             [['query', 'description'], 'string'],
             [['name', 'display_name_plural', 'graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'string', 'max' => 255],
             [['metadata_fields'], 'string', 'max' => 500],
-            [['graph_entity', 'graph_entity_identifier', 'graph_entity_label'], 'required'],
+            // graph_entity, graph_entity_identifier, and graph_entity_label are optional
+            // If not provided, the annotation details page and "Show all relevant works" link will be disabled
             [['color'], 'string', 'max' => 7], // Hex color codes are 7 characters long including the '#'
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
@@ -97,65 +98,107 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                 $errors[] = 'RETURN clause must contain doi or DOI property';
             }
 
-            // Check 2: Must have COLLECT
-            if (! preg_match('/COLLECT/i', $returnClause)) {
-                $errors[] = 'Query must contain COLLECT';
+            // Check 2: Must have COLLECT or list comprehension with id and label
+            $hasCollect = preg_match('/COLLECT/i', $returnClause);
+            // Improved regex to detect list comprehension: [var IN ...] or [var WHERE ...]
+            // Also check for patterns like [x IN [...] WHERE ...] with nested brackets
+            $hasListComprehension = preg_match('/\[\s*\w+\s+(?:IN|WHERE)\s+/i', $returnClause);
+            
+            if (! $hasCollect && ! $hasListComprehension) {
+                $errors[] = 'Query must contain COLLECT or list comprehension with id and label properties';
             } else {
-                // Find COLLECT and extract its content (handle nested brackets)
-                $collectStart = stripos($returnClause, 'COLLECT');
-                $afterCollect = substr($returnClause, $collectStart);
+                $contentToCheck = '';
+                $isCollect = false;
+                
+                if ($hasCollect) {
+                    // Find COLLECT and extract its content (handle nested brackets)
+                    $collectStart = stripos($returnClause, 'COLLECT');
+                    $afterCollect = substr($returnClause, $collectStart);
 
-                // Find opening bracket
-                $openPos = strpos($afterCollect, '(');
+                    // Find opening bracket
+                    $openPos = strpos($afterCollect, '(');
 
-                if ($openPos === false) {
-                    $openPos = strpos($afterCollect, '{');
-                    $closeChar = '}';
-                } else {
-                    $closeChar = ')';
-                }
-
-                if ($openPos !== false) {
-                    // Extract content inside COLLECT brackets (handle nested)
-                    $collectContent = '';
-                    $depth = 0;
-
-                    for ($i = $openPos + 1; $i < strlen($afterCollect); $i++) {
-                        $char = $afterCollect[$i];
-
-                        if ($char === $closeChar && $depth === 0) {
-                            break;
-                        }
-
-                        if ($char === '(' || $char === '{') {
-                            $depth++;
-                        } elseif ($char === ')' || $char === '}') {
-                            $depth--;
-                        }
-                        $collectContent .= $char;
+                    if ($openPos === false) {
+                        $openPos = strpos($afterCollect, '{');
+                        $closeChar = '}';
+                    } else {
+                        $closeChar = ')';
                     }
 
-                    // Check for id property at top level of COLLECT (not nested in arrays [])
-                    // Must be "id: <value>" or "id = <value)" and value must not be empty
+                    if ($openPos !== false) {
+                        // Extract content inside COLLECT brackets (handle nested)
+                        $contentToCheck = '';
+                        $depth = 0;
+
+                        for ($i = $openPos + 1; $i < strlen($afterCollect); $i++) {
+                            $char = $afterCollect[$i];
+
+                            if ($char === $closeChar && $depth === 0) {
+                                break;
+                            }
+
+                            if ($char === '(' || $char === '{') {
+                                $depth++;
+                            } elseif ($char === ')' || $char === '}') {
+                                $depth--;
+                            }
+                            $contentToCheck .= $char;
+                        }
+                        $isCollect = true;
+                    } else {
+                        $errors[] = 'COLLECT syntax is invalid';
+                    }
+                } else {
+                    // For list comprehension, check the entire RETURN clause for id and label
+                    // The list comprehension should contain objects with id and label
+                    $contentToCheck = $returnClause;
+                    $isCollect = false;
+                }
+
+                if ($contentToCheck !== '') {
+                    // Check for id property
+                    // For COLLECT: must be at top level (not nested in arrays [])
+                    // For list comprehension: can be inside objects within the list (more flexible)
                     $hasId = false;
 
-                    if (preg_match_all('/\bid\s*[:=]/i', $collectContent, $idMatches, PREG_OFFSET_CAPTURE)) {
+                    if (preg_match_all('/\bid\s*[:=]/i', $contentToCheck, $idMatches, PREG_OFFSET_CAPTURE)) {
                         foreach ($idMatches[0] as $match) {
                             $pos = $match[1];
                             // Check if before this position there are unmatched [ brackets
-                            $before = substr($collectContent, 0, $pos);
+                            $before = substr($contentToCheck, 0, $pos);
                             $openBrackets = substr_count($before, '[') - substr_count($before, ']');
-                            // If no unmatched [ brackets, it's top-level
-                            if ($openBrackets == 0) {
-                                // Now check that id has a non-empty value after : or =
-                                $fromId = substr($collectContent, $pos);
-
-                                if (preg_match('/\bid\s*[:=]\s*([^,\]\}]+)/i', $fromId, $valueMatch)) {
-                                    $idValue = trim($valueMatch[1]);
-
-                                    if ($idValue !== '') {
-                                        $hasId = true;
-                                        break;
+                            
+                            // For COLLECT: must be at top level (openBrackets == 0)
+                            // For list comprehension: allow id inside objects (can be nested deeper due to CASE statements)
+                            // Check if we're inside a { } object (not just counting brackets)
+                            $beforePos = substr($contentToCheck, 0, $pos);
+                            $openBraces = substr_count($beforePos, '{') - substr_count($beforePos, '}');
+                            
+                            if ($isCollect) {
+                                // COLLECT: must be top level
+                                if ($openBrackets == 0) {
+                                    $fromId = substr($contentToCheck, $pos);
+                                    if (preg_match('/\bid\s*[:=]\s*([^,\]\}]+)/i', $fromId, $valueMatch)) {
+                                        $idValue = trim($valueMatch[1]);
+                                        $idValue = trim($idValue, '\'"');
+                                        if ($idValue !== '' && $idValue !== 'null') {
+                                            $hasId = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // List comprehension: allow id inside objects (openBraces > 0 means inside an object)
+                                // The id should be inside a { } object structure
+                                if ($openBraces > 0) {
+                                    $fromId = substr($contentToCheck, $pos);
+                                    if (preg_match('/\bid\s*[:=]\s*([^,\]\}]+)/i', $fromId, $valueMatch)) {
+                                        $idValue = trim($valueMatch[1]);
+                                        $idValue = trim($idValue, '\'"');
+                                        if ($idValue !== '' && $idValue !== 'null') {
+                                            $hasId = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -163,30 +206,55 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                     }
 
                     if (! $hasId) {
-                        $errors[] = 'COLLECT must contain id property with non-empty value';
+                        $errorMsg = $isCollect 
+                            ? 'COLLECT must contain id property with non-empty value'
+                            : 'List comprehension must contain objects with id property with non-empty value';
+                        $errors[] = $errorMsg;
                     }
 
-                    // Check for label property at top level of COLLECT (not nested in arrays [])
-                    // Must be "label: <value>" or "label = <value)" and value must not be empty
+                    // Check for label property
+                    // For COLLECT: must be at top level (not nested in arrays [])
+                    // For list comprehension: can be inside objects within the list (more flexible)
                     $hasLabel = false;
 
-                    if (preg_match_all('/\blabel\s*[:=]/i', $collectContent, $labelMatches, PREG_OFFSET_CAPTURE)) {
+                    if (preg_match_all('/\blabel\s*[:=]/i', $contentToCheck, $labelMatches, PREG_OFFSET_CAPTURE)) {
                         foreach ($labelMatches[0] as $match) {
                             $pos = $match[1];
                             // Check if before this position there are unmatched [ brackets
-                            $before = substr($collectContent, 0, $pos);
+                            $before = substr($contentToCheck, 0, $pos);
                             $openBrackets = substr_count($before, '[') - substr_count($before, ']');
-                            // If no unmatched [ brackets, it's top-level
-                            if ($openBrackets == 0) {
-                                // Now check that label has a non-empty value after : or =
-                                $fromLabel = substr($collectContent, $pos);
-
-                                if (preg_match('/\blabel\s*[:=]\s*([^,\]\}]+)/i', $fromLabel, $valueMatch)) {
-                                    $labelValue = trim($valueMatch[1]);
-
-                                    if ($labelValue !== '') {
-                                        $hasLabel = true;
-                                        break;
+                            
+                            // For COLLECT: must be at top level (openBrackets == 0)
+                            // For list comprehension: allow label inside objects (can be nested deeper due to CASE statements)
+                            // Check if we're inside a { } object (not just counting brackets)
+                            $beforePos = substr($contentToCheck, 0, $pos);
+                            $openBraces = substr_count($beforePos, '{') - substr_count($beforePos, '}');
+                            
+                            if ($isCollect) {
+                                // COLLECT: must be top level
+                                if ($openBrackets == 0) {
+                                    $fromLabel = substr($contentToCheck, $pos);
+                                    if (preg_match('/\blabel\s*[:=]\s*([^,\]\}]+)/i', $fromLabel, $valueMatch)) {
+                                        $labelValue = trim($valueMatch[1]);
+                                        $labelValue = trim($labelValue, '\'"');
+                                        if ($labelValue !== '' && $labelValue !== 'null') {
+                                            $hasLabel = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // List comprehension: allow label inside objects (openBraces > 0 means inside an object)
+                                // The label should be inside a { } object structure
+                                if ($openBraces > 0) {
+                                    $fromLabel = substr($contentToCheck, $pos);
+                                    if (preg_match('/\blabel\s*[:=]\s*([^,\]\}]+)/i', $fromLabel, $valueMatch)) {
+                                        $labelValue = trim($valueMatch[1]);
+                                        $labelValue = trim($labelValue, '\'"');
+                                        if ($labelValue !== '' && $labelValue !== 'null') {
+                                            $hasLabel = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -194,10 +262,11 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
                     }
 
                     if (! $hasLabel) {
-                        $errors[] = 'COLLECT must contain label property with non-empty value';
+                        $errorMsg = $isCollect 
+                            ? 'COLLECT must contain label property with non-empty value'
+                            : 'List comprehension must contain objects with label property with non-empty value';
+                        $errors[] = $errorMsg;
                     }
-                } else {
-                    $errors[] = 'COLLECT syntax is invalid';
                 }
             }
         } else {
@@ -260,6 +329,15 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
         return $query;
     }
 
+    /**
+     * Check if all required graph entity fields are set.
+     * @return bool
+     */
+    public function hasGraphEntityFields() {
+        return ! empty($this->graph_entity) &&
+               ! empty($this->graph_entity_identifier) &&
+               ! empty($this->graph_entity_label);
+    }
 
     /**
      * Gets query for [[Spaces]].

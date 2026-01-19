@@ -13,14 +13,15 @@ $annotation_id = $this->context->annotation_id ?? null;
 foreach ($this->context->data as $annotation_data): ?>
     <div>
         <span class='green-bip'><?= ucfirst($annotation_data['label']) ?>:</span>
-        <?= empty(($annotation_data['value'])) ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value'])) ?>
+        <?= (! isset($annotation_data['value']) || $annotation_data['value'] === null || $annotation_data['value'] === '') ? 'N/A' : ucfirst(str_replace('"', "'", $annotation_data['value'])) ?>
     </div>
 <?php endforeach; ?>
     <div>
-        <span class='green-bip'><?= 'Source' ?>:</span>
-        <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name'] . ' knowledge graph') ?>
+        <span class='green-bip'><?= 'Provided by' ?>:</span>
+        <?= str_replace('"', "'", Yii::$app->params['annotation_dbs'][$this->context->space_annotation_db]['name']) ?>
     </div>
 
+    <?php if ($annotation_id && $this->context->has_graph_entity_fields): ?>
     <div>
         <a href='<?= Url::to(['site/annotation', 'space_url_suffix' => $this->context->space_url_suffix, 'annotation_id' => $this->context->annotation_type_id, 'id' => $annotation_id]) ?>' target='_blank' style='text-decoration: none;'>
             <span class='green-bip'> 
@@ -28,6 +29,7 @@ foreach ($this->context->data as $annotation_data): ?>
             </span>
         </a>
     </div>
+    <?php endif; ?>
 
     <?php
 

@@ -82,7 +82,15 @@ $(document).ready(() => {
         }
 
         const annotationName = $(this).data('annotation-name');
+        const annotationTypeId = $(this).data('annotation-type-id');
         const annotationNameCapitalized = annotationName.charAt(0).toUpperCase() + annotationName.slice(1);
+
+        // Require annotation_type_id to be present
+        if (!annotationTypeId) {
+            console.error('Annotation type ID is required but not found');
+            alert('Please select a specific annotation type to view evolution data.');
+            return;
+        }
 
         // Set modal title
         $('#annotationModalLabel').text(`Annotation evolution for "${annotationNameCapitalized}"`);
@@ -94,7 +102,7 @@ $(document).ready(() => {
         $.ajax({
             url: `${appBaseUrl}/site/get-top-annotation-evolution${queryString}`,
             type: 'GET',
-            data: { selectedTopAnnotation: annotationName },
+            data: { annotation_type_id: annotationTypeId },
             success: function (data) {
                 $('#top-annotations-modal .modal-body').html(data);
             },

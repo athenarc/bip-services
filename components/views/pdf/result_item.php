@@ -37,7 +37,7 @@ $item = $this->context;
         <div>
             <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
                     <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
-                        Found <?= $item->dois_num ?> versions</a>
+                        <i class="fas fa-clone" aria-hidden="true"></i> <?= $item->dois_num ?></a>
             <?php endif; ?>
 
             <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
