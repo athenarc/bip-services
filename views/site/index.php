@@ -292,7 +292,9 @@ if ($in_space) {
             <?php if (! empty($results['rows'])) { ?>
                 <div class='container-fluid'>
                     <?= TopTopicsItem::widget([]) ?>
-                    <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
+                    <?php if ($in_space): ?>
+                        <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
+                    <?php endif; ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">
