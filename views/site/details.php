@@ -220,6 +220,24 @@ if ($space_model->enable_like_dislike_annotations) {
                     <?php endif; ?>
             <?php } ?>
         </div>
+        <?php if (! empty($article->software_metadata['code_repo'])): ?>
+            <div class='article-info'>
+                <b>Code Repository:</b>
+                <a href="<?= Html::encode($article->software_metadata['code_repo']) ?>" target='_blank' class="main-green">
+                    <?= Html::encode($article->software_metadata['code_repo']) ?> <i class="fa fa-external-link-square" aria-hidden="true"></i>
+                </a>
+            </div>
+        <?php endif; ?>
+        <?php if (! empty($article->software_metadata['version'])): ?>
+            <div class='article-info'>
+                <b>Version:</b> <?= Html::encode($article->software_metadata['version']) ?>
+            </div>
+        <?php endif; ?>
+        <?php if (! empty($article->software_metadata['license'])): ?>
+            <div class='article-info'>
+                <b>License:</b> <?= Html::encode($article->software_metadata['license']) ?>
+            </div>
+        <?php endif; ?>
         <div class='row'>
             <div class='col-xs-12'>
                 <div class='article-info'>
@@ -284,12 +302,6 @@ if ($space_model->enable_like_dislike_annotations) {
                     <a id="pdf_button" href="#" class="btn btn-sm btn-custom-color disabled" target='_blank' onclick="getPDFLink('<?= Url::to(['site/get-pdf-link']) ?>', '<?= $article->doi ?>');">
                         <i class="fa fa-download" aria-hidden="true"></i> PDF
                     </a>
-                    
-                    <?php if (! empty($article->repo_url)): ?>
-                        <a href="<?= Html::encode($article->repo_url) ?>" class="btn btn-sm btn-custom-color "target="_blank">
-                            <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i> Code
-                        </a>
-                    <?php endif; ?>
                 </div>
             </div>
             <div class='col-xs-12'>

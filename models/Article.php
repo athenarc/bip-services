@@ -72,6 +72,8 @@ namespace app\models;
 
         public $repo_url;
 
+        public $software_metadata;
+
         /**
          * It returns the minimum percentile in which the paper belongs (based on its score).
          *
@@ -781,17 +783,49 @@ namespace app\models;
             return null;
         }
 
-        public static function getCodeRepoUrls($internal_ids) {
-            if (empty($internal_ids)) {
+        /**
+         * Attaches code_repo, license, and version from software_metadata table to rows.
+         *
+         * @param array $rows Array of rows, each row must have an 'internal_id' key
+         * @return array The same rows array with 'code_repo', 'license', and 'version' attached to each row
+         */
+        public static function getCodeRepoUrls($rows) {
+            if (empty($rows)) {
                 return [];
             }
 
-            $rows = (new \yii\db\Query())
-                ->select(['paper_id', 'code_url'])
-                ->from('zenodo_code_repos')
+            $internal_ids = array_filter(array_column($rows, 'internal_id'));
+
+            if (empty($internal_ids)) {
+                return $rows;
+            }
+
+            $metadata_rows = (new \yii\db\Query())
+                ->select(['paper_id', 'code_repo', 'license', 'version'])
+                ->from('software_metadata')
                 ->where(['paper_id' => $internal_ids])
                 ->all();
 
-            return array_column($rows, 'code_url', 'paper_id');  // [paper_id => code_url]
+            // Create a single mapping indexed by paper_id containing all fields
+            $metadata_by_id = [];
+
+            foreach ($metadata_rows as $metadata) {
+                $metadata_by_id[$metadata['paper_id']] = [
+                    'code_repo' => $metadata['code_repo'] ?? null,
+                    'license' => $metadata['license'] ?? null,
+                    'version' => $metadata['version'] ?? null,
+                ];
+            }
+
+            // Attach metadata to rows
+            foreach ($rows as &$row) {
+                $internal_id = $row['internal_id'] ?? null;
+
+                if ($internal_id && isset($metadata_by_id[$internal_id])) {
+                    $row['software_metadata'] = $metadata_by_id[$internal_id];
+                }
+            }
+
+            return $rows;
         }
     }

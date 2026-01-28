@@ -124,7 +124,7 @@ $item = $this->context;
         <!-- annotations -->
             <?php if (! empty($item->annotations)): ?>
                 <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
-                    <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
+                    <i class="fa-solid fa-circle-nodes fa-fw" aria-hidden="true" title="Annotations"></i>
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
