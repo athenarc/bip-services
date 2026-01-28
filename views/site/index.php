@@ -378,7 +378,7 @@ if ($in_space) {
                                     'type' => $result['type'],
                                     'pubmed_types' => $result['pubmed_types'],
                                     'search_context' => $result['search_context'],
-                                    'repo_url' => $result['zenodo_repo_url'] ?? null,
+                                    'software_metadata' => $result['software_metadata'] ?? null,
                                     'show' => [
                                         'concepts' => true,
                                         'pubmed_types' => ! $in_space || $space_model->has_pubmed_types,

@@ -605,84 +605,10 @@ class SearchForm extends Model {
         ];
     }
 
-    /**
-     * Get evolution data (counts and citations per year) for a given Solr query
-     * 
-     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object
-     * @return array [count_per_year, citation_per_year] arrays keyed by year
-     */
-    protected function getEvolutionData($query) {
-        // Ensure query doesn't return actual results, only facets
-        $query->setRows(0);
-
-        // Add faceting on year
-        $facetSet = $query->getFacetSet();
-        $facet = $facetSet->createFacetField('years_facet')
-            ->setField('year')
-            ->setMinCount(1);
-
-        // Add statistics for citation counts
-        $statsComponent = $query->getStats();
-        $statsComponent->createField('citation_count')->addFacet('year');
-
-        // Execute the query
-        $resultset = Yii::$app->solr->select($query);
-
-        // Get the count per year from facet results
-        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
-
-        // Get the citation count statistics per year
-        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
-        $citation_per_year_raw = $stats['year'] ?? [];
-
-        // Process citation data - convert stat objects to sums
-        $citation_per_year = [];
-        foreach ($citation_per_year_raw as $year => $stat) {
-            $citation_per_year[$year] = $stat->getSum();
-        }
-
-        // Determine the range of years
-        if (empty($count_per_year) && empty($citation_per_year)) {
-            return [[], []];
-        }
-
-        $all_years = array_unique(array_merge(
-            array_keys($count_per_year),
-            array_keys($citation_per_year)
-        ));
-
-        if (empty($all_years)) {
-            return [[], []];
-        }
-
-        $minYear = min($all_years);
-        $maxYear = max($all_years);
-
-        // Fill missing years with zero for both counts and citations
-        for ($year = $minYear; $year <= $maxYear; $year++) {
-            if (!isset($count_per_year[$year])) {
-                $count_per_year[$year] = 0;
-            }
-            if (!isset($citation_per_year[$year])) {
-                $citation_per_year[$year] = 0;
-            }
-        }
-
-        // Sort the arrays by keys (years)
-        ksort($count_per_year);
-        ksort($citation_per_year);
-
-        // Keep only the latest 20 years
-        $count_per_year = array_slice($count_per_year, -20, 20, true);
-        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
-
-        return [$count_per_year, $citation_per_year];
-    }
-
     public function getTopTopicsEvolution($limit = 5) {
         // Get top topics first
         $top_topics = $this->getTopicsFacet($limit);
-        
+
         if (empty($top_topics)) {
             return [
                 'counts' => [],
@@ -692,7 +618,7 @@ class SearchForm extends Model {
 
         // Prepare base query
         $base_query = $this->prepareSearchQuery();
-        
+
         if (! $base_query) {
             return [
                 'counts' => [],
@@ -773,8 +699,8 @@ class SearchForm extends Model {
     }
 
     /**
-     * Get evolution data for annotation papers (count and citations per year)
-     * 
+     * Get evolution data for annotation papers (count and citations per year).
+     *
      * @param string $space_url_suffix Space URL suffix
      * @param int $annotation_id Space annotation ID
      * @param string $id Annotation ID (e.g., DOID:0050687)
@@ -808,17 +734,8 @@ class SearchForm extends Model {
         // get pubmed types
         $rows = PubmedTypes::getPubmedTypes($rows, $this->space_model);
 
-        // attach zenodo code repo URLs
-        $internal_ids = array_filter(array_column($rows, 'internal_id'));
-        $id_to_url = Article::getCodeRepoUrls($internal_ids);
-
-        foreach ($rows as &$row) {
-            $internal_id = $row['internal_id'] ?? null;
-
-            if ($internal_id && isset($id_to_url[$internal_id])) {
-                $row['zenodo_repo_url'] = $id_to_url[$internal_id];
-            }
-        }
+        // attach code repository URLs
+        $rows = Article::getCodeRepoUrls($rows);
 
         return $rows;
     }
@@ -1159,6 +1076,82 @@ class SearchForm extends Model {
         $works = self::get_concepts_impact_class($works);
 
         return $works;
+    }
+
+    /**
+     * Get evolution data (counts and citations per year) for a given Solr query.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object
+     * @return array [count_per_year, citation_per_year] arrays keyed by year
+     */
+    protected function getEvolutionData($query) {
+        // Ensure query doesn't return actual results, only facets
+        $query->setRows(0);
+
+        // Add faceting on year
+        $facetSet = $query->getFacetSet();
+        $facet = $facetSet->createFacetField('years_facet')
+            ->setField('year')
+            ->setMinCount(1);
+
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the count per year from facet results
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
+
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year_raw = $stats['year'] ?? [];
+
+        // Process citation data - convert stat objects to sums
+        $citation_per_year = [];
+
+        foreach ($citation_per_year_raw as $year => $stat) {
+            $citation_per_year[$year] = $stat->getSum();
+        }
+
+        // Determine the range of years
+        if (empty($count_per_year) && empty($citation_per_year)) {
+            return [[], []];
+        }
+
+        $all_years = array_unique(array_merge(
+            array_keys($count_per_year),
+            array_keys($citation_per_year)
+        ));
+
+        if (empty($all_years)) {
+            return [[], []];
+        }
+
+        $minYear = min($all_years);
+        $maxYear = max($all_years);
+
+        // Fill missing years with zero for both counts and citations
+        for ($year = $minYear; $year <= $maxYear; $year++) {
+            if (! isset($count_per_year[$year])) {
+                $count_per_year[$year] = 0;
+            }
+
+            if (! isset($citation_per_year[$year])) {
+                $citation_per_year[$year] = 0;
+            }
+        }
+
+        // Sort the arrays by keys (years)
+        ksort($count_per_year);
+        ksort($citation_per_year);
+
+        // Keep only the latest 20 years
+        $count_per_year = array_slice($count_per_year, -20, 20, true);
+        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
+
+        return [$count_per_year, $citation_per_year];
     }
 
     /*

@@ -882,16 +882,8 @@ class ScholarController extends BaseController {
             }
             // Otherwise, $indicators keeps the default empty array initialized earlier
 
-            $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
-            $repoUrls = Article::getCodeRepoUrls($internal_ids);
-
-            foreach ($result['papers'] as &$paper) {
-                $internal_id = $paper['internal_id'] ?? null;
-
-                if ($internal_id && isset($repoUrls[$internal_id])) {
-                    $paper['zenodo_repo_url'] = $repoUrls[$internal_id];
-                }
-            } // break reference
+            // attach code repository URLs
+            $result['papers'] = Article::getCodeRepoUrls($result['papers']);
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();
