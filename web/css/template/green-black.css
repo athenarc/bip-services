@@ -435,11 +435,8 @@ h3{
 }
 
 .navbar-brand {
-    font-family: "Courgette", cursive;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 1.8em;
-
+    font-weight: 600;
+    font-size: 1.4em;
     padding-right: 0px;
 }
 
