@@ -1,6 +1,7 @@
 <?php
 
 use app\components\ResultItem;
+use app\models\Involvement;
 use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\helpers\Url;
