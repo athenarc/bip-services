@@ -5,6 +5,7 @@ use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\ImpactIcons;
 use app\components\ReproducibilityBadges;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -231,7 +232,7 @@ $item = $this->context;
 
             <?php if ($item->edit_perm): ?>
                 <div class="involvement-region grey-text">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php
                         foreach ($item->involvements as $value => $field) {
                             $options_inv[$value] = ['data-content' => "<span class='label involvement'>${field}</span>"];
@@ -255,7 +256,7 @@ $item = $this->context;
             <?php else: ?>
                 <div class="tag-region grey-text">
                     <div class="bootstrap-tagsinput">
-                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                         <?php if (empty($item->involved)) : ?>
                             <span style= "margin-left:5px;">-</span>
                         <?php else : ?>
