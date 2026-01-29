@@ -40,20 +40,39 @@ $params = [
         '2' => 'Read',
     ],
     'involvement_fields' => [
-        '0' => 'Conceptualization',
-        '1' => 'Data curation',
-        '2' => 'Formal Analysis',
-        '3' => 'Funding acquisition',
-        '4' => 'Investigation',
-        '5' => 'Methodology',
-        '6' => 'Project administration',
-        '7' => 'Resources',
-        '8' => 'Software',
-        '9' => 'Supervision',
-        '10' => 'Validation',
-        '11' => 'Visualization',
-        '12' => 'Writing - original draft',
-        '13' => 'Writing - review and editing',
+        'default' => [
+            '0'  => 'Conceptualization',
+            '1'  => 'Data curation',
+            '2'  => 'Formal Analysis',
+            '3'  => 'Funding acquisition',
+            '4'  => 'Investigation',
+            '5'  => 'Methodology',
+            '6'  => 'Project administration',
+            '7'  => 'Resources',
+            '8'  => 'Software',
+            '9'  => 'Supervision',
+            '10' => 'Validation',
+            '11' => 'Visualization',
+            '12' => 'Writing - original draft',
+            '13' => 'Writing - review and editing',
+        ],
+        'software' => [
+            '14' => 'Design',
+            '15' => 'Debugging',
+            '16' => 'Maintenance',
+            '17' => 'Coding',
+            '18' => 'Architecture',
+            '19' => 'Documentation',
+            '20' => 'Testing',
+            '21' => 'Support',
+            '22' => 'Management',
+        ],
+    ],
+    'work_type_involvement_map' => [
+        0 => 'default', // Publication
+        1 => 'default', // Dataset
+        2 => 'software',// Software
+        3 => 'default', // Other
     ],
     'pubmed_types_fields' => [
         '1' => 'Adaptive Clinical Trial',

@@ -1,6 +1,7 @@
 <?php
 
 namespace app\models;
+use Yii;
 
 class Involvement extends \yii\db\ActiveRecord {
     public static function tableName() {
@@ -54,5 +55,20 @@ class Involvement extends \yii\db\ActiveRecord {
         }
 
         return $rows;
+    }
+
+    public static function getInvolvementFieldsByWorkType(int $work_type) {
+        $map = Yii::$app->params['work_type_involvement_map'];
+        $groups = Yii::$app->params['involvement_fields'];
+
+        $group_key = $map[$work_type] ?? 'default';
+
+        return $groups[$group_key] ?? [];
+    }
+
+    public static function getAllInvolvementFields(){
+        return array_merge(
+            ...array_values(Yii::$app->params['involvement_fields'])
+        );
     }
 }

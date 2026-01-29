@@ -10,6 +10,8 @@ $(window).on('load', () => {
         // isSelected : states if current item gets selected/unselected (true/false)
         const paperId = $(this).attr('name').split('_')[1];
 
+        const involvementId = $(this).find('option').eq(clickedIndex).val();
+
         // Required for post requests in yii
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -19,7 +21,7 @@ $(window).on('load', () => {
             type: 'POST',
             data:
             {
-                'involvement_id': clickedIndex,
+                'involvement_id': involvementId,
                 'is_selected': isSelected,
                 'paper_id': paperId,
                 _csrf: csrfToken,
