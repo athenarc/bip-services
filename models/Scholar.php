@@ -540,7 +540,7 @@ class Scholar extends Model {
                 'counts' => ArrayHelper::map($tag_facets, 'id', 'count'),
             ],
             'roles' => [
-                'options' => array_map(function ($var) { return Yii::$app->params['involvement_fields'][$var]; }, ArrayHelper::map($role_facets, 'involvement', 'involvement')),
+                'options' => array_map(function ($var) { return Involvement::getAllInvolvementFields()[$var]; }, ArrayHelper::map($role_facets, 'involvement', 'involvement')),
                 'counts' => ArrayHelper::map($role_facets, 'involvement', 'count'),
             ],
             'accesses' => [

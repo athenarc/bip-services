@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use Yii;
+
 class Involvement extends \yii\db\ActiveRecord {
     public static function tableName() {
         return 'involvement_to_papers';
@@ -54,5 +56,30 @@ class Involvement extends \yii\db\ActiveRecord {
         }
 
         return $rows;
+    }
+
+    public static function getInvolvementFieldsByWorkType(int $work_type) {
+        $map = Yii::$app->params['work_type_involvement_map'];
+        $groups = Yii::$app->params['involvement_fields'];
+
+        $group_key = $map[$work_type] ?? 'default';
+
+        return $groups[$group_key] ?? [];
+    }
+
+    public static function getAllInvolvementFields() {
+        return array_merge(
+            ...array_values(Yii::$app->params['involvement_fields'])
+        );
+    }
+
+    /**
+     * Returns the hover text for contribution roles based on work type.
+     * @param string|int $work_type The work type identifier
+     * @return string The hover text to display
+     */
+    public static function getContributionHoverText($work_type) {
+        // Work type '2' is Software
+        return ($work_type == '2') ? 'Software contribution roles' : 'Contribution Roles based on the CRediT taxonomy';
     }
 }

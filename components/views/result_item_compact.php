@@ -3,6 +3,7 @@
 use app\components\BookmarkIcon;
 use app\components\ImpactIcons;
 use app\components\ReproducibilityBadges;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -123,7 +124,7 @@ $item = $this->context;
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
             <?php if ($item->edit_perm): ?>
                 <div class="compact-involvement grey-text small">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <span id="res_<?= $item->internal_id ?>_involvement_tags" class="tags-wrapper">
                         <?php if (! empty($item->involved)) {
                     foreach ($item->involved as $inv) {
@@ -179,7 +180,7 @@ $item = $this->context;
                 </script>
             <?php else: ?>
                 <div class="compact-involvement grey-text small">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php if (empty($item->involved)) : ?>
                         <span style="margin-left:5px;">-</span>
                     <?php else : ?>

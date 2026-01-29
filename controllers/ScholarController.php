@@ -88,7 +88,7 @@ class ScholarController extends BaseController {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         return [
-            'involvement_name' => Yii::$app->params['involvement_fields'][$involvement_id],
+            'involvement_name' => Involvement::getAllInvolvementFields()[$involvement_id],
         ];
     }
 
