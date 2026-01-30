@@ -440,6 +440,20 @@ h3{
     padding-right: 0px;
 }
 
+.navbar-brand img {
+    height: 25px;
+    width: auto;
+    opacity: 0.7; /* Make it grey by default (reduces brightness) */
+    filter: brightness(0.8) grayscale(0.2); /* Add grey tint */
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.navbar-brand:hover img,
+.navbar-brand:focus img {
+    opacity: 1; /* Full opacity on hover */
+    filter: brightness(1) grayscale(0); /* Show white (original) on hover */
+}
+
 .bip-top-navbar .dropdown-menu{
     background-color: #000;
     width: initial;
