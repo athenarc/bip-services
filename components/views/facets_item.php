@@ -138,7 +138,7 @@ use yii\helpers\Url;
                                     <?php if ($element_config['Roles']['visualize_opt'] === 1): ?>
                                         <i id="viz-roles" 
                                         class="fa-solid fa-chart-pie main-green" 
-                                        title="Show CRediT roles chart" 
+                                        title="Show contribution roles chart" 
                                         data-toggle="modal" 
                                         data-target="#credit-stats-modal"></i>
                                     <?php endif; ?>
@@ -325,7 +325,7 @@ use yii\helpers\Url;
 
         <?php
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'credit-stats-modal'],
-                        'header' => '<h4>CRediT Roles Radar Chart</h4>',
+                        'header' => '<h4>Contribution Roles Radar Chart</h4>',
                         'size' => 'modal-md',
                     ]);
         ?>
