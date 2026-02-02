@@ -80,6 +80,35 @@ function clearFacet(listId, facetName) {
     submit_scholar_form();
 }
 
+function updateFacet(facet_type, id, name, selected) {
+    let roleElem = $(`#${facet_type}-facet-items > #${facet_type}-${id}`);
+    if (roleElem.length > 0) {
+        let countElem = roleElem.children('span')
+        let count = parseInt(countElem.html());
+        count = (selected) ? count + 1 : count - 1;
+
+        if (count == 0) {
+            roleElem.remove();
+        } else {
+            countElem.html(count);
+        }
+    } else {
+        let newFacet = $(`<button id='${facet_type}-${id}' type="button" class="btn btn-xs btn-default facet-item">`
+            + `<input id="${facet_type}-${id}-i" name="${facet_type}s[]" value="${id}" type="hidden" disabled="disabled"/>`
+            + `${name} <span class="badge badge-primary">1</span>`
+        + '</button>');
+
+        // check if this is the first facet item to be inserted
+        if ($(`#${facet_type}-facet-items > .facet-item`).length == 0) {
+            $(`#${facet_type}-facet-items`).html(newFacet);
+
+        // if not, append current facet item at the end
+        } else {
+            $(`#${facet_type}-facet-items`).append("\n").append(newFacet);
+        }
+    }
+}
+
 $(document).ready(() => {
     $('#reading-list-public-switch').click(event => {
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
