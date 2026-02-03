@@ -109,6 +109,70 @@ function updateFacet(facet_type, id, name, selected) {
     }
 }
 
+/**
+ * Update the role facet for a specific contributions list on the scholar profile.
+ * Called when the user adds or removes a contribution role from a paper.
+ * Only the facet linked to the list containing that paper is updated.
+ * @param {string} listId - The contributions list element_id (linked_id) for the facet to update
+ * @param {string} involvementId - The involvement/role value (0-13)
+ * @param {string} involvementName - Display name of the role
+ * @param {boolean} selected - true = role added, false = role removed
+ */
+function updateProfileRoleFacet(listId, involvementId, involvementName, selected) {
+    const containerId = 'role-facet-items-' + listId;
+    const buttonId = 'role-' + involvementId + '-list' + listId;
+    const $container = $('#' + containerId);
+    if (!$container.length) {
+        return;
+    }
+
+    const $btn = $container.find('#' + buttonId);
+
+    if ($btn.length > 0) {
+        const $badge = $btn.find('span.badge');
+        if (!$badge.length) {
+            return;
+        }
+        let count = parseInt($badge.html(), 10) || 0;
+        count = selected ? count + 1 : count - 1;
+
+        if (count <= 0) {
+            $btn.remove();
+            // If no facet buttons left, show placeholder
+            if ($container.find('.facet-item').length === 0) {
+                $container.html('-');
+            }
+        } else {
+            $badge.html(count);
+        }
+    } else if (selected) {
+        const formId = $('#scholar-form').attr('id') || 'scholar-form';
+        const newBtn = $('<button></button>')
+            .attr('id', buttonId)
+            .attr('type', 'button')
+            .addClass('btn btn-xs btn-default facet-item')
+            .attr('data-list-id', listId)
+            .attr('data-facet', 'roles')
+            .append($('<input>').attr({
+                id: buttonId + '-i',
+                name: 'lists[' + listId + '][roles][]',
+                value: involvementId,
+                form: formId,
+                type: 'hidden',
+                disabled: 'disabled'
+            }))
+            .append(document.createTextNode(' ' + involvementName + ' '))
+            .append($('<span></span>').addClass('badge badge-primary').text('1'));
+
+        if ($container.is('span') && $container.text().trim() === '-') {
+            const $wrapper = $('<div></div>').attr('id', containerId).append(newBtn);
+            $container.replaceWith($wrapper);
+        } else {
+            $container.append('\n').append(newBtn);
+        }
+    }
+}
+
 $(document).ready(() => {
     $('#reading-list-public-switch').click(event => {
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
