@@ -109,12 +109,15 @@ function updateFacet(facet_type, id, name, selected) {
     }
 }
 
+/** Role IDs that are software-only (Design, Debugging, Maintenance, etc.). */
+const SOFTWARE_ROLE_IDS = ['14', '15', '16', '17', '18', '19', '20', '21', '22'];
+
 /**
  * Update the role facet for a specific contributions list on the scholar profile.
  * Called when the user adds or removes a contribution role from a paper.
  * Only the facet linked to the list containing that paper is updated.
  * @param {string} listId - The contributions list element_id (linked_id) for the facet to update
- * @param {string} involvementId - The involvement/role value (0-13)
+ * @param {string} involvementId - The involvement/role value (0-22)
  * @param {string} involvementName - Display name of the role
  * @param {boolean} selected - true = role added, false = role removed
  */
@@ -147,6 +150,10 @@ function updateProfileRoleFacet(listId, involvementId, involvementName, selected
         }
     } else if (selected) {
         const formId = $('#scholar-form').attr('id') || 'scholar-form';
+        const isSoftwareRole = SOFTWARE_ROLE_IDS.indexOf(String(involvementId)) !== -1;
+        const $icon = isSoftwareRole
+            ? $('<i></i>').attr('class', 'fa fa-code').attr('aria-hidden', 'true').attr('title', 'Software contribution role')
+            : null;
         const newBtn = $('<button></button>')
             .attr('id', buttonId)
             .attr('type', 'button')
@@ -161,7 +168,9 @@ function updateProfileRoleFacet(listId, involvementId, involvementName, selected
                 type: 'hidden',
                 disabled: 'disabled'
             }))
-            .append(document.createTextNode(' ' + involvementName + ' '))
+            .append(' ')
+            .append($icon || '')
+            .append(document.createTextNode(involvementName + ' '))
             .append($('<span></span>').addClass('badge badge-primary').text('1'));
 
         if ($container.is('span') && $container.text().trim() === '-') {

@@ -153,6 +153,7 @@ use yii\helpers\Url;
                                 <span id="role-facet-items-<?= $linked_id ?>">-</span>
                             <?php else:
                                 $counts = $result['facets']['roles']['counts'];
+                                $software_role_ids = array_keys(Yii::$app->params['involvement_fields']['software'] ?? []);
                                 echo Html::checkboxList(
                                     "lists[${linked_id}][roles]",
                                     $selected_roles,
@@ -160,11 +161,15 @@ use yii\helpers\Url;
                                     [
                                         'id' => "role-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $software_role_ids) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $badge_number = ($element_config['Roles']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
+                                                : '';
+                                            $is_software = in_array((string) $value, $software_role_ids, true);
+                                            $role_icon = $is_software
+                                                ? "<i class='fa fa-code' aria-hidden='true' title='" . Html::encode('Software contribution role') . "'></i> "
                                                 : '';
 
                                             return "<button id='role-${value}-list${linked_id}' 
@@ -178,7 +183,7 @@ use yii\helpers\Url;
                                                             form='${formId}' 
                                                             type='hidden' 
                                                             ${disabled}/>
-                                                        ${label} ${badge_number}
+                                                        ${role_icon} ${label} ${badge_number}
                                                     </button>";
                                         }
                                     ]
