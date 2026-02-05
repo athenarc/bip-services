@@ -131,14 +131,14 @@ use yii\helpers\Url;
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
                                 <strong>
                                     <span role="button" data-toggle="popover" data-placement="auto" 
-                                        title="<b>CRediT roles</b>" 
-                                        data-content="<div><span class='green-bip'></span> Contribution Roles based on the CRediT taxonomy. These roles describe each contributor's specific contribution to the scholarly work. <a target='_blank' class='green-bip' href='https://credit.niso.org'><br/> see more <i class='fa fa-external-link-square' aria-hidden='true'></i></a></div>">
-                                        CRediT roles <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                                        title="<b>Contribution roles</b>" 
+                                        data-content="<div><span class='green-bip'></span> Describes the specific nature of the researcher's contribution to the research work.</div>">
+                                        Contribution roles <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                                     </span>
                                     <?php if ($element_config['Roles']['visualize_opt'] === 1): ?>
                                         <i id="viz-roles" 
                                         class="fa-solid fa-chart-pie main-green" 
-                                        title="Show CRediT roles chart" 
+                                        title="Show contribution roles chart" 
                                         data-toggle="modal" 
                                         data-target="#credit-stats-modal"></i>
                                     <?php endif; ?>
@@ -325,7 +325,7 @@ use yii\helpers\Url;
 
         <?php
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'credit-stats-modal'],
-                        'header' => '<h4>CRediT Roles Radar Chart</h4>',
+                        'header' => '<h4>Contribution Roles Radar Chart</h4>',
                         'size' => 'modal-md',
                     ]);
         ?>

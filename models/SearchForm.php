@@ -876,7 +876,7 @@ class SearchForm extends Model {
     public function getTopTopicsEvolution($limit = 5) {
         // Get top topics first
         $top_topics = $this->getTopicsFacet($limit);
-        
+
         if (empty($top_topics)) {
             return [
                 'counts' => [],
@@ -886,7 +886,7 @@ class SearchForm extends Model {
 
         // Prepare base query
         $base_query = $this->prepareSearchQuery();
-        
+
         if (! $base_query) {
             return [
                 'counts' => [],
@@ -1013,17 +1013,8 @@ class SearchForm extends Model {
         // get pubmed types
         $rows = PubmedTypes::getPubmedTypes($rows, $this->space_model);
 
-        // attach zenodo code repo URLs
-        $internal_ids = array_filter(array_column($rows, 'internal_id'));
-        $id_to_url = Article::getCodeRepoUrls($internal_ids);
-
-        foreach ($rows as &$row) {
-            $internal_id = $row['internal_id'] ?? null;
-
-            if ($internal_id && isset($id_to_url[$internal_id])) {
-                $row['zenodo_repo_url'] = $id_to_url[$internal_id];
-            }
-        }
+        // attach code repository URLs
+        $rows = Article::getCodeRepoUrls($rows);
 
         return $rows;
     }

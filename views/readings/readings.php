@@ -1,6 +1,7 @@
 <?php
 
 use app\components\ResultItem;
+use app\models\Involvement;
 use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -382,7 +383,7 @@ $papers = $result['papers'];
                         'reading_status_choices' => Yii::$app->params['reading_fields'],
                         'tags' => $paper['tags'],
                         'notes' => $paper['notes'],
-                        'involvements' => Yii::$app->params['involvement_fields'],
+                        'involvements' => Involvement::getInvolvementFieldsByWorkType($paper['type']),
                         'involved' => $paper['involvement'],
                         'pop_score' => $paper['attrank'],
                         'inf_score' => $paper['pagerank'],
@@ -394,7 +395,7 @@ $papers = $result['papers'];
                         'cc_class' => $paper['cc_class'],
                         'is_oa' => $paper['is_oa'],
                         'type' => $paper['type'],
-                        'repo_url' => $paper['zenodo_repo_url'] ?? null,
+                        'software_metadata' => $paper['software_metadata'] ?? null,
                         'show' => [
                             'concepts' => true,
                             'tags' => true,

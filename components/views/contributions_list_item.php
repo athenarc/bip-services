@@ -4,6 +4,7 @@ use app\components\CustomBootstrapModal;
 use app\components\ResultItem;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use app\models\Involvement;
 
 // Register compact views CSS
 $this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
@@ -159,7 +160,7 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                                 'has_dataset' => $paper['has_dataset'] ?? false,
                                 'has_software' => $paper['has_software'] ?? false,
                                 'tags' => $paper['tags'],
-                                'involvements' => Yii::$app->params['involvement_fields'],
+                                'involvements' => Involvement::getInvolvementFieldsByWorkType($paper['type']),
                                 'involved' => $paper['involvement'],
                                 'pop_score' => $paper['attrank'],
                                 'inf_score' => $paper['pagerank'],
@@ -171,7 +172,7 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                                 'cc_class' => $paper['cc_class'],
                                 'is_oa' => $paper['is_oa'],
                                 'type' => $paper['type'],
-                                'repo_url' => $paper['code_url'] ?? null,
+                                'software_metadata' => $paper['software_metadata'] ?? null,
                                 'view_mode' => $element_config['compact_view'] ?? 'full',
                                 'show' => [
                                     'concepts' => true,

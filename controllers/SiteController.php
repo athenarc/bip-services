@@ -424,7 +424,7 @@ class SiteController extends BaseController {
 
         // Get evolution for top 5 topics (returns both counts and citations)
         $evolution_data = $search_model->getTopTopicsEvolution(5);
-        
+
         // Handle backward compatibility - if array is returned directly, it's old format
         if (isset($evolution_data['counts']) && isset($evolution_data['citations'])) {
             $topics_evolution = $evolution_data['counts'];
@@ -434,9 +434,9 @@ class SiteController extends BaseController {
             $topics_evolution = is_array($evolution_data) ? $evolution_data : [];
             $topics_citations = [];
         }
-        
+
         // Ensure citations is always an array
-        if (!is_array($topics_citations)) {
+        if (! is_array($topics_citations)) {
             $topics_citations = [];
         }
 
@@ -628,9 +628,10 @@ class SiteController extends BaseController {
         // get impact indicators
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
-        // Attach code repository URL from zenodo_code_repos table based on article internal_id
-        $repoUrls = Article::getCodeRepoUrls([$article->internal_id]);
-        $article->repo_url = $repoUrls[$article->internal_id] ?? null;
+        // Attach software metadata (code_repo, license, version) from software_metadata table based on article internal_id
+        $article_rows = [['internal_id' => $article->internal_id]];
+        $article_rows = Article::getCodeRepoUrls($article_rows);
+        $article->software_metadata = $article_rows[0]['software_metadata'] ?? null;
 
         //Render details page
         return $this->render('details', [

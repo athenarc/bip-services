@@ -5,9 +5,9 @@
 
 use app\assets\AppAsset;
 use app\components\CookieBox;
+use app\components\EvaluationModeOverlay;
 use app\components\GoogleAnalytics;
 use app\components\Matomo;
-use app\components\EvaluationModeOverlay;
 use Yii;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -61,7 +61,7 @@ AppAsset::register($this);
     <div class="wrap">
         <?php
         NavBar::begin([
-            'brandLabel' => 'BiP!',
+            'brandImage' => '@web/img/bip_white.png',
             'brandUrl' => ['site/home'],
             'options' => [
                 'class' => 'navbar-inverse navbar-fixed-top',

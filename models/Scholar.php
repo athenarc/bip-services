@@ -211,7 +211,7 @@ class Scholar extends Model {
 
         // fetch details (and order) for paper in current page
         $papers_query = (new \yii\db\Query())
-            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags, zenodo_code_repos.code_url')
+            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('tags_to_papers', 'pmc_paper.internal_id = tags_to_papers.paper_id
@@ -219,7 +219,6 @@ class Scholar extends Model {
             ->leftJoin('tags', 'tags.id = tags_to_papers.tag_id')
             ->leftJoin('notes_to_papers', 'pmc_paper.internal_id = notes_to_papers.paper_id
                 AND notes_to_papers.user_id = ' . $this->researcher->user_id)
-            ->leftJoin('zenodo_code_repos', 'pmc_paper.internal_id = zenodo_code_repos.paper_id')
             ->where(['internal_id' => $ids_subquery])
             ->groupBy('internal_id')
             ->orderBy($orderByClause)
@@ -236,6 +235,8 @@ class Scholar extends Model {
         $papers = SearchForm::get_concepts_impact_class($papers);
         // get relations
         $papers = Relations::getRelations($papers);
+        // attach software metadata (code_repo, license, version)
+        $papers = Article::getCodeRepoUrls($papers);
 
         if ($top_k !== null && ! $show_pagination_config) {
             $papers = array_slice($papers, 0, $top_k);
@@ -539,7 +540,7 @@ class Scholar extends Model {
                 'counts' => ArrayHelper::map($tag_facets, 'id', 'count'),
             ],
             'roles' => [
-                'options' => array_map(function ($var) { return Yii::$app->params['involvement_fields'][$var]; }, ArrayHelper::map($role_facets, 'involvement', 'involvement')),
+                'options' => array_map(function ($var) { return Involvement::getAllInvolvementFields()[$var]; }, ArrayHelper::map($role_facets, 'involvement', 'involvement')),
                 'counts' => ArrayHelper::map($role_facets, 'involvement', 'count'),
             ],
             'accesses' => [

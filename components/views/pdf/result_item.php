@@ -2,6 +2,7 @@
 
 use app\components\ConceptPopover;
 use app\components\ImpactIcons;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -124,7 +125,7 @@ $item = $this->context;
         <!-- annotations -->
             <?php if (! empty($item->annotations)): ?>
                 <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
-                    <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
+                    <i class="fa-solid fa-circle-nodes fa-fw" aria-hidden="true" title="Annotations"></i>
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
@@ -158,7 +159,7 @@ $item = $this->context;
 
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
                 <div class="tag-region grey-text">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php if (empty($item->involved)) : ?>
                         <span style= "margin-left:5px;">-</span>
                     <?php else : ?>

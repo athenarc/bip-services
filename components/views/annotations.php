@@ -18,7 +18,7 @@ use yii\helpers\Html;
     
     <!-- Tab Headers -->
     <div class="annotation-tabs tag-region grey-text">
-        <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
+        <i class="fa-solid fa-circle-nodes fa-fw" aria-hidden="true" title="Annotations"></i>
         <?php foreach ($grouped_annotations as $annotation_id => $group): ?>
             <?php
             $tab_id = "res_{$internal_id}_annot_tab_{$annotation_id}";

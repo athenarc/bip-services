@@ -80,7 +80,7 @@ class ResultItem extends Widget {
 
     public $search_context;
 
-    public $repo_url;
+    public $software_metadata;
 
     public $concepts;
 

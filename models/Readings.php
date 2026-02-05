@@ -49,9 +49,11 @@ class Readings extends Model {
             $base_query->andWhere(['users_likes.reading_status' => $rd_status]);
         }
 
-        if (! empty($accesses) || ! empty($types)) {
-            $base_query->innerJoin('pmc_paper', 'pmc_paper.internal_id = users_likes.paper_id
-                AND users_likes.user_id = ' . $this->user->id);
+        // Join pmc_paper if we need to filter by accesses or types, or for counting
+        $needs_pmc_paper = ! empty($accesses) || ! empty($types);
+
+        if ($needs_pmc_paper) {
+            $base_query->innerJoin('pmc_paper', 'pmc_paper.internal_id = users_likes.paper_id');
 
             if (! empty($accesses)) {
                 $base_query->andWhere(['pmc_paper.is_oa' => $accesses]);
@@ -64,7 +66,13 @@ class Readings extends Model {
 
         // count unique papers in the result set
         $base_query->groupBy('paper_id');
-        $papers_num = $base_query->innerJoin('pmc_paper', 'pmc_paper.internal_id = users_likes.paper_id')->count();
+
+        // Only join pmc_paper if not already joined
+        if (! $needs_pmc_paper) {
+            $base_query->innerJoin('pmc_paper', 'pmc_paper.internal_id = users_likes.paper_id');
+        }
+
+        $papers_num = $base_query->count();
 
         // paginated query to retrieve all paper details
         $pagination = new Pagination([

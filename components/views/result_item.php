@@ -5,6 +5,7 @@ use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\ImpactIcons;
 use app\components\ReproducibilityBadges;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -148,13 +149,31 @@ $item = $this->context;
                     </div>
                 </div>
         <?php endif; ?>
-        <?php if (! empty($item->repo_url)): ?>
+        <?php if (! empty($item->software_metadata['code_repo'])): ?>
             <div class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
-                    <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i>
-                    <a href="<?= Html::encode($item->repo_url) ?>" target="_blank" class="grey-link version-code-repo">
-                        <?= Html::encode($item->repo_url) ?>
+                    <i class="fa fa-code-branch fa-fw" aria-hidden="true" title="Code Repository"></i>
+                    <a href="<?= Html::encode($item->software_metadata['code_repo']) ?>" target="_blank" class="grey-link version-code-repo">
+                        <?= Html::encode($item->software_metadata['code_repo']) ?>
                     </a>
+                    <?php if (! empty($item->software_metadata['version']) || ! empty($item->software_metadata['license'])): ?>
+                        &nbsp;&middot;&nbsp;
+                        <?php if (! empty($item->software_metadata['version'])): ?>
+                            <span>
+                                <i class="fa fa-tag fa-fw" aria-hidden="true" title="Version"></i>
+                                <?= Html::encode($item->software_metadata['version']) ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (! empty($item->software_metadata['version']) && ! empty($item->software_metadata['license'])): ?>
+                            &nbsp;&middot;&nbsp;
+                        <?php endif; ?>
+                        <?php if (! empty($item->software_metadata['license'])): ?>
+                            <span>
+                                <i class="fa fa-file-contract fa-fw" aria-hidden="true" title="License"></i>
+                                <?= Html::encode($item->software_metadata['license']) ?>
+                            </span>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -213,7 +232,7 @@ $item = $this->context;
 
             <?php if ($item->edit_perm): ?>
                 <div class="involvement-region grey-text">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php
                         foreach ($item->involvements as $value => $field) {
                             $options_inv[$value] = ['data-content' => "<span class='label involvement'>${field}</span>"];
@@ -237,7 +256,7 @@ $item = $this->context;
             <?php else: ?>
                 <div class="tag-region grey-text">
                     <div class="bootstrap-tagsinput">
-                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                         <?php if (empty($item->involved)) : ?>
                             <span style= "margin-left:5px;">-</span>
                         <?php else : ?>
