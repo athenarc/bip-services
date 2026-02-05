@@ -131,7 +131,7 @@ $item = $this->context;
                         echo '<span class="concept-tag" data-roleid="' . Html::encode($inv) . '">' . Html::encode($item->involvements[$inv]) . '</span>';
                     }
                 } ?>
-                        <span class="involvement-region">
+                        <span class="involvement-region"<?= isset($item->contribution_list_id) ? ' data-contribution-list-id="' . (int) $item->contribution_list_id . '"' : '' ?>>
                             <?php
                                 $options_inv = [];
 

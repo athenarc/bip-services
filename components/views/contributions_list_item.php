@@ -147,6 +147,7 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                             echo ResultItem::widget([
                                 'impact_indicators' => $impact_indicators,
                                 'internal_id' => $paper['internal_id'],
+                                'contribution_list_id' => $list_id,
                                 'edit_perm' => $edit_perm,
                                 'doi' => $paper['doi'],
                                 'dois_num' => $paper['dois_num'],

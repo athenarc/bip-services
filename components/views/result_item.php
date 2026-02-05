@@ -231,7 +231,7 @@ $item = $this->context;
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
 
             <?php if ($item->edit_perm): ?>
-                <div class="involvement-region grey-text">
+                <div class="involvement-region grey-text"<?= isset($item->contribution_list_id) ? ' data-contribution-list-id="' . (int) $item->contribution_list_id . '"' : '' ?>>
                     <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php
                         foreach ($item->involvements as $value => $field) {

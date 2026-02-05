@@ -46,6 +46,9 @@ class FacetsItem extends Widget {
 
     public $facets_linked_to_lists;
 
+    /** This Facets element's id (for unique container ids when multiple facets link to the same list). */
+    public $facet_element_id;
+
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
@@ -83,6 +86,7 @@ class FacetsItem extends Widget {
             'researcher' => $this->researcher,
             'element_config' => $this->element_config,
             'selected_per_list' => $this->selected_per_list,
+            'facet_element_id' => $this->facet_element_id,
         ];
 
         if ($this->for_print) {

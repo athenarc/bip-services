@@ -109,77 +109,79 @@ function updateFacet(facet_type, id, name, selected) {
     }
 }
 
-/** Role IDs that are software-only (Design, Debugging, Maintenance, etc.). */
-const SOFTWARE_ROLE_IDS = ['14', '15', '16', '17', '18', '19', '20', '21', '22'];
-
 /**
  * Update the role facet for a specific contributions list on the scholar profile.
- * Called when the user adds or removes a contribution role from a paper.
- * Only the facet linked to the list containing that paper is updated.
- * @param {string} listId - The contributions list element_id (linked_id) for the facet to update
+ * Updates all Facets elements that are linked to this list (same data-linked-list-id).
+ * Expects window.bipScholarFacetConfig.softwareRoleIds (string[]) to be set by the page.
+ * @param {string} listId - The contributions list element_id (linked_id) for the facet(s) to update
  * @param {string} involvementId - The involvement/role value (0-22)
  * @param {string} involvementName - Display name of the role
  * @param {boolean} selected - true = role added, false = role removed
  */
 function updateProfileRoleFacet(listId, involvementId, involvementName, selected) {
-    const containerId = 'role-facet-items-' + listId;
-    const buttonId = 'role-' + involvementId + '-list' + listId;
-    const $container = $('#' + containerId);
-    if (!$container.length) {
+    const $containers = $('.js-role-facet-items[data-linked-list-id="' + listId + '"]');
+    if (!$containers.length) {
         return;
     }
 
-    const $btn = $container.find('#' + buttonId);
+    const softwareRoleIds = (window.bipScholarFacetConfig && window.bipScholarFacetConfig.softwareRoleIds) || [];
 
-    if ($btn.length > 0) {
-        const $badge = $btn.find('span.badge');
-        if (!$badge.length) {
-            return;
-        }
-        let count = parseInt($badge.html(), 10) || 0;
-        count = selected ? count + 1 : count - 1;
+    $containers.each(function () {
+        const $container = $(this);
+        const $btn = $container.find('input[name="lists[' + listId + '][roles][]"][value="' + involvementId + '"]').closest('button.facet-item');
 
-        if (count <= 0) {
-            $btn.remove();
-            // If no facet buttons left, show placeholder
-            if ($container.find('.facet-item').length === 0) {
-                $container.html('-');
+        if ($btn.length > 0) {
+            const $badge = $btn.find('span.badge');
+            if (!$badge.length) {
+                return;
             }
-        } else {
-            $badge.html(count);
-        }
-    } else if (selected) {
-        const formId = $('#scholar-form').attr('id') || 'scholar-form';
-        const isSoftwareRole = SOFTWARE_ROLE_IDS.indexOf(String(involvementId)) !== -1;
-        const $icon = isSoftwareRole
-            ? $('<i></i>').attr('class', 'fa fa-code').attr('aria-hidden', 'true').attr('title', 'Software contribution role')
-            : null;
-        const newBtn = $('<button></button>')
-            .attr('id', buttonId)
-            .attr('type', 'button')
-            .addClass('btn btn-xs btn-default facet-item')
-            .attr('data-list-id', listId)
-            .attr('data-facet', 'roles')
-            .append($('<input>').attr({
-                id: buttonId + '-i',
-                name: 'lists[' + listId + '][roles][]',
-                value: involvementId,
-                form: formId,
-                type: 'hidden',
-                disabled: 'disabled'
-            }))
-            .append(' ')
-            .append($icon || '')
-            .append(document.createTextNode(involvementName + ' '))
-            .append($('<span></span>').addClass('badge badge-primary').text('1'));
+            let count = parseInt($badge.html(), 10) || 0;
+            count = selected ? count + 1 : count - 1;
 
-        if ($container.is('span') && $container.text().trim() === '-') {
-            const $wrapper = $('<div></div>').attr('id', containerId).append(newBtn);
-            $container.replaceWith($wrapper);
-        } else {
-            $container.append('\n').append(newBtn);
+            if (count <= 0) {
+                $btn.remove();
+                if ($container.find('.facet-item').length === 0) {
+                    $container.html('-');
+                }
+            } else {
+                $badge.html(count);
+            }
+        } else if (selected) {
+            const formId = $('#scholar-form').attr('id') || 'scholar-form';
+            const isSoftwareRole = softwareRoleIds.indexOf(String(involvementId)) !== -1;
+            const $icon = isSoftwareRole
+                ? $('<i></i>').attr('class', 'fa fa-code').attr('aria-hidden', 'true').attr('title', 'Software contribution role')
+                : null;
+            const newBtn = $('<button></button>')
+                .attr('type', 'button')
+                .addClass('btn btn-xs btn-default facet-item')
+                .attr('data-list-id', listId)
+                .attr('data-facet', 'roles')
+                .append($('<input>').attr({
+                    name: 'lists[' + listId + '][roles][]',
+                    value: involvementId,
+                    form: formId,
+                    type: 'hidden',
+                    disabled: 'disabled'
+                }))
+                .append(' ')
+                .append($icon || '')
+                .append(document.createTextNode(involvementName + ' '))
+                .append($('<span></span>').addClass('badge badge-primary').text('1'));
+
+            if ($container.is('span') && $container.text().trim() === '-') {
+                const containerId = $container.attr('id');
+                const $wrapper = $('<div></div>').addClass('js-role-facet-items').attr('data-linked-list-id', listId);
+                if (containerId) {
+                    $wrapper.attr('id', containerId);
+                }
+                $wrapper.append(newBtn);
+                $container.replaceWith($wrapper);
+            } else {
+                $container.append('\n').append(newBtn);
+            }
         }
-    }
+    });
 }
 
 $(document).ready(() => {

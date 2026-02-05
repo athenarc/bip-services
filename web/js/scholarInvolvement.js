@@ -28,12 +28,16 @@ $(window).on('load', () => {
                 _csrf: csrfToken,
             },
             success: function ({ involvement_name }) {
-                const $listContainer = $dropdown.closest('[id^="contributions-list-"]');
-                if ($listContainer.length) {
-                    const listId = $listContainer.attr('id').replace('contributions-list-', '');
-                    if (typeof updateProfileRoleFacet === 'function') {
-                        updateProfileRoleFacet(listId, involvementId, involvement_name, isSelected);
-                    }
+                // Use the list id linked in the DB
+                const $involvementRegion = $dropdown.closest('.involvement-region');
+                const listId = $involvementRegion.attr('data-contribution-list-id') != null
+                    ? $involvementRegion.attr('data-contribution-list-id')
+                    : (function () {
+                        const $listContainer = $dropdown.closest('[id^="contributions-list-"]');
+                        return $listContainer.length ? $listContainer.attr('id').replace('contributions-list-', '') : null;
+                    })();
+                if (listId != null && typeof updateProfileRoleFacet === 'function') {
+                    updateProfileRoleFacet(listId, involvementId, involvement_name, isSelected);
                 }
             },
             error: function (e) {

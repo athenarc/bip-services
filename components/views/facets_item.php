@@ -149,19 +149,25 @@ use yii\helpers\Url;
                                 <br/>
                             </div>
 
+                            <?php
+                                $role_facet_container_id = 'role-facet-items-' . ($facet_element_id ?? $linked_id);
+                            ?>
                             <?php if (empty($result['facets']['roles']['counts'])): ?>
-                                <span id="role-facet-items-<?= $linked_id ?>">-</span>
+                                <span id="<?= $role_facet_container_id ?>" class="js-role-facet-items" data-linked-list-id="<?= (int) $linked_id ?>">-</span>
                             <?php else:
                                 $counts = $result['facets']['roles']['counts'];
                                 $software_role_ids = array_keys(Yii::$app->params['involvement_fields']['software'] ?? []);
+                                $facet_suffix = ($facet_element_id !== null && $facet_element_id !== '') ? $facet_element_id : $linked_id;
                                 echo Html::checkboxList(
                                     "lists[${linked_id}][roles]",
                                     $selected_roles,
                                     $result['facets']['roles']['options'],
                                     [
-                                        'id' => "role-facet-items-${linked_id}",
+                                        'id' => $role_facet_container_id,
+                                        'class' => 'js-role-facet-items',
+                                        'data-linked-list-id' => $linked_id,
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $software_role_ids) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $software_role_ids, $facet_suffix) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $badge_number = ($element_config['Roles']['numbers_opt'] === 1 && isset($counts[$value]))
@@ -169,15 +175,15 @@ use yii\helpers\Url;
                                                 : '';
                                             $is_software = in_array((string) $value, $software_role_ids, true);
                                             $role_icon = $is_software
-                                                ? "<i class='fa fa-code' aria-hidden='true' title='" . Html::encode('Software contribution role') . "'></i> "
+                                                ? "<i class='fa fa-code' aria-hidden='true' title='" . Html::encode('Software contribution role') . "'></i>&#160;"
                                                 : '';
 
-                                            return "<button id='role-${value}-list${linked_id}' 
+                                            return "<button id='role-${value}-facet${facet_suffix}' 
                                                             type='button' 
                                                             class='btn btn-xs ${btn_class} facet-item'
                                                             data-list-id='${linked_id}'
                                                             data-facet='roles'>
-                                                        <input id='role-${value}-list${linked_id}-i' 
+                                                        <input id='role-${value}-facet${facet_suffix}-i' 
                                                             name='lists[${linked_id}][roles][]' 
                                                             value='${value}' 
                                                             form='${formId}' 
