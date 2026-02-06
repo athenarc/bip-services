@@ -342,20 +342,35 @@ class SiteController extends BaseController {
             $annotation_type_id = null;
         }
 
-        // perform facet search query
-        $annotations_result = $search_model->getAnnotationsFacet(5, $annotation_type_id);
-        $top_annotations = $annotations_result['counts'];
-        $annotation_type_map = $annotations_result['types'];
+        // When "All" is selected we need extra facet results so that after filtering by enable_facet we still have 5
+        $facet_limit = ($annotation_type_id === null || $annotation_type_id === 'all') ? 50 : 5;
+        $annotations_result = $search_model->getAnnotationsFacet($facet_limit, $annotation_type_id);
+        $top_annotations_raw = $annotations_result['counts'];
+        $annotation_type_map_raw = $annotations_result['types'];
 
-        // Get annotation types for dropdown
+        // Only show annotations whose type has enable_facet
+        $facet_annotation_ids = $space_model ? array_keys($space_model->getFacetAnnotationMap()) : [];
+        $top_annotations = [];
+        $annotation_type_map = [];
+        foreach ($top_annotations_raw as $name => $count) {
+            $type_id = $annotation_type_map_raw[$name] ?? null;
+            if ($type_id !== null && in_array((int) $type_id, $facet_annotation_ids, true)) {
+                $top_annotations[$name] = $count;
+                $annotation_type_map[$name] = $type_id;
+            }
+        }
+        // When viewing "All", keep only the top 5 after filtering so we always show 5
+        if (($annotation_type_id === null || $annotation_type_id === 'all') && count($top_annotations) > 5) {
+            $top_annotations = array_slice($top_annotations, 0, 5, true);
+            $annotation_type_map = array_slice($annotation_type_map, 0, 5, true);
+        }
+
+        // Get annotation types for dropdown (only facet-enabled)
         $annotation_types = [];
         $annotation_type_colors = [];
-        if ($space_model && !empty($space_model->annotations)) {
-            $annotation_types = $space_model->getEnabledAnnotationMap();
-            // Map annotation_id => color from admin-spaces
-            if (method_exists($space_model, 'getEnabledAnnotationColorMap')) {
-                $annotation_type_colors = $space_model->getEnabledAnnotationColorMap();
-            }
+        if ($space_model && !empty($space_model->facetAnnotations)) {
+            $annotation_types = $space_model->getFacetAnnotationMap();
+            $annotation_type_colors = $space_model->getFacetAnnotationColorMap();
         }
 
         // render top annotations using partial view

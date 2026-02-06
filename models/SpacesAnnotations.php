@@ -20,6 +20,7 @@ use yii\helpers\ArrayHelper;
  * @property string|null $graph_entity_label
  * @property string|null $metadata_fields
  * @property int $enabled
+ * @property int $enable_facet
  *
  * @property Spaces $spaces
  */
@@ -43,6 +44,8 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             [['color'], 'match', 'pattern' => '/^#[0-9a-fA-F]{6}$/'], // Validate as a hexadecimal color code
             [['enabled'], 'boolean'],
             [['enabled'], 'default', 'value' => 1],
+            [['enable_facet'], 'boolean'],
+            [['enable_facet'], 'default', 'value' => 0],
         ];
     }
 
@@ -60,6 +63,7 @@ class SpacesAnnotations extends \yii\db\ActiveRecord {
             'graph_entity_label' => 'Graph entity label',
             'metadata_fields' => 'Metadata fields',
             'enabled' => 'Enabled',
+            'enable_facet' => 'Enable facet',
         ];
     }
 

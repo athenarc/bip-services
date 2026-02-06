@@ -562,6 +562,15 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     /**
+     * Annotations that are enabled and have "enable facet" checked (for sidebar "Show results with" and Key annotations).
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFacetAnnotations() {
+        return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])
+            ->where(['enabled' => 1, 'enable_facet' => 1]);
+    }
+
+    /**
      * Gets query for [[SpacesSynonymsExpansion]].
      *
      * @return \yii\db\ActiveQuery
@@ -630,6 +639,45 @@ class Spaces extends \yii\db\ActiveRecord {
 
         if (! empty($enabled_annotations)) {
             foreach ($enabled_annotations as $annotation) {
+                if (! empty($annotation->color)) {
+                    $color_map[$annotation->id] = $annotation->color;
+                }
+            }
+        }
+
+        return $color_map;
+    }
+
+    /**
+     * Get facet-enabled annotation IDs and display names (for sidebar "Show results with" and Key annotations dropdown).
+     * @return array Array with annotation_id as key and display name as value
+     */
+    public function getFacetAnnotationMap() {
+        $facet_annotations = $this->facetAnnotations;
+        $annotation_map = [];
+
+        if (! empty($facet_annotations)) {
+            foreach ($facet_annotations as $annotation) {
+                $display_name = $annotation->display_name_plural ?? $annotation->name;
+                if (! empty($display_name)) {
+                    $annotation_map[$annotation->id] = $display_name;
+                }
+            }
+        }
+
+        return $annotation_map;
+    }
+
+    /**
+     * Get facet-enabled annotation IDs and colors (for Key annotations pills).
+     * @return array Array with annotation_id as key and hex color as value
+     */
+    public function getFacetAnnotationColorMap() {
+        $facet_annotations = $this->facetAnnotations;
+        $color_map = [];
+
+        if (! empty($facet_annotations)) {
+            foreach ($facet_annotations as $annotation) {
                 if (! empty($annotation->color)) {
                     $color_map[$annotation->id] = $annotation->color;
                 }

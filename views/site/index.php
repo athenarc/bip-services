@@ -192,12 +192,12 @@ if ($in_space) {
 
                         <?php if ($space_model->has_annotations_flag): ?>
                             <?php
-                            // Get enabled annotations for this space
-                            $enabled_annotations = $space_model->annotations;
+                            // Get facet-enabled annotations for "Show results with" (only those with enable_facet)
+                            $facet_annotations = $space_model->facetAnnotations;
                             $annotation_options = [];
 
-                            if (! empty($enabled_annotations)) {
-                                foreach ($enabled_annotations as $annotation) {
+                            if (! empty($facet_annotations)) {
+                                foreach ($facet_annotations as $annotation) {
                                     $annotation_options[$annotation->id] = $annotation->display_name_plural ?? $annotation->name;
                                 }
                             }

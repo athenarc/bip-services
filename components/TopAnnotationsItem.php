@@ -37,12 +37,12 @@ class TopAnnotationsItem extends Widget {
             ['depends' => 'yii\web\JqueryAsset', 'position' => View::POS_HEAD]
         );
 
-        // Get annotation types for dropdown
+        // Get annotation types for dropdown (only facet-enabled)
         $annotation_types = [];
         if ($this->space_url_suffix) {
             $space_model = Spaces::findOne(['url_suffix' => $this->space_url_suffix]);
-            if ($space_model && !empty($space_model->annotations)) {
-                $annotation_types = $space_model->getEnabledAnnotationMap();
+            if ($space_model && !empty($space_model->facetAnnotations)) {
+                $annotation_types = $space_model->getFacetAnnotationMap();
             }
         }
 
