@@ -149,25 +149,19 @@ function updateProfileRoleFacet(listId, involvementId, involvementName, selected
         } else if (selected) {
             const formId = $('#scholar-form').attr('id') || 'scholar-form';
             const isSoftwareRole = softwareRoleIds.indexOf(String(involvementId)) !== -1;
-            const $icon = isSoftwareRole
-                ? $('<i></i>').attr('class', 'fa fa-code').attr('aria-hidden', 'true').attr('title', 'Software contribution role')
-                : null;
-            const newBtn = $('<button></button>')
-                .attr('type', 'button')
-                .addClass('btn btn-xs btn-default facet-item')
-                .attr('data-list-id', listId)
-                .attr('data-facet', 'roles')
-                .append($('<input>').attr({
-                    name: 'lists[' + listId + '][roles][]',
-                    value: involvementId,
-                    form: formId,
-                    type: 'hidden',
-                    disabled: 'disabled'
-                }))
-                .append(' ')
-                .append($icon || '')
-                .append(document.createTextNode(involvementName + ' '))
-                .append($('<span></span>').addClass('badge badge-primary').text('1'));
+            const roleIconHtml = isSoftwareRole
+                ? "<i class='fa fa-code' aria-hidden='true' title=\"Software contribution role\"></i>\u00A0 "
+                : '';
+            const labelEsc = $('<div/>').text(involvementName).html();
+            const facetSuffix = ($container.attr('id') || '').replace(/^role-facet-items-/, '') || listId;
+            const btnId = 'role-' + involvementId + '-facet' + facetSuffix;
+            const inputId = btnId + '-i';
+            const newBtn = $(
+                '<button type="button" class="btn btn-xs btn-default facet-item" id="' + btnId + '" data-list-id="' + String(listId) + '" data-facet="roles">' +
+                '<input id="' + inputId + '" name="lists[' + listId + '][roles][]" value="' + involvementId + '" form="' + formId + '" type="hidden" disabled="disabled"/>' +
+                roleIconHtml + labelEsc + ' <span class="badge badge-primary">1</span>' +
+                '</button>'
+            );
 
             if ($container.is('span') && $container.text().trim() === '-') {
                 const containerId = $container.attr('id');
