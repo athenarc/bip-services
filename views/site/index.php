@@ -8,8 +8,9 @@ use app\components\MagicSearchBox;
 use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\SummaryPanel;
-use app\components\Synonyms;
 use app\components\TopTopicsItem;
+use app\components\TopAnnotationsItem;
+use app\components\Synonyms;
 use app\models\SummaryUsage;
 use Yii;
 use yii\bootstrap\Modal;
@@ -44,6 +45,7 @@ if ($in_space) {
 }
 
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/annotationsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
@@ -190,12 +192,12 @@ if ($in_space) {
 
                         <?php if ($space_model->has_annotations_flag): ?>
                             <?php
-                            // Get enabled annotations for this space
-                            $enabled_annotations = $space_model->annotations;
+                            // Get facet-enabled annotations for "Show results with" (only those with enable_facet)
+                            $facet_annotations = $space_model->facetAnnotations;
                             $annotation_options = [];
 
-                            if (! empty($enabled_annotations)) {
-                                foreach ($enabled_annotations as $annotation) {
+                            if (! empty($facet_annotations)) {
+                                foreach ($facet_annotations as $annotation) {
                                     $annotation_options[$annotation->id] = $annotation->display_name_plural ?? $annotation->name;
                                 }
                             }
@@ -289,8 +291,10 @@ if ($in_space) {
 
             <?php if (! empty($results['rows'])) { ?>
                 <div class='container-fluid'>
-                    
                     <?= TopTopicsItem::widget([]) ?>
+                    <?php if ($in_space): ?>
+                        <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
+                    <?php endif; ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">

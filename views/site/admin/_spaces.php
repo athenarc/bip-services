@@ -319,6 +319,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 'graph_entity_identifier',
                 'graph_entity_label',
                 'metadata_fields',
+                'enable_facet',
             ],
         ]);
     ?>
@@ -431,8 +432,14 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-xs-12" style="display: flex; justify-content: space-between; align-items: center;">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]enable_facet", [
                             'enableClientValidation' => false,
                             'options' => ['tag' => false],
                             'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
