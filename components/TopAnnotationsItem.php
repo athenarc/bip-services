@@ -9,9 +9,9 @@ namespace app\components;
 /*
  * Includes
  */
+use app\models\Spaces;
 use yii\base\Widget;
 use yii\web\View;
-use app\models\Spaces;
 
 /*
  * The widget class
@@ -30,8 +30,8 @@ class TopAnnotationsItem extends Widget {
      * Running the widget
      */
     public function run() {
-        // Register JS that initializes the dropdown to 'all' as early as possible
         $view = $this->getView();
+        $view->registerCssFile('@web/css/top_annotations.css');
         $view->registerJsFile(
             '@web/js/components/topAnnotationsInit.js',
             ['depends' => 'yii\web\JqueryAsset', 'position' => View::POS_HEAD]
@@ -39,9 +39,11 @@ class TopAnnotationsItem extends Widget {
 
         // Get annotation types for dropdown (only facet-enabled)
         $annotation_types = [];
+
         if ($this->space_url_suffix) {
             $space_model = Spaces::findOne(['url_suffix' => $this->space_url_suffix]);
-            if ($space_model && !empty($space_model->facetAnnotations)) {
+
+            if ($space_model && ! empty($space_model->facetAnnotations)) {
                 $annotation_types = $space_model->getFacetAnnotationMap();
             }
         }
@@ -51,5 +53,3 @@ class TopAnnotationsItem extends Widget {
         ]);
     }
 }
-
-

@@ -2,33 +2,14 @@
 use yii\helpers\Html;
 
 ?>
-<div id="top_annotations" class="row grey-text" style="margin-bottom: 15px; align-items: center;">
-    <style>
-        @media (max-width: 768px) {
-            #top_annotations > .col-md-12 > div:first-child {
-                flex-wrap: wrap;
-                align-items: flex-start;
-            }
-            #top_annotations .dropdown-wrapper {
-                width: 100%;
-                margin-top: 5px;
-                margin-left: 0;
-                display: flex;
-                justify-content: flex-start;
-            }
-        }
-    </style>
-    <div class="col-md-12" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 10px; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-            <div style="display: flex; align-items: center; gap: 5px; font-size: 1.2em; font-weight: 500; white-space: nowrap; flex-shrink: 0;">
-                <span>Key annotations</span>
-                <i class="fa fa-info-circle" aria-hidden="true" title="List of the most common annotations related to the results displayed." style="font-size: 0.9em; opacity: 0.7;"></i>
-            </div>
-            <div class="dropdown-wrapper" style="flex-shrink: 0;">
+<div id="top_annotations" class="row grey-text">
+    <div class="col-md-12 top-annotations-row">
+        <div class="top-annotations-inner">
+            <div class="dropdown-wrapper">
+                <span>Key</span>
                 <?php
                 // Convert annotation IDs to strings to preserve them in dropdown
-                // Html::dropDownList may convert numeric keys to 0, 1, 2... so we use string keys
-                $dropdown_options = ['all' => 'All'];
+                $dropdown_options = ['all' => 'Annotations'];
 
                 if (! empty($annotation_types)) {
                     foreach ($annotation_types as $id => $name) {
@@ -38,16 +19,14 @@ use yii\helpers\Html;
                 ?>
                 <?= Html::dropDownList(
                     'annotation_type_filter',
-                    'all', // Default value is 'all'
+                    'all',
                     $dropdown_options,
                     [
                         'id' => 'annotation_type_filter',
                         'class' => 'form-control',
                         'style' => [
-                            'display' => 'inline-block', 
-                            'width' => '70px', 
-                            'color' => 'grey', 
-                            'font-size' => '11px',
+                            'display' => 'inline-block',
+                            'color' => 'grey',
                             'padding' => '1px 5px',
                             'height' => 'auto',
                             'line-height' => '1.5',
@@ -57,6 +36,7 @@ use yii\helpers\Html;
                         ],
                     ]
                 ) ?>
+                <i class="fa fa-info-circle" aria-hidden="true" title="List of the most common annotations related to the results displayed." style="font-size: 0.9em; opacity: 0.7;"></i>
             </div>
             <div id="top_annotations_in_results" style="flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
                 <!-- This will be populated by AJAX -->
