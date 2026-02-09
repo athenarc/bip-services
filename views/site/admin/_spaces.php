@@ -432,15 +432,13 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-6">
+                    <div class="col-xs-12" style="display: flex; justify-content: space-between; align-items: center;">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
                             'enableClientValidation' => false,
                             'options' => ['tag' => false],
                             'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
                             'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
                         ])->checkbox([], false) ?>
-                    </div>
-                    <div class="col-xs-6 text-right">
                         <?= $form->field($modelSpacesAnnotations, "[{$i}]enable_facet", [
                             'enableClientValidation' => false,
                             'options' => ['tag' => false],
