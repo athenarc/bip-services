@@ -111,66 +111,52 @@ function updateFacet(facet_type, id, name, selected) {
 
 /**
  * Update the role facet for a specific contributions list on the scholar profile.
- * Updates all Facets elements that are linked to this list (same data-linked-list-id).
- * Expects window.bipScholarFacetConfig.softwareRoleIds (string[]) to be set by the page.
- * @param {string} listId - The contributions list element_id (linked_id) for the facet(s) to update
- * @param {string} involvementId - The involvement/role value (0-22)
- * @param {string} involvementName - Display name of the role
- * @param {boolean} selected - true = role added, false = role removed
+ * Expects window.bipScholarFacetConfig.softwareRoleIds (string[]).
  */
 function updateProfileRoleFacet(listId, involvementId, involvementName, selected) {
-    const $containers = $('.js-role-facet-items[data-linked-list-id="' + listId + '"]');
-    if (!$containers.length) {
-        return;
-    }
+    const $containers = $(`.js-role-facet-items[data-linked-list-id="${ listId }"]`);
+    if (!$containers.length) return;
 
     const softwareRoleIds = (window.bipScholarFacetConfig && window.bipScholarFacetConfig.softwareRoleIds) || [];
+    const isSoftwareRole = softwareRoleIds.indexOf(String(involvementId)) !== -1;
+    const roleIconHtml = isSoftwareRole ? "<i class='fa fa-code' aria-hidden='true' title=\"Software contribution role\"></i>\u00A0 " : '';
+    const formId = $('#scholar-form').attr('id') || 'scholar-form';
+    const labelEsc = $('<div/>').text(involvementName).html();
 
     $containers.each(function () {
         const $container = $(this);
-        const $btn = $container.find('input[name="lists[' + listId + '][roles][]"][value="' + involvementId + '"]').closest('button.facet-item');
+        const $btn = $container.find(`input[name="lists[${ listId }][roles][]"][value="${ involvementId }"]`).closest('button.facet-item');
 
-        if ($btn.length > 0) {
+        if ($btn.length) {
             const $badge = $btn.find('span.badge');
-            if (!$badge.length) {
-                return;
-            }
+            if (!$badge.length) return;
+
             let count = parseInt($badge.html(), 10) || 0;
             count = selected ? count + 1 : count - 1;
 
             if (count <= 0) {
                 $btn.remove();
-                if ($container.find('.facet-item').length === 0) {
-                    $container.html('-');
-                }
+                if (!$container.find('.facet-item').length) $container.html('-');
             } else {
                 $badge.html(count);
             }
         } else if (selected) {
-            const formId = $('#scholar-form').attr('id') || 'scholar-form';
-            const isSoftwareRole = softwareRoleIds.indexOf(String(involvementId)) !== -1;
-            const roleIconHtml = isSoftwareRole
-                ? "<i class='fa fa-code' aria-hidden='true' title=\"Software contribution role\"></i>\u00A0 "
-                : '';
-            const labelEsc = $('<div/>').text(involvementName).html();
             const facetSuffix = ($container.attr('id') || '').replace(/^role-facet-items-/, '') || listId;
-            const btnId = 'role-' + involvementId + '-facet' + facetSuffix;
-            const inputId = btnId + '-i';
             const newBtn = $(
-                '<button type="button" class="btn btn-xs btn-default facet-item" id="' + btnId + '" data-list-id="' + String(listId) + '" data-facet="roles">' +
-                '<input id="' + inputId + '" name="lists[' + listId + '][roles][]" value="' + involvementId + '" form="' + formId + '" type="hidden" disabled="disabled"/>' +
-                roleIconHtml + labelEsc + ' <span class="badge badge-primary">1</span>' +
-                '</button>'
+                `<button type="button" class="btn btn-xs btn-default facet-item" id="role-${ involvementId }-facet${ facetSuffix }" data-list-id="${ listId }" data-facet="roles">` +
+                `<input id="role-${ involvementId }-facet${ facetSuffix }-i" name="lists[${ listId }][roles][]" value="${ involvementId }" form="${ formId }" type="hidden" disabled="disabled"/>` +
+                `${ roleIconHtml }${ labelEsc } <span class="badge badge-primary">1</span></button>`
             );
 
-            if ($container.is('span') && $container.text().trim() === '-') {
-                const containerId = $container.attr('id');
-                const $wrapper = $('<div></div>').addClass('js-role-facet-items').attr('data-linked-list-id', listId);
-                if (containerId) {
-                    $wrapper.attr('id', containerId);
+            if ($container.text().trim() === '-') {
+                if ($container.is('span')) {
+                    const $wrapper = $('<div></div>').addClass('js-role-facet-items').attr('data-linked-list-id', listId);
+                    const id = $container.attr('id');
+                    if (id) $wrapper.attr('id', id);
+                    $container.replaceWith($wrapper.append(newBtn));
+                } else {
+                    $container.empty().append(newBtn);
                 }
-                $wrapper.append(newBtn);
-                $container.replaceWith($wrapper);
             } else {
                 $container.append('\n').append(newBtn);
             }

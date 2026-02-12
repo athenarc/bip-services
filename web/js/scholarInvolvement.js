@@ -28,15 +28,8 @@ $(window).on('load', () => {
                 _csrf: csrfToken,
             },
             success: function ({ involvement_name }) {
-                // Use the list id linked in the DB
-                const $involvementRegion = $dropdown.closest('.involvement-region');
-                const listId = $involvementRegion.attr('data-contribution-list-id') != null
-                    ? $involvementRegion.attr('data-contribution-list-id')
-                    : (function () {
-                        const $listContainer = $dropdown.closest('[id^="contributions-list-"]');
-                        return $listContainer.length ? $listContainer.attr('id').replace('contributions-list-', '') : null;
-                    })();
-                if (listId != null && typeof updateProfileRoleFacet === 'function') {
+                const listId = $dropdown.closest('.involvement-region').attr('data-contribution-list-id');
+                if (listId && typeof updateProfileRoleFacet === 'function') {
                     updateProfileRoleFacet(listId, involvementId, involvement_name, isSelected);
                 }
             },
