@@ -5,7 +5,7 @@ use yii\helpers\Html;
 <div id="top_annotations" class="row grey-text">
     <div class="col-md-12 top-annotations-row">
         <div class="top-annotations-inner">
-            <div class="dropdown-wrapper">
+            <div class="dropdown-wrapper key-pills-label">
                 <span>Key</span>
                 <?php
                 // Convert annotation IDs to strings to preserve them in dropdown
