@@ -518,7 +518,24 @@ class SearchForm extends Model {
         $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
 
         $rows = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'pmc_paper_pids.doi', 'pmc_paper.openaire_id', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
+            ->select([
+                'internal_id',
+                'dois_num',
+                'pmc_paper_pids.doi',
+                'pmc_paper.openaire_id',
+                'title',
+                'abstract',
+                'authors',
+                'journal',
+                'year',
+                'type',
+                'is_oa',
+                'user_id',
+                'attrank',
+                'pagerank',
+                '3y_cc',
+                'citation_count',
+            ])
             ->from('pmc_paper')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
             ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')

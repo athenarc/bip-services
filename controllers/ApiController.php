@@ -129,7 +129,40 @@ class ApiController extends Controller {
         // Run the full search pipeline (Solr + DB) used on the index page
         $results = $model->search();
 
-        return $results;
+        $pagination = $results['pagination'];
+        $rows = $results['rows'];
+
+        // Keep only the required fields per row
+        $filteredRows = [];
+
+        foreach ($rows as $row) {
+            $filteredRows[] = [
+                'internal_id' => $row['internal_id'] ?? null,
+                'doi' => $row['doi'] ?? null,
+                'title' => $row['title'] ?? null,
+                'abstract' => $row['abstract'] ?? null,
+                'authors' => $row['authors'] ?? null,
+                'journal' => $row['journal'] ?? null,
+                'year' => $row['year'] ?? null,
+                'attrank' => $row['attrank'] ?? null,
+                'pagerank' => $row['pagerank'] ?? null,
+                '3y_cc' => $row['3y_cc'] ?? null,
+                'citation_count' => $row['citation_count'] ?? null,
+                'pop_class' => $row['pop_class'] ?? null,
+                'inf_class' => $row['inf_class'] ?? null,
+                'imp_class' => $row['imp_class'] ?? null,
+                'cc_class' => $row['cc_class'] ?? null,
+            ];
+        }
+
+        return [
+            'rows' => $filteredRows,
+            'meta' => [
+                'total_count' => (int) $pagination->totalCount,
+                'page' => (int) $pagination->getPage() + 1,
+                'page_size' => (int) $pagination->pageSize,
+            ],
+        ];
     }
 
     public function actionImpactChart($id = null, $src = null) {
