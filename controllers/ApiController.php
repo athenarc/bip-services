@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\OpenaireArticle;
-use app\models\ProteinDataBank;
 use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
 use app\models\Scholar;
@@ -92,8 +91,7 @@ class ApiController extends Controller {
         $cc = 'all',
         $page = 1,
         $page_size = 20,
-        $auth_token = null,
-        $rcsb_id = null
+        $auth_token = null
     ) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
@@ -111,17 +109,25 @@ class ApiController extends Controller {
 
         $location = 'title-abstract';
         $relevance = 'low';
-        $journals = [];
+        $topics = [];
 
-        $model = new SearchForm($ordering, $keywords, $location, $relevance, $journals, $start_year, $end_year, $influence, $popularity, $impulse, $cc);
+        // Use the same SearchForm logic as the main SiteController search
+        $model = new SearchForm(
+            $ordering,
+            $keywords,
+            $location,
+            $relevance,
+            $topics,
+            $start_year,
+            $end_year,
+            $influence,
+            $popularity,
+            $impulse,
+            $cc
+        );
 
-        $protein_primary_citation = null;
-
-        if ($rcsb_id) {
-            $protein_primary_citation = ProteinDataBank::findPrimaryCitation($rcsb_id);
-        }
-
-        $results = $model->searchLanguageForApi($protein_primary_citation, $page, $page_size);
+        // Run the full search pipeline (Solr + DB) used on the index page
+        $results = $model->search();
 
         return $results;
     }
