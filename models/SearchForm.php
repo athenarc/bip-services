@@ -559,11 +559,11 @@ class SearchForm extends Model {
 
     /**
      * Get the top topic facets (concepts) from the current search results.
-     * 
+     *
      * Returns the most common topics/concepts found in papers matching
      * the current search query. Results are filtered by all search parameters
      * (keywords, filters, space, etc.).
-     * 
+     *
      * @param int $limit Maximum number of topics to return (default: 5)
      * @return array Associative array of topic_name => count pairs
      */
@@ -597,12 +597,12 @@ class SearchForm extends Model {
     /**
      * Get evolution data (counts and citations per year) for a single topic
      * filtered by the current search query.
-     * 
+     *
      * This method filters papers by the selected topic name and returns
      * publication counts and citation counts per year, limited to the
      * latest 20 years. Results are filtered by all current search parameters
      * (keywords, filters, space, etc.).
-     * 
+     *
      * @param string $selected_topic Topic name (concept) to get evolution for
      * @return array [count_per_year, citation_per_year] arrays keyed by year
      */
@@ -628,99 +628,15 @@ class SearchForm extends Model {
     }
 
     /**
-     * Get evolution data (counts and citations per year) for a given Solr query.
-     * 
-     * This is a reusable helper method that extracts year-based evolution data
-     * from any Solr query. It:
-     * - Adds year faceting to count papers per year
-     * - Adds citation statistics grouped by year
-     * - Fills missing years with zeros
-     * - Limits results to the latest 20 years
-     * 
-     * Used by getTopicEvolution(), getTopAnnotationEvolution(), and
-     * getAnnotationEvolution() to avoid code duplication.
-     * 
-     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object (should already have filters applied)
-     * @return array [count_per_year, citation_per_year] arrays keyed by year
-     */
-    protected function getEvolutionData($query) {
-        // Ensure query doesn't return actual results, only facets
-        $query->setRows(0);
-
-        // Add faceting on year
-        $facetSet = $query->getFacetSet();
-        $facet = $facetSet->createFacetField('years_facet')
-            ->setField('year')
-            ->setMinCount(1);
-
-        // Add statistics for citation counts
-        $statsComponent = $query->getStats();
-        $statsComponent->createField('citation_count')->addFacet('year');
-
-        // Execute the query
-        $resultset = Yii::$app->solr->select($query);
-
-        // Get the count per year from facet results
-        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
-
-        // Get the citation count statistics per year
-        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
-        $citation_per_year_raw = $stats['year'] ?? [];
-
-        // Process citation data - convert stat objects to sums
-        $citation_per_year = [];
-        foreach ($citation_per_year_raw as $year => $stat) {
-            $citation_per_year[$year] = $stat->getSum();
-        }
-
-        // Determine the range of years
-        if (empty($count_per_year) && empty($citation_per_year)) {
-            return [[], []];
-        }
-
-        $all_years = array_unique(array_merge(
-            array_keys($count_per_year),
-            array_keys($citation_per_year)
-        ));
-
-        if (empty($all_years)) {
-            return [[], []];
-        }
-
-        $minYear = min($all_years);
-        $maxYear = max($all_years);
-
-        // Fill missing years with zero for both counts and citations
-        for ($year = $minYear; $year <= $maxYear; $year++) {
-            if (!isset($count_per_year[$year])) {
-                $count_per_year[$year] = 0;
-            }
-            if (!isset($citation_per_year[$year])) {
-                $citation_per_year[$year] = 0;
-            }
-        }
-
-        // Sort the arrays by keys (years)
-        ksort($count_per_year);
-        ksort($citation_per_year);
-
-        // Keep only the latest 20 years
-        $count_per_year = array_slice($count_per_year, -20, 20, true);
-        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
-
-        return [$count_per_year, $citation_per_year];
-    }
-
-    /**
      * Get the top annotation facets from the current search results.
-     * 
+     *
      * Returns the most common annotations found in papers matching the current
      * search query. Supports filtering by annotation type via annotation_type_id.
      * Results are filtered by all search parameters (keywords, filters, space, etc.).
-     * 
+     *
      * Annotations are aggregated by enrichment_label (the display name), so multiple
      * annotation IDs with the same label are combined into a single count.
-     * 
+     *
      * @param int $limit Maximum number of annotations to return (default: 5)
      * @param int|null $annotation_type_id Optional annotation type ID to filter by (null = all types)
      * @return array Associative array of annotation_name => count pairs
@@ -744,18 +660,18 @@ class SearchForm extends Model {
         // set the facet field for annotations
         $facetSet = $query->getFacetSet();
         $space_suffix = $this->space_model->url_suffix;
-        
+
         // Determine facet prefix based on whether a specific annotation type is selected
         // Format: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
         if ($annotation_type_id !== null && $annotation_type_id !== 'all') {
             // Filter facets to a specific annotation type
-            $annotation_type_id = (int)$annotation_type_id;
+            $annotation_type_id = (int) $annotation_type_id;
             $facet_prefix = $space_suffix . '|' . $annotation_type_id . '|';
         } else {
             // Get all annotations from this space (no type filter)
             $facet_prefix = $space_suffix . '|';
         }
-        
+
         // Create facet field with prefix filtering at Solr level
         // Note: We keep the sidebar filter (annotations_filter) active, so facets are counted
         // only from papers that pass the sidebar filter
@@ -778,28 +694,28 @@ class SearchForm extends Model {
         // Note: facet.prefix already filtered facets to match our space/type, so we can trust the format
         $annotation_counts = [];
         $annotation_types = [];
-        
+
         // Store the selected annotation_type_id (if not 'all')
-        $selected_annotation_id = ($annotation_type_id !== null && $annotation_type_id !== 'all') ? (int)$annotation_type_id : null;
+        $selected_annotation_id = ($annotation_type_id !== null && $annotation_type_id !== 'all') ? (int) $annotation_type_id : null;
 
         foreach ($facet_values as $annotation_value => $count) {
             // Parse the annotation value
             $parts = explode('|', $annotation_value);
-            
+
             // Safety check: ensure we have the expected format
             if (count($parts) < 4) {
                 continue;
             }
-            
-            $solr_annotation_id = (int)$parts[1];
+
+            $solr_annotation_id = (int) $parts[1];
             $enrichment_label = $parts[2];
-            
+
             // Use count directly (no aggregation since annotations are unique)
             $annotation_counts[$enrichment_label] = $count;
-            
+
             // Track the type ID for this annotation
-            $annotation_types[$enrichment_label] = $selected_annotation_id !== null 
-                ? $selected_annotation_id 
+            $annotation_types[$enrichment_label] = $selected_annotation_id !== null
+                ? $selected_annotation_id
                 : $solr_annotation_id;
         }
 
@@ -811,16 +727,16 @@ class SearchForm extends Model {
     /**
      * Get evolution data (counts and citations per year) for all annotations of a specific type
      * filtered by the current search query.
-     * 
+     *
      * This method filters annotations by annotation type ID from the current search results,
      * then returns publication counts and citation counts per year for all annotations
      * of that type. Results are filtered by all current search parameters (keywords, filters, space, etc.).
-     * 
+     *
      * Note: This differs from getAnnotationEvolution() which:
      * - Uses specific annotation IDs (not type IDs)
      * - Is not filtered by search query (shows all papers with that annotation)
      * - Is a static method
-     * 
+     *
      * @param int $annotation_type_id Annotation type ID to get evolution for (e.g., 3=Diseases, 4=Drugs)
      * @return array [count_per_year, citation_per_year] arrays keyed by year
      */
@@ -842,12 +758,12 @@ class SearchForm extends Model {
         // Format: <space_suffix>|<annotation_id>|<enrichment_label>|<enrichment_id>
         $space_suffix = $this->space_model->url_suffix;
         $escaped_space_suffix = preg_quote($space_suffix, '/');
-        $escaped_annotation_type_id = preg_quote((string)$annotation_type_id, '/');
-        
+        $escaped_annotation_type_id = preg_quote((string) $annotation_type_id, '/');
+
         // Build regex filter: match any annotation with this space and annotation_type_id
         // Pattern allows any enrichment_label and enrichment_id
         $annotation_filter = 'annotations:/' . $escaped_space_suffix . '\\|' . $escaped_annotation_type_id . '\\|.*\\|.*/';
-        
+
         $query->createFilterQuery('selected_annotation_condition')->setQuery($annotation_filter);
         $query->setRows(0);
 
@@ -860,18 +776,18 @@ class SearchForm extends Model {
     /**
      * Get evolution data (counts and citations per year) for the top N topics
      * filtered by the current search query.
-     * 
+     *
      * This method gets the top topics from search results, then calculates
      * evolution data for each topic. Results are filtered by all current search
      * parameters. Returns data for multiple topics to enable comparison charts.
-     * 
+     *
      * The data is normalized across all topics (fills missing years with zeros)
      * and limited to the latest 10 years for visualization purposes.
-     * 
+     *
      * @param int $limit Number of top topics to get evolution for (default: 5)
      * @return array Associative array with:
-     *   - 'counts': array of topic_name => count_per_year arrays
-     *   - 'citations': array of topic_name => citation_per_year arrays
+     *               - 'counts': array of topic_name => count_per_year arrays
+     *               - 'citations': array of topic_name => citation_per_year arrays
      */
     public function getTopTopicsEvolution($limit = 5) {
         // Get top topics first
@@ -969,17 +885,17 @@ class SearchForm extends Model {
     /**
      * Get evolution data (counts and citations per year) for a specific annotation
      * from annotation detail pages (NOT filtered by search results).
-     * 
+     *
      * This static method is used for annotation detail pages where we want to show
      * evolution for ALL papers with a specific annotation, regardless of any search
      * filters. It uses specific annotation identifiers (space_url_suffix, annotation_id, id)
      * rather than annotation names from search facets.
-     * 
+     *
      * Note: This differs from getTopAnnotationEvolution() which:
      * - Filters by current search query
      * - Uses annotation names from search facets
      * - Is an instance method
-     * 
+     *
      * @param string $space_url_suffix Space URL suffix
      * @param int $annotation_id Space annotation ID
      * @param string $id Annotation ID (e.g., DOID:0050687)
@@ -1006,8 +922,11 @@ class SearchForm extends Model {
         $rows = Concepts::getConcepts($rows, 'internal_id');
         // get impact scores per concept
         $rows = self::get_concepts_impact_class($rows);
-        // get annotations
-        $rows = Spaces::fetchAnnotations($rows, $this->space_model);
+        // get annotations, only if we are in a space
+        if ($this->space_model) {
+            $rows = Spaces::fetchAnnotations($rows, $this->space_model);
+        }
+
         // get relations
         $rows = Relations::getRelations($rows);
         // get pubmed types
@@ -1017,106 +936,6 @@ class SearchForm extends Model {
         $rows = Article::getCodeRepoUrls($rows);
 
         return $rows;
-    }
-
-    public function searchLanguageForApi($protein_primary_citation, $page, $page_size) {
-        // create a Solr select query
-        $query = Yii::$app->solr->createSelect();
-
-        // use dismax query parser and query specific fields
-        $dismax = $query->getDisMax();
-        $dismax->setQueryFields('title abstract authors');
-
-        // return only paper ids
-        $query->setFields(['internal_id']);
-
-        // change to 'AND' as default query operator
-        $query->setQueryDefaultOperator('AND');
-
-        // set Solr query 'q' parameterer after escaping keywords
-        $query->setQuery($this->keywords);
-
-        // add appropriate filters
-        if ($this->start_year != 0) {
-            $query->createFilterQuery('star_year_filter')->setQuery('year:[' . $this->start_year . ' TO *]');
-        }
-
-        if ($this->end_year != 0) {
-            $query->createFilterQuery('end_year_filter')->setQuery('year:[* TO ' . $this->end_year . ']');
-        }
-
-        // get min impact scores to be added to query (set by impact category filter)
-        $min_impact_scores = $this->getImpactScoreFilters();
-
-        if ($this->influence != 'all') {
-            $query->createFilterQuery('influence_filter')->setQuery('influence:[' . $min_impact_scores['influence'] . ' TO *]');
-        }
-
-        if ($this->popularity != 'all') {
-            $query->createFilterQuery('popularity_filter')->setQuery('popularity:[' . $min_impact_scores['popularity'] . ' TO *]');
-        }
-
-        if ($this->impulse != 'all') {
-            $query->createFilterQuery('impulse_filter')->setQuery('impulse:[' . $min_impact_scores['impulse'] . ' TO *]');
-        }
-
-        if ($this->cc != 'all') {
-            $query->createFilterQuery('cc_filter')->setQuery('citation_count:[' . $min_impact_scores['cc'] . ' TO *]');
-        }
-
-        // if DOI of protein_primary_citation was found, exclude it from the results
-        if (! empty($protein_primary_citation['doi'])) {
-            $query->createFilterQuery('protein_primary_citation_filter')->setQuery('-doi:' . $query->getHelper()->escapePhrase($protein_primary_citation['doi']));
-        }
-
-        // sort based on chosen impact
-        $query->addSort($this->ordering, $query::SORT_DESC);
-
-        // Set the number of results to return
-        $query->setRows($page_size);
-
-        // Set the 0-based result to start from
-        $query->setStart(($page - 1) * $page_size);
-
-        // execute the query
-        $result = Yii::$app->solr->select($query);
-        $response = $result->getData()['response'];
-
-        // keep only paper ids from response
-        $paper_ids = array_column($response['docs'], 'internal_id');
-
-        // get paper details from the database, join with user likes
-        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
-
-        $rows = (new \yii\db\Query())
-            ->select(['internal_id', 'doi', 'title', 'abstract', 'authors', 'journal', 'year', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
-            ->from('pmc_paper')
-            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-            ->where(['in', 'internal_id', $paper_ids])
-            ->groupBy('internal_id')
-            ->orderBy(addslashes($this->getRankingMethod($this->ordering)) . ' DESC')
-            ->all();
-
-        // highlight keywords in the content
-        // $rows = $this->get_context($rows);
-
-        // add the impact class of each row
-        $rows = self::get_impact_class($rows);
-        $result = [
-            'meta' => [
-                'total_count' => $response['numFound'],
-                'page' => intval($page),
-                'page_size' => intval($page_size)
-            ]
-        ];
-
-        if (! empty($protein_primary_citation)) {
-            $result['rcsb_primary_citation'] = $protein_primary_citation;
-        }
-
-        $result['rows'] = $rows;
-
-        return $result;
     }
 
     public function searchById($id) {
@@ -1357,6 +1176,92 @@ class SearchForm extends Model {
         return $works;
     }
 
+    /**
+     * Get evolution data (counts and citations per year) for a given Solr query.
+     *
+     * This is a reusable helper method that extracts year-based evolution data
+     * from any Solr query. It:
+     * - Adds year faceting to count papers per year
+     * - Adds citation statistics grouped by year
+     * - Fills missing years with zeros
+     * - Limits results to the latest 20 years
+     *
+     * Used by getTopicEvolution(), getTopAnnotationEvolution(), and
+     * getAnnotationEvolution() to avoid code duplication.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query Solr query object (should already have filters applied)
+     * @return array [count_per_year, citation_per_year] arrays keyed by year
+     */
+    protected function getEvolutionData($query) {
+        // Ensure query doesn't return actual results, only facets
+        $query->setRows(0);
+
+        // Add faceting on year
+        $facetSet = $query->getFacetSet();
+        $facet = $facetSet->createFacetField('years_facet')
+            ->setField('year')
+            ->setMinCount(1);
+
+        // Add statistics for citation counts
+        $statsComponent = $query->getStats();
+        $statsComponent->createField('citation_count')->addFacet('year');
+
+        // Execute the query
+        $resultset = Yii::$app->solr->select($query);
+
+        // Get the count per year from facet results
+        $count_per_year = $resultset->getFacetSet()->getFacet('years_facet')->getValues();
+
+        // Get the citation count statistics per year
+        $stats = $resultset->getStats()->getResult('citation_count')->getFacets();
+        $citation_per_year_raw = $stats['year'] ?? [];
+
+        // Process citation data - convert stat objects to sums
+        $citation_per_year = [];
+
+        foreach ($citation_per_year_raw as $year => $stat) {
+            $citation_per_year[$year] = $stat->getSum();
+        }
+
+        // Determine the range of years
+        if (empty($count_per_year) && empty($citation_per_year)) {
+            return [[], []];
+        }
+
+        $all_years = array_unique(array_merge(
+            array_keys($count_per_year),
+            array_keys($citation_per_year)
+        ));
+
+        if (empty($all_years)) {
+            return [[], []];
+        }
+
+        $minYear = min($all_years);
+        $maxYear = max($all_years);
+
+        // Fill missing years with zero for both counts and citations
+        for ($year = $minYear; $year <= $maxYear; $year++) {
+            if (! isset($count_per_year[$year])) {
+                $count_per_year[$year] = 0;
+            }
+
+            if (! isset($citation_per_year[$year])) {
+                $citation_per_year[$year] = 0;
+            }
+        }
+
+        // Sort the arrays by keys (years)
+        ksort($count_per_year);
+        ksort($citation_per_year);
+
+        // Keep only the latest 20 years
+        $count_per_year = array_slice($count_per_year, -20, 20, true);
+        $citation_per_year = array_slice($citation_per_year, -20, 20, true);
+
+        return [$count_per_year, $citation_per_year];
+    }
+
     /*
      * Get the actual ordering method (column name)
      *
@@ -1591,4 +1496,3 @@ class SearchForm extends Model {
         ];
     }
 }
-
