@@ -136,18 +136,24 @@ class ApiController extends Controller {
         $filteredRows = [];
 
         foreach ($rows as $row) {
+            // Parse numeric metrics as numbers (DB returns them as strings)
+            $attrank = isset($row['attrank']) ? (float) $row['attrank'] : null;
+            $pagerank = isset($row['pagerank']) ? (float) $row['pagerank'] : null;
+            $threeYcc = isset($row['3y_cc']) ? (int) $row['3y_cc'] : null;
+            $citationCount = isset($row['citation_count']) ? (int) $row['citation_count'] : null;
+
             $filteredRows[] = [
-                'internal_id' => $row['internal_id'] ?? null,
+                'id' => $row['internal_id'] ?? null,
                 'doi' => $row['doi'] ?? null,
                 'title' => $row['title'] ?? null,
                 'abstract' => $row['abstract'] ?? null,
                 'authors' => $row['authors'] ?? null,
                 'journal' => $row['journal'] ?? null,
                 'year' => $row['year'] ?? null,
-                'attrank' => $row['attrank'] ?? null,
-                'pagerank' => $row['pagerank'] ?? null,
-                '3y_cc' => $row['3y_cc'] ?? null,
-                'citation_count' => $row['citation_count'] ?? null,
+                'attrank' => $attrank,
+                'pagerank' => $pagerank,
+                '3y_cc' => $threeYcc,
+                'citation_count' => $citationCount,
                 'pop_class' => $row['pop_class'] ?? null,
                 'inf_class' => $row['inf_class'] ?? null,
                 'imp_class' => $row['imp_class'] ?? null,
