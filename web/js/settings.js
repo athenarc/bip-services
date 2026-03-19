@@ -4,6 +4,77 @@ $(document).ready(() => {
             event.preventDefault();
         }
     });
+
+    const $createApiTokenBtn = $('#create-api-token-btn');
+    const $copyApiTokenBtn = $('#copy-api-token-btn');
+    const $apiTokenInput = $('#api-token-input');
+
+    if ($copyApiTokenBtn.length) {
+        $copyApiTokenBtn.tooltip();
+    }
+
+    function generateHexToken(length = 50) {
+        // Generate cryptographically strong random hex token (length <= auth_token varchar(50))
+        const byteLength = Math.ceil(length / 2);
+        const bytes = new Uint8Array(byteLength);
+        window.crypto.getRandomValues(bytes);
+        const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+        return hex.slice(0, length);
+    }
+
+    if ($createApiTokenBtn.length && $apiTokenInput.length) {
+        $createApiTokenBtn.on('click', () => {
+            const updateUrl = $createApiTokenBtn.data('update-url');
+            const newToken = generateHexToken(50);
+
+            $createApiTokenBtn.prop('disabled', true);
+
+            $.ajax({
+                url: updateUrl,
+                type: 'POST',
+                data: {
+                    settingName: 'auth_token',
+                    settingValue: newToken,
+                    _csrf: yii.getCsrfToken(),
+                },
+                success: response => {
+                    if (response && response.success) {
+                        $apiTokenInput.val(newToken);
+                    } else {
+                        alert(response?.error || 'Failed to create token.');
+                    }
+                },
+                error: () => {
+                    alert('Failed to create token.');
+                },
+                complete: () => {
+                    $createApiTokenBtn.prop('disabled', false);
+                },
+            });
+        });
+    }
+
+    if ($copyApiTokenBtn.length && $apiTokenInput.length) {
+        $copyApiTokenBtn.on('click', () => {
+            const token = ($apiTokenInput.val() || '').trim();
+            if (! token) {
+                return;
+            }
+
+            navigator.clipboard.writeText(token).then(() => {
+                $copyApiTokenBtn
+                    .attr('data-original-title', 'Token copied!')
+                    .tooltip('show')
+                    .off('mouseenter focus');
+
+                setTimeout(() => {
+                    $copyApiTokenBtn.tooltip('hide').removeAttr('data-original-title');
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy token.', err);
+            });
+        });
+    }
 });
 
 function toggleSwitch(checkbox, settingName, url) {

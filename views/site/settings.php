@@ -112,6 +112,37 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                         </div>
                     </div>
                 </div>
+                <h3>API token</h3>
+                <div class="list-group list-group-shadow">
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
+                            <div style="flex: 1; min-width: 220px;">
+                                <span class="grey-text"><b>Create token</b></span>
+                                <div class="text-muted-settings">Generate a random token to authenticate API requests.</div>
+                                <input
+                                    id="api-token-input"
+                                    type="text"
+                                    class="form-control"
+                                    value="<?= Html::encode($user->auth_token ?? '') ?>"
+                                    readonly
+                                />
+                            </div>
+                            <div class="text-right" style="min-width: 180px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                                <button
+                                    id="create-api-token-btn"
+                                    class="btn btn-custom-color btn-sm"
+                                    data-update-url="<?= Url::to(['/user/update-setting']) ?>"
+                                    type="button"
+                                >
+                                    <i class="fa-solid fa-shuffle"></i> Create token
+                                </button>
+                                <a id="copy-api-token-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip" data-placement="auto">
+                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <h3>Account</h3>
                 <div class="list-group list-group-shadow">
                     <div class="list-group-item">
