@@ -682,7 +682,7 @@ class ScholarController extends BaseController {
                             }
 
                             if ($active === 'topics' && ctype_digit($id)) {
-                                $id = 'C' . $id;
+                                $id = 'Τ' . $id;
                             }
 
                             return $id;
@@ -1493,7 +1493,7 @@ class ScholarController extends BaseController {
                     }
 
                     if (ctype_digit($raw)) {
-                        $raw = 'C' . $raw;
+                        $raw = 'T' . $raw;
                     }
 
                     if (! isset($newCounts['topics'][$raw])) {
@@ -1636,7 +1636,7 @@ class ScholarController extends BaseController {
                 }
 
                 if ($g === 'topics' && ctype_digit($id)) {
-                    $id = 'C' . $id;
+                    $id = 'T' . $id;
                 }
 
                 return $id;
