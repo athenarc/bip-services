@@ -131,7 +131,7 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                 <button
                                     id="create-api-token-btn"
                                     class="btn btn-custom-color btn-sm"
-                                    data-update-url="<?= Url::to(['/user/update-setting']) ?>"
+                                    data-generate-url="<?= Url::to(['/user/generate-api-token']) ?>"
                                     type="button"
                                 >
                                     <i class="fa-solid fa-shuffle"></i> Create token

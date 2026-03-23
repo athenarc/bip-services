@@ -13,33 +13,21 @@ $(document).ready(() => {
         $copyApiTokenBtn.tooltip();
     }
 
-    function generateHexToken(length = 50) {
-        // Generate cryptographically strong random hex token (length <= auth_token varchar(50))
-        const byteLength = Math.ceil(length / 2);
-        const bytes = new Uint8Array(byteLength);
-        window.crypto.getRandomValues(bytes);
-        const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-        return hex.slice(0, length);
-    }
-
     if ($createApiTokenBtn.length && $apiTokenInput.length) {
         $createApiTokenBtn.on('click', () => {
-            const updateUrl = $createApiTokenBtn.data('update-url');
-            const newToken = generateHexToken(50);
+            const generateUrl = $createApiTokenBtn.data('generate-url');
 
             $createApiTokenBtn.prop('disabled', true);
 
             $.ajax({
-                url: updateUrl,
+                url: generateUrl,
                 type: 'POST',
                 data: {
-                    settingName: 'auth_token',
-                    settingValue: newToken,
                     _csrf: yii.getCsrfToken(),
                 },
                 success: response => {
-                    if (response && response.success) {
-                        $apiTokenInput.val(newToken);
+                    if (response && response.success && response.token) {
+                        $apiTokenInput.val(response.token);
                     } else {
                         alert(response?.error || 'Failed to create token.');
                     }
