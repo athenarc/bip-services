@@ -4,9 +4,15 @@ namespace app\components;
 
 class ArticleHelper
 {
-public static function resolvePid($value)
-	{
 
+/**
+ * Resolves identifier or returns null.
+ *
+ * @param  string|null $value Identifier value.
+ *
+ * @return array|null
+ */
+	public static function resolvePid($value) {
 		// rule for Doi
 		if (str_starts_with($value, '10.')) {
 			return [
