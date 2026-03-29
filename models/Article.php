@@ -759,14 +759,6 @@ namespace app\models;
             $this->chart_data = array_merge($this->chart_data, $concept_chart_data);
         }
 
-        public function getPidName() {
-            if (str_starts_with($this->doi, '10.')) {
-                return 'DOI';
-            }
-
-            return 'PubMed Id';
-        }
-
         /**
          * Get the DOI from the pids relationship.
          * @return string|null The DOI value or null if not found

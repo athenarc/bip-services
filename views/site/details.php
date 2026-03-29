@@ -6,6 +6,7 @@ use app\components\ConceptPopover;
 use app\components\CustomBootstrapModal;
 use app\components\ImpactIcons;
 use app\components\ReproducibilityBadges;
+use app\components\ArticleHelper;
 use bigpaulie\social\share\Share;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -208,18 +209,15 @@ if ($space_model->enable_like_dislike_annotations) {
                 ]); ?>
             </div>
         <?php endif; ?>
-        <div class='article-info'>
-            <b><?= $article->getPidName() ?>:</b>
-            <?php if (empty($article->doi)) {
-                    echo 'N/A';
-                } elseif (! empty($article->doi)) { ?>
-                    <?php if ($article->getPidName() === 'DOI') :?>
-                        <a href="https://doi.org/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                    <?php elseif ($article->getPidName() === 'PubMed Id') :?>
-                        <a href="https://www.ncbi.nlm.nih.gov/pubmed/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                    <?php endif; ?>
-            <?php } ?>
-        </div>
+
+        <?php $article_pid_info = ArticleHelper::resolvePid($article->doi); ?>
+        <?php if ($article_pid_info !== null): ?>
+            <div class='article-info'>
+                <b><?= $article_pid_info['label'] ?>:</b>
+                <a href="<?= $article_pid_info['url'] ?>" target="_blank" class="main-green"><?= $article_pid_info['value'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+            </div>
+        <?php endif; ?>
+
         <?php if (! empty($article->software_metadata['code_repo'])): ?>
             <div class='article-info'>
                 <b>Code Repository:</b>
@@ -244,7 +242,7 @@ if ($space_model->enable_like_dislike_annotations) {
                     
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
                     <b>External links:</b>
-                    <?php if (! empty($article->doi) && $article->getPidName() === 'DOI') { ?>
+                    <?php if (! empty($article->doi) && $article_pid_info['label'] === 'DOI') { ?>
                         <a href="https://search.crossref.org/search/works?q=<?= $article->doi ?>&from_ui=yes" target='_blank' class="main-green">Crossref <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php } ?>
 
@@ -296,7 +294,7 @@ if ($space_model->enable_like_dislike_annotations) {
                     <a href="<?= Url::to(['site/get-citations', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fa-solid fa-down-left-and-up-right-to-center&quot; aria-hidden=&quot;true&quot;></i> Citations (<?= $article->citation_count ?>)" data-remote="false" data-toggle="modal" data-target="#citations-modal" class="btn btn-sm btn-custom-color  <?= ($article->citation_count == 0) ? 'disabled' : '' ?>">
                                 <i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i> Citations (<?= $article->citation_count ?>)
                     </a> -->
-                    <a href="<?= Url::to(['site/download-bibtex', 'doi' => $article->doi]) ?>" modal-title="<i class=&quot;fas fa-quote-right&quot; aria-hidden=&quot;true&quot;></i> BibTex" data-remote="false" data-toggle="modal" data-target="#bibtex-modal" class="btn btn-sm btn-custom-color <?= $article->getPidName() === 'DOI' ? '' : 'disabled' ?>">
+                    <a href="<?= Url::to(['site/download-bibtex', 'doi' => $article->doi]) ?>" modal-title="<i class=&quot;fas fa-quote-right&quot; aria-hidden=&quot;true&quot;></i> BibTex" data-remote="false" data-toggle="modal" data-target="#bibtex-modal" class="btn btn-sm btn-custom-color <?= $article_pid_info['label'] === 'DOI' ? '' : 'disabled' ?>">
                             <i class="fas fa-quote-right" aria-hidden="true"></i> BibTex
                     </a>
                     <a id="pdf_button" href="#" class="btn btn-sm btn-custom-color disabled" target='_blank' onclick="getPDFLink('<?= Url::to(['site/get-pdf-link']) ?>', '<?= $article->doi ?>');">
