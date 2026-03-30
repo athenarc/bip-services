@@ -15,6 +15,14 @@ $(document).ready(() => {
 
     if ($createApiTokenBtn.length && $apiTokenInput.length) {
         $createApiTokenBtn.on('click', () => {
+            const existingToken = ($apiTokenInput.val() || '').trim();
+            if (existingToken) {
+                const confirmed = confirm('You already have an API token. Generating a new token will replace the existing one. Continue?');
+                if (!confirmed) {
+                    return;
+                }
+            }
+
             const generateUrl = $createApiTokenBtn.data('generate-url');
 
             $createApiTokenBtn.prop('disabled', true);

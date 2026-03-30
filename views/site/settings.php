@@ -112,13 +112,22 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                         </div>
                     </div>
                 </div>
-                <h3>API token</h3>
+                <h3>Account</h3>
                 <div class="list-group list-group-shadow">
                     <div class="list-group-item">
                         <div class="flex-wrap items-center justify-between">
+                            <div>
+                            <div class="grey-text"><b>Change password</b></div>
+                                <div class="text-muted-settings">Manage your account security by changing your current password.</div>
+                            </div>
+                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class' => 'main-green']) ?>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
                             <div style="flex: 1; min-width: 220px;">
-                                <span class="grey-text"><b>Create token</b></span>
-                                <div class="text-muted-settings">Generate a random token to authenticate API requests.</div>
+                                <span class="grey-text"><b>API authentication token</b></span>
+                                <div class="text-muted-settings">Generate a user token to authenticate API requests.</div>
                                 <input
                                     id="api-token-input"
                                     type="text"
@@ -134,24 +143,12 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                                     data-generate-url="<?= Url::to(['/user/generate-api-token']) ?>"
                                     type="button"
                                 >
-                                    <i class="fa-solid fa-shuffle"></i> Create token
+                                    <i class="fa-solid fa-shuffle"></i> New token
                                 </button>
-                                <a id="copy-api-token-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip" data-placement="auto">
-                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
+                                <a id="copy-api-token-btn" class="btn btn-default btn-sm" role="button" data-toggle="tooltip" data-placement="auto">
+                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy
                                 </a>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <h3>Account</h3>
-                <div class="list-group list-group-shadow">
-                    <div class="list-group-item">
-                        <div class="flex-wrap items-center justify-between">
-                            <div>
-                            <div class="grey-text"><b>Change password</b></div>
-                                <div class="text-muted-settings">Manage your account security by changing your current password.</div>
-                            </div>
-                            <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class' => 'main-green']) ?>
                         </div>
                     </div>
                 </div>
