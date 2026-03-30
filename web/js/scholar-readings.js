@@ -58,17 +58,51 @@ $(document).on('click', '.facet-item', function (e) {
 });
 
 function clearFacet(listId, facetName) {
+    // Support both signatures:
+    // - clearFacet('topics[]') for Readings
+    // - clearFacet(listId, 'topics') for Scholar profile
+    const hasListContext = typeof facetName !== 'undefined';
+    const normalizedListId = hasListContext ? listId : null;
+    const facetNameRaw = hasListContext ? facetName : listId;
+    const normalizedFacetName = String(facetNameRaw || '').replace(/\[\]$/, '');
+
     // Map facet → prefix used in DOM IDs
     const prefixMap = {
         topics: 'topic',
         roles: 'role',
         accesses: 'access',
         types: 'type',
+        tags: 'tag',
+        rd_status: 'rd_status',
     };
-    const facetIdPrefix = prefixMap[facetName] || facetName;
+    const facetIdPrefix = prefixMap[normalizedFacetName] || normalizedFacetName;
+    let $buttons = $();
 
-    // Reset: show all, disable all inputs, remove selected styling
-    $(`#${facetIdPrefix}-facet-items-${listId} .facet-item`)
+    if (hasListContext) {
+        // Scholar profile: prefer semantic selectors by list + facet.
+        $buttons = $(`.facet-item[data-list-id="${normalizedListId}"][data-facet="${normalizedFacetName}"]`);
+
+        // Fallback for role facet variants (container id may use facet element id).
+        if (!$buttons.length && normalizedFacetName === 'roles') {
+            $buttons = $(`.js-role-facet-items[data-linked-list-id="${normalizedListId}"] .facet-item`);
+        }
+
+        // Generic fallback using container ID pattern.
+        if (!$buttons.length) {
+            $buttons = $(`#${facetIdPrefix}-facet-items-${normalizedListId} .facet-item`);
+        }
+    } else {
+        // Readings page: clear by hidden-input name.
+        $buttons = $(`input[name="${normalizedFacetName}[]"]`).closest('.facet-item');
+
+        // Generic fallback using container ID pattern.
+        if (!$buttons.length) {
+            $buttons = $(`#${facetIdPrefix}-facet-items .facet-item`);
+        }
+    }
+
+    // Reset: show all, disable all inputs, remove selected styling.
+    $buttons
         .show()
         .find('input').prop('disabled', true)
         .end()
@@ -76,7 +110,12 @@ function clearFacet(listId, facetName) {
         .addClass('btn-default')
         .attr('aria-pressed', 'false');
 
-    ensurePerListFacetField(listId, '');
+    if (hasListContext) {
+        ensurePerListFacetField(normalizedListId, '');
+    } else {
+        $('#fct_field').val('');
+    }
+
     submit_scholar_form();
 }
 
