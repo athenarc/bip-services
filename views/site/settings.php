@@ -123,6 +123,34 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                             <?= Html::a('<i class="fa fa-lg fa-external-link-square"></i>', ['site/change-password'], ['class' => 'main-green']) ?>
                         </div>
                     </div>
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
+                            <div style="flex: 1; min-width: 220px;">
+                                <span class="grey-text"><b>API authentication token</b></span>
+                                <div class="text-muted-settings">Generate a user token to authenticate API requests.</div>
+                                <input
+                                    id="api-token-input"
+                                    type="text"
+                                    class="form-control"
+                                    value="<?= Html::encode($user->auth_token ?? '') ?>"
+                                    readonly
+                                />
+                            </div>
+                            <div class="text-right" style="min-width: 180px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                                <button
+                                    id="create-api-token-btn"
+                                    class="btn btn-custom-color btn-sm"
+                                    data-generate-url="<?= Url::to(['/user/generate-api-token']) ?>"
+                                    type="button"
+                                >
+                                    <i class="fa-solid fa-shuffle"></i> New token
+                                </button>
+                                <a id="copy-api-token-btn" class="btn btn-default btn-sm" role="button" data-toggle="tooltip" data-placement="auto">
+                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
