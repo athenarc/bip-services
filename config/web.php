@@ -7,7 +7,7 @@ $params['languages'] = require(__DIR__ . '/languages.php');
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', \akiraz2\blog\Bootstrap::class],
     'components' => [
     'httpClient' => [
         'class' => 'yii\httpclient\Client',
@@ -56,6 +56,13 @@ $config = [
     'viewregister' => [
         'class' => 'app\components\ViewRegister',
     ],
+    'view' => [
+        'theme' => [
+            'pathMap' => [
+                '@akiraz2/yii2-blog/views/frontend/default' => '@app/views/site/blog',
+            ],
+        ],
+    ],
         'pyramidchart' => [
             'class' => 'app\components\PyramidChart',
         ],
@@ -103,6 +110,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'site/blog/create' => 'blog/default/create',
+                'site/blog/update/<id:\d+>' => 'blog/default/update',
+                'site/blog/<tag:[^/]+>' => 'blog/default/index',
+                'site/blog' => 'blog/default/index',
                 'search/<space_url_suffix>' => 'site/index',
                 'search' => 'site/index',
                 'compare' => 'site/comparison',
@@ -138,6 +149,21 @@ $config = [
         ],
     ],
     'modules' => [
+        'blog' => [
+            'class' => 'akiraz2\blog\Module',
+            'controllerMap' => [
+                'default' => 'app\controllers\BlogController',
+            ],
+            'controllerNamespace' => 'akiraz2\blog\controllers\frontend',
+            'userModel' => 'app\models\User',
+            'userPK' => 'id',
+            'userName' => 'username',
+            'blogPostPageCount' => 9,
+            'blogCommentPageCount' => 10,
+            'enableComments' => false,
+            'imgFilePath' => '@app/web/img/blog/',
+            'imgFileUrl' => '/img/blog/',
+        ],
         'gridview' => [
             'class' => 'kartik\grid\Module',
         ],

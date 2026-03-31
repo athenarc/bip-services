@@ -82,7 +82,11 @@ AppAsset::register($this);
 
         $items = [
             ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Blog', 'url' => ['/site/blog']],
+            [
+                'label' => 'Blog',
+                'url' => ['/site/blog'],
+                'active' => Yii::$app->controller->module && Yii::$app->controller->module->id === 'blog',
+            ],
             ['label' => 'Data & code', 'url' => ['/site/data']],
             ['label' => 'Indicators', 'url' => ['/site/indicators']],
             ['label' => 'Help', 'url' => ['/site/help']],
