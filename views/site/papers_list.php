@@ -1,6 +1,8 @@
 <?php
 use app\components\BookmarkIcon;
 use app\components\ImpactIcons;
+use app\components\ArticleHelper;
+
 
 ?>
 
@@ -29,7 +31,12 @@ use app\components\ImpactIcons;
               <div>
                 <i><?= empty(trim($paper['journal'])) ? 'N/A' : trim($paper['journal']) ?></i> &middot;
                 <i><?= (empty($paper['year']) || $paper['year'] == 0) ? 'N/A' : $paper['year'] ?></i> &middot;
-                <a href="https://doi.org/<?= $paper['doi'] ?>" target='_blank' class="grey-link"><?= $paper['doi'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a> 
+
+                <?php $article_pid_info = ArticleHelper::resolvePid($paper['doi']); ?>
+                <?php if ($article_pid_info !== null): ?>
+                  <a href="<?= $article_pid_info['url'] ?>" target="_blank" class="grey-link"><?= $article_pid_info['value'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                <?php endif; ?>
+
                 <i><?= ! empty($paper['relation_name']) ? '&middot; ' . $paper['relation_name'] : '' ?></i>
               </div>
             </td>
