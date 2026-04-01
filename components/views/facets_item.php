@@ -149,36 +149,45 @@ use yii\helpers\Url;
                                 <br/>
                             </div>
 
+                            <?php
+                                $role_facet_container_id = 'role-facet-items-' . ($facet_element_id ?? $linked_id);
+                                $software_role_icon = "<i class='fa fa-code' aria-hidden='true' title='" . Html::encode('Software contribution role') . "'></i>&#160;";
+                            ?>
                             <?php if (empty($result['facets']['roles']['counts'])): ?>
-                                <span id="role-facet-items-<?= $linked_id ?>">-</span>
+                                <span id="<?= $role_facet_container_id ?>" class="js-role-facet-items" data-linked-list-id="<?= (int) $linked_id ?>">-</span>
                             <?php else:
                                 $counts = $result['facets']['roles']['counts'];
+                                $software_role_ids = array_keys(Yii::$app->params['involvement_fields']['software'] ?? []);
+                                $facet_suffix = ! empty($facet_element_id) ? $facet_element_id : $linked_id;
                                 echo Html::checkboxList(
                                     "lists[${linked_id}][roles]",
                                     $selected_roles,
                                     $result['facets']['roles']['options'],
                                     [
-                                        'id' => "role-facet-items-${linked_id}",
+                                        'id' => $role_facet_container_id,
+                                        'class' => 'js-role-facet-items',
+                                        'data-linked-list-id' => $linked_id,
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
-                                            $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled = ($checked) ? '' : 'disabled=disabled';
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $software_role_ids, $software_role_icon, $facet_suffix) {
+                                            $btn_class = $checked ? 'btn-success' : 'btn-default';
+                                            $disabled = $checked ? '' : 'disabled=disabled';
                                             $badge_number = ($element_config['Roles']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
+                                            $role_icon = in_array((string) $value, $software_role_ids, true) ? $software_role_icon : '';
 
-                                            return "<button id='role-${value}-list${linked_id}' 
+                                            return "<button id='role-${value}-facet${facet_suffix}' 
                                                             type='button' 
                                                             class='btn btn-xs ${btn_class} facet-item'
                                                             data-list-id='${linked_id}'
                                                             data-facet='roles'>
-                                                        <input id='role-${value}-list${linked_id}-i' 
+                                                        <input id='role-${value}-facet${facet_suffix}-i' 
                                                             name='lists[${linked_id}][roles][]' 
                                                             value='${value}' 
                                                             form='${formId}' 
                                                             type='hidden' 
                                                             ${disabled}/>
-                                                        ${label} ${badge_number}
+                                                        {$role_icon}{$label} {$badge_number}
                                                     </button>";
                                         }
                                     ]

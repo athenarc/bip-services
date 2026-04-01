@@ -100,6 +100,9 @@ class ResultItem extends Widget {
 
     public $view_mode = 'full'; // 'full', 'compact', 'minimal'
 
+    /** When shown inside a scholar contributions list: the linked list element_id (for facet updates). */
+    public $contribution_list_id;
+
     public $paper_rank;
 
     public $enable_like_dislike_records;

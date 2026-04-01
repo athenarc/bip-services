@@ -58,17 +58,51 @@ $(document).on('click', '.facet-item', function (e) {
 });
 
 function clearFacet(listId, facetName) {
+    // Support both signatures:
+    // - clearFacet('topics[]') for Readings
+    // - clearFacet(listId, 'topics') for Scholar profile
+    const hasListContext = typeof facetName !== 'undefined';
+    const normalizedListId = hasListContext ? listId : null;
+    const facetNameRaw = hasListContext ? facetName : listId;
+    const normalizedFacetName = String(facetNameRaw || '').replace(/\[\]$/, '');
+
     // Map facet → prefix used in DOM IDs
     const prefixMap = {
         topics: 'topic',
         roles: 'role',
         accesses: 'access',
         types: 'type',
+        tags: 'tag',
+        rd_status: 'rd_status',
     };
-    const facetIdPrefix = prefixMap[facetName] || facetName;
+    const facetIdPrefix = prefixMap[normalizedFacetName] || normalizedFacetName;
+    let $buttons = $();
 
-    // Reset: show all, disable all inputs, remove selected styling
-    $(`#${facetIdPrefix}-facet-items-${listId} .facet-item`)
+    if (hasListContext) {
+        // Scholar profile: prefer semantic selectors by list + facet.
+        $buttons = $(`.facet-item[data-list-id="${normalizedListId}"][data-facet="${normalizedFacetName}"]`);
+
+        // Fallback for role facet variants (container id may use facet element id).
+        if (!$buttons.length && normalizedFacetName === 'roles') {
+            $buttons = $(`.js-role-facet-items[data-linked-list-id="${normalizedListId}"] .facet-item`);
+        }
+
+        // Generic fallback using container ID pattern.
+        if (!$buttons.length) {
+            $buttons = $(`#${facetIdPrefix}-facet-items-${normalizedListId} .facet-item`);
+        }
+    } else {
+        // Readings page: clear by hidden-input name.
+        $buttons = $(`input[name="${normalizedFacetName}[]"]`).closest('.facet-item');
+
+        // Generic fallback using container ID pattern.
+        if (!$buttons.length) {
+            $buttons = $(`#${facetIdPrefix}-facet-items .facet-item`);
+        }
+    }
+
+    // Reset: show all, disable all inputs, remove selected styling.
+    $buttons
         .show()
         .find('input').prop('disabled', true)
         .end()
@@ -76,8 +110,97 @@ function clearFacet(listId, facetName) {
         .addClass('btn-default')
         .attr('aria-pressed', 'false');
 
-    ensurePerListFacetField(listId, '');
+    if (hasListContext) {
+        ensurePerListFacetField(normalizedListId, '');
+    } else {
+        $('#fct_field').val('');
+    }
+
     submit_scholar_form();
+}
+
+function updateFacet(facet_type, id, name, selected) {
+    let roleElem = $(`#${facet_type}-facet-items > #${facet_type}-${id}`);
+    if (roleElem.length > 0) {
+        let countElem = roleElem.children('span')
+        let count = parseInt(countElem.html());
+        count = (selected) ? count + 1 : count - 1;
+
+        if (count == 0) {
+            roleElem.remove();
+        } else {
+            countElem.html(count);
+        }
+    } else {
+        let newFacet = $(`<button id='${facet_type}-${id}' type="button" class="btn btn-xs btn-default facet-item">`
+            + `<input id="${facet_type}-${id}-i" name="${facet_type}s[]" value="${id}" type="hidden" disabled="disabled"/>`
+            + `${name} <span class="badge badge-primary">1</span>`
+        + '</button>');
+
+        // check if this is the first facet item to be inserted
+        if ($(`#${facet_type}-facet-items > .facet-item`).length == 0) {
+            $(`#${facet_type}-facet-items`).html(newFacet);
+
+        // if not, append current facet item at the end
+        } else {
+            $(`#${facet_type}-facet-items`).append("\n").append(newFacet);
+        }
+    }
+}
+
+/**
+ * Update the role facet for a specific contributions list on the scholar profile.
+ * Expects window.bipScholarFacetConfig.softwareRoleIds (string[]).
+ */
+function updateProfileRoleFacet(listId, involvementId, involvementName, selected) {
+    const $containers = $(`.js-role-facet-items[data-linked-list-id="${ listId }"]`);
+    if (!$containers.length) return;
+
+    const softwareRoleIds = (window.bipScholarFacetConfig && window.bipScholarFacetConfig.softwareRoleIds) || [];
+    const isSoftwareRole = softwareRoleIds.indexOf(String(involvementId)) !== -1;
+    const roleIconHtml = isSoftwareRole ? "<i class='fa fa-code' aria-hidden='true' title=\"Software contribution role\"></i>\u00A0 " : '';
+    const formId = $('#scholar-form').attr('id') || 'scholar-form';
+    const labelEsc = $('<div/>').text(involvementName).html();
+
+    $containers.each(function () {
+        const $container = $(this);
+        const $btn = $container.find(`input[name="lists[${ listId }][roles][]"][value="${ involvementId }"]`).closest('button.facet-item');
+
+        if ($btn.length) {
+            const $badge = $btn.find('span.badge');
+            if (!$badge.length) return;
+
+            let count = parseInt($badge.html(), 10) || 0;
+            count = selected ? count + 1 : count - 1;
+
+            if (count <= 0) {
+                $btn.remove();
+                if (!$container.find('.facet-item').length) $container.html('-');
+            } else {
+                $badge.html(count);
+            }
+        } else if (selected) {
+            const facetSuffix = ($container.attr('id') || '').replace(/^role-facet-items-/, '') || listId;
+            const newBtn = $(
+                `<button type="button" class="btn btn-xs btn-default facet-item" id="role-${ involvementId }-facet${ facetSuffix }" data-list-id="${ listId }" data-facet="roles">` +
+                `<input id="role-${ involvementId }-facet${ facetSuffix }-i" name="lists[${ listId }][roles][]" value="${ involvementId }" form="${ formId }" type="hidden" disabled="disabled"/>` +
+                `${ roleIconHtml }${ labelEsc } <span class="badge badge-primary">1</span></button>`
+            );
+
+            if ($container.text().trim() === '-') {
+                if ($container.is('span')) {
+                    const $wrapper = $('<div></div>').addClass('js-role-facet-items').attr('data-linked-list-id', listId);
+                    const id = $container.attr('id');
+                    if (id) $wrapper.attr('id', id);
+                    $container.replaceWith($wrapper.append(newBtn));
+                } else {
+                    $container.empty().append(newBtn);
+                }
+            } else {
+                $container.append('\n').append(newBtn);
+            }
+        }
+    });
 }
 
 $(document).ready(() => {
