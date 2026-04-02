@@ -62,7 +62,7 @@ AppAsset::register($this);
         <?php
         NavBar::begin([
             'brandImage' => '@web/img/bip_white.png',
-            'brandUrl' => ['site/home'],
+            'brandUrl' => ['/site/home'],
             'options' => [
                 'class' => 'navbar-inverse navbar-fixed-top',
             ],
@@ -169,7 +169,7 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEP
                 Copyright © <?= date('Y') ?>
                 <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr', ['class' => 'main-green']) ?>
                 |
-                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings'), ['class' => 'main-green']) ?>
+                <?= Html::a('Privacy Settings', Url::toRoute('/site/privacy-settings'), ['class' => 'main-green']) ?>
             </div>
         </div>
     </div>
