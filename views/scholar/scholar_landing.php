@@ -115,13 +115,13 @@ $scholar_search_model = new ScholarSearchForm();
                     <p class="card-text help-text">
                         A key objective of the platform is to offer a variety of profile templates that
                         cover a wide range of research activities, going beyond scientific publications.
-                        The platform supports not only traditional <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarProfileUrl) ?>" class="main-green">track-record-based profiles</a><?php else: ?>track-record-based profiles<?php endif; ?>
-                        but also <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarResumeResearchersUrl) ?>" class="main-green">narrative-style or hybrid CVs</a><?php else: ?>narrative-style or hybrid CVs<?php endif; ?>,
+                        The platform supports not only traditional <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarProfileUrl) ?>" class="main-green">track-record-based profiles</a><?php else: ?><strong>track-record-based profiles</strong><?php endif; ?>
+                        but also <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarResumeResearchersUrl) ?>" class="main-green">narrative-style or hybrid CVs</a><?php else: ?><strong>narrative-style or hybrid CVs</strong><?php endif; ?>,
                         which can help researchers present their careers in a more responsible and inclusive manner.
                     </p>
                     <p class="card-text help-text">
                         Finally, many BIP! Scholar profile templates can be dynamically tailored by the viewer
-                        to facilitate the examination of a researcher’s career according to specific topics,
+                        to facilitate the examination of a researcher's career according to specific topics,
                         roles, or types of activity that may be of particular interest.
                     </p>
                 </div>
