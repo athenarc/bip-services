@@ -199,10 +199,18 @@
 @media (max-width: 767px) {
     #scholar-landing .scholar-landing-tab-buttons {
         flex-wrap: wrap;
+        gap: 8px;
     }
 
     #scholar-landing .scholar-landing-tab-buttons > li {
-        flex: 1 1 100%;
+        flex: 0 0 100%;
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #scholar-landing .scholar-landing-tab-buttons > li:first-child,
+    #scholar-landing .scholar-landing-tab-buttons > li:last-child {
         padding-left: 0;
         padding-right: 0;
     }
