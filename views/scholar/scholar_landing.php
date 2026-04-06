@@ -74,11 +74,11 @@ $scholar_search_model = new ScholarSearchForm();
         </div>
     </div>
 
-    <ul class="nav list-unstyled scholar-landing-tab-buttons" role="tablist">
+    <ul class="list-unstyled scholar-landing-tab-buttons" role="tablist">
         <li class="active" role="presentation">
             <a
                 href="#scholar-tab-researchers"
-                class="btn btn-default btn-block scholar-landing-tab-btn"
+                class="btn btn-lg btn-custom-color btn-block"
                 aria-controls="scholar-tab-researchers"
                 role="tab"
                 data-toggle="tab"
@@ -89,7 +89,7 @@ $scholar_search_model = new ScholarSearchForm();
         <li role="presentation">
             <a
                 href="#scholar-tab-creators"
-                class="btn btn-default btn-block scholar-landing-tab-btn"
+                class="btn btn-lg btn-default btn-block"
                 aria-controls="scholar-tab-creators"
                 role="tab"
                 data-toggle="tab"

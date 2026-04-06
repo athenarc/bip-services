@@ -12,7 +12,7 @@
 /* Banner */
 #scholar-landing .scholar-landing-banner {
     position: relative;
-    margin: 0 0 20px;
+    margin: 0 0 8px;
     line-height: 0;
     height: 200px;
     overflow: hidden;
@@ -172,32 +172,40 @@
 /* Tab buttons */
 #scholar-landing .scholar-landing-tab-buttons {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    direction: ltr;
+    gap: 0;
     width: 100%;
-    margin: 0 0 12px;
+    margin: 0;
     padding: 0;
 }
 
 #scholar-landing .scholar-landing-tab-buttons > li {
-    flex: 1 1 200px;
+    flex: 1 1 50%;
     margin: 0;
     float: none;
     text-align: center;
 }
 
-#scholar-landing .scholar-landing-tab-buttons > li > a.scholar-landing-tab-btn {
-    margin: 0;
-    font-size: 1.2em;
-    white-space: normal;
+#scholar-landing .scholar-landing-tab-buttons > li:first-child {
+    padding-right: 6px;
 }
 
-#scholar-landing .scholar-landing-tab-buttons > li.active > a.scholar-landing-tab-btn,
-#scholar-landing .scholar-landing-tab-buttons > li.active > a.scholar-landing-tab-btn:hover,
-#scholar-landing .scholar-landing-tab-buttons > li.active > a.scholar-landing-tab-btn:focus {
-    background-color: var(--main-color, #4caf50);
-    border-color: var(--main-color, #4caf50);
-    color: #fff;
+#scholar-landing .scholar-landing-tab-buttons > li:last-child {
+    padding-left: 6px;
+}
+
+@media (max-width: 767px) {
+    #scholar-landing .scholar-landing-tab-buttons {
+        flex-wrap: wrap;
+    }
+
+    #scholar-landing .scholar-landing-tab-buttons > li {
+        flex: 1 1 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
 /* Tab panels (override global .tab-content borders from site.css) */
