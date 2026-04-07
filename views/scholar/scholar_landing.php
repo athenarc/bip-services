@@ -78,7 +78,7 @@ $scholar_search_model = new ScholarSearchForm();
         <li class="active" role="presentation">
             <a
                 href="#scholar-tab-researchers"
-                class="btn btn-lg btn-custom-color btn-block"
+                class="btn btn-lg btn-default btn-block"
                 aria-controls="scholar-tab-researchers"
                 role="tab"
                 data-toggle="tab"
