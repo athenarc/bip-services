@@ -8,15 +8,6 @@ use yii\widgets\ActiveForm;
 $this->title = 'BIP! Services - Scholar';
 $this->registerCssFile('@web/css/scholar-landing.css');
 
-$scholarProfileUrl = Url::to(['scholar/profile']);
-$hasScholarAccount = ! Yii::$app->user->isGuest && $researcher && isset($researcher->orcid);
-$scholarResumeResearchersUrl = $hasScholarAccount
-    ? Url::to([
-        'scholar/profile',
-        'orcid' => $researcher->orcid,
-        'template_url_name' => 'Résumé_for_Researchers',
-    ])
-    : null;
 $scholar_search_model = new ScholarSearchForm();
 
 ?>
@@ -78,7 +69,7 @@ $scholar_search_model = new ScholarSearchForm();
         <li class="active" role="presentation">
             <a
                 href="#scholar-tab-researchers"
-                class="btn btn-lg btn-custom-color btn-block"
+                class="btn btn-lg btn-default btn-block"
                 aria-controls="scholar-tab-researchers"
                 role="tab"
                 data-toggle="tab"
@@ -115,8 +106,10 @@ $scholar_search_model = new ScholarSearchForm();
                     <p class="card-text help-text">
                         A key objective of the platform is to offer a variety of profile templates that
                         cover a wide range of research activities, going beyond scientific publications.
-                        The platform supports not only traditional <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarProfileUrl) ?>" class="main-green">track-record-based profiles</a><?php else: ?><strong>track-record-based profiles</strong><?php endif; ?>
-                        but also <?php if ($hasScholarAccount): ?><a href="<?= Html::encode($scholarResumeResearchersUrl) ?>" class="main-green">narrative-style or hybrid CVs</a><?php else: ?><strong>narrative-style or hybrid CVs</strong><?php endif; ?>,
+                        The platform supports not only traditional track-record-based profiles
+                        (<a href="<?= Html::encode(Url::to(['scholar/profile', 'orcid' => '0000-0003-0555-4128', 'template_url_name' => 'Inclusive_Profile'])) ?>" class="main-green">example</a>)
+                        but also narrative-style or hybrid CVs
+                        (<a href="<?= Html::encode(Url::to(['scholar/profile', 'orcid' => '0000-0003-0555-4128', 'template_url_name' => 'Résumé_for_Researchers_(Royal_Society)'])) ?>" class="main-green">example</a>),
                         which can help researchers present their careers in a more responsible and inclusive manner.
                     </p>
                     <p class="card-text help-text">

@@ -196,6 +196,19 @@
     padding-left: 6px;
 }
 
+#scholar-landing .scholar-landing-tab-buttons > li.active > a.btn {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+    color: #fff;
+}
+
+#scholar-landing .scholar-landing-tab-buttons > li.active > a.btn:hover,
+#scholar-landing .scholar-landing-tab-buttons > li.active > a.btn:focus {
+    background-color: var(--darker-color);
+    border-color: var(--darker-color);
+    color: #fff;
+}
+
 @media (max-width: 767px) {
     #scholar-landing .scholar-landing-tab-buttons {
         flex-wrap: wrap;
