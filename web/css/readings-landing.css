@@ -1,0 +1,152 @@
+#readings-landing {
+    --rl-glass: rgba(255, 255, 255, 0.78);
+    --rl-glass-strong: rgba(255, 255, 255, 0.95);
+    --rl-border: rgba(0, 0, 0, 0.16);
+    --rl-border-strong: rgba(0, 0, 0, 0.22);
+    --rl-control-h: 44px;
+}
+
+#readings-landing .readings-landing-banner {
+    position: relative;
+    margin: 0 0 8px;
+    line-height: 0;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+@media (min-width: 768px) {
+    #readings-landing .readings-landing-banner {
+        height: 260px;
+    }
+}
+
+@media (min-width: 992px) {
+    #readings-landing .readings-landing-banner {
+        height: 400px;
+    }
+}
+
+#readings-landing .readings-landing-banner__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+
+#readings-landing .readings-landing-banner__actions {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 12px 15px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    #readings-landing .readings-landing-banner__actions {
+        padding: 8px 10px;
+    }
+}
+
+#readings-landing .readings-landing-banner__actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#readings-landing .readings-landing-banner__profile-col {
+    float: none;
+    width: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+@media (max-width: 767px) {
+    #readings-landing .readings-landing-banner__profile-col {
+        justify-content: center;
+        text-align: center;
+        margin-top: 12px;
+    }
+}
+
+#readings-landing .readings-landing-banner__btn {
+    font-size: 1.2em;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+}
+
+#readings-landing .readings-landing-banner__profile-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--rl-control-h);
+    min-height: var(--rl-control-h);
+    box-sizing: border-box;
+    padding: 0 14px;
+    line-height: 1.2;
+    background: var(--rl-glass);
+    border-color: var(--rl-border);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#readings-landing .readings-landing-banner__profile-btn:hover,
+#readings-landing .readings-landing-banner__profile-btn:focus {
+    background: var(--rl-glass-strong);
+    border-color: var(--rl-border-strong);
+}
+
+#readings-landing .readings-landing-content {
+    border: none;
+    padding: 20px;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 4px;
+}
+
+#readings-landing .readings-landing-title {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 0 24px;
+}
+
+@media (min-width: 768px) {
+    #readings-landing .readings-landing-title {
+        font-size: 32px;
+        margin-bottom: 28px;
+    }
+}
+
+#readings-landing .readings-landing-content p.help-text {
+    margin-bottom: 1.5em;
+}
+
+#readings-landing .readings-landing-content p.help-text:last-child {
+    margin-bottom: 0;
+}
+
+#readings-landing .readings-landing-content .card {
+    border: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+#readings-landing .readings-landing-content .card-body {
+    padding: 0;
+}
+
+#readings-landing .readings-landing-content .card-text {
+    margin-bottom: 1.5em;
+}
+
+#readings-landing .readings-landing-content .card-text:last-child {
+    margin-bottom: 0;
+}
