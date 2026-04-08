@@ -15,7 +15,7 @@ $this->registerCssFile('@web/css/spaces-landing.css');
     </div>
 
     <div class="spaces-landing-banner">
-        <?= Html::img('@web/img/spaces/bip-spaces.jpg', [
+        <?= Html::img('@web/img/bip-spaces.jpg', [
             'alt' => 'BIP! Spaces',
             'class' => 'img-responsive spaces-landing-banner__img',
             'width' => 1536,
