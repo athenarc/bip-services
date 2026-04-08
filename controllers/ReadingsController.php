@@ -58,11 +58,6 @@ class ReadingsController extends BaseController {
 
     public function actionIndex() {
         $user_id = Yii::$app->user->id;
-
-        // user is logged in and has bookmarked papers
-        if (isset($user_id) && UsersLikes::UserHasLikes($user_id)) {
-            return $this->redirect(['readings/list']);
-        }
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->render('readings_landing', [

@@ -1,0 +1,69 @@
+/* Keep spaces banner sizing aligned with scholar landing banner */
+#spaces-landing .spaces-landing-banner {
+    position: relative;
+    margin: 0 0 20px;
+    line-height: 0;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+@media (min-width: 768px) {
+    #spaces-landing .spaces-landing-banner {
+        height: 260px;
+    }
+}
+
+@media (min-width: 992px) {
+    #spaces-landing .spaces-landing-banner {
+        height: 400px;
+    }
+}
+
+#spaces-landing .spaces-landing-banner__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+
+#spaces-landing .spaces-landing-content {
+    border: none;
+    padding: 20px;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 4px;
+}
+
+#spaces-landing .spaces-landing-title {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 0 24px;
+}
+
+@media (min-width: 768px) {
+    #spaces-landing .spaces-landing-title {
+        font-size: 32px;
+        margin-bottom: 28px;
+    }
+}
+
+#spaces-landing .spaces-landing-content .card {
+    border: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+#spaces-landing .spaces-landing-content .card-body {
+    padding: 0;
+}
+
+#spaces-landing .spaces-landing-content .card-text {
+    margin-bottom: 1.5em;
+}
+
+#spaces-landing .spaces-landing-content .card-text:last-child {
+    margin-bottom: 0;
+}

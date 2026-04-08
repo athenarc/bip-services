@@ -1,55 +1,47 @@
-<head>
-    <style>
-        .spaces .container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-top: 50px;
-        }
-        .talk-point {
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .talk-point i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-    </style>
-</head>
-<div class="container spaces">
+<?php
+
+use yii\helpers\Html;
+
+$this->title = 'BIP! Services - Spaces';
+$this->registerCssFile('@web/css/spaces-landing.css');
+
+?>
+
+<div id="spaces-landing">
     <div class="row">
-        <div class="col text-center">
-            <h2 class="green-bip">BIP! Spaces</h2>
+        <div class="col-xs-12 text-center">
+            <h1>BIP! Spaces</h1>
         </div>
     </div>
-    <div class="row help-text">
-        <div class="col">
-            <p>You'd like access to a customized version of BIP! Finder linked to your local knowledge base and tailored to your specific requirements?</p>
-            <p>With BIP! Spaces, you can:</p>
-            <div class="talk-point">
-                <i class="fas fa-paint-brush fa-fw green-bip"></i> Choose a custom theme
-            </div>
-            <div class="talk-point">
-                <i class="fas fa-sort-amount-up fa-fw green-bip"></i> Modify the default ranking method and filters applied to searches
-            </div>
-            <div class="talk-point">
-                <i class="fas fa-file-alt fa-fw green-bip"></i> Enhance search results with annotations from the knowledge base of your choice
-            </div>
-        </div>
+
+    <div class="spaces-landing-banner">
+        <?= Html::img('@web/img/spaces/bip-spaces.jpg', [
+            'alt' => 'BIP! Spaces',
+            'class' => 'img-responsive spaces-landing-banner__img',
+            'width' => 1536,
+            'height' => 1024,
+        ]) ?>
     </div>
-    <div class="row">
-        <div class="col help-text">
-            <p class="text-center">Interested? This service is available upon request.</p>
-        </div>
-    </div>
-    <div class="row" style="margin-top: 20px";>
-        <div class="col">
-            <center>
-                <a href="mailto:bip@athenarc.gr" class="btn btn-lg btn-custom-color" role="button">Request More Information</a>
-            </center>
+
+    <div class="spaces-landing-content">
+        <h2 class="spaces-landing-title help-text">Your knowledge. Your search.</h2>
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text help-text">
+                    Each BIP! Space is an academic search engine tailored for the needs of a specific organisation
+                    or community. The owner of the space can choose a custom theme for the engine and modify
+                    its default behavior (e.g., default ranking method and filters applied to searches).
+                </p>
+                <p class="card-text help-text">
+                    More importantly, each space is connected with a knowledge base (e.g., a knowledge graph)
+                    that encodes annotations related to the domain of interest determined by the organisation or
+                    community that owns it.
+                </p>
+                <p class="card-text help-text">
+                    A BIP! Space is created upon request (if you are interested, please send an email at
+                    <a href="mailto:bip@athenarc.gr" class="main-green">bip@athenarc.gr</a>).
+                </p>
+            </div>
         </div>
     </div>
 </div>
