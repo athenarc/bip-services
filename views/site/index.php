@@ -8,9 +8,9 @@ use app\components\MagicSearchBox;
 use app\components\PubmedTypesModal;
 use app\components\ResultItem;
 use app\components\SummaryPanel;
-use app\components\TopTopicsItem;
-use app\components\TopAnnotationsItem;
 use app\components\Synonyms;
+use app\components\TopAnnotationsItem;
+use app\components\TopTopicsItem;
 use app\models\SummaryUsage;
 use Yii;
 use yii\bootstrap\Modal;
@@ -88,7 +88,7 @@ if ($in_space) {
             <?php if (isset($space_model->logo)): ?>
                 <?= Html::img($space_model->uploadLogoPath() . $space_model->logo, ['class' => '', 'style' => 'max-height: 150px;max-width: 80%;']) ?>
             <?php else: ?>
-                <?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?>
+                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'BIP! services celebrate their 10 years in operation']) ?>
             <?php endif; ?>
 
         </h1>

@@ -11,7 +11,7 @@ $this->registerCssFile('@web/css/home.css');
 
 <div class="site-index">
     <div class="jumbotron">
-        <h1><?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?></h1>
+        <h1><?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?></h1>
         <p style = "margin-top:-10px;">Amplifying valuable research</p>
     </div>
     <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
