@@ -13,7 +13,7 @@ $this->registerCssFile('@web/css/home.css');
     <div class="jumbotron">
         <h1>
             <a href="<?= Url::to(['blog/default/view', 'id' => 1]) ?>">
-                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?>
+                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'Celebrating 10 Years of BIP! Services']) ?>
             </a>
         </h1>
         <p style = "margin-top:-10px;">Amplifying valuable research</p>
