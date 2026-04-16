@@ -8,8 +8,8 @@ use app\models\AdminStats;
 use app\models\BlogPost;
 use app\models\BlogPostSearch;
 use Yii;
-use yii\helpers\FileHelper;
 use yii\data\ArrayDataProvider;
+use yii\helpers\FileHelper;
 use yii\web\Controller;
 use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
@@ -42,6 +42,7 @@ class BlogController extends Controller {
         $searchModel->scenario = BlogPostSearch::SCENARIO_USER;
         $request = Yii::$app->request;
         $tagFromPath = trim((string) $request->get('tag', ''));
+
         if ($tagFromPath !== '' && $tagFromPath !== mb_strtolower($tagFromPath, 'UTF-8')) {
             $normalizedTag = mb_strtolower($tagFromPath, 'UTF-8');
             $params = $request->getQueryParams();
@@ -61,10 +62,15 @@ class BlogController extends Controller {
         ]);
     }
 
-    public function actionView($id) {
+    public function actionView($id, $slug = null) {
         $post = BlogPost::find()->where(['status' => IActiveStatus::STATUS_ACTIVE, 'id' => $id])->one();
+
         if ($post === null) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        if ($slug !== $post->slug) {
+            return $this->redirect($post->getUrl(), 301);
         }
 
         $post->updateCounters(['click' => 1]);
@@ -87,6 +93,7 @@ class BlogController extends Controller {
 
         if ($model->load(Yii::$app->request->post())) {
             $model->coverUpload = UploadedFile::getInstance($model, 'coverUpload');
+
             if ($model->coverUpload !== null) {
                 try {
                     $model->cover_image = $this->storeCoverImage($model->coverUpload);
@@ -96,6 +103,7 @@ class BlogController extends Controller {
                     $model->addError('coverUpload', 'Failed to upload cover image.');
                 }
             }
+
             if (! $model->hasErrors() && $model->save()) {
                 Yii::$app->session->setFlash('success', 'Blog post created.');
 
@@ -112,6 +120,7 @@ class BlogController extends Controller {
 
     public function actionUpdate($id) {
         $model = BlogPost::findOne((int) $id);
+
         if ($model === null) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
@@ -122,6 +131,7 @@ class BlogController extends Controller {
 
         if ($model->load(Yii::$app->request->post())) {
             $model->coverUpload = UploadedFile::getInstance($model, 'coverUpload');
+
             if ($model->coverUpload !== null) {
                 try {
                     $model->cover_image = $this->storeCoverImage($model->coverUpload);
@@ -136,9 +146,11 @@ class BlogController extends Controller {
                 $model->cover_image = null;
                 $removeOldCover = true;
             }
+
             if (! $model->hasErrors() && $model->save()) {
                 if ($removeOldCover) {
                     $oldPath = Yii::getAlias('@webroot/assets/blog-cover/') . $oldCoverImage;
+
                     if (is_file($oldPath)) {
                         @unlink($oldPath);
                     }
@@ -163,12 +175,14 @@ class BlogController extends Controller {
         }
 
         $model = BlogPost::findOne((int) $id);
+
         if ($model === null) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         if (! empty($model->cover_image)) {
             $coverPath = Yii::getAlias('@webroot/assets/blog-cover/') . $model->cover_image;
+
             if (is_file($coverPath)) {
                 @unlink($coverPath);
             }
