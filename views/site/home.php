@@ -11,7 +11,11 @@ $this->registerCssFile('@web/css/home.css');
 
 <div class="site-index">
     <div class="jumbotron">
-        <h1><?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?></h1>
+        <h1>
+            <a href="<?= Url::to(['blog/default/view', 'id' => 1]) ?>">
+                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?>
+            </a>
+        </h1>
         <p style = "margin-top:-10px;">Amplifying valuable research</p>
         <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
             <?php foreach (Yii::$app->params['services'] as $service) { ?>
