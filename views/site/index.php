@@ -88,7 +88,9 @@ if ($in_space) {
             <?php if (isset($space_model->logo)): ?>
                 <?= Html::img($space_model->uploadLogoPath() . $space_model->logo, ['class' => '', 'style' => 'max-height: 150px;max-width: 80%;']) ?>
             <?php else: ?>
-                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'BIP! services celebrate their 10 years in operation']) ?>
+                <a href="<?= Url::to(['blog/default/view', 'id' => 1]) ?>">
+                    <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'BIP! services celebrate their 10 years in operation']) ?>
+                </a>
             <?php endif; ?>
 
         </h1>

@@ -110,10 +110,6 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'site/blog/create' => 'blog/default/create',
-                'site/blog/update/<id:\d+>' => 'blog/default/update',
-                'site/blog/<tag:[^/]+>' => 'blog/default/index',
-                'site/blog' => 'blog/default/index',
                 'search/<space_url_suffix>' => 'site/index',
                 'search' => 'site/index',
                 'compare' => 'site/comparison',
@@ -145,6 +141,15 @@ $config = [
 
                 // spaces pages
                 'spaces' => 'spaces/index',
+
+                // blog pages
+                'blog/<id:\d+>-<slug:[^/]+>' => 'blog/default/view',
+                'blog/<id:\d+>' => 'blog/default/view',
+
+                'site/blog/create' => 'blog/default/create',
+                'site/blog/update/<id:\d+>' => 'blog/default/update',
+                'site/blog/<tag:[^/]+>' => 'blog/default/index',
+                'site/blog' => 'blog/default/index',
             ],
         ],
     ],
