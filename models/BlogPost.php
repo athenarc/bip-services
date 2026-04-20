@@ -11,6 +11,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
 
@@ -26,8 +27,8 @@ use yii\web\UploadedFile;
  * @property int|null $user_id
  * @property string|null $cover_image
  * @property int $status
- * @property int $created_at
- * @property int $updated_at
+ * @property string $created_at
+ * @property string $updated_at
  */
 class BlogPost extends ActiveRecord {
     use ModuleTrait;
@@ -45,7 +46,10 @@ class BlogPost extends ActiveRecord {
 
     public function behaviors() {
         return [
-            TimestampBehavior::class,
+            [
+                'class' => TimestampBehavior::class,
+                'value' => new Expression('NOW()'),
+            ],
             [
                 'class' => SluggableBehavior::class,
                 'attribute' => 'title',

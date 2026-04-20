@@ -33,6 +33,10 @@ if (Yii::$app->get('opengraph', false)) {
 $post_user = $post->user;
 $username_attribute = Module::getInstance()->userName;
 $authorName = ($post_user && isset($post_user->{$username_attribute})) ? $post_user->{$username_attribute} : 'Unknown';
+$updatedTimestamp = is_numeric($post->updated_at) ? (int) $post->updated_at : strtotime((string) $post->updated_at);
+$createdTimestamp = is_numeric($post->created_at) ? (int) $post->created_at : strtotime((string) $post->created_at);
+$updatedIso = $updatedTimestamp ? date(DATE_ATOM, $updatedTimestamp) : '';
+$createdIso = $createdTimestamp ? date(DATE_ATOM, $createdTimestamp) : '';
 ?>
 <div class="container">
     <?php if (Yii::$app->session->hasFlash('success')) : ?>
@@ -43,7 +47,7 @@ $authorName = ($post_user && isset($post_user->{$username_attribute})) ? $post_u
 
     <article class="panel panel-default" itemscope itemtype="http://schema.org/Article">
         <meta itemprop="author" content="<?= Html::encode($authorName); ?>">
-        <meta itemprop="dateModified" content="<?= date_format(date_timestamp_set(new DateTime(), $post->updated_at), 'c') ?>"/>
+        <meta itemprop="dateModified" content="<?= Html::encode($updatedIso) ?>"/>
         <meta itemscope itemprop="mainEntityOfPage" itemType="https://schema.org/WebPage" itemid="<?= $post->getAbsoluteUrl(); ?>"/>
         <?php if ($post->module->enableComments) : ?>
         <meta itemprop="commentCount" content="<?= $dataProvider->getTotalCount(); ?>">
@@ -55,7 +59,7 @@ $authorName = ($post_user && isset($post_user->{$username_attribute})) ? $post_u
             <div class="flex-wrap items-center justify-between" style="margin-bottom: 12px;">
                 <div class="text-muted-settings">
                     <time title="<?= Module::t('blog', 'Create Time'); ?>" itemprop="datePublished"
-                          datetime="<?= date_format(date_timestamp_set(new DateTime(), $post->created_at), 'c') ?>">
+                          datetime="<?= Html::encode($createdIso) ?>">
                         <i class="fa fa-calendar-alt"></i> <?= Yii::$app->formatter->asDate($post->created_at); ?>
                     </time>
                     <span style="margin-left: 12px;" title="<?= Module::t('blog', 'Click'); ?>">
@@ -97,7 +101,7 @@ $authorName = ($post_user && isset($post_user->{$username_attribute})) ? $post_u
             <?php endif; ?>
             <hr>
 
-            <div class="help-text" itemprop="articleBody">
+            <div class="help-text blog-post-content" itemprop="articleBody">
                 <?= BlogContentSanitizer::purify($post->content); ?>
             </div>
             <p class="text-muted-settings blog-view-author-byline">
