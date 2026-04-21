@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return OFFSET_INDICATORS;
         }
 
+        // Help page subsections use same behavior as indicators items
+        if (target.closest('#help') && target.tagName === 'H4') {
+            return OFFSET_INDICATORS;
+        }
+
         // All other pages (Data, Help, About, etc.)
         return OFFSET_DEFAULT;
     }
