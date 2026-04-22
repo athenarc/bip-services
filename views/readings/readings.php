@@ -29,6 +29,14 @@ $this->registerCssFile('@web/css/on-off-switch.css');
 
 $papers_num = $result['papers_num'];
 $papers = $result['papers'];
+$facetPreviewLimit = 10;
+$renderFacetToggle = static function (int $itemsCount): string {
+    if ($itemsCount <= 10) {
+        return '';
+    }
+
+    return '<button type="button" class="btn btn-xs js-facet-see-more facet-see-more-btn grey-link fs-inherit" aria-expanded="false">See more</button>';
+};
 
 ?>
 
@@ -104,17 +112,19 @@ $papers = $result['papers'];
     echo Html::checkboxList('topics', $selected_topics, $result['facets']['topics']['options'], [
                                 'id' => 'topic-facet-items',
                                 'style' => ['display' => 'inline'],
-                                'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm) {
+                                'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
                                     $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                     $disabled = ($checked) ? '' : 'disabled=disabled';
                                     $btn_disabled = ($edit_perm) ? '' : 'disabled=true';
+                                    $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
 
-                                    return "<button id='topic-${value}' type='button' class='btn btn-xs ${btn_class} facet-item' ${btn_disabled}>
+                                    return "<button id='topic-${value}' type='button' class='btn btn-xs ${btn_class} facet-item${hidden_class}' ${btn_disabled}>
                                         <input id='topic-${value}-i' name='topics[]' value='${value}' type='hidden' ${disabled}/>
                                         ${label} <span class='badge badge-primary'>{$counts[$value]}</span>
                                     </button>";
                                 }
                             ]);
+    echo $renderFacetToggle(count($result['facets']['topics']['options']));
 }
                     ?>
                 </div>
@@ -135,17 +145,19 @@ $papers = $result['papers'];
                         echo Html::checkboxList('tags', $selected_tags, $result['facets']['tags']['options'], [
                                 'id' => 'tag-facet-items',
                                 'style' => ['display' => 'inline'],
-                                'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm) {
+                                'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
                                     $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                     $disabled = ($checked) ? '' : 'disabled=disabled';
                                     $btn_disabled = ($edit_perm) ? '' : 'disabled=true';
+                                    $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
 
-                                    return "<button id='tag-${value}' type='button' class='btn btn-xs ${btn_class} facet-item' ${btn_disabled}>
+                                    return "<button id='tag-${value}' type='button' class='btn btn-xs ${btn_class} facet-item${hidden_class}' ${btn_disabled}>
                                         <input id='tag-${value}-i' name='tags[]' value='${value}' type='hidden' ${disabled}/>
                                         ${label} <span class='badge badge-primary'>{$counts[$value]}</span>
                                     </button>";
                                 }
                             ]);
+                        echo $renderFacetToggle(count($result['facets']['tags']['options']));
                     }
                     ?>
                 </div>
@@ -162,17 +174,19 @@ $papers = $result['papers'];
                         echo Html::checkboxList('roles', $selected_rd_status, $result['facets']['rd_status']['options'], [
                                     'id' => 'rd_status-facet-items',
                                     'style' => ['display' => 'inline'],
-                                    'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm) {
+                                    'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
                                         $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                         $disabled = ($checked) ? '' : 'disabled=disabled';
                                         $btn_disabled = ($edit_perm) ? '' : 'disabled=true';
+                                        $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
 
-                                        return "<button id='rd_status-${value}' type='button' class='btn btn-xs ${btn_class} facet-item' ${btn_disabled}>
+                                        return "<button id='rd_status-${value}' type='button' class='btn btn-xs ${btn_class} facet-item${hidden_class}' ${btn_disabled}>
                                             <input id='rd_status-${value}-i' name='rd_status[]' value='${value}' type='hidden' ${disabled}/>
                                             ${label} <span class='badge badge-primary'>{$counts[$value]}</span>
                                         </button>";
                                     }
                                 ]);
+                        echo $renderFacetToggle(count($result['facets']['rd_status']['options']));
                     }
                         ?>
                     </div>
@@ -189,18 +203,20 @@ $papers = $result['papers'];
                             echo Html::checkboxList('accesses', $selected_accesses, $result['facets']['accesses']['options'], [
                                     'id' => 'access-facet-items',
                                     'style' => ['display' => 'inline'],
-                                    'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm) {
+                                    'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
                                         $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                         $disabled = ($checked) ? '' : 'disabled=disabled';
                                         $btn_disabled = ($edit_perm) ? '' : 'disabled=true';
                                         $label = $label['name'];
+                                        $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
 
-                                        return "<button id='access-${value}' type='button' class='btn btn-xs ${btn_class} facet-item' ${btn_disabled}>
+                                        return "<button id='access-${value}' type='button' class='btn btn-xs ${btn_class} facet-item${hidden_class}' ${btn_disabled}>
                                             <input id='access-${value}-i' name='accesses[]' value='${value}' type='hidden' ${disabled}/>
                                             ${label} <span class='badge badge-primary'>{$counts[$value]}</span>
                                         </button>";
                                     }
                                 ]);
+                            echo $renderFacetToggle(count($result['facets']['accesses']['options']));
                         }
                         ?>
                 </div>
@@ -216,18 +232,20 @@ $papers = $result['papers'];
                             echo Html::checkboxList('types', $selected_types, $result['facets']['types']['options'], [
                                         'id' => 'type-facet-items',
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $btn_disabled = ($edit_perm) ? '' : 'disabled=true';
                                             $label = $label['name'];
+                                            $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
 
-                                            return "<button id='type-${value}' type='button' class='btn btn-xs ${btn_class} facet-item' ${btn_disabled}>
+                                            return "<button id='type-${value}' type='button' class='btn btn-xs ${btn_class} facet-item${hidden_class}' ${btn_disabled}>
                                                 <input id='type-${value}-i' name='types[]' value='${value}' type='hidden' ${disabled}/>
                                                 ${label} <span class='badge badge-primary'>{$counts[$value]}</span>
                                             </button>";
                                         }
                                     ]);
+                            echo $renderFacetToggle(count($result['facets']['types']['options']));
                         }
                             ?>
                         </div>

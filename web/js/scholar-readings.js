@@ -13,6 +13,93 @@ function submit_scholar_form() {
     $('#scholar-form').submit();
 }
 
+const FACET_PREVIEW_LIMIT = 10;
+const FACET_EXPAND_STATE_KEY = 'bipFacetExpandState';
+const FACET_ITEM_HIDDEN_CLASS = 'facet-item-hidden';
+
+function getFacetExpandState() {
+    try {
+        const raw = sessionStorage.getItem(FACET_EXPAND_STATE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch (err) {
+        return {};
+    }
+}
+
+function saveFacetExpandState(state) {
+    try {
+        sessionStorage.setItem(FACET_EXPAND_STATE_KEY, JSON.stringify(state));
+    } catch (err) {
+        // Ignore storage failures (private mode, disabled storage).
+    }
+}
+
+function getFacetGroupKey($row, $container) {
+    const containerId = $container.attr('id');
+    const fallback = $row.find('.facet-header strong').text().trim() || 'facet-group';
+    return `${ window.location.pathname }::${ containerId || fallback }`;
+}
+
+function isFacetButtonSelected($button) {
+    const $input = $button.find('input[type="hidden"]');
+    return $input.length ? !$input.prop('disabled') : $button.hasClass('btn-success');
+}
+
+function applyFacetRowPreview($row) {
+    const $container = $row.find('[id*="facet-items"]').first();
+    if (!$container.length) return;
+
+    const $buttons = $container.find('.facet-item');
+    const $toggle = $row.find('.js-facet-see-more').first();
+    if ($buttons.length <= FACET_PREVIEW_LIMIT) {
+        $buttons.removeClass(FACET_ITEM_HIDDEN_CLASS);
+        if ($toggle.length) {
+            $toggle.remove();
+        }
+        return;
+    }
+
+    const state = getFacetExpandState();
+    const key = getFacetGroupKey($row, $container);
+    const isExpanded = !!state[key];
+
+    $buttons.each(function (index, buttonEl) {
+        const $button = $(buttonEl);
+        const shouldShow = isExpanded || index < FACET_PREVIEW_LIMIT || isFacetButtonSelected($button);
+        $button.toggleClass(FACET_ITEM_HIDDEN_CLASS, !shouldShow);
+    });
+
+    const label = isExpanded ? 'See less' : 'See more';
+    if ($toggle.length) {
+        $toggle.text(label).attr('aria-expanded', isExpanded ? 'true' : 'false');
+    } else {
+        const $newToggle = $(`<button type="button" class="btn btn-xs js-facet-see-more facet-see-more-btn grey-link fs-inherit" aria-expanded="${ isExpanded ? 'true' : 'false' }">${ label }</button>`);
+        $container.after($newToggle);
+    }
+}
+
+function initializeFacetPreview() {
+    $('.facet-row').each(function () {
+        applyFacetRowPreview($(this));
+    });
+}
+
+$(document).on('click', '.js-facet-see-more', function (e) {
+    e.preventDefault();
+
+    const $toggle = $(this);
+    const $row = $toggle.closest('.facet-row');
+    const $container = $row.find('[id*="facet-items"]').first();
+    if (!$container.length) return;
+
+    const key = getFacetGroupKey($row, $container);
+    const state = getFacetExpandState();
+    state[key] = !state[key];
+    saveFacetExpandState(state);
+
+    applyFacetRowPreview($row);
+});
+
 function ensurePerListFacetField(listId, facet) {
     const $form = $('#scholar-form');
     const name = `lists[${ listId }][fct_field]`;
@@ -146,6 +233,11 @@ function updateFacet(facet_type, id, name, selected) {
             $(`#${facet_type}-facet-items`).append("\n").append(newFacet);
         }
     }
+
+    const $facetRow = $(`#${facet_type}-facet-items`).closest('.facet-row');
+    if ($facetRow.length) {
+        applyFacetRowPreview($facetRow);
+    }
 }
 
 /**
@@ -200,10 +292,17 @@ function updateProfileRoleFacet(listId, involvementId, involvementName, selected
                 $container.append('\n').append(newBtn);
             }
         }
+
+        const $facetRow = $container.closest('.facet-row');
+        if ($facetRow.length) {
+            applyFacetRowPreview($facetRow);
+        }
     });
 }
 
 $(document).ready(() => {
+    initializeFacetPreview();
+
     $('#reading-list-public-switch').click(event => {
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
         const is_public = (event.target.checked) ? 1 : 0;
