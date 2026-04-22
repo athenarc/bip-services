@@ -29,7 +29,14 @@ use yii\helpers\Html;
                             'class' => 'img-responsive blog-card-cover-image',
                         ]
                     ),
-                    $model->url
+                    $model->url,
+                    ['class' => 'blog-card-cover-link', 'aria-label' => 'Open post']
+                ) ?>
+            <?php else : ?>
+                <?= Html::a(
+                    '',
+                    $model->url,
+                    ['class' => 'blog-card-cover-link blog-card-cover-link--empty', 'aria-label' => 'Open post']
                 ) ?>
             <?php endif; ?>
         </div>
