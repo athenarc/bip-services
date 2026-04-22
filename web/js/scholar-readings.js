@@ -235,7 +235,7 @@ $(document).ready(() => {
         });
     });
 
-    $(document).on('change', '[id^="sort-dropdown-"]', () => {
+    $(document).on('change', '[id^="sort-dropdown-"], #sort-dropdown', () => {
         const selected_list_id = $('#scholar-form').attr('data-selected_list_id');
         if (selected_list_id) {
             const default_action = $('#scholar-form').attr('action');
