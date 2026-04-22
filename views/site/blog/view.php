@@ -33,8 +33,8 @@ if (Yii::$app->get('opengraph', false)) {
 $post_user = $post->user;
 $username_attribute = Module::getInstance()->userName;
 $authorName = ($post_user && isset($post_user->{$username_attribute})) ? $post_user->{$username_attribute} : 'Unknown';
-$updatedTimestamp = is_numeric($post->updated_at) ? (int) $post->updated_at : strtotime((string) $post->updated_at);
-$createdTimestamp = is_numeric($post->created_at) ? (int) $post->created_at : strtotime((string) $post->created_at);
+$updatedTimestamp = strtotime((string) $post->updated_at);
+$createdTimestamp = strtotime((string) $post->created_at);
 $updatedIso = $updatedTimestamp ? date(DATE_ATOM, $updatedTimestamp) : '';
 $createdIso = $createdTimestamp ? date(DATE_ATOM, $createdTimestamp) : '';
 ?>
@@ -74,10 +74,10 @@ $createdIso = $createdTimestamp ? date(DATE_ATOM, $createdTimestamp) : '';
                 <?php if (! Yii::$app->user->isGuest && Yii::$app->user->identity->is_admin) : ?>
                     <div>
                         <?= Html::a(
-                            '<i class="fa-solid fa-pen"></i> Edit post',
-                            ['/blog/default/update', 'id' => $post->id],
-                            ['class' => 'btn btn-default btn-sm']
-                        ) ?>
+    '<i class="fa-solid fa-pen"></i> Edit post',
+    ['/blog/default/update', 'id' => $post->id],
+    ['class' => 'btn btn-default btn-sm']
+) ?>
                         <?= Html::a(
                             '<i class="fa-solid fa-trash"></i> Delete post',
                             ['/blog/default/delete', 'id' => $post->id],
