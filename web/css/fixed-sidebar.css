@@ -1,5 +1,5 @@
-/* Style for the sidebar */
-#indicators .sidebar {
+/* Shared sidebar styles (Indicators + Help) */
+:is(#indicators, #help) .sidebar {
     position: fixed;
     top: 50px;
     bottom: 0;
@@ -11,20 +11,20 @@
     border-right: 1px solid #dee2e6;
 }
 
-#indicators .sidebar-body ul {
+:is(#indicators, #help) .sidebar-body ul {
     list-style: none;
     padding-left: 0;
 }
 
-#indicators .sidebar-body ul li {
+:is(#indicators, #help) .sidebar-body ul li {
     padding-left: 20px;
 }
 
-#indicators .sidebar a {
+:is(#indicators, #help) .sidebar a {
     text-decoration: none;
 }
 
-#indicators .toc-link {
+:is(#indicators, #help) .toc-link {
     color: #333;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -34,32 +34,32 @@
     cursor: pointer;
 }
 
-#indicators .toc-item {
+:is(#indicators, #help) .toc-item {
     cursor: pointer;
 }
 
-#indicators .toc-item:hover {
+:is(#indicators, #help) .toc-item:hover {
     color: #007bff;
     background-color: #f0f0f0;
 }
 
-#indicators .caret {
+:is(#indicators, #help) .caret {
     margin-left: auto;
     transition: transform 0.3s;
     transform: rotate(-90deg);
 }
 
-#indicators .caret.collapsed {
+:is(#indicators, #help) .caret.collapsed {
     transform: rotate(0deg);
 }
 
-#indicators .toc-heading {
+:is(#indicators, #help) .toc-heading {
     font-weight: bold;
     margin-top: 10px;
 }
 
-/* Style for the main content */
-#indicators .main-content {
+/* Shared main content spacing for pages with fixed left TOC */
+:is(#indicators, #help) .main-content {
     margin-left: 270px;
     /* padding-top: 50px; */
 }
@@ -95,10 +95,10 @@
 
 /* Responsiveness */
 @media (max-width: 992px) {
-    #indicators .sidebar {
+    :is(#indicators, #help) .sidebar {
         display: none;
     }
-    #indicators .main-content {
+    :is(#indicators, #help) .main-content {
         margin-left: unset;
     }
     
