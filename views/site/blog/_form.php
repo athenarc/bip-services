@@ -12,7 +12,7 @@ $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', [
     'position' => View::POS_END,
     'depends' => [\yii\web\JqueryAsset::className()],
 ]);
-$this->registerJsFile('@web/js/tinymceAdminPanel.js', [
+$this->registerJsFile('@web/js/tinymceBlogPanel.js', [
     'position' => View::POS_END,
     'depends' => [\yii\web\JqueryAsset::className()],
 ]);
@@ -34,7 +34,7 @@ $this->registerJsFile('@web/js/tinymceAdminPanel.js', [
 ]) ?>
 
 <?= $form->field($model, 'content')->textarea([
-    'class' => 'search-box form-control rich_text_area_admin',
+    'class' => 'search-box form-control rich_text_area_blog',
     'rows' => 14,
 ]) ?>
 
