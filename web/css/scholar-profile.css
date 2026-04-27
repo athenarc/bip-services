@@ -197,10 +197,6 @@ button.btn-success.facet-item {
     outline: none;
 }
 
-.facet-see-more-btn[aria-expanded="true"] {
-    color: var(--main-color);
-}
-
 /* profile indicators */
 .inner-well {
     min-height: 90px;

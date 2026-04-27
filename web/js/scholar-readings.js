@@ -69,7 +69,7 @@ function applyFacetRowPreview($row) {
         $button.toggleClass(FACET_ITEM_HIDDEN_CLASS, !shouldShow);
     });
 
-    const label = isExpanded ? 'See less' : 'See more';
+    const label = isExpanded ? 'Show less' : 'Show more';
     if ($toggle.length) {
         $toggle.text(label).attr('aria-expanded', isExpanded ? 'true' : 'false');
     } else {

@@ -35,7 +35,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
         return '';
     }
 
-    return '<button type="button" class="btn btn-xs js-facet-see-more facet-see-more-btn grey-link fs-inherit" aria-expanded="false">See more</button>';
+    return '<button type="button" class="btn btn-xs js-facet-see-more facet-see-more-btn grey-link fs-inherit" aria-expanded="false">Show more</button>';
 };
 
 ?>
