@@ -176,6 +176,27 @@ button.btn-success.facet-item {
     background-color: #777;
 }
 
+.facet-item-hidden {
+    display: none !important;
+}
+
+.facet-see-more-btn {
+    padding: 0;
+    margin-top: 6px;
+    margin-left: 2px;
+    border: 0;
+    background: transparent;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.facet-see-more-btn:hover,
+.facet-see-more-btn:focus {
+    color: var(--main-color);
+    text-decoration: none;
+    outline: none;
+}
+
 /* profile indicators */
 .inner-well {
     min-height: 90px;
