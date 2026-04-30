@@ -40,6 +40,7 @@ use app\models\PassresetForm;
 use app\models\PreviousUrlChecker;
 use app\models\ProfileTemplateCategories;
 use app\models\ProfileTemplateCategoriesSearch;
+use app\models\ProfileTemplateFeedback;
 use app\models\Relations;
 use app\models\RequestresetForm;
 use app\models\Researcher;
@@ -2192,6 +2193,10 @@ class SiteController extends BaseController {
         $user_id = Yii::$app->user->id;
         $researcher = Researcher::findOne(['user_id' => $user_id]);
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
+        $templateFeedback = ProfileTemplateFeedback::find()
+            ->where(['template_id' => $templateModel->id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
 
         // Generate the template URL if a researcher record is found
         $templateUrl = null;
@@ -2209,7 +2214,53 @@ class SiteController extends BaseController {
             'elementsDataProvider' => $elementsDataProvider,
             'elementsTotalUsers' => $elementsTotalUsers,
             'templateUrl' => $templateUrl,
+            'templateFeedback' => $templateFeedback,
         ]);
+    }
+
+    public function actionUpdateTemplateFeedbackStatus($id, $template_id, $profile_template_category_id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
+        }
+
+        $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+        if (! $feedback) {
+            throw new \yii\web\NotFoundHttpException('Feedback item not found');
+        }
+
+        $status = Yii::$app->request->post('status');
+        if (! in_array($status, [ProfileTemplateFeedback::STATUS_RESOLVED, ProfileTemplateFeedback::STATUS_DENIED], true)) {
+            Yii::$app->session->setFlash('danger', 'Invalid feedback status.');
+            return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+        }
+
+        $feedback->status = $status;
+        $feedback->admin_note = Yii::$app->request->post('admin_note');
+        $feedback->resolved_by_user_id = Yii::$app->user->id;
+        $feedback->resolved_at = date('Y-m-d H:i:s');
+        $feedback->save(false);
+
+        Yii::$app->session->setFlash('success', 'Feedback status updated.');
+        return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+    }
+
+    public function actionDeleteTemplateFeedback($id, $template_id, $profile_template_category_id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
+        }
+
+        $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+        if (! $feedback) {
+            throw new \yii\web\NotFoundHttpException('Feedback item not found');
+        }
+
+        if ($feedback->status === ProfileTemplateFeedback::STATUS_PENDING) {
+            Yii::$app->session->setFlash('danger', 'Only answered feedback can be removed.');
+            return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+        }
+
+        $feedback->delete();
+        return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Elements;
-use Yii;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -184,4 +183,92 @@ $section_profiles = ($section === 'profiles');
     ]); ?>
 
 
+</div>
+
+<div class="template-feedback-index">
+    <h2>Profile Feedback</h2>
+    <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <div class="alert alert-success"><?= Yii::$app->session->getFlash('success') ?></div>
+    <?php endif; ?>
+    <?php if (Yii::$app->session->hasFlash('danger')): ?>
+        <div class="alert alert-danger"><?= Yii::$app->session->getFlash('danger') ?></div>
+    <?php endif; ?>
+
+    <?php if (! empty($templateFeedback)): ?>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Profile ORCID</th>
+                        <th>Submitted By</th>
+                        <th>Feedback</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th style="min-width: 260px;">Admin Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($templateFeedback as $feedback): ?>
+                    <tr>
+                        <td><?= (int) $feedback->id ?></td>
+                        <td><?= Html::encode($feedback->profile_orcid) ?></td>
+                        <td><?= Html::encode($feedback->reporter->email ?? ('User #' . $feedback->reporter_user_id)) ?></td>
+                        <td>
+                            <?= nl2br(Html::encode($feedback->message)) ?>
+                            <?php if (! empty($feedback->admin_note)): ?>
+                                <hr style="margin: 8px 0;">
+                                <small><strong>Admin note:</strong> <?= nl2br(Html::encode($feedback->admin_note)) ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span class="label <?= $feedback->status === 'pending' ? 'label-warning' : ($feedback->status === 'resolved' ? 'label-success' : 'label-default') ?>">
+                                <?= Html::encode(ucfirst($feedback->status)) ?>
+                            </span>
+                        </td>
+                        <td><?= Html::encode($feedback->created_at) ?></td>
+                        <td>
+                            <?php if ($feedback->status === 'pending'): ?>
+                                <form method="post" action="<?= Url::to(['site/update-template-feedback-status', 'id' => $feedback->id, 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id]) ?>">
+                                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+                                    <div class="form-group" style="margin-bottom:8px;">
+                                        <textarea class="form-control" name="admin_note" rows="2" maxlength="1000" placeholder="Optional note"></textarea>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-success" type="submit" name="status" value="resolved">Resolve</button>
+                                        <button class="btn btn-default" type="submit" name="status" value="denied">Deny</button>
+                                    </div>
+                                </form>
+                            <?php else: ?>
+                                <small>
+                                    <?= Html::encode($feedback->resolved_at ? ('Updated: ' . $feedback->resolved_at) : 'Updated') ?>
+                                    <?php if ($feedback->resolver): ?>
+                                        <br>by <?= Html::encode($feedback->resolver->email) ?>
+                                    <?php endif; ?>
+                                </small>
+                                <?php if ($feedback->status !== 'pending'): ?>
+                                    <div style="margin-top: 8px;">
+                                        <?= Html::a(
+                                            'Delete record',
+                                            ['site/delete-template-feedback', 'id' => $feedback->id, 'template_id' => $templateModel->id, 'profile_template_category_id' => $profile_template_category_id],
+                                            [
+                                                'class' => 'btn btn-xs btn-danger',
+                                                'data' => [
+                                                    'confirm' => 'Remove this answered feedback record from the database?',
+                                                    'method' => 'post',
+                                                ],
+                                            ]
+                                        ) ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php else: ?>
+        <div class="alert alert-info">No feedback submitted for this template yet.</div>
+    <?php endif; ?>
 </div>
