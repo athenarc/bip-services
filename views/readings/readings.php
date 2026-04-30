@@ -67,6 +67,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
 </span>
 
 <div id="readings" class="container-fluid">
+    <div class="<?= $edit_perm ? 'main-content' : '' ?>">
     <div class="row">
         <div class="col-xs-12 col-sm-9">
             <h1>
@@ -117,7 +118,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
         <?php endif; ?>
         <div class="well profile">
 
-            <div class="col-sm-12 col-xs-12">
+            <div class="<?= $edit_perm ? 'col-sm-9' : 'col-sm-12' ?> col-xs-12">
 
                 <?php ActiveForm::begin([
                     'id' => 'scholar-form',
@@ -140,9 +141,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
                     <?php if (count($result['facets']['topics']['counts']) == 0) { ?>
                             <span id="topic-facet-items">-</span>
                     <?php } else {
-    $counts = $result['facets']['topics']['counts'];
+                    $counts = $result['facets']['topics']['counts'];
 
-    echo Html::checkboxList('topics', $selected_topics, $result['facets']['topics']['options'], [
+                    echo Html::checkboxList('topics', $selected_topics, $result['facets']['topics']['options'], [
                                 'id' => 'topic-facet-items',
                                 'style' => ['display' => 'inline'],
                                 'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
@@ -157,8 +158,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                     </button>";
                                 }
                             ]);
-    echo $renderFacetToggle(count($result['facets']['topics']['options']));
-}
+                    echo $renderFacetToggle(count($result['facets']['topics']['options']));
+                }
                     ?>
                 </div>
 
@@ -174,9 +175,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <?php if (count($result['facets']['tags']['counts']) == 0) { ?>
                                 <span id="tag-facet-items">-</span>
                         <?php } else {
-                            $counts = $result['facets']['tags']['counts'];
+                        $counts = $result['facets']['tags']['counts'];
 
-                            echo Html::checkboxList('tags', $selected_tags, $result['facets']['tags']['options'], [
+                        echo Html::checkboxList('tags', $selected_tags, $result['facets']['tags']['options'], [
                                     'id' => 'tag-facet-items',
                                     'style' => ['display' => 'inline'],
                                     'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
@@ -191,8 +192,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                         </button>";
                                     }
                                 ]);
-                            echo $renderFacetToggle(count($result['facets']['tags']['options']));
-                        }
+                        echo $renderFacetToggle(count($result['facets']['tags']['options']));
+                    }
                         ?>
                     </div>
                 <?php endif; ?>
@@ -204,9 +205,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <?php if (count($result['facets']['rd_status']['counts']) == 0) { ?>
                             <span id="rd_status-facet-items">-</span>
                         <?php } else {
-                        $counts = $result['facets']['rd_status']['counts'];
+                            $counts = $result['facets']['rd_status']['counts'];
 
-                        echo Html::checkboxList('roles', $selected_rd_status, $result['facets']['rd_status']['options'], [
+                            echo Html::checkboxList('roles', $selected_rd_status, $result['facets']['rd_status']['options'], [
                                     'id' => 'rd_status-facet-items',
                                     'style' => ['display' => 'inline'],
                                     'item' => function ($index, $label, $name, $checked, $value) use ($counts, $edit_perm, $facetPreviewLimit) {
@@ -221,8 +222,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                         </button>";
                                     }
                                 ]);
-                        echo $renderFacetToggle(count($result['facets']['rd_status']['options']));
-                    }
+                            echo $renderFacetToggle(count($result['facets']['rd_status']['options']));
+                        }
                         ?>
                     </div>
                 <?php endif; ?>
@@ -332,7 +333,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
             <?php endif; ?>
         </div>
     </div>
+    </div>
 
+    <div class="<?= $edit_perm ? 'main-content' : '' ?>">
     <div class="row" >
         <?php if ($papers_num > 0): ?>
         <div class="col-md-8">
@@ -412,6 +415,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
         <?php else: ?>
             <span>You do not have any readings to BIP! Scholar. Please add publications to your readings first.</span>
         <?php endif; ?>
+    </div>
     </div>
 </div>
 

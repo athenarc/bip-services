@@ -59,7 +59,7 @@
 }
 
 /* Shared main content spacing for pages with fixed left TOC */
-:is(#indicators, #help) .main-content {
+:is(#indicators, #help, #readings) .main-content {
     margin-left: 270px;
     /* padding-top: 50px; */
 }
@@ -98,7 +98,7 @@
     :is(#indicators, #help, #readings) .sidebar {
         display: none;
     }
-    :is(#indicators, #help) .main-content {
+    :is(#indicators, #help, #readings) .main-content {
         margin-left: unset;
     }
     
