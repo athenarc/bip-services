@@ -10,7 +10,7 @@ use yii\web\View;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'BIP! Services - Readings';
+$this->title = 'BIP! Services - My readings';
 
 $this->registerJsFile('@web/js/third-party/bootstrap-tagsinput/bootstrap-tagsinput.min.js', ['position' => View::POS_END]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -92,7 +92,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                     <?php endif; ?>
                     <small class="grey-text reading-powered-by">Powered-by <a href="<?= Url::to(['readings/index']) ?>" class="green-bip"><?= Html::img('@web/img/bip-minimal.png', ['alt' => 'BIP! Readings', 'style' => 'height:14px; width:auto;']) ?></a></small>
                 <?php else: ?>
-                    Readings
+                    My readings
                 <?php endif; ?>
             </h1>
         </div>
@@ -315,6 +315,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
             <div class="col-sm-3 col-xs-12 sidebar">
                 <div id="toc-panel">
                     <div class="sidebar-body">
+                        <h5 class="toc-heading" style="margin-top: 0; margin-bottom: 8px;">
+                            <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
+                        </h5>
                         <h5 class="toc-heading">
                             <span class="green-bip">
                                 Reading lists
@@ -324,14 +327,14 @@ $renderFacetToggle = static function (int $itemsCount): string {
                             </span>
                             <span class="pull-right">
                         <?php if ($reading_list_enable): ?>
-                            <span role="button" class="grey-link" data-toggle="modal" data-target="#new-reading-list-modal" data-mode="create" title="Reading lists can be created using user-defined tags only.">
-                                <i class="fa-solid fa-plus"></i>
+                            <span role="button" class="grey-link" data-toggle="modal" data-target="#new-reading-list-modal" data-mode="create" title="Save current filters as a new reading list.">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i> Save as new
                             </span>
                         <?php else :
                             $reading_list_title = 'Reading lists are created using user-defined tags only. Please clear any selected Topics, Availability, Reading status, or Work type filters.';
                         ?>
                             <span class="grey-link disabled" title="<?= $reading_list_title ?>">
-                                <i class="fa-solid fa-plus"></i>
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i> Save as new
                             </span>
                         <?php endif; ?>
                             </span>
