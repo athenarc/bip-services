@@ -31,16 +31,27 @@
 }
 
 .reading-list-item-inline {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
-    max-width: 100%;
+    width: 100%;
     white-space: nowrap;
 }
 
-.reading-list-item-inline .toc-link {
+.reading-list-item-inline .reading-list-item-title {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.reading-list-item-inline .light-grey-link {
+    flex-shrink: 0;
+}
+
+.reading-list-item-inline.toc-link {
+    overflow: hidden;
+    text-decoration: none;
 }
 
 #reading-list-summarize-btn.disabled {

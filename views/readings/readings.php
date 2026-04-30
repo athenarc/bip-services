@@ -352,12 +352,12 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                         : 'No description is provided for this reading list.';
                                 ?>
                                 <li class="toc-item">
-                                    <span class="reading-list-item-inline">
-                                        <a class="toc-link <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>"><?= Html::encode($list_title) ?></a>
+                                    <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
+                                        <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
                                         <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
                                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                                         </span>
-                                    </span>
+                                    </a>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
