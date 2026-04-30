@@ -983,6 +983,35 @@ use yii\widgets\Pjax;
 
     */ ?>
 
+    <!-- Template Feedback Modal -->
+    <?php if (! Yii::$app->user->isGuest && $template->isHidden()): ?>
+        <?php
+        $footer = '
+            <button class="btn btn-custom-color" type="button" id="submit-template-feedback-btn">Submit Feedback</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        ';
+        Modal::begin([
+            'header' => '<h4>Send Feedback to Template Creator</h4>',
+            'id' => 'templateFeedbackModal',
+            'size' => 'modal-md',
+            'footer' => $footer
+        ]);
+        ?>
+            <form id="template-feedback-form" autocomplete="off">
+                <?= Html::hiddenInput('template_id', $template->id, ['id' => 'template-feedback-template-id']) ?>
+                <?= Html::hiddenInput('profile_orcid', $researcher->orcid, ['id' => 'template-feedback-profile-orcid']) ?>
+
+                <div class="form-group">
+                    <label for="template-feedback-message">Feedback <span class="text-danger">*</span></label>
+                    <textarea id="template-feedback-message" name="message" class="form-control" rows="4" maxlength="2000" required placeholder="Describe your feedback about this template..."></textarea>
+                    <small class="form-text text-muted"><span id="template-feedback-description-count">0</span>/2000 characters</small>
+                </div>
+
+                <div id="template-feedback-message-box" class="alert" style="display: none;"></div>
+            </form>
+        <?php Modal::end(); ?>
+    <?php endif; ?>
+
     <!-- Report Profile Modal -->
     <?php if (! $edit_perm && ! Yii::$app->user->isGuest): ?>
         <?php

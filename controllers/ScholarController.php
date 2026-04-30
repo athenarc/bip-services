@@ -21,6 +21,7 @@ use app\models\Indicators;
 use app\models\Involvement;
 use app\models\Orcid;
 use app\models\ProfileReportForm;
+use app\models\ProfileTemplateFeedbackForm;
 use app\models\ProfileTemplateCategories;
 use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
@@ -1099,6 +1100,37 @@ class ScholarController extends BaseController {
                 'status' => 'error',
                 'message' => ! empty($model->errors) ? implode(' ', array_map(function ($errors) { return implode(' ', $errors); }, $model->errors)) : 'An error occurred while submitting your report.'
             ];
+    }
+
+    public function actionSubmitTemplateFeedback() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $user_id = Yii::$app->user->id;
+        if (! $user_id) {
+            return [
+                'status' => 'error',
+                'message' => 'You must be logged in to submit feedback.'
+            ];
+        }
+
+        $model = new ProfileTemplateFeedbackForm();
+        $model->template_id = Yii::$app->request->post('template_id');
+        $model->profile_orcid = Yii::$app->request->post('profile_orcid');
+        $model->message = Yii::$app->request->post('message');
+
+        if ($model->save()) {
+            return [
+                'status' => 'success',
+                'message' => 'Feedback submitted to template creator.'
+            ];
+        }
+
+        return [
+            'status' => 'error',
+            'message' => ! empty($model->errors)
+                ? implode(' ', array_map(function ($errors) { return implode(' ', $errors); }, $model->errors))
+                : 'An error occurred while submitting feedback.'
+        ];
     }
 
     public function actionSaveCvNarrative() {
