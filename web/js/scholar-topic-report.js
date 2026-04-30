@@ -1,13 +1,5 @@
 $(document).ready(() => {
     const baseUrl = (typeof window.appBaseUrl === 'string') ? window.appBaseUrl : '';
-    function escapeHtml(value) {
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
 
     function strikeThroughTopic(paperId, topicId) {
         const selector = `.scholar-topic-tag[data-paper-id="${ paperId }"][data-topic-id="${ topicId }"]`;
@@ -94,22 +86,29 @@ $(document).ready(() => {
             $container.empty();
         }
 
-        const badgeHtml = withBadge ? " <span class='badge badge-primary'>1</span>" : '';
-        const safeName = escapeHtml(topicName || topicId);
-        const buttonHtml = `<button id='${buttonId}'
-                type='button'
-                class='btn btn-xs btn-default facet-item'
-                data-list-id='${listId}'
-                data-facet='topics'>
-            <input id='${inputId}'
-                name='lists[${listId}][topics][]'
-                value='${escapeHtml(topicId)}'
-                form='scholar-form'
-                type='hidden'
-                disabled='disabled'/>
-            ${safeName}${badgeHtml}
-        </button>`;
-        $container.append(buttonHtml);
+        const topicLabel = topicName || topicId;
+        const $newButton = $('<button>', {
+            id: buttonId,
+            type: 'button',
+            class: 'btn btn-xs btn-default facet-item',
+            'data-list-id': listId,
+            'data-facet': 'topics',
+        });
+        const $newInput = $('<input>', {
+            id: inputId,
+            name: `lists[${listId}][topics][]`,
+            value: topicId,
+            form: 'scholar-form',
+            type: 'hidden',
+            disabled: true,
+        });
+        $newButton.append($newInput);
+        $newButton.append(document.createTextNode(topicLabel));
+        if (withBadge) {
+            $newButton.append(' ');
+            $newButton.append($('<span>', { class: 'badge badge-primary' }).text('1'));
+        }
+        $container.append($newButton);
     }
 
     $(document).on('click', '.report-topic-btn', function (e) {
