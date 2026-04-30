@@ -31,7 +31,7 @@ $this->registerCss('#readings .toc-item.empty-reading-lists { cursor: default; }
 $this->registerCss('.reading-powered-by { display: inline-block; font-size: 16px; margin-left: 8px; vertical-align: middle; }');
 $this->registerCss('.reading-list-description { text-align: justify; margin-top: 6px; }');
 $this->registerCss('#reading-list-summarize-btn.disabled { pointer-events: none; opacity: 0.5; }');
-$this->registerCss('.reading-list-summarize-icon { color: #000; } .reading-list-summarize-icon:hover { color: #000; }');
+$this->registerCss('.reading-list-summarize-btn { color: #000; } .reading-list-summarize-btn:hover { color: #000; }');
 
 $papers_num = $result['papers_num'];
 $papers = $result['papers'];
@@ -81,11 +81,11 @@ $renderFacetToggle = static function (int $itemsCount): string {
                               data-reading-list-id="<?= $current_reading_list->id ?>"
                               data-reading-list-title="<?= Html::encode($current_reading_list->title) ?>"
                               data-reading-list-description="<?= Html::encode($current_reading_list->description ?? '') ?>"
-                              class="grey-link"
+                              class="grey-link small"
                               title="Edit current list">
                             <i class="fa-solid fa-pen-to-square fa-2xs"></i>
                         </span>
-                        <a href="<?= Url::to(['readings/delete-reading-list/', 'selected_list_id' => $current_reading_list->id]) ?>" class="grey-link" title="Delete current list"><i class="fa-solid fa-trash fa-2xs"></i></a>
+                        <a href="<?= Url::to(['readings/delete-reading-list/', 'selected_list_id' => $current_reading_list->id]) ?>" class="grey-link small" title="Delete current list" onclick="return confirm('Are you sure you want to delete this reading list?');"><i class="fa-solid fa-trash fa-2xs"></i></a>
                     <?php endif; ?>
                     <small class="grey-text reading-powered-by">Powered-by <a href="<?= Url::to(['readings/index']) ?>" class="green-bip"><?= Html::img('@web/img/bip-minimal.png', ['alt' => 'BIP! Readings', 'style' => 'height:14px; width:auto;']) ?></a></small>
                 <?php else: ?>
@@ -456,16 +456,15 @@ $renderFacetToggle = static function (int $itemsCount): string {
                 <label for="new_reading_list_description" style="display:flex;align-items:center;justify-content:space-between;">
                     <span>Description:</span>
                     <?php if (\app\models\SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
-                        <span id="reading-list-summarize-btn"
-                              role="button"
-                              class="reading-list-summarize-icon"
-                              title="Use AI to summarize top results and fill the description automatically."
-                              style="font-weight:normal;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </span>
+                        <button id="reading-list-summarize-btn"
+                                type="button"
+                                class="btn btn-default btn-xs reading-list-summarize-btn"
+                                title="Use AI to summarize top results and fill the description automatically.">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Autogenerate with AI
+                        </button>
                     <?php endif; ?>
                 </label>
-                <textarea id="new_reading_list_description" name="new_reading_list_description" class = "form-control" style = "resize: none;"></textarea>
+                <textarea id="new_reading_list_description" name="new_reading_list_description" class = "form-control" style = "resize: vertical; min-height: 180px;"></textarea>
             </div>
             <input id='new_reading_list_facets' name='new_reading_list_facets' type='hidden' value='<?= json_encode([
                 'tags' => $selected_tags,
@@ -555,7 +554,11 @@ $(document).on('click', '#reading-list-summarize-btn', function () {
     const limit = Math.min(5, maxAvailable);
     const paperIds = allPaperIds.slice(0, limit);
 
-    btn.addClass('disabled').attr('aria-disabled', 'true').attr('title', 'Generating summary...');
+    btn
+        .addClass('disabled')
+        .attr('aria-disabled', 'true')
+        .attr('title', 'Generating summary...')
+        .html('<i class="fa fa-spinner fa-spin"></i> Generating...');
 
     $.post(appBaseUrl + '/site/summarize', { paperIds, keywords: '', limit })
         .done(response => {
@@ -568,7 +571,7 @@ $(document).on('click', '#reading-list-summarize-btn', function () {
             }
 
             descriptionInput.val(response.plain || '');
-            btn.attr('title', 'Description updated from AI summary.');
+            btn.attr('title', 'Autogenerate description using AI summarization');
         })
         .fail(() => {
             btn.attr('title', 'Failed to generate summary.');
@@ -578,8 +581,12 @@ $(document).on('click', '#reading-list-summarize-btn', function () {
                 btn.removeClass('disabled').attr('aria-disabled', 'false');
             }
             updateReadingListSummaryUsage();
+            if (!readingListSummaryQuotaReached) {
+                btn.html('<i class="fa-solid fa-wand-magic-sparkles"></i> Autogenerate with AI');
+            }
             if (readingListSummaryQuotaReached) {
                 btn.attr('title', 'You have reached the daily limit of ' + threshold + ' uses for this feature.');
+                btn.html('<i class="fa-solid fa-wand-magic-sparkles"></i> Autogenerate with AI');
             }
         });
 });
