@@ -85,11 +85,13 @@ class ReadingsController extends BaseController {
             $facets = json_decode($current_reading_list->facets);
             // when a user wants to sort the current reading list
             $sort_field = (isset($_GET['sort'])) ? Yii::$app->request->get('sort') : $facets->sort;
-            $topics = (isset($facets->topics)) ? $facets->topics : null;
-            $tags = $facets->tags;
-            $rd_status = $facets->rd_status;
-            $accesses = $facets->accesses;
-            $types = $facets->types;
+            // For list views (including public users), allow ad-hoc facet interaction
+            // by honoring GET filters; fallback to stored list facets when absent.
+            $topics = Yii::$app->request->get('topics', isset($facets->topics) ? $facets->topics : null);
+            $tags = Yii::$app->request->get('tags', $facets->tags ?? null);
+            $rd_status = Yii::$app->request->get('rd_status', $facets->rd_status ?? null);
+            $accesses = Yii::$app->request->get('accesses', $facets->accesses ?? null);
+            $types = Yii::$app->request->get('types', $facets->types ?? null);
         } else {
             $user_id = Yii::$app->user->id;
 
@@ -128,8 +130,13 @@ class ReadingsController extends BaseController {
         // fetch papers in current page
         $result = $readings->get($topics, $tags, $rd_status, $accesses, $types, $sort_field);
 
-        // topics are not currently used for reading lists
-        $reading_list_enable = empty($topics) && (! empty($tags) || ! empty($accesses) || ! empty($rd_status) || ! empty($types));
+        // Reading lists can be created only from user-defined tags:
+        // at least one tag selected and no other facet selected.
+        $reading_list_enable = ! empty($tags)
+            && empty($topics)
+            && empty($accesses)
+            && empty($rd_status)
+            && empty($types);
 
         // get last selected facet field and its value
         $facet_field = Yii::$app->request->get('fct_field');
@@ -176,12 +183,23 @@ class ReadingsController extends BaseController {
     }
 
     public function actionSaveReadingList() {
-        $reading_list = new ReadingList();
+        $reading_list_id = Yii::$app->request->post('reading_list_id');
+        $user_id = Yii::$app->user->id;
+
+        if (! empty($reading_list_id)) {
+            $reading_list = ReadingList::find()->where(['id' => $reading_list_id, 'user_id' => $user_id])->one();
+            if (! $reading_list) {
+                throw new \yii\web\NotFoundHttpException('Reading list not found.');
+            }
+        } else {
+            $reading_list = new ReadingList();
+            $reading_list->user_id = $user_id;
+            $reading_list->is_public = 0;
+        }
+
         $reading_list->title = Yii::$app->request->post('new_reading_list_title');
         $reading_list->description = Yii::$app->request->post('new_reading_list_description');
-        $reading_list->user_id = Yii::$app->user->id;
         $reading_list->facets = Yii::$app->request->post('new_reading_list_facets');
-        $reading_list->is_public = 0;
         $reading_list->save();
 
         return $this->redirect(['readings/list/' . $reading_list->id]);

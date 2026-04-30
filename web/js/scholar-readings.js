@@ -338,7 +338,8 @@ $(document).ready(() => {
         const selected_list_id = $('#scholar-form').attr('data-selected_list_id');
         if (selected_list_id) {
             const default_action = $('#scholar-form').attr('action');
-            $('#scholar-form').attr('action', `${default_action }/${ selected_list_id}`);
+            const hasSelectedListPath = new RegExp(`/${selected_list_id}$`).test(default_action);
+            $('#scholar-form').attr('action', hasSelectedListPath ? default_action : `${default_action}/${selected_list_id}`);
             $('#scholar-form').find('input').attr('disabled', 'disabled');
             $('#active_list_id, [id^="lists-"][id$="-fct_field"], input[name="fct_field"]').prop('disabled', false);
         }

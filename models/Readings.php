@@ -82,7 +82,7 @@ class Readings extends Model {
 
         // fetch details (and order) for paper in current page
         $papers = (new \yii\db\Query())
-            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, users_likes.reading_status, GROUP_CONCAT(tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
+            ->select('pmc_paper.*, pmc_paper_pids.doi, notes_to_papers.notes, users_likes.reading_status, GROUP_CONCAT(DISTINCT tags.name ORDER BY tags_to_papers.timestamp ASC) AS tags')
             ->from('users_likes')
             ->innerJoin('pmc_paper', 'pmc_paper.internal_id = users_likes.paper_id')
             ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
