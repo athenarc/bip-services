@@ -261,10 +261,6 @@ class ScholarController extends BaseController {
 
         $edit_perm = isset($researcher) && ($researcher->user_id === Yii::$app->user->id);
 
-        if (isset($researcher->user_id)) {
-            Yii::$app->session->set('active_scholar_profile_owner_user_id', (int) $researcher->user_id);
-        }
-
         $auth_code = Yii::$app->request->get('code');
 
         $listsFilters = Yii::$app->request->get('lists', []);
@@ -782,6 +778,7 @@ class ScholarController extends BaseController {
                             'current_cv_narrative' => null,
                             'selected_accesses' => $list_result['selected_accesses'] ?? [],
                             'selected_types' => $list_result['selected_types'] ?? [],
+                            'profile_owner_user_id' => $researcher->user_id ?? null,
                         ]);
                     }
                 }
@@ -1147,9 +1144,8 @@ class ScholarController extends BaseController {
         if (! $user_id) {
             return ['success' => false, 'message' => 'You must be logged in to report a topic.'];
         }
-        $active_profile_owner_user_id = (int) Yii::$app->session->get('active_scholar_profile_owner_user_id', 0);
-
-        if ($active_profile_owner_user_id !== (int) $user_id) {
+        $owner_user_id = (int) Yii::$app->request->post('owner_user_id', 0);
+        if (! $owner_user_id || $owner_user_id !== (int) $user_id) {
             return ['success' => false, 'message' => 'Only the profile owner can report topics.'];
         }
 

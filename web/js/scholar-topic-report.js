@@ -120,6 +120,7 @@ $(document).ready(() => {
         const paperId = parseInt($btn.data('paper-id'), 10);
         const topicId = String($btn.data('topic-id') || '').trim();
         const listId = $btn.data('list-id');
+        const ownerUserId = parseInt($btn.data('owner-user-id'), 10) || 0;
         const topicName = String($btn.data('topic-name') || '').trim();
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -137,6 +138,7 @@ $(document).ready(() => {
             data: {
                 paper_id: paperId,
                 topic_id: topicId,
+                owner_user_id: ownerUserId,
                 _csrf: csrfToken,
             },
             success: function (response) {

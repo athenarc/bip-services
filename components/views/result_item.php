@@ -119,6 +119,7 @@ $item = $this->context;
                             'paper_id' => $item->internal_id,
                             'list_id' => $item->contribution_list_id ?? null,
                             'can_report_topic' => ! empty($item->edit_perm),
+                            'profile_owner_user_id' => $item->profile_owner_user_id ?? null,
                         ]);
                         $concept_display_name = (string) ($concept['display_name'] ?? ''); ?>
                             <span class="tag label scholar-topic-tag<?= ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '' ?>" data-paper-id="<?= (int) $item->internal_id ?>" data-topic-id="<?= Html::encode($topic_id) ?>">

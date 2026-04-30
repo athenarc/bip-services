@@ -29,6 +29,8 @@ class ConceptPopover extends Widget {
 
     public $can_report_topic = false;
 
+    public $profile_owner_user_id;
+
     /*
      * Widget initialisation a.k.a. setting widget properties
      */

@@ -660,6 +660,7 @@ use yii\widgets\Pjax;
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
                                         'show_pagination' => ! empty($element['config']['show_pagination']),
                                         'noWorksMessage' => $noWorksMessage,
+                                        'profile_owner_user_id' => $researcher->user_id ?? null,
                                     ]);
                                 ?>
                             </div>

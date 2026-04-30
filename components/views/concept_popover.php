@@ -26,6 +26,7 @@ $topic_id = (string) ($item->concept['id'] ?? '');
             data-paper-id="<?= (int) $item->paper_id ?>"
             data-topic-id="<?= \yii\helpers\Html::encode($topic_id) ?>"
             data-list-id="<?= (int) ($item->list_id ?? 0) ?>"
+            data-owner-user-id="<?= (int) ($item->profile_owner_user_id ?? 0) ?>"
             data-topic-name="<?= \yii\helpers\Html::encode($item->concept['display_name'] ?? '') ?>"
             title="<?= $is_reported ? 'Undo this topic report for this research product.' : 'Report this topic as irrelevant for this research product.' ?>"
             data-reported="<?= $is_reported ? '1' : '0' ?>">
