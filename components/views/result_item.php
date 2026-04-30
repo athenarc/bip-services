@@ -112,10 +112,17 @@ $item = $this->context;
                 <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                     <?php
-                    foreach ($item->concepts as $concept) { ?>
-                            <span class="tag label" >
-                                <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
-                                <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
+                    foreach ($item->concepts as $concept) {
+                        $topic_id = (string) ($concept['id'] ?? '');
+                        $data_content = ConceptPopover::widget([
+                            'concept' => $concept,
+                            'paper_id' => $item->internal_id,
+                            'list_id' => $item->contribution_list_id ?? null,
+                        ]);
+                        $concept_display_name = (string) ($concept['display_name'] ?? '');
+                        ?>
+                            <span class="tag label scholar-topic-tag<?= ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '' ?>" data-paper-id="<?= (int) $item->internal_id ?>" data-topic-id="<?= Html::encode($topic_id) ?>">
+                                <span class="scholar-topic-label" style="<?= ! empty($concept['reported_irrelevant']) ? 'text-decoration: line-through; opacity: 0.6;' : '' ?>" role="button" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($concept_display_name) ?> </b>" data-content="<?= Html::encode($data_content) ?>"><?= Html::encode($concept_display_name) ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'], 2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100 * round($concept['concept_score'], 2) ?>%, #ddd 0%);"></i></span>
                                 <span class="concept-divider"> | </span>
                                 <?= ImpactIcons::widget([

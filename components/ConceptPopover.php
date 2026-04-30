@@ -22,6 +22,8 @@ class ConceptPopover extends Widget {
      */
 
     public $concept;
+    public $paper_id;
+    public $list_id;
 
     /*
      * Widget initialisation a.k.a. setting widget properties

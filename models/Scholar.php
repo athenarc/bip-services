@@ -113,6 +113,17 @@ class Scholar extends Model {
         if (! empty($topics)) {
             $base_query->innerJoin('concepts_to_papers', 'pmc_paper.internal_id = concepts_to_papers.paper_id')
                 ->andWhere(['concepts_to_papers.concept_id' => $topics]);
+
+            // Exclude paper-topic pairs reported as irrelevant by the profile owner.
+            $reported_topics_user_id = (int) ($this->researcher->user_id ?? 0);
+            if ($reported_topics_user_id > 0) {
+                $base_query->leftJoin(
+                    'reported_scholar_topics rpt_topic_filter',
+                    'rpt_topic_filter.paper_id = pmc_paper.internal_id
+                    AND rpt_topic_filter.topic_id = concepts_to_papers.concept_id
+                    AND rpt_topic_filter.user_id = ' . $reported_topics_user_id
+                )->andWhere(['rpt_topic_filter.id' => null]);
+            }
         }
 
         if (! empty($tags)) {
@@ -231,6 +242,8 @@ class Scholar extends Model {
         $papers = SearchForm::get_impact_class($papers);
         // get concepts and scores
         $papers = Concepts::getConcepts($papers, 'internal_id');
+        // mark user-reported irrelevant topics on products
+        $papers = $this->markReportedTopicsForUser($papers);
         // get impact scores per concept
         $papers = SearchForm::get_concepts_impact_class($papers);
         // get relations
@@ -302,7 +315,67 @@ class Scholar extends Model {
             $topics_query->andWhere(['type' => $types]);
         }
 
+        $reported_topics_user_id = (int) ($this->researcher->user_id ?? 0);
+        if ($reported_topics_user_id > 0) {
+            $topics_query->leftJoin(
+                'reported_scholar_topics rpt',
+                'rpt.paper_id = pmc_paper.internal_id AND rpt.topic_id = concepts.id AND rpt.user_id = ' . $reported_topics_user_id
+            )->andWhere(['rpt.id' => null]);
+        }
+
         return $topics_query->groupBy('concepts.id')->orderBy('count DESC')->all();
+    }
+
+    private function markReportedTopicsForUser(array $papers) {
+        $viewer_user_id = (int) (Yii::$app->user->id ?? 0);
+        $reported_topics_user_id = (int) ($this->researcher->user_id ?? 0);
+        if ($reported_topics_user_id <= 0 || empty($papers)) {
+            return $papers;
+        }
+        $is_owner_view = ($viewer_user_id > 0 && $viewer_user_id === $reported_topics_user_id);
+
+        $paper_ids = array_column($papers, 'internal_id');
+        if (empty($paper_ids)) {
+            return $papers;
+        }
+
+        $reported_rows = (new \yii\db\Query())
+            ->select(['paper_id', 'topic_id'])
+            ->from('reported_scholar_topics')
+            ->where([
+                'user_id' => $reported_topics_user_id,
+                'paper_id' => $paper_ids,
+            ])
+            ->all();
+
+        if (empty($reported_rows)) {
+            return $papers;
+        }
+
+        $reported_map = [];
+        foreach ($reported_rows as $row) {
+            $reported_map[(int) $row['paper_id']][(string) $row['topic_id']] = true;
+        }
+
+        foreach ($papers as &$paper) {
+            if (empty($paper['concepts']) || empty($reported_map[(int) $paper['internal_id']])) {
+                continue;
+            }
+            $paper_reported_topics = $reported_map[(int) $paper['internal_id']];
+            if ($is_owner_view) {
+                foreach ($paper['concepts'] as &$concept) {
+                    $concept['reported_irrelevant'] = isset($paper_reported_topics[(string) ($concept['id'] ?? '')]);
+                }
+                unset($concept);
+            } else {
+                $paper['concepts'] = array_values(array_filter($paper['concepts'], static function ($concept) use ($paper_reported_topics) {
+                    return ! isset($paper_reported_topics[(string) ($concept['id'] ?? '')]);
+                }));
+            }
+        }
+        unset($paper);
+
+        return $papers;
     }
 
     public function getTagFacets($topics, $tags, $roles, $accesses, $types, $facet_field) {

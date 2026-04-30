@@ -73,13 +73,18 @@ $item = $this->context;
                 <?= empty($item->year) ? 'N/A' : $item->year ?>
             </span>
         </div>
-        <?php if (isset($item->show['concepts']) && $item->show['concepts'] && ! empty($item->concepts)): ?>
+        <?php
+            $pdfVisibleConcepts = array_values(array_filter($item->concepts ?? [], static function ($concept) {
+                return empty($concept['reported_irrelevant']);
+            }));
+        ?>
+        <?php if (isset($item->show['concepts']) && $item->show['concepts'] && ! empty($pdfVisibleConcepts)): ?>
         <!-- concepts -->
             <div id="res_<?= $item->internal_id ?>_conc" class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                     <?php
-                    foreach ($item->concepts as $concept) { ?>
+                    foreach ($pdfVisibleConcepts as $concept) { ?>
                             <span class="tag label">
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
