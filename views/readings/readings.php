@@ -30,6 +30,8 @@ $this->registerCssFile('@web/css/fixed-sidebar.css');
 $this->registerCss('#readings .toc-item.empty-reading-lists { cursor: default; } #readings .toc-item.empty-reading-lists:hover { color: inherit; background-color: transparent; }');
 $this->registerCss('.reading-powered-by { display: inline-block; font-size: 16px; margin-left: 8px; vertical-align: middle; }');
 $this->registerCss('.reading-list-description { text-align: justify; margin-top: 6px; }');
+$this->registerCss('.reading-list-description-inline { margin-top: 6px; }');
+$this->registerCss('#reading-list-description-toggle { display: inline; margin-left: 6px; padding: 0; vertical-align: baseline; }');
 $this->registerCss('#reading-list-summarize-btn.disabled { pointer-events: none; opacity: 0.5; }');
 $this->registerCss('.reading-list-summarize-btn { color: #000; } .reading-list-summarize-btn:hover { color: #000; }');
 
@@ -111,8 +113,24 @@ $renderFacetToggle = static function (int $itemsCount): string {
         </div>
         <?php if (isset($current_reading_list)): ?>
             <div class="col-xs-12">
-                <p class="grey-text reading-list-description">
-                    <?= Html::encode((empty($current_reading_list->description)) ? 'No description is provided for this reading list.' : $current_reading_list->description) ?>
+                <?php
+                    $fullDescription = (empty($current_reading_list->description))
+                        ? 'No description is provided for this reading list.'
+                        : $current_reading_list->description;
+                    $maxDescriptionChars = 440;
+                    $isDescriptionTruncated = mb_strlen($fullDescription) > $maxDescriptionChars;
+                    $shortDescription = $isDescriptionTruncated
+                        ? mb_substr($fullDescription, 0, $maxDescriptionChars) . '...'
+                        : $fullDescription;
+                ?>
+                <p class="grey-text reading-list-description reading-list-description-inline">
+                    <span id="reading-list-description"
+                          data-short="<?= Html::encode($shortDescription) ?>"
+                          data-full="<?= Html::encode($fullDescription) ?>"
+                          data-expanded="0"><?= Html::encode($shortDescription) ?></span>
+                    <?php if ($isDescriptionTruncated): ?>
+                        <button id="reading-list-description-toggle" type="button" class="btn btn-link btn-xs grey-link">See more</button>
+                    <?php endif; ?>
                 </p>
             </div>
         <?php endif; ?>
@@ -589,6 +607,28 @@ $(document).on('click', '#reading-list-summarize-btn', function () {
                 btn.html('<i class="fa-solid fa-wand-magic-sparkles"></i> Autogenerate with AI');
             }
         });
+});
+
+$(function () {
+    const description = $('#reading-list-description');
+    const toggle = $('#reading-list-description-toggle');
+
+    if (!description.length || !toggle.length) {
+        return;
+    }
+
+    toggle.on('click', function () {
+        const expanded = description.attr('data-expanded') === '1';
+        if (expanded) {
+            description.text(description.attr('data-short'));
+            description.attr('data-expanded', '0');
+            toggle.text('See more');
+        } else {
+            description.text(description.attr('data-full'));
+            description.attr('data-expanded', '1');
+            toggle.text('See less');
+        }
+    });
 });
 JS);
 ?>
