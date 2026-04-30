@@ -1,5 +1,5 @@
-/* Shared sidebar styles (Indicators + Help) */
-:is(#indicators, #help) .sidebar {
+/* Shared sidebar styles (Indicators + Help + Readings) */
+:is(#indicators, #help, #readings) .sidebar {
     position: fixed;
     top: 50px;
     bottom: 0;
@@ -11,20 +11,20 @@
     border-right: 1px solid #dee2e6;
 }
 
-:is(#indicators, #help) .sidebar-body ul {
+:is(#indicators, #help, #readings) .sidebar-body ul {
     list-style: none;
     padding-left: 0;
 }
 
-:is(#indicators, #help) .sidebar-body ul li {
+:is(#indicators, #help, #readings) .sidebar-body ul li {
     padding-left: 20px;
 }
 
-:is(#indicators, #help) .sidebar a {
+:is(#indicators, #help, #readings) .sidebar a {
     text-decoration: none;
 }
 
-:is(#indicators, #help) .toc-link {
+:is(#indicators, #help, #readings) .toc-link {
     color: #333;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -34,32 +34,32 @@
     cursor: pointer;
 }
 
-:is(#indicators, #help) .toc-item {
+:is(#indicators, #help, #readings) .toc-item {
     cursor: pointer;
 }
 
-:is(#indicators, #help) .toc-item:hover {
+:is(#indicators, #help, #readings) .toc-item:hover {
     color: #007bff;
     background-color: #f0f0f0;
 }
 
-:is(#indicators, #help) .caret {
+:is(#indicators, #help, #readings) .caret {
     margin-left: auto;
     transition: transform 0.3s;
     transform: rotate(-90deg);
 }
 
-:is(#indicators, #help) .caret.collapsed {
+:is(#indicators, #help, #readings) .caret.collapsed {
     transform: rotate(0deg);
 }
 
-:is(#indicators, #help) .toc-heading {
+:is(#indicators, #help, #readings) .toc-heading {
     font-weight: bold;
     margin-top: 10px;
 }
 
 /* Shared main content spacing for pages with fixed left TOC */
-:is(#indicators, #help) .main-content {
+:is(#indicators, #help, #readings) .main-content {
     margin-left: 270px;
     /* padding-top: 50px; */
 }
@@ -95,11 +95,10 @@
 
 /* Responsiveness */
 @media (max-width: 992px) {
-    :is(#indicators, #help) .sidebar {
+    :is(#indicators, #help, #readings) .sidebar {
         display: none;
     }
-    :is(#indicators, #help) .main-content {
+    :is(#indicators, #help, #readings) .main-content {
         margin-left: unset;
     }
-    
 }
