@@ -21,10 +21,10 @@ use app\models\Indicators;
 use app\models\Involvement;
 use app\models\Orcid;
 use app\models\ProfileReportForm;
-use app\models\ProfileTemplateFeedbackForm;
 use app\models\ProfileTemplateCategories;
-use app\models\Researcher;
+use app\models\ProfileTemplateFeedbackForm;
 use app\models\ReportedScholarTopic;
+use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
 use app\models\Scholar;
 use app\models\ScholarIndicators;
@@ -260,6 +260,10 @@ class ScholarController extends BaseController {
         // $is_cv_narrative_pjax = Yii::$app->request->get('_pjax') === "#cv-narrative-works-container";
 
         $edit_perm = isset($researcher) && ($researcher->user_id === Yii::$app->user->id);
+
+        if (isset($researcher->user_id)) {
+            Yii::$app->session->set('active_scholar_profile_owner_user_id', (int) $researcher->user_id);
+        }
 
         $auth_code = Yii::$app->request->get('code');
 
@@ -1107,6 +1111,7 @@ class ScholarController extends BaseController {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $user_id = Yii::$app->user->id;
+
         if (! $user_id) {
             return [
                 'status' => 'error',
@@ -1138,8 +1143,14 @@ class ScholarController extends BaseController {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $user_id = Yii::$app->user->id;
+
         if (! $user_id) {
             return ['success' => false, 'message' => 'You must be logged in to report a topic.'];
+        }
+        $active_profile_owner_user_id = (int) Yii::$app->session->get('active_scholar_profile_owner_user_id', 0);
+
+        if ($active_profile_owner_user_id !== (int) $user_id) {
+            return ['success' => false, 'message' => 'Only the profile owner can report topics.'];
         }
 
         $paper_id = (int) Yii::$app->request->post('paper_id');

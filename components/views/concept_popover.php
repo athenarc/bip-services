@@ -17,7 +17,7 @@ $topic_id = (string) ($item->concept['id'] ?? '');
     <span class='green-bip'>Confidence:</span>
     <?= empty(($item->concept['concept_score'])) ? 'N/A' : round($item->concept['concept_score'], 2)?>
 </div>
-<?php if (! Yii::$app->user->isGuest && ! empty($item->paper_id) && $topic_id !== ''): ?>
+<?php if (! empty($item->paper_id) && $topic_id !== '' && ! empty($item->can_report_topic)): ?>
     <div class="text-right" style="margin-top: 8px;">
         <?php $is_reported = ! empty($item->concept['reported_irrelevant']); ?>
         <button

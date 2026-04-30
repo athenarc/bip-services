@@ -118,9 +118,9 @@ $item = $this->context;
                             'concept' => $concept,
                             'paper_id' => $item->internal_id,
                             'list_id' => $item->contribution_list_id ?? null,
+                            'can_report_topic' => ! empty($item->edit_perm),
                         ]);
-                        $concept_display_name = (string) ($concept['display_name'] ?? '');
-                        ?>
+                        $concept_display_name = (string) ($concept['display_name'] ?? ''); ?>
                             <span class="tag label scholar-topic-tag<?= ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '' ?>" data-paper-id="<?= (int) $item->internal_id ?>" data-topic-id="<?= Html::encode($topic_id) ?>">
                                 <span class="scholar-topic-label" style="<?= ! empty($concept['reported_irrelevant']) ? 'text-decoration: line-through; opacity: 0.6;' : '' ?>" role="button" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($concept_display_name) ?> </b>" data-content="<?= Html::encode($data_content) ?>"><?= Html::encode($concept_display_name) ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'], 2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100 * round($concept['concept_score'], 2) ?>%, #ddd 0%);"></i></span>
@@ -135,9 +135,10 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                ]);?>
+                                ]); ?>
                             </span>
-                        <?php } ?>
+                        <?php
+                    } ?>
                 </div>
             </div>
         <?php endif; ?>
