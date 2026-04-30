@@ -109,7 +109,11 @@ $item = $this->context;
                     if ($concept_count >= 3) {
                         break;
                     } // Show only first 3 concepts
-                    echo '<span class="concept-tag">' . $concept['display_name'] . '</span>';
+                    $reportedClass = ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '';
+                    $reportedStyle = ! empty($concept['reported_irrelevant']) ? 'text-decoration: line-through; opacity: 0.6;' : '';
+                    echo '<span class="concept-tag' . $reportedClass . '"'
+                        . (! empty($reportedStyle) ? ' style="' . $reportedStyle . '"' : '')
+                        . '>' . Html::encode($concept['display_name']) . '</span>';
                     $concept_count++;
                 }
 

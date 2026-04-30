@@ -180,7 +180,8 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                                     'relations' => true,
                                     'tags' => false,
                                     'involvement' => true,
-                                ]
+                                ],
+                                'profile_owner_user_id' => $profile_owner_user_id ?? null,
                             ]);
                         }
                     } catch (\Throwable $e) {

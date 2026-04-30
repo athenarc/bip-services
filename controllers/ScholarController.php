@@ -21,8 +21,9 @@ use app\models\Indicators;
 use app\models\Involvement;
 use app\models\Orcid;
 use app\models\ProfileReportForm;
-use app\models\ProfileTemplateFeedbackForm;
 use app\models\ProfileTemplateCategories;
+use app\models\ProfileTemplateFeedbackForm;
+use app\models\ReportedScholarTopic;
 use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
 use app\models\Scholar;
@@ -683,7 +684,7 @@ class ScholarController extends BaseController {
                             }
 
                             if ($active === 'topics' && ctype_digit($id)) {
-                                $id = 'Τ' . $id;
+                                $id = 'T' . $id;
                             }
 
                             return $id;
@@ -777,6 +778,7 @@ class ScholarController extends BaseController {
                             'current_cv_narrative' => null,
                             'selected_accesses' => $list_result['selected_accesses'] ?? [],
                             'selected_types' => $list_result['selected_types'] ?? [],
+                            'profile_owner_user_id' => $researcher->user_id ?? null,
                         ]);
                     }
                 }
@@ -1106,6 +1108,7 @@ class ScholarController extends BaseController {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $user_id = Yii::$app->user->id;
+
         if (! $user_id) {
             return [
                 'status' => 'error',
@@ -1131,6 +1134,55 @@ class ScholarController extends BaseController {
                 ? implode(' ', array_map(function ($errors) { return implode(' ', $errors); }, $model->errors))
                 : 'An error occurred while submitting feedback.'
         ];
+    }
+
+    public function actionReportScholarTopic() {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $user_id = Yii::$app->user->id;
+
+        if (! $user_id) {
+            return ['success' => false, 'message' => 'You must be logged in to report a topic.'];
+        }
+        $owner_user_id = (int) Yii::$app->request->post('owner_user_id', 0);
+        if (! $owner_user_id || $owner_user_id !== (int) $user_id) {
+            return ['success' => false, 'message' => 'Only the profile owner can report topics.'];
+        }
+
+        $paper_id = (int) Yii::$app->request->post('paper_id');
+        $topic_id = (string) Yii::$app->request->post('topic_id');
+
+        if (! $paper_id || $topic_id === '') {
+            return ['success' => false, 'message' => 'Invalid report data.'];
+        }
+
+        $table = ReportedScholarTopic::tableName();
+        Yii::$app->db->schema->getTableSchema($table, true);
+
+        $existing_report = ReportedScholarTopic::findOne([
+            'user_id' => (int) $user_id,
+            'paper_id' => $paper_id,
+            'topic_id' => $topic_id,
+        ]);
+
+        if ($existing_report) {
+            if (! $existing_report->delete()) {
+                return ['success' => false, 'message' => 'Unable to undo topic report.'];
+            }
+
+            return ['success' => true, 'action' => 'undone'];
+        }
+
+        $report = new ReportedScholarTopic();
+        $report->user_id = (int) $user_id;
+        $report->paper_id = $paper_id;
+        $report->topic_id = $topic_id;
+
+        if (! $report->save()) {
+            return ['success' => false, 'message' => 'Unable to report topic.'];
+        }
+
+        return ['success' => true, 'action' => 'reported'];
     }
 
     public function actionSaveCvNarrative() {
@@ -1508,6 +1560,9 @@ class ScholarController extends BaseController {
             // Topics from concepts
             if (! empty($paper['concepts'])) {
                 foreach ($paper['concepts'] as $concept) {
+                    if (! empty($concept['reported_irrelevant'])) {
+                        continue;
+                    }
                     // Accept several possible shapes
                     $raw = $concept['id']
                         ?? $concept['concept_id']

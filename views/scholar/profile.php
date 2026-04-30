@@ -33,6 +33,7 @@ $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_
 $this->registerJsFile('@web/js/responsibleAcadAge.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/scholar-topic-report.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -659,6 +660,7 @@ use yii\widgets\Pjax;
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
                                         'show_pagination' => ! empty($element['config']['show_pagination']),
                                         'noWorksMessage' => $noWorksMessage,
+                                        'profile_owner_user_id' => $researcher->user_id ?? null,
                                     ]);
                                 ?>
                             </div>

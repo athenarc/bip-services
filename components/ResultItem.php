@@ -111,6 +111,8 @@ class ResultItem extends Widget {
 
     public $user_vote_record; // 'like', 'dislike', or null
 
+    public $profile_owner_user_id;
+
     /*
      * Widget initialisation a.k.a. setting widget properties
      */
