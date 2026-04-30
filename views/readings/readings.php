@@ -1,6 +1,7 @@
 <?php
 
 use app\components\ResultItem;
+use app\components\SummaryFormatter;
 use app\models\Involvement;
 use yii\bootstrap\Modal;
 use yii\helpers\Html;
@@ -117,17 +118,23 @@ $renderFacetToggle = static function (int $itemsCount): string {
                     $fullDescription = (empty($current_reading_list->description))
                         ? 'No description is provided for this reading list.'
                         : $current_reading_list->description;
+
+                    [$descriptionBody, $referenceMap] = SummaryFormatter::prepareDescriptionForDisplay($fullDescription);
+
                     $maxDescriptionChars = 440;
-                    $isDescriptionTruncated = mb_strlen($fullDescription) > $maxDescriptionChars;
+                    $isDescriptionTruncated = mb_strlen($descriptionBody) > $maxDescriptionChars;
                     $shortDescription = $isDescriptionTruncated
-                        ? mb_substr($fullDescription, 0, $maxDescriptionChars) . '...'
-                        : $fullDescription;
+                        ? mb_substr($descriptionBody, 0, $maxDescriptionChars) . '...'
+                        : $descriptionBody;
+
+                    $fullDescriptionHtml = SummaryFormatter::renderCitationHtml($descriptionBody, $referenceMap);
+                    $shortDescriptionHtml = SummaryFormatter::renderCitationHtml($shortDescription, $referenceMap);
                 ?>
                 <p class="grey-text reading-list-description reading-list-description-inline">
                     <span id="reading-list-description"
-                          data-short="<?= Html::encode($shortDescription) ?>"
-                          data-full="<?= Html::encode($fullDescription) ?>"
-                          data-expanded="0"><?= Html::encode($shortDescription) ?></span>
+                          data-short-html="<?= Html::encode($shortDescriptionHtml) ?>"
+                          data-full-html="<?= Html::encode($fullDescriptionHtml) ?>"
+                          data-expanded="0"><?= $shortDescriptionHtml ?></span>
                     <?php if ($isDescriptionTruncated): ?>
                         <button id="reading-list-description-toggle" type="button" class="btn btn-link btn-xs grey-link">See more</button>
                     <?php endif; ?>
@@ -620,11 +627,11 @@ $(function () {
     toggle.on('click', function () {
         const expanded = description.attr('data-expanded') === '1';
         if (expanded) {
-            description.text(description.attr('data-short'));
+            description.html(description.attr('data-short-html'));
             description.attr('data-expanded', '0');
             toggle.text('See more');
         } else {
-            description.text(description.attr('data-full'));
+            description.html(description.attr('data-full-html'));
             description.attr('data-expanded', '1');
             toggle.text('See less');
         }
