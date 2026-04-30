@@ -5,10 +5,8 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `{{%reported_scholar_topics}}`.
  */
-class m260430_100000_create_reported_scholar_topics_table extends Migration
-{
-    public function safeUp()
-    {
+class m260430_100000_create_reported_scholar_topics_table extends Migration {
+    public function safeUp() {
         $this->createTable('{{%reported_scholar_topics}}', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
@@ -24,13 +22,11 @@ class m260430_100000_create_reported_scholar_topics_table extends Migration
             ['user_id', 'paper_id', 'topic_id'],
             true
         );
-        $this->createIndex('idx_reported_scholar_topics_user_id', '{{%reported_scholar_topics}}', 'user_id');
         $this->createIndex('idx_reported_scholar_topics_paper_id', '{{%reported_scholar_topics}}', 'paper_id');
         $this->createIndex('idx_reported_scholar_topics_topic_id', '{{%reported_scholar_topics}}', 'topic_id');
     }
 
-    public function safeDown()
-    {
+    public function safeDown() {
         $this->dropTable('{{%reported_scholar_topics}}');
     }
 }
