@@ -25,16 +25,10 @@ $this->registerJs('window.bipScholarFacetConfig = ' . json_encode(['softwareRole
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
+$this->registerCssFile('@web/css/readings.css');
 $this->registerCssFile('@web/css/scholar-profile.css');
 $this->registerCssFile('@web/css/on-off-switch.css');
 $this->registerCssFile('@web/css/fixed-sidebar.css');
-$this->registerCss('#readings .toc-item.empty-reading-lists { cursor: default; } #readings .toc-item.empty-reading-lists:hover { color: inherit; background-color: transparent; }');
-$this->registerCss('.reading-powered-by { display: inline-block; font-size: 16px; margin-left: 8px; vertical-align: middle; }');
-$this->registerCss('.reading-list-description { text-align: justify; margin-top: 6px; }');
-$this->registerCss('.reading-list-description-inline { margin-top: 6px; }');
-$this->registerCss('#reading-list-description-toggle { display: inline; margin-left: 6px; padding: 0; vertical-align: baseline; }');
-$this->registerCss('#reading-list-summarize-btn.disabled { pointer-events: none; opacity: 0.5; }');
-$this->registerCss('.reading-list-summarize-btn { color: #000; } .reading-list-summarize-btn:hover { color: #000; }');
 
 $papers_num = $result['papers_num'];
 $papers = $result['papers'];
@@ -348,9 +342,22 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         </ul>
                     <?php else: ?>
                         <ul>
-                            <?php foreach ($reading_lists as $list_id => $list_title): ?>
+                            <?php foreach ($reading_lists as $reading_list): ?>
+                                <?php
+                                    $list_id = $reading_list->id;
+                                    $list_title = $reading_list->title;
+                                    $list_description = trim((string) $reading_list->description);
+                                    $list_description_title = $list_description !== ''
+                                        ? $list_description
+                                        : 'No description is provided for this reading list.';
+                                ?>
                                 <li class="toc-item">
-                                    <a class="toc-link <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>"><?= Html::encode($list_title) ?></a>
+                                    <span class="reading-list-item-inline">
+                                        <a class="toc-link <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>"><?= Html::encode($list_title) ?></a>
+                                        <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </span>
+                                    </span>
                                 </li>
                             <?php endforeach; ?>
                         </ul>

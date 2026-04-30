@@ -15,7 +15,6 @@ use app\models\UsersLikes;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
 
@@ -87,7 +86,7 @@ class ReadingsController extends BaseController {
             $sort_field = (isset($_GET['sort'])) ? Yii::$app->request->get('sort') : $facets->sort;
             // For list views (including public users), allow ad-hoc facet interaction
             // by honoring GET filters; fallback to stored list facets when absent.
-            $topics = Yii::$app->request->get('topics', isset($facets->topics) ? $facets->topics : null);
+            $topics = Yii::$app->request->get('topics', $facets->topics ?? null);
             $tags = Yii::$app->request->get('tags', $facets->tags ?? null);
             $rd_status = Yii::$app->request->get('rd_status', $facets->rd_status ?? null);
             $accesses = Yii::$app->request->get('accesses', $facets->accesses ?? null);
@@ -132,11 +131,11 @@ class ReadingsController extends BaseController {
 
         // Reading lists can be created only from user-defined tags:
         // at least one tag selected and no other facet selected.
-        $reading_list_enable = ! empty($tags)
-            && empty($topics)
-            && empty($accesses)
-            && empty($rd_status)
-            && empty($types);
+        $reading_list_enable = ! empty($tags) &&
+            empty($topics) &&
+            empty($accesses) &&
+            empty($rd_status) &&
+            empty($types);
 
         // get last selected facet field and its value
         $facet_field = Yii::$app->request->get('fct_field');
@@ -177,7 +176,7 @@ class ReadingsController extends BaseController {
             'reading_list_enable' => $reading_list_enable,
             'sort_field' => $sort_field,
 
-            'reading_lists' => ArrayHelper::map($reading_lists, 'id', 'title'),
+            'reading_lists' => $reading_lists,
             'current_reading_list' => $current_reading_list,
         ]);
     }
@@ -188,6 +187,7 @@ class ReadingsController extends BaseController {
 
         if (! empty($reading_list_id)) {
             $reading_list = ReadingList::find()->where(['id' => $reading_list_id, 'user_id' => $user_id])->one();
+
             if (! $reading_list) {
                 throw new \yii\web\NotFoundHttpException('Reading list not found.');
             }

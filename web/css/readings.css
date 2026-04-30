@@ -1,0 +1,57 @@
+#readings .toc-item.empty-reading-lists {
+    cursor: default;
+}
+
+#readings .toc-item.empty-reading-lists:hover {
+    color: inherit;
+    background-color: transparent;
+}
+
+.reading-powered-by {
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.reading-list-description {
+    text-align: justify;
+    margin-top: 6px;
+}
+
+.reading-list-description-inline {
+    margin-top: 6px;
+}
+
+#reading-list-description-toggle {
+    display: inline;
+    margin-left: 6px;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+.reading-list-item-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+.reading-list-item-inline .toc-link {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#reading-list-summarize-btn.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.reading-list-summarize-btn {
+    color: #000;
+}
+
+.reading-list-summarize-btn:hover {
+    color: #000;
+}
