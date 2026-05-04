@@ -35,6 +35,15 @@ $('#new-reading-list-modal').on('show.bs.modal', function (event) {
         return;
     }
 
+    if (mode === 'duplicate') {
+        modalTitle.text('Duplicate reading list');
+        modalSubmit.text('Save');
+        listIdInput.val('');
+        titleInput.val('');
+        descriptionInput.val(trigger.data('reading-list-description') || '');
+        return;
+    }
+
     modalTitle.text('Create new reading list');
     modalSubmit.text('Save');
     listIdInput.val('');

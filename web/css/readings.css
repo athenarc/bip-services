@@ -1,3 +1,108 @@
+/* Reading lists TOC heading: floats + clearfix; sidebar width set in profile-toc.css */
+#reading-lists-toc-wrap .reading-lists-toc-heading-row,
+.reading-lists-nav-compact-panel .reading-lists-toc-heading-row {
+    line-height: 1.35;
+}
+
+#reading-lists-toc-wrap .reading-lists-toc-heading-row .pull-right,
+.reading-lists-nav-compact-panel .reading-lists-toc-heading-row .pull-right {
+    white-space: nowrap;
+}
+
+/* Narrow viewports: same breakpoint as hidden fixed TOC — toggle + collapse under title */
+.reading-lists-nav-compact {
+    display: none;
+    margin-top: 6px;
+}
+
+/* Same breakpoint as profile-toc.css when readings fixed TOC is hidden */
+@media (max-width: 1640px) {
+    .reading-lists-nav-compact {
+        display: block;
+    }
+}
+
+.reading-lists-nav-compact-toggle {
+    margin-bottom: 0;
+}
+
+.reading-lists-nav-compact-panel {
+    margin-top: 10px;
+}
+
+.reading-lists-nav-compact-well {
+    margin-bottom: 0;
+    background-color: #fafbfc;
+}
+
+.reading-lists-nav-compact-panel .reading-lists-nav-ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.reading-lists-nav-compact-panel .reading-lists-nav-ul .toc-item {
+    padding-left: 0;
+}
+
+.reading-lists-nav-compact-panel .toc-link {
+    color: #555;
+    font-size: 13px;
+}
+
+.reading-lists-main-heading {
+    margin-bottom: 8px;
+}
+
+.readings-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.readings-title-main {
+    min-width: 0;
+}
+
+.readings-title-action {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+    .readings-title-row {
+        display: block;
+    }
+
+    .readings-title-action {
+        display: block;
+        margin-top: 6px;
+    }
+}
+
+.reading-list-public-btn-adjusted {
+    display: inline-block;
+    margin-top: 0;
+}
+
+/* Keep private/public switch fixed high-right on desktop */
+@media (min-width: 768px) {
+    .readings-page-heading {
+        position: relative;
+    }
+
+    .readings-page-heading .reading-list-public-wrap {
+        position: absolute;
+        right: 15px;
+        top: -14px;
+        width: auto;
+    }
+}
+
 #readings .toc-item.empty-reading-lists {
     cursor: default;
 }

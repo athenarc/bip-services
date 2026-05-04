@@ -21,7 +21,6 @@ $this->registerJsFile('@web/js/tinymceModal.js', ['position' => View::POS_END, '
 $this->registerJsFile('@web/js/scholar-readings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/readings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/fixed-sidebar.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::class]]);
 $this->registerJs('window.bipScholarFacetConfig = ' . json_encode(['softwareRoleIds' => array_map('strval', array_keys(\Yii::$app->params['involvement_fields']['software'] ?? []))]) . ';', View::POS_END);
 
 $this->registerCssFile('@web/css/tags.css');
@@ -29,13 +28,14 @@ $this->registerCssFile('@web/css/reading-status.css');
 $this->registerCssFile('@web/css/readings.css');
 $this->registerCssFile('@web/css/scholar-profile.css');
 $this->registerCssFile('@web/css/on-off-switch.css');
-$this->registerCssFile('@web/css/fixed-sidebar.css');
+$this->registerCssFile('@web/css/profile-toc.css');
 
 $papers_num = $result['papers_num'];
 $papers = $result['papers'];
 $summaryThreshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
 $paperIdsForSummary = json_encode(array_map(function ($p) { return $p['internal_id']; }, $papers));
 $facetPreviewLimit = 10;
+$readingListSaveDisabledTitle = 'Reading lists are created using user-defined tags only. Please clear any selected Topics, Availability, Reading status, or Work type filters.';
 $renderFacetToggle = static function (int $itemsCount): string {
     if ($itemsCount <= 10) {
         return '';
@@ -65,10 +65,11 @@ $renderFacetToggle = static function (int $itemsCount): string {
 </span>
 
 <div id="readings" class="container-fluid">
-    <div class="<?= $edit_perm ? 'main-content' : '' ?>">
-    <div class="row">
-        <div class="col-xs-12 col-sm-9">
-            <h1>
+    <?php /* Title row outside TOC wrap */ ?>
+    <div class="row readings-page-heading">
+        <div class="col-xs-12">
+            <h1 class="readings-title-row">
+                <span class="readings-title-main">
                 <?php if (isset($current_reading_list)): ?>
                     <?= Html::encode($current_reading_list->title) ?>
                     <?php if ($edit_perm) : ?>
@@ -89,13 +90,36 @@ $renderFacetToggle = static function (int $itemsCount): string {
                 <?php else: ?>
                     My readings
                 <?php endif; ?>
+                </span>
+                <?php if ($edit_perm): ?>
+                    <small class="readings-title-action">
+                        <?php if ($reading_list_enable): ?>
+                            <span role="button"
+                                  class="grey-link"
+                                  data-toggle="modal"
+                                  data-target="#new-reading-list-modal"
+                                  data-mode="<?= isset($current_reading_list) ? 'duplicate' : 'create' ?>"
+                                  data-reading-list-title="<?= Html::encode($current_reading_list->title ?? '') ?>"
+                                  data-reading-list-description="<?= Html::encode($current_reading_list->description ?? '') ?>"
+                                  title="<?= isset($current_reading_list) ? 'Duplicate reading list' : 'Create new reading list' ?>">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <?= isset($current_reading_list) ? 'Duplicate reading list' : 'Create new reading list' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="grey-link disabled" title="<?= Html::encode($readingListSaveDisabledTitle) ?>">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <?= isset($current_reading_list) ? 'Duplicate reading list' : 'Create new reading list' ?>
+                            </span>
+                        <?php endif; ?>
+                    </small>
+                <?php endif; ?>
             </h1>
         </div>
-        <div class="col-xs-12 col-sm-3 text-right">
+        <div class="col-xs-12 text-right reading-list-public-wrap">
             <?php if (isset($current_reading_list)): ?>
                 <input id='current_reading_list_id' name='current_reading_list_id' value='<?= $current_reading_list->id ?>' type='hidden'/>
                 <?php if ($edit_perm): ?>
-                    <div id="reading-list-public-btn" style = "display:inline-block;">
+                    <div id="reading-list-public-btn" class="reading-list-public-btn-adjusted">
                         <div class="onoffswitch2">
                             <input type="checkbox" class="onoffswitch2-checkbox" id="reading-list-public-switch" <?= ($current_reading_list->is_public) ? 'checked' : '' ?>>
                             <label class="onoffswitch2-label" for="reading-list-public-switch">
@@ -136,9 +160,118 @@ $renderFacetToggle = static function (int $itemsCount): string {
                 </p>
             </div>
         <?php endif; ?>
+        <?php if ($edit_perm): ?>
+            <div class="col-xs-12 reading-lists-nav-compact">
+                <button type="button"
+                        class="btn btn-default btn-sm reading-lists-nav-compact-toggle"
+                        data-toggle="collapse"
+                        data-target="#reading-lists-nav-collapse"
+                        aria-expanded="false"
+                        aria-controls="reading-lists-nav-collapse">
+                    <i class="fa fa-list-ul" aria-hidden="true"></i>
+                    Reading lists
+                </button>
+                <div id="reading-lists-nav-collapse" class="collapse reading-lists-nav-compact-panel">
+                    <div class="well well-sm reading-lists-nav-compact-well">
+                        <h5 class="toc-heading reading-lists-main-heading">
+                            <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
+                        </h5>
+                        <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
+                            <span class="green-bip pull-left">
+                                Reading lists
+                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> Create lists from the current filters and access them here.</div>">
+                                    <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                                </span>
+                            </span>
+                        </h5>
+
+                        <?php if (empty($reading_lists)): ?>
+                            <ul class="reading-lists-nav-ul">
+                                <li class="toc-item empty-reading-lists">
+                                    <em>No reading lists yet.</em>
+                                </li>
+                            </ul>
+                        <?php else: ?>
+                            <ul class="reading-lists-nav-ul">
+                                <?php foreach ($reading_lists as $reading_list): ?>
+                                    <?php
+                                        $list_id = $reading_list->id;
+                                        $list_title = $reading_list->title;
+                                        $list_description = trim((string) $reading_list->description);
+                                        $list_description_title = $list_description !== ''
+                                            ? $list_description
+                                            : 'No description is provided for this reading list.';
+                                    ?>
+                                    <li class="toc-item">
+                                        <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
+                                            <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
+                                            <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            </span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+<?php if ($edit_perm): ?>
+<div id="reading-lists-toc-wrap">
+    <div class="sidebar">
+        <div id="toc-panel" class="sidebar-body">
+            <h5 class="toc-heading reading-lists-main-heading">
+                <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
+            </h5>
+            <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
+                <span class="green-bip pull-left">
+                    Reading lists
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> Create lists from the current filters and access them here.</div>">
+                        <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                    </span>
+                </span>
+            </h5>
+
+            <?php if (empty($reading_lists)): ?>
+                <ul class="reading-lists-nav-ul">
+                    <li class="toc-item empty-reading-lists">
+                        <em>No reading lists yet.</em>
+                    </li>
+                </ul>
+            <?php else: ?>
+                <ul class="reading-lists-nav-ul">
+                    <?php foreach ($reading_lists as $reading_list): ?>
+                        <?php
+                            $list_id = $reading_list->id;
+                            $list_title = $reading_list->title;
+                            $list_description = trim((string) $reading_list->description);
+                            $list_description_title = $list_description !== ''
+                                ? $list_description
+                                : 'No description is provided for this reading list.';
+                        ?>
+                        <li class="toc-item">
+                            <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
+                                <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
+                                <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </span>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
+    <div class="<?= $edit_perm ? 'main-content' : '' ?>">
+    <div class="row">
+        <div class="col-xs-12">
         <div class="well profile">
 
-            <div class="<?= $edit_perm ? 'col-sm-9' : 'col-sm-12' ?> col-xs-12">
+            <div class="col-sm-12 col-xs-12">
 
                 <?php ActiveForm::begin([
                     'id' => 'scholar-form',
@@ -306,67 +439,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                             ?>
                         </div>
             </div>
-            <?php if ($edit_perm): ?>
-            <div class="col-sm-3 col-xs-12 sidebar">
-                <div id="toc-panel">
-                    <div class="sidebar-body">
-                        <h5 class="toc-heading" style="margin-top: 0; margin-bottom: 8px;">
-                            <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
-                        </h5>
-                        <h5 class="toc-heading">
-                            <span class="green-bip">
-                                Reading lists
-                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> Create lists from the current filters and access them here.</div>">
-                                    <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
-                                </span>
-                            </span>
-                            <span class="pull-right">
-                        <?php if ($reading_list_enable): ?>
-                            <span role="button" class="grey-link" data-toggle="modal" data-target="#new-reading-list-modal" data-mode="create" title="Save current filters as a new reading list.">
-                                <i class="fa-solid fa-plus" aria-hidden="true"></i> Save as new
-                            </span>
-                        <?php else :
-                            $reading_list_title = 'Reading lists are created using user-defined tags only. Please clear any selected Topics, Availability, Reading status, or Work type filters.';
-                        ?>
-                            <span class="grey-link disabled" title="<?= $reading_list_title ?>">
-                                <i class="fa-solid fa-plus" aria-hidden="true"></i> Save as new
-                            </span>
-                        <?php endif; ?>
-                            </span>
-                        </h5>
-
-                    <?php if (empty($reading_lists)): ?>
-                        <ul>
-                            <li class="toc-item empty-reading-lists">
-                                <em>No reading lists yet.</em>
-                            </li>
-                        </ul>
-                    <?php else: ?>
-                        <ul>
-                            <?php foreach ($reading_lists as $reading_list): ?>
-                                <?php
-                                    $list_id = $reading_list->id;
-                                    $list_title = $reading_list->title;
-                                    $list_description = trim((string) $reading_list->description);
-                                    $list_description_title = $list_description !== ''
-                                        ? $list_description
-                                        : 'No description is provided for this reading list.';
-                                ?>
-                                <li class="toc-item">
-                                    <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
-                                        <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
-                                        <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
-                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                        </span>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
+        </div>
         </div>
     </div>
     </div>
@@ -453,6 +526,9 @@ $renderFacetToggle = static function (int $itemsCount): string {
         <?php endif; ?>
     </div>
     </div>
+<?php if ($edit_perm): ?>
+</div>
+<?php endif; ?>
 </div>
 
 <?php
