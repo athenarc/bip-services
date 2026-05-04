@@ -1,9 +1,11 @@
 <?php
 
-use app\components\AnnotationPopover;
+use app\components\Annotations;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\ImpactIcons;
+use app\components\ReproducibilityBadges;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -52,22 +54,35 @@ $item = $this->context;
             <div class="col-md-4 col-lg-3 text-right">
                 <div class="version-impact-icons-wrapper">
                     <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <span class="version-link-wrapper">
-                            <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
-                                Found <?= $item->dois_num ?> versions</a>
+                        <span class="indicator-group version-group">
+                            <span class="version-link-wrapper">
+                                <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
+                                    <i class="fas fa-clone" aria-hidden="true"></i> <?= $item->dois_num ?></a>
+                            </span>
                         </span>
                     <?php endif; ?>
                     
-                    <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
-                                        'influence_class' => $item->inf_class,
-                                        'impulse_class' => $item->imp_class,
-                                        'cc_class' => $item->cc_class,
-                                        'popularity_score' => $item->pop_score,
-                                        'influence_score' => $item->inf_score,
-                                        'impulse_score' => $item->imp_score,
-                                        'cc_score' => $item->cc_score,
-                                        'impact_indicators' => $item->impact_indicators,
-                                        ]);?>
+                    <?php if ($item->has_dataset || $item->has_software): ?>
+                        <span class="indicator-group repro-group">
+                            <?= ReproducibilityBadges::widget([
+                                'has_dataset' => $item->has_dataset ?? false,
+                                'has_software' => $item->has_software ?? false,
+                            ]); ?>
+                        </span>
+                    <?php endif; ?>
+                    
+                    <span class="indicator-group impact-group">
+                        <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
+                                            'influence_class' => $item->inf_class,
+                                            'impulse_class' => $item->imp_class,
+                                            'cc_class' => $item->cc_class,
+                                            'popularity_score' => $item->pop_score,
+                                            'influence_score' => $item->inf_score,
+                                            'impulse_score' => $item->imp_score,
+                                            'cc_score' => $item->cc_score,
+                                            'impact_indicators' => $item->impact_indicators,
+                                            ]);?>
+                    </span>
                 </div>
             </div>
         </div>
@@ -91,19 +106,24 @@ $item = $this->context;
                 <?= empty($item->year) ? 'N/A' : $item->year ?>
             </span>
         </div>
-        <?php if (isset($item->show['concepts']) && $item->show['concepts']): ?>
+        <?php if (isset($item->show['concepts']) && $item->show['concepts'] && ! empty($item->concepts)): ?>
         <!-- concepts -->
             <div id="res_<?= $item->internal_id ?>_conc" class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                     <?php
-                    if (empty($item->concepts)) {
-                        echo '&nbspN/A';
-                    } else {
-                        foreach ($item->concepts as $concept) { ?>
-                            <span class="tag label" >
-                                <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
-                                <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
+                    foreach ($item->concepts as $concept) {
+                        $topic_id = (string) ($concept['id'] ?? '');
+                        $data_content = ConceptPopover::widget([
+                            'concept' => $concept,
+                            'paper_id' => $item->internal_id,
+                            'list_id' => $item->contribution_list_id ?? null,
+                            'can_report_topic' => ! empty($item->edit_perm),
+                            'profile_owner_user_id' => $item->profile_owner_user_id ?? null,
+                        ]);
+                        $concept_display_name = (string) ($concept['display_name'] ?? ''); ?>
+                            <span class="tag label scholar-topic-tag<?= ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '' ?>" data-paper-id="<?= (int) $item->internal_id ?>" data-topic-id="<?= Html::encode($topic_id) ?>">
+                                <span class="scholar-topic-label" style="<?= ! empty($concept['reported_irrelevant']) ? 'text-decoration: line-through; opacity: 0.6;' : '' ?>" role="button" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($concept_display_name) ?> </b>" data-content="<?= Html::encode($data_content) ?>"><?= Html::encode($concept_display_name) ?></span>
                                 <span class= "concept-confidence" title = "Confidence: <?= round($concept['concept_score'], 2) ?>" ><i class="fa-concept-confidence fa-solid fa-circle" style = "background-image: linear-gradient(to right, var(--main-color) <?= 100 * round($concept['concept_score'], 2) ?>%, #ddd 0%);"></i></span>
                                 <span class="concept-divider"> | </span>
                                 <?= ImpactIcons::widget([
@@ -116,40 +136,53 @@ $item = $this->context;
                                     'impulse_score' => $item->imp_score,
                                     'cc_score' => $item->cc_score,
                                     'impact_indicators' => $item->impact_indicators,
-                                ]);?>
+                                ]); ?>
                             </span>
-                        <?php }
+                        <?php
                     } ?>
                 </div>
             </div>
         <?php endif; ?>
-        <?php if (isset($item->show['pubmed_types']) && $item->show['pubmed_types']): ?>
+        <?php if (isset($item->show['pubmed_types']) && $item->show['pubmed_types'] && ! empty($item->pubmed_types)): ?>
             <!-- pubmed_types -->
                 <div id="res_<?= $item->internal_id ?>_pub" class="tag-region grey-text">
                     <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-book-medical fa-fw" aria-hidden="true" title="NLM types"></i>
 
-                        <?php if (empty($item->pubmed_types)): ?>
-                            &nbspN/A
-                        <?php else: ?>
-                            <?php foreach ($item->pubmed_types as $pubmed_type) { ?>
+                        <?php foreach ($item->pubmed_types as $pubmed_type) { ?>
                                 <span class="tag label">
                                     <span ><?= $pubmed_type['name'] ?> </span>
                                 </span>
                             <?php } ?>
-                        <?php endif; ?>
-
 
                     </div>
                 </div>
         <?php endif; ?>
-        <?php if (! empty($item->repo_url)): ?>
+        <?php if (! empty($item->software_metadata['code_repo'])): ?>
             <div class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
-                    <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i>
-                    <a href="<?= Html::encode($item->repo_url) ?>" target="_blank" class="grey-link version-code-repo">
-                        <?= Html::encode($item->repo_url) ?>
+                    <i class="fa fa-code-branch fa-fw" aria-hidden="true" title="Code Repository"></i>
+                    <a href="<?= Html::encode($item->software_metadata['code_repo']) ?>" target="_blank" class="grey-link version-code-repo">
+                        <?= Html::encode($item->software_metadata['code_repo']) ?>
                     </a>
+                    <?php if (! empty($item->software_metadata['version']) || ! empty($item->software_metadata['license'])): ?>
+                        &nbsp;&middot;&nbsp;
+                        <?php if (! empty($item->software_metadata['version'])): ?>
+                            <span>
+                                <i class="fa fa-tag fa-fw" aria-hidden="true" title="Version"></i>
+                                <?= Html::encode($item->software_metadata['version']) ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (! empty($item->software_metadata['version']) && ! empty($item->software_metadata['license'])): ?>
+                            &nbsp;&middot;&nbsp;
+                        <?php endif; ?>
+                        <?php if (! empty($item->software_metadata['license'])): ?>
+                            <span>
+                                <i class="fa fa-file-contract fa-fw" aria-hidden="true" title="License"></i>
+                                <?= Html::encode($item->software_metadata['license']) ?>
+                            </span>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -164,7 +197,6 @@ $item = $this->context;
                     <?php foreach ($item->relations as $relation) { ?>
                         <span class="tag label">
                             <span role="button" href="<?= Url::to(['site/get-relations-data', 'target_dois' => $relation['target_dois'], 'source_internal_id' => $item->internal_id]) ?>" data-toggle="modal" data-remote="false" modal-title="Related works" data-target="#relations-modal"><?= $relation['type'] ?> <span class="badge badge-primary" style ="top: -1px;padding: 1px 5px; position: relative;"><?= count($relation['target_dois'])?></span></span>
-                            
                         </span>
                     <?php } ?>
 
@@ -172,39 +204,15 @@ $item = $this->context;
                 </div>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if (isset($item->show['annotations']) && $item->show['annotations']): ?>
         <!-- annotations -->
-            <?php if (! empty($item->annotations)): ?>
-                <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
-                    <div class="bootstrap-tagsinput">
-                    <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
-
-                    <?php foreach ($item->annotations as $annotation) { ?>
-                        <span class="tag label">
-                            <?php
-                            $annotation_content = AnnotationPopover::widget([
-                                'data' => $annotation['data'],
-                                'space_annotation_db' => $item->space_annotation_db,
-                                'space_url_suffix' => $item->space_url_suffix,
-                                'space_annotation_id' => $annotation['annotation_id'],
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
-                                'paper_id' => $item->internal_id,
-                                'annotation_name' => $annotation['label'],
-                                'annotation_id' => $annotation['id'] ?? null,
-                                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false
-                            ]); ?>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
-                            <?php if (! empty($annotation['annotation_color'])):?>
-                                <span><i class="fa-solid fa-circle" style = "background-color:transparent;color:<?= $annotation['annotation_color'] ?>"></i></span>
-                            <?php endif; ?>
-                        </span>
-                    <?php } ?>
-
-                    </div>
-                </div>
-            <?php endif; ?>
-
-
+        <?php if (isset($item->show['annotations']) && $item->show['annotations']): ?>
+            <?= Annotations::widget([
+                'annotations' => $item->annotations ?? [],
+                'internal_id' => $item->internal_id,
+                'space_annotation_db' => $item->space_annotation_db,
+                'space_url_suffix' => $item->space_url_suffix,
+                'enable_like_dislike_annotations' => $item->enable_like_dislike_annotations ?? false,
+            ]) ?>
         <?php endif; ?>
 
         <!-- tags -->
@@ -232,8 +240,8 @@ $item = $this->context;
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
 
             <?php if ($item->edit_perm): ?>
-                <div class="involvement-region grey-text">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                <div class="involvement-region grey-text"<?= isset($item->contribution_list_id) ? ' data-contribution-list-id="' . (int) $item->contribution_list_id . '"' : '' ?>>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php
                         foreach ($item->involvements as $value => $field) {
                             $options_inv[$value] = ['data-content' => "<span class='label involvement'>${field}</span>"];
@@ -257,7 +265,7 @@ $item = $this->context;
             <?php else: ?>
                 <div class="tag-region grey-text">
                     <div class="bootstrap-tagsinput">
-                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                        <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                         <?php if (empty($item->involved)) : ?>
                             <span style= "margin-left:5px;">-</span>
                         <?php else : ?>
@@ -393,10 +401,10 @@ $item = $this->context;
 
                         if (isset($item->user_vote_record)) {
                             if ($item->user_vote_record === 'like') {
-                                $like_class = $active_btn_class;
+                                $like_class = $active_btn_class . ' active-like';
                                 $like_style = $active_style;
                             } elseif ($item->user_vote_record === 'dislike') {
-                                $dislike_class = $active_btn_class;
+                                $dislike_class = $active_btn_class . ' active-dislike';
                                 $dislike_style = $active_style;
                             }
                         }

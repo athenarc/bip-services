@@ -6,6 +6,7 @@ use app\models\AdminOptions;
 use app\models\SummaryUsage;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use app\models\Involvement;
 
 // Register compact views CSS
 $this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
@@ -267,6 +268,7 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                             echo ResultItem::widget([
                                 'impact_indicators' => $impact_indicators,
                                 'internal_id' => $paper['internal_id'],
+                                'contribution_list_id' => $list_id,
                                 'edit_perm' => $edit_perm,
                                 'doi' => $paper['doi'],
                                 'dois_num' => $paper['dois_num'],
@@ -277,8 +279,10 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                                 'year' => $paper['year'],
                                 'concepts' => $paper['concepts'],
                                 'relations' => $paper['relations'],
+                                'has_dataset' => $paper['has_dataset'] ?? false,
+                                'has_software' => $paper['has_software'] ?? false,
                                 'tags' => $paper['tags'],
-                                'involvements' => Yii::$app->params['involvement_fields'],
+                                'involvements' => Involvement::getInvolvementFieldsByWorkType($paper['type']),
                                 'involved' => $paper['involvement'],
                                 'pop_score' => $paper['attrank'],
                                 'inf_score' => $paper['pagerank'],
@@ -290,14 +294,15 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
                                 'cc_class' => $paper['cc_class'],
                                 'is_oa' => $paper['is_oa'],
                                 'type' => $paper['type'],
-                                'repo_url' => $paper['code_url'] ?? null,
+                                'software_metadata' => $paper['software_metadata'] ?? null,
                                 'view_mode' => $element_config['compact_view'] ?? 'full',
                                 'show' => [
                                     'concepts' => true,
                                     'relations' => true,
                                     'tags' => false,
                                     'involvement' => true,
-                                ]
+                                ],
+                                'profile_owner_user_id' => $profile_owner_user_id ?? null,
                             ]);
                         }
                     } catch (\Throwable $e) {

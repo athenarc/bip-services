@@ -4,6 +4,73 @@ $(document).ready(() => {
             event.preventDefault();
         }
     });
+
+    const $createApiTokenBtn = $('#create-api-token-btn');
+    const $copyApiTokenBtn = $('#copy-api-token-btn');
+    const $apiTokenInput = $('#api-token-input');
+
+    if ($copyApiTokenBtn.length) {
+        $copyApiTokenBtn.tooltip();
+    }
+
+    if ($createApiTokenBtn.length && $apiTokenInput.length) {
+        $createApiTokenBtn.on('click', () => {
+            const existingToken = ($apiTokenInput.val() || '').trim();
+            if (existingToken) {
+                const confirmed = confirm('You already have an API token. Generating a new token will replace the existing one. Continue?');
+                if (!confirmed) {
+                    return;
+                }
+            }
+
+            const generateUrl = $createApiTokenBtn.data('generate-url');
+
+            $createApiTokenBtn.prop('disabled', true);
+
+            $.ajax({
+                url: generateUrl,
+                type: 'POST',
+                data: {
+                    _csrf: yii.getCsrfToken(),
+                },
+                success: response => {
+                    if (response && response.success && response.token) {
+                        $apiTokenInput.val(response.token);
+                    } else {
+                        alert(response?.error || 'Failed to create token.');
+                    }
+                },
+                error: () => {
+                    alert('Failed to create token.');
+                },
+                complete: () => {
+                    $createApiTokenBtn.prop('disabled', false);
+                },
+            });
+        });
+    }
+
+    if ($copyApiTokenBtn.length && $apiTokenInput.length) {
+        $copyApiTokenBtn.on('click', () => {
+            const token = ($apiTokenInput.val() || '').trim();
+            if (! token) {
+                return;
+            }
+
+            navigator.clipboard.writeText(token).then(() => {
+                $copyApiTokenBtn
+                    .attr('data-original-title', 'Token copied!')
+                    .tooltip('show')
+                    .off('mouseenter focus');
+
+                setTimeout(() => {
+                    $copyApiTokenBtn.tooltip('hide').removeAttr('data-original-title');
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy token.', err);
+            });
+        });
+    }
 });
 
 function toggleSwitch(checkbox, settingName, url) {

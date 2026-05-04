@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\SummaryFormatter;
 use app\models\AdminOptions;
 use app\models\AdminStats;
 use app\models\Article;
@@ -40,6 +41,7 @@ use app\models\PassresetForm;
 use app\models\PreviousUrlChecker;
 use app\models\ProfileTemplateCategories;
 use app\models\ProfileTemplateCategoriesSearch;
+use app\models\ProfileTemplateFeedback;
 use app\models\Relations;
 use app\models\RequestresetForm;
 use app\models\Researcher;
@@ -161,8 +163,8 @@ class SiteController extends BaseController {
                     $post_request_array['type'] = $post_data_all['type'] ?? [];
                     $post_request_array['is_oa'] = $post_data_all['is_oa'] ?? [];
                     $post_request_array['pubmed_types'] = ! empty($post_data_all['pubmed_types']) ? explode(',', $post_data_all['pubmed_types']) : [];
-                    // convert checkbox array value to int (enable_annotations_flag is stored as boolean in the space model)
-                    $post_request_array['enable_annotations_flag'] = (int) ($post_data_all['enable_annotations_flag'][0] ?? 0);
+                    // annotations comes directly from the form (combines -1 for enable all and annotation IDs)
+                    $post_request_array['annotations'] = array_values(array_filter($post_data_all['annotations'] ?? []));
                 }
             }
 
@@ -186,6 +188,13 @@ class SiteController extends BaseController {
 
         [ $results, $search_model, $space_model ] = $this->doSearch();
 
+        // Fetch synonyms for annotations with search expansion enabled
+        $synonyms_data = ['synonyms_expansions' => []];
+
+        if (! empty($search_model->keywords)) {
+            $synonyms_data = Spaces::fetchSynonyms($search_model->keywords, $space_model);
+        }
+
         // Preload user votes for the current page of results (used in the index view)
         $user_votes = [];
 
@@ -199,11 +208,21 @@ class SiteController extends BaseController {
             }, $results['rows']);
 
             if (! empty($paper_ids)) {
-                $user_votes = LikeDislikeRecords::getUserVotesBatch(
-                    Yii::$app->user->id,
-                    $paper_ids,
-                    $space_model->url_suffix
-                );
+                // Serialize the current search query to match votes by query
+                $query_string = $search_model->serializeQuery();
+                // Get the current ordering (default to 'popularity' if not set)
+                $ordering = $search_model->ordering ?? 'popularity';
+
+                // Ensure query and ordering are not empty before calling getUserVotesBatch
+                if (! empty($query_string) && ! empty($ordering)) {
+                    $user_votes = LikeDislikeRecords::getUserVotesBatch(
+                        Yii::$app->user->id,
+                        $paper_ids,
+                        $space_model->url_suffix,
+                        $query_string,
+                        $ordering
+                    );
+                }
             }
         }
 
@@ -229,6 +248,7 @@ class SiteController extends BaseController {
             'researcher_count' => $researcher_count,
             'articlesCount' => $articlesCount,
             'user_votes' => $user_votes,
+            'synonyms_expansions' => $synonyms_data['synonyms_expansions'] ?? [],
         ]);
     }
 
@@ -246,6 +266,18 @@ class SiteController extends BaseController {
         ];
     }
 
+    /**
+     * Returns the top topic facets for the current search results.
+     *
+     * This action is called via AJAX from the search results page to display
+     * the most common topics (concepts) found in the current search results.
+     * The results are filtered by the current search query parameters.
+     *
+     * Route: /site/get-top-topics
+     * Called from: web/js/topicsInResults.js
+     *
+     * @return string HTML partial view containing the top topics list
+     */
     public function actionGetTopTopics() {
         // prepare search params and models
         [ $search_model, $space_model ] = $this->prepareSearchModels();
@@ -259,6 +291,20 @@ class SiteController extends BaseController {
         ]);
     }
 
+    /**
+     * Returns evolution data (counts and citations per year) for a single topic
+     * filtered by the current search results.
+     *
+     * This action is called when a user clicks on a topic pill in the search results.
+     * It shows how many papers with that topic were published each year, filtered
+     * by the current search query (keywords, filters, space, etc.).
+     *
+     * Route: /site/get-topic-evolution
+     * Called from: web/js/topicsInResults.js
+     *
+     * @return string HTML partial view containing charts for topic evolution
+     * @throws \yii\base\Exception if selectedTopTopic parameter is missing
+     */
     public function actionGetTopicEvolution() {
         $selected_topic = Yii::$app->request->get('selectedTopTopic');
 
@@ -274,6 +320,193 @@ class SiteController extends BaseController {
             'count_per_year' => $count_per_year,
             'citation_per_year' => $citation_per_year,
         ]);
+    }
+
+    /**
+     * Returns the top annotation facets for the current search results.
+     *
+     * This action is called via AJAX from the search results page to display
+     * the most common annotations found in the current search results.
+     * Supports filtering by annotation type via the annotation_type_id parameter.
+     *
+     * Route: /site/get-top-annotations
+     * Called from: web/js/annotationsInResults.js
+     *
+     * @return string HTML partial view containing the top annotations list with type filter dropdown
+     */
+    public function actionGetTopAnnotations() {
+        // prepare search params and models
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        // Get annotation type filter from request (default: 'all')
+        $annotation_type_id = Yii::$app->request->get('annotation_type_id', 'all');
+
+        if ($annotation_type_id === 'all') {
+            $annotation_type_id = null;
+        }
+
+        // When "All" is selected we need extra facet results so that after filtering by enable_facet we still have 5
+        $facet_limit = ($annotation_type_id === null || $annotation_type_id === 'all') ? 50 : 5;
+        $annotations_result = $search_model->getAnnotationsFacet($facet_limit, $annotation_type_id);
+        $top_annotations_raw = $annotations_result['counts'];
+        $annotation_type_map_raw = $annotations_result['types'];
+
+        // Only show annotations whose type has enable_facet
+        $facet_annotation_ids = $space_model ? array_keys($space_model->getFacetAnnotationMap()) : [];
+        $top_annotations = [];
+        $annotation_type_map = [];
+
+        foreach ($top_annotations_raw as $name => $count) {
+            $type_id = $annotation_type_map_raw[$name] ?? null;
+
+            if ($type_id !== null && in_array((int) $type_id, $facet_annotation_ids, true)) {
+                $top_annotations[$name] = $count;
+                $annotation_type_map[$name] = $type_id;
+            }
+        }
+        // When viewing "All", keep only the top 5 after filtering so we always show 5
+        if (($annotation_type_id === null || $annotation_type_id === 'all') && count($top_annotations) > 5) {
+            $top_annotations = array_slice($top_annotations, 0, 5, true);
+            $annotation_type_map = array_slice($annotation_type_map, 0, 5, true);
+        }
+
+        // Get annotation types for dropdown (only facet-enabled)
+        $annotation_types = [];
+        $annotation_type_colors = [];
+
+        if ($space_model && ! empty($space_model->facetAnnotations)) {
+            $annotation_types = $space_model->getFacetAnnotationMap();
+            $annotation_type_colors = $space_model->getFacetAnnotationColorMap();
+        }
+
+        // render top annotations using partial view
+        return $this->renderPartial('top_annotations', [
+            'top_annotations' => $top_annotations,
+            'annotation_type_map' => $annotation_type_map, // Map of annotation_name => type_id
+            'annotation_types' => $annotation_types,
+            'annotation_type_colors' => $annotation_type_colors,
+            // null means "All" – in αυτό το case κρατάμε το default border color
+            'selected_annotation_type_id' => $annotation_type_id,
+        ]);
+    }
+
+    /**
+     * Returns evolution data (counts and citations per year) for all annotations of a specific type
+     * filtered by the current search results.
+     *
+     * This action is called when a user clicks on an annotation type in the search results.
+     * It shows how many papers with annotations of that type were published each year, filtered
+     * by the current search query (keywords, filters, space, etc.).
+     *
+     * Note: This differs from actionGetAnnotationEvolution() which returns data for
+     * ALL papers with an annotation (not filtered by search) and returns JSON instead of HTML.
+     *
+     * Route: /site/get-top-annotation-evolution
+     * Called from: web/js/annotationsInResults.js
+     *
+     * @return string HTML partial view containing charts for annotation evolution
+     * @throws \yii\base\Exception if annotation_type_id parameter is missing
+     */
+    public function actionGetTopAnnotationEvolution() {
+        $annotation_type_id = Yii::$app->request->get('annotation_type_id');
+
+        if (! $annotation_type_id) {
+            throw new \yii\base\Exception('No annotation type ID is given');
+        }
+
+        $annotation_type_id = (int) $annotation_type_id;
+
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        [ $count_per_year, $citation_per_year ] = $search_model->getTopAnnotationEvolution($annotation_type_id);
+
+        return $this->renderPartial('annotation_evolution', [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ]);
+    }
+
+    /**
+     * Returns evolution data (counts and citations per year) for the top 5 topics
+     * filtered by the current search results.
+     *
+     * This action is called when a user clicks the visualization button next to
+     * "Key topics" in the search results. It shows evolution charts for the top 5
+     * topics found in the current search, allowing comparison across multiple topics.
+     *
+     * Route: /site/get-top-topics-evolution
+     * Called from: web/js/topicsInResults.js
+     *
+     * @return string HTML partial view containing charts for multiple topics evolution
+     */
+    public function actionGetTopTopicsEvolution() {
+        // prepare search params and models
+        [ $search_model, $space_model ] = $this->prepareSearchModels();
+
+        // Get evolution for top 5 topics (returns both counts and citations)
+        $evolution_data = $search_model->getTopTopicsEvolution(5);
+
+        // Handle backward compatibility - if array is returned directly, it's old format
+        if (isset($evolution_data['counts']) && isset($evolution_data['citations'])) {
+            $topics_evolution = $evolution_data['counts'];
+            $topics_citations = $evolution_data['citations'];
+        } else {
+            // Old format - only counts
+            $topics_evolution = is_array($evolution_data) ? $evolution_data : [];
+            $topics_citations = [];
+        }
+
+        // Ensure citations is always an array
+        if (! is_array($topics_citations)) {
+            $topics_citations = [];
+        }
+
+        // render top topics evolution using partial view
+        return $this->renderPartial('top_topics_evolution', [
+            'topics_evolution' => $topics_evolution,
+            'topics_citations' => $topics_citations,
+        ]);
+    }
+
+    /**
+     * Returns evolution data (counts and citations per year) for a specific annotation
+     * from annotation detail pages (NOT filtered by search results).
+     *
+     * This action is called from annotation detail pages to show evolution charts
+     * for ALL papers that have a specific annotation, regardless of any search filters.
+     * It uses specific annotation identifiers (space_url_suffix, annotation_id, id)
+     * rather than annotation names from search facets.
+     *
+     * Note: This differs from actionGetTopAnnotationEvolution() which:
+     * - Filters by current search results
+     * - Uses annotation names from search facets
+     * - Returns HTML partial instead of JSON
+     *
+     * Route: /site/get-annotation-evolution
+     * Called from: web/js/annotationEvolution.js
+     *
+     * @return array JSON response containing:
+     *               - count_per_year: array of year => count pairs
+     *               - citation_per_year: array of year => citation_count pairs
+     * @throws \yii\web\BadRequestHttpException if required parameters are missing
+     */
+    public function actionGetAnnotationEvolution() {
+        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
+        $annotation_id = Yii::$app->request->get('annotation_id');
+        $id = Yii::$app->request->get('id');
+
+        if (! $space_url_suffix || ! $annotation_id || ! $id) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameters: space_url_suffix, annotation_id, and id are required');
+        }
+
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        [ $count_per_year, $citation_per_year ] = SearchForm::getAnnotationEvolution($space_url_suffix, $annotation_id, $id);
+
+        return [
+            'count_per_year' => $count_per_year,
+            'citation_per_year' => $citation_per_year,
+        ];
     }
 
     /**
@@ -416,9 +649,10 @@ class SiteController extends BaseController {
         // get impact indicators
         $indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
-        // Attach code repository URL from zenodo_code_repos table based on article internal_id
-        $repoUrls = Article::getCodeRepoUrls([$article->internal_id]);
-        $article->repo_url = $repoUrls[$article->internal_id] ?? null;
+        // Attach software metadata (code_repo, license, version) from software_metadata table based on article internal_id
+        $article_rows = [['internal_id' => $article->internal_id]];
+        $article_rows = Article::getCodeRepoUrls($article_rows);
+        $article->software_metadata = $article_rows[0]['software_metadata'] ?? null;
 
         //Render details page
         return $this->render('details', [
@@ -466,65 +700,71 @@ class SiteController extends BaseController {
     /**
      * Displays the articles of a particular annotation.
      */
-    public function actionAnnotation() {
-        $annotation_id = Yii::$app->request->get('annotation_id');
-        $space_url_suffix = Yii::$app->request->get('space_url_suffix');
-        $space_annotation_id = Yii::$app->request->get('space_annotation_id');
-        $space_annotation = SpacesAnnotations::findOne(['id' => $space_annotation_id]);
+    public function actionAnnotation($space_url_suffix, $annotation_id) {
+        $id = Yii::$app->request->get('id');
+        $ordering = Yii::$app->request->get('ordering', 'popularity');
+        $space_annotation = SpacesAnnotations::findOne(['id' => $annotation_id]);
 
-        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
-        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
-
-        try {
-            $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
-
-            // Annotation Info
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_info, ['annotation_id' => $annotation_id]);
-            $annotation_info = $rows[0][0];
-
-            // Annotation Dois Count
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query_count, ['annotation_id' => $annotation_id]);
-            $dois_count = $rows[0][0];
-
-            $pagination = new Pagination([
-                'pageSize' => 10,
-                'totalCount' => $dois_count,
-            ]);
-
-            // Annotation Dois
-            [ $stats, $rows ] = $conn->run($space_annotation->reverse_query, ['annotation_id' => $annotation_id, 'skip' => $pagination->offset, 'limit' => $pagination->limit]);
-            $dois = array_map('strtolower', array_column(array_slice($rows, 0, -1), 0));
-        } catch (\Exception $e) {
-            throw new \yii\web\NotFoundHttpException('The requested annotation was not found');
+        if ($space_annotation === null) {
+            throw new \yii\web\NotFoundHttpException('Space annotation not found');
         }
 
-        $current_user = (Yii::$app->user->id ? Yii::$app->user->id : 0);
+        $space_model = Spaces::fetchSpacesBySuffix($space_url_suffix);
 
-        $works = (new \yii\db\Query())
-            ->select(['internal_id', 'dois_num', 'doi', 'title', 'authors', 'journal', 'year', 'type', 'is_oa', 'user_id', 'attrank', 'pagerank', '3y_cc', 'citation_count'])
-            ->from('pmc_paper')
-            ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-            ->leftJoin('users_likes', 'users_likes.paper_id = pmc_paper.internal_id AND users_likes.user_id = ' . addslashes($current_user) . ' AND showit = true')
-            ->where(['in', 'doi', $dois])
-            ->groupBy('internal_id')
-            ->orderBy([new \yii\db\Expression('FIELD(doi, ' . implode(',', array_map(function ($element) { return "\"${element}\""; }, $dois)) . ')')])
-            ->all();
+        if ($space_model === null) {
+            throw new \yii\web\NotFoundHttpException('Space not found');
+        }
 
-        // add the impact class of each row
-        $works = SearchForm::get_impact_class($works);
-        // get concepts and scores
-        $works = Concepts::getConcepts($works, 'internal_id');
-        // get impact scores per concept
-        $works = SearchForm::get_concepts_impact_class($works);
+        // Prepare and execute Solr query for annotation
+        $solr_query = SearchForm::prepareAnnotationQuery($space_url_suffix, $annotation_id, $id, $ordering);
+        [ $pagination, $internal_ids ] = SearchForm::performAnnotationQuery($solr_query);
+
+        // Set pagination route and params to preserve both route and query parameters
+        $pagination->route = 'site/annotation';
+        $pagination->params = [
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_id' => $annotation_id,
+            'id' => $id,
+            'ordering' => $ordering
+        ];
+
+        // Get annotation info from graph DB (build query from graph entity fields)
+        $annotation_info = null;
+        $metadata_query = $space_annotation->buildMetadataQuery();
+        $has_metadata_query = ! empty($metadata_query);
+
+        if ($has_metadata_query) {
+            try {
+                $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+                $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+                [ $stats, $rows ] = $conn->run($metadata_query, ['annotation_id' => $id]);
+
+                if (! empty($rows) && ! empty($rows[0]) && ! empty($rows[0][0])) {
+                    $annotation_info = $rows[0][0];
+                }
+            } catch (\Exception $e) {
+                // If annotation info query fails, continue without it
+                Yii::warning('Failed to fetch annotation info: ' . $e->getMessage());
+            }
+        }
+
+        // Get paper details from database
+        $works = SearchForm::prepareAnnotationResults($internal_ids);
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
         return $this->render('annotation_details', [
             'space_model' => $space_model,
+            'space_annotation' => $space_annotation,
             'annotation_info' => $annotation_info,
+            'annotation_id' => $id,
+            'has_metadata_query' => $has_metadata_query,
             'works' => $works,
             'pagination' => $pagination,
             'impact_indicators' => $impact_indicators,
+            'ordering' => $ordering,
+            'space_url_suffix' => $space_url_suffix,
+            'annotation_type_id' => $annotation_id,
         ]);
     }
 
@@ -1225,7 +1465,8 @@ class SiteController extends BaseController {
         $space_id_update = Yii::$app->request->post('space_id_update');
         $model = Spaces::fetchSpaces($space_id_update);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
+        $modelsSpacesSynonymsExpansion = $model->isNewRecord ? [new \app\models\SpacesSynonymsExpansion()] : (empty($model->allSynonymsExpansion) ? [new \app\models\SpacesSynonymsExpansion()] : $model->allSynonymsExpansion);
 
         $spacesArray = ArrayHelper::map(Spaces::find()->all(), 'id', 'url_suffix');
 
@@ -1234,6 +1475,7 @@ class SiteController extends BaseController {
             'spaces_data' => [
                 'model' => $model,
                 'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
+                'modelsSpacesSynonymsExpansion' => (empty($modelsSpacesSynonymsExpansion)) ? [new \app\models\SpacesSynonymsExpansion()] : $modelsSpacesSynonymsExpansion,
                 'spacesArray' => $spacesArray
             ],
         ]);
@@ -1249,7 +1491,8 @@ class SiteController extends BaseController {
         $current_space_id = Yii::$app->request->post('Spaces')['id'];
         $model = Spaces::fetchSpaces($current_space_id);
 
-        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->annotations;
+        $modelsSpacesAnnotations = $model->isNewRecord ? [new SpacesAnnotations()] : $model->allAnnotations;
+        $modelsSpacesSynonymsExpansion = $model->isNewRecord ? [new \app\models\SpacesSynonymsExpansion()] : (empty($model->allSynonymsExpansion) ? [new \app\models\SpacesSynonymsExpansion()] : $model->allSynonymsExpansion);
 
         // create new or update existing
         if ($model->load(Yii::$app->request->post())) {
@@ -1261,19 +1504,45 @@ class SiteController extends BaseController {
                 $modelsSpacesAnnotations = SpacesAnnotations::createMultipleModels(SpacesAnnotations::classname());
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
 
+                $modelsSpacesSynonymsExpansion = \app\models\SpacesSynonymsExpansion::createMultipleModels(\app\models\SpacesSynonymsExpansion::classname());
+                Model::loadMultiple($modelsSpacesSynonymsExpansion, Yii::$app->request->post());
+
+                $deletedSynonymsIDs = []; // No deletions for new records
+
             // Case: update
             } else {
                 $oldIDs = ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id');
                 $modelsSpacesAnnotations = SpacesAnnotations::createMultipleModels(SpacesAnnotations::classname(), $modelsSpacesAnnotations);
                 Model::loadMultiple($modelsSpacesAnnotations, Yii::$app->request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelsSpacesAnnotations, 'id', 'id')));
+
+                $oldSynonymsIDs = ArrayHelper::map($modelsSpacesSynonymsExpansion, 'id', 'id');
+                $modelsSpacesSynonymsExpansion = \app\models\SpacesSynonymsExpansion::createMultipleModels(\app\models\SpacesSynonymsExpansion::classname(), $modelsSpacesSynonymsExpansion);
+                Model::loadMultiple($modelsSpacesSynonymsExpansion, Yii::$app->request->post());
+                $deletedSynonymsIDs = array_diff($oldSynonymsIDs, array_filter(ArrayHelper::map($modelsSpacesSynonymsExpansion, 'id', 'id')));
+            }
+
+            // Filter out empty new models before validation (to avoid validation errors)
+            $modelsSpacesSynonymsExpansionToValidate = [];
+
+            foreach ($modelsSpacesSynonymsExpansion as $synModel) {
+                // Skip empty new models for validation
+                if ($synModel->isNewRecord &&
+                    empty($synModel->display_name) &&
+                    empty($synModel->graph_entity) &&
+                    empty($synModel->graph_entity_label) &&
+                    empty($synModel->expansion_field)) {
+                    continue;
+                }
+                $modelsSpacesSynonymsExpansionToValidate[] = $synModel;
             }
 
             // validate all models
             $valid1 = $model->validate();
             $valid2 = Model::validateMultiple($modelsSpacesAnnotations);
+            $valid3 = empty($modelsSpacesSynonymsExpansionToValidate) ? true : Model::validateMultiple($modelsSpacesSynonymsExpansionToValidate);
 
-            if ($valid1 && $valid2) {
+            if ($valid1 && $valid2 && $valid3) {
                 $model->uploadLogo();
 
                 $transaction = \Yii::$app->db->beginTransaction();
@@ -1281,7 +1550,7 @@ class SiteController extends BaseController {
                 try {
                     // no need for 2nd validation
                     if ($flag = $model->save(false)) {
-                        // Case: update
+                        // Case: update - delete removed annotations
                         if (isset($deletedIDs) && ! empty($deletedIDs)) {
                             SpacesAnnotations::deleteAll(['id' => $deletedIDs]);
                         }
@@ -1293,6 +1562,29 @@ class SiteController extends BaseController {
                             if (! ($flag = $modelSpacesAnnotations->save(false))) {
                                 $transaction->rollBack();
                                 break;
+                            }
+                        }
+
+                        // Case: update - delete removed synonyms expansions
+                        if ($flag && isset($deletedSynonymsIDs) && ! empty($deletedSynonymsIDs)) {
+                            \app\models\SpacesSynonymsExpansion::deleteAll(['id' => $deletedSynonymsIDs]);
+                        }
+
+                        if ($flag) {
+                            // Use the filtered list for saving (non-empty models only)
+                            foreach ($modelsSpacesSynonymsExpansionToValidate as $modelSpacesSynonymsExpansion) {
+                                // give id, after $model is saved
+                                $modelSpacesSynonymsExpansion->spaces_id = $model->id;
+
+                                // Ensure enabled has a default value if not set
+                                if ($modelSpacesSynonymsExpansion->enabled === null || $modelSpacesSynonymsExpansion->enabled === '') {
+                                    $modelSpacesSynonymsExpansion->enabled = 1;
+                                }
+
+                                if (! ($flag = $modelSpacesSynonymsExpansion->save(false))) {
+                                    $transaction->rollBack();
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1317,6 +1609,7 @@ class SiteController extends BaseController {
             'spaces_data' => [
                 'model' => $model,
                 'modelsSpacesAnnotations' => (empty($modelsSpacesAnnotations)) ? [new SpacesAnnotations()] : $modelsSpacesAnnotations,
+                'modelsSpacesSynonymsExpansion' => (empty($modelsSpacesSynonymsExpansion)) ? [new \app\models\SpacesSynonymsExpansion()] : $modelsSpacesSynonymsExpansion,
                 'spacesArray' => $spacesArray
                     ],
         ]);
@@ -1379,13 +1672,23 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'like_count' => 0,
+                'dislike_count' => 0,
+            ];
+        }
+
         try {
             if ($remove == 1) {
-                // Delete the vote
-                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix);
+                // Delete the vote (matching query and ordering to delete the specific vote)
+                LikeDislikeRecords::deleteVote($user_id, $paper_id, $space_url_suffix, $query, $ordering);
                 $message = 'Vote removed';
             } else {
-                // Save or update vote
+                // Save or update vote (query and ordering are now part of the unique key)
                 LikeDislikeRecords::saveVote($user_id, $paper_id, $space_url_suffix, $vote_type, $query, $ordering, $paper_rank);
                 $message = 'Vote saved';
             }
@@ -1428,6 +1731,8 @@ class SiteController extends BaseController {
         $user_id = Yii::$app->user->id;
         $paper_ids = Yii::$app->request->post('paper_ids', []);
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
+        $query = Yii::$app->request->post('query');
+        $ordering = Yii::$app->request->post('ordering');
 
         if (empty($paper_ids) || ! is_array($paper_ids)) {
             return [
@@ -1436,28 +1741,30 @@ class SiteController extends BaseController {
             ];
         }
 
+        // Validate query and ordering are provided
+        if (empty($query) || empty($ordering)) {
+            return [
+                'success' => false,
+                'message' => 'Query and ordering parameters are required',
+                'votes' => [],
+            ];
+        }
+
         // Convert paper_ids to integers
         $paper_ids = array_map('intval', $paper_ids);
 
-        // Get all votes for these papers
-        $votes = LikeDislikeRecords::find()
-            ->where([
-                'user_id' => $user_id,
-                'paper_id' => $paper_ids,
-                'space_url_suffix' => $space_url_suffix,
-            ])
-            ->all();
-
-        // Build response array
-        $votes_array = [];
-
-        foreach ($votes as $vote) {
-            $votes_array[$vote->paper_id] = $vote->action;
-        }
+        // Get votes filtered by query and ordering
+        $votes = LikeDislikeRecords::getUserVotesBatch(
+            $user_id,
+            $paper_ids,
+            $space_url_suffix,
+            $query,
+            $ordering
+        );
 
         return [
             'success' => true,
-            'votes' => $votes_array,
+            'votes' => $votes,
         ];
     }
 
@@ -1479,6 +1786,7 @@ class SiteController extends BaseController {
 
         $user_id = Yii::$app->user->id;
         $paper_id = (int) Yii::$app->request->post('paper_id');
+        $annotation_type_id = (int) Yii::$app->request->post('annotation_type_id');
         $annotation_id = Yii::$app->request->post('annotation_id');
         $annotation_name = Yii::$app->request->post('annotation_name');
         $space_url_suffix = Yii::$app->request->post('space_url_suffix');
@@ -1486,7 +1794,7 @@ class SiteController extends BaseController {
         $remove = (int) Yii::$app->request->post('remove', 0);
 
         // Validate inputs
-        if (empty($paper_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
+        if (empty($paper_id) || empty($annotation_type_id) || empty($annotation_id) || empty($annotation_name) || empty($space_url_suffix)) {
             return [
                 'success' => false,
                 'message' => 'Missing required parameters',
@@ -1516,16 +1824,16 @@ class SiteController extends BaseController {
         try {
             if ($remove == 1) {
                 // Delete the vote
-                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+                LikeDislikeAnnotations::deleteVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
                 $message = 'Vote removed';
             } else {
                 // Save or update vote
-                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
+                LikeDislikeAnnotations::saveVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $annotation_name, $space_url_suffix, $vote_type);
                 $message = 'Vote saved';
             }
 
             // Get updated user vote
-            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_id, $space_url_suffix);
+            $user_vote = LikeDislikeAnnotations::getUserVote($user_id, $paper_id, $annotation_type_id, $annotation_id, $space_url_suffix);
 
             return [
                 'success' => true,
@@ -1890,6 +2198,10 @@ class SiteController extends BaseController {
         $user_id = Yii::$app->user->id;
         $researcher = Researcher::findOne(['user_id' => $user_id]);
         $templateModel = $this->findTemplateModel($id, $profile_template_category_id);
+        $templateFeedback = ProfileTemplateFeedback::find()
+            ->where(['template_id' => $templateModel->id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
 
         // Generate the template URL if a researcher record is found
         $templateUrl = null;
@@ -1907,7 +2219,53 @@ class SiteController extends BaseController {
             'elementsDataProvider' => $elementsDataProvider,
             'elementsTotalUsers' => $elementsTotalUsers,
             'templateUrl' => $templateUrl,
+            'templateFeedback' => $templateFeedback,
         ]);
+    }
+
+    public function actionUpdateTemplateFeedbackStatus($id, $template_id, $profile_template_category_id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
+        }
+
+        $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+        if (! $feedback) {
+            throw new \yii\web\NotFoundHttpException('Feedback item not found');
+        }
+
+        $status = Yii::$app->request->post('status');
+        if (! in_array($status, [ProfileTemplateFeedback::STATUS_RESOLVED, ProfileTemplateFeedback::STATUS_DENIED], true)) {
+            Yii::$app->session->setFlash('danger', 'Invalid feedback status.');
+            return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+        }
+
+        $feedback->status = $status;
+        $feedback->admin_note = Yii::$app->request->post('admin_note');
+        $feedback->resolved_by_user_id = Yii::$app->user->id;
+        $feedback->resolved_at = date('Y-m-d H:i:s');
+        $feedback->save(false);
+
+        Yii::$app->session->setFlash('success', 'Feedback status updated.');
+        return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+    }
+
+    public function actionDeleteTemplateFeedback($id, $template_id, $profile_template_category_id) {
+        if (! AdminStats::hasAdminAccess()) {
+            throw new \yii\web\NotFoundHttpException('Page not Found');
+        }
+
+        $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+        if (! $feedback) {
+            throw new \yii\web\NotFoundHttpException('Feedback item not found');
+        }
+
+        if ($feedback->status === ProfileTemplateFeedback::STATUS_PENDING) {
+            Yii::$app->session->setFlash('danger', 'Only answered feedback can be removed.');
+            return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
+        }
+
+        $feedback->delete();
+        return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
     }
 
     /**
@@ -2105,7 +2463,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
 
                             if (is_string($semanticsOrder)) {
@@ -2155,7 +2513,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2270,7 +2627,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $facets = [];
@@ -2330,7 +2687,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2468,7 +2824,7 @@ class SiteController extends BaseController {
 
                 switch ($elementModel->type) {
                     case 'Indicators':
-                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate() && $elementIndicatorsFormModel->validateRequired()) {
+                        if ($elementIndicatorsFormModel->load($this->request->post()) && $elementIndicatorsFormModel->validate()) {
                             $selectedIndicators = $elementIndicatorsFormModel->selectedIndicators;
 
                             $semanticsOrder = $elementIndicatorsFormModel->semanticsOrder;
@@ -2520,7 +2876,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementIndicatorsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementIndicatorsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2657,7 +3012,7 @@ class SiteController extends BaseController {
                         }
                         break;
                     case 'Facets':
-                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate() && $elementFacetsFormModel->validateRequired()) {
+                        if ($elementFacetsFormModel->load($this->request->post()) && $elementFacetsFormModel->validate()) {
                             $selectedFacets = $elementFacetsFormModel->selectedFacets;
 
                             $elementFacetsModel = $elementModel->elementFacets;
@@ -2725,7 +3080,6 @@ class SiteController extends BaseController {
                             }
                         } elseif ($elementFacetsFormModel->load($this->request->post())) {
                             // Validation failed
-                            $elementFacetsFormModel->validateRequired();
                             $validationPassed = false;
                         }
                         break;
@@ -2952,38 +3306,8 @@ class SiteController extends BaseController {
 
             if ($response->isOk) {
                 $summary = $response->data['summary'] ?? 'No summary available';
-                $plainSummary = $summary;
 
-                $referenceLines = [];
-
-                // replace the paper ids with the links
-                foreach ($papers as $i => $paper) {
-                    $id = $paper['id'];
-                    $index = $i + 1;
-                    $url = Url::to(['site/details', 'id' => $paper['doi']], true);
-                    $link = '<a href="' . $url . '" target="_blank" class="main-green">' . $index . '</a>';
-                    $summary = str_replace($id, $link, $summary);
-                    $plainSummary = str_replace("${id}", "[${index}]", $plainSummary);
-                    // Build references line
-                    $title = $paper['title'] ?? 'Untitled';
-                    $journal = $paper['journal'] ?? 'Unknown Journal';
-                    $year = $paper['year'] ?? 'n.d.';
-                    $doi = $paper['doi'] ?? '';
-                    $doiUrl = $doi ? "https://doi.org/{$doi}" : '';
-                    $referenceLines[] = "[${index}] ${title}. ${journal}, ${year}. ${doiUrl}";
-                }
-
-                if (! empty($referenceLines)) {
-                    $plainSummary .= "\n\nReferences:\n" . implode("\n", $referenceLines);
-                }
-
-                $plainSummary = str_replace(['[[', ']]'], ['[', ']'], $plainSummary);
-                $summary = nl2br($summary);
-
-                return [
-                    'html' => $summary,
-                    'plain' => $plainSummary,
-                ];
+                return SummaryFormatter::formatSummaryWithReferences($summary, $papers);
             }
 
             throw new \Exception('Failed to summarize results.');
@@ -3133,7 +3457,7 @@ class SiteController extends BaseController {
             $search_params['is_oa'],
             $search_params['pubmed_types'],
             $search_params['provided_by'],
-            $search_params['enable_annotations_flag'],
+            $search_params['annotations'] ?? [],
             $space_model
         );
 

@@ -78,6 +78,12 @@ class ScholarNavbar extends Widget {
                     'encode' => false,
                     'options' => ['class' => 'navbar-icon'],
                 ] : '',
+                // Template feedback button for any logged-in viewer in non-visible templates
+                (! Yii::$app->user->isGuest && $this->template->isHidden()) ? [
+                    'label' => '<span data-toggle="modal" data-target="#templateFeedbackModal" title="Send feedback to template creator"><i class="fa fa-commenting light-grey-link"></i> <span class="visible-xs-inline"> Feedback</span></span>',
+                    'encode' => false,
+                    'options' => ['class' => 'navbar-icon'],
+                ] : '',
                 [
                     'label' => '<i class="fa fa-cog light-grey-link"></i> <span class="visible-xs-inline"> More options</span>',
                     'encode' => false,

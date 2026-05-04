@@ -7,8 +7,14 @@ $(document).ready(() => {
             $('#results_ftr').hide();
             $('#results_set').hide();
             $('#top_topics').hide();
+            $('#top_annotations').hide();
             $('#summary_panel').hide();
             $('#researcher_panel').hide();
+            $('#annotation-expand-controls').hide();
+            $('#synonyms').hide();
+
+            // Reset annotation type filter dropdown to 'all' on new search
+            $('#annotation_type_filter').val('all');
 
             $('#loading_results').show();
             return true;
@@ -61,6 +67,17 @@ $(document).ready(() => {
         $('#filterPubmedTypesModal').modal('hide');
 
         // Submit search form
+        $('#search-form').submit();
+    });
+
+    // Handle expand search button click
+    $(document).on('click', '.expand-search-btn', function() {
+        const expandedKeywords = $(this).data('expanded-keywords');
+        
+        // Update keywords field (find input with name containing 'keywords' in the search form)
+        $('#search-form input[name*="keywords"]').val(expandedKeywords);
+        
+        // Submit the form (this will trigger the loading indicator)
         $('#search-form').submit();
     });
 });

@@ -31,7 +31,8 @@
         "stefanak-michal/bolt": "==v3.1.4",
         "wbraganca/yii2-dynamicform": "*",
         "kartik-v/yii2-widget-select2": "^2.2",
-        "kartik-v/yii2-builder": "^1.6"
+        "kartik-v/yii2-builder": "^1.6",
+        "akiraz2/yii2-blog": "~1.3"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

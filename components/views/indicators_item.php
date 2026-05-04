@@ -160,6 +160,7 @@ use yii\helpers\Url;
                                                                 $data_target = $academic_age_value;
                                                                 break;
                                                             case 'Fair Academic Age':
+                                                            case 'Gap-adjusted Academic Age':
                                                                 $responsible_academic_age_value = (isset($responsible_academic_age) && (! empty($academic_age) || $academic_age === 0)) ? $responsible_academic_age : '-';
                                                                 $data_target = $responsible_academic_age_value;
                                                                 $custom_logic = '<span role="button" data-toggle="modal" data-target="#academic-age-datepicker-modal"><i class="fa-solid ' . ($edit_perm ? 'fa-pen-to-square' : 'fa-eye') . ' fa-xs"></i></span>';                                                                break;
@@ -272,6 +273,7 @@ use yii\helpers\Url;
                                                             $data_target = $academic_age_value;
                                                             break;
                                                         case 'Fair Academic Age':
+                                                        case 'Gap-adjusted Academic Age':
                                                             $responsible_academic_age_value = (isset($responsible_academic_age) && (! empty($academic_age) || $academic_age === 0)) ? $responsible_academic_age : '-';
                                                             $data_target = $responsible_academic_age_value;
                                                             $custom_logic = '<span role="button" data-toggle="modal" data-target="#academic-age-datepicker-modal"><i class="fa-solid ' . ($edit_perm ? 'fa-pen-to-square' : 'fa-eye') . ' fa-xs grey-text"></i></span>';
@@ -345,7 +347,7 @@ use yii\helpers\Url;
                 continue;
             }
 
-            if (($config['indicator']['name'] ?? '') === 'Fair Academic Age') {
+            if (in_array(($config['indicator']['name'] ?? ''), ['Fair Academic Age', 'Gap-adjusted Academic Age'], true)) {
                 $has_fair_academic_age = true;
                 break;
             }

@@ -1,0 +1,55 @@
+/* Shared alignment for Key topics and Key annotations rows */
+.key-pills-label {
+    width: 240px;
+    min-width: 240px;
+    flex-shrink: 0;
+}
+
+#top_topics_in_results,
+#top_annotations_in_results {
+    justify-content: flex-start;
+}
+
+#top_annotations {
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+#top_annotations .top-annotations-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+#top_annotations .top-annotations-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+#top_annotations .dropdown-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.2em;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    #top_annotations .top-annotations-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+    #top_annotations .dropdown-wrapper {
+        width: 100%;
+        margin-top: 5px;
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+}

@@ -2,6 +2,8 @@
 
 use app\components\BookmarkIcon;
 use app\components\ImpactIcons;
+use app\components\ReproducibilityBadges;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -63,22 +65,35 @@ $item = $this->context;
             <div class="col-md-4 text-right">
                 <div class="version-impact-icons-wrapper">
                     <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
-                        <span class="version-link-wrapper">
-                            <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
-                                <?= $item->dois_num ?> versions</a>
+                        <span class="indicator-group version-group">
+                            <span class="version-link-wrapper">
+                                <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link version-link">
+                                    <i class="fas fa-clone" aria-hidden="true"></i> <?= $item->dois_num ?></a>
+                            </span>
                         </span>
                     <?php endif; ?>
                     
-                    <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
-                                        'influence_class' => $item->inf_class,
-                                        'impulse_class' => $item->imp_class,
-                                        'cc_class' => $item->cc_class,
-                                        'popularity_score' => $item->pop_score,
-                                        'influence_score' => $item->inf_score,
-                                        'impulse_score' => $item->imp_score,
-                                        'cc_score' => $item->cc_score,
-                                        'impact_indicators' => $item->impact_indicators,
-                                        ]);?>
+                    <?php if ($item->has_dataset || $item->has_software): ?>
+                        <span class="indicator-group repro-group">
+                            <?= ReproducibilityBadges::widget([
+                                'has_dataset' => $item->has_dataset ?? false,
+                                'has_software' => $item->has_software ?? false,
+                            ]); ?>
+                        </span>
+                    <?php endif; ?>
+                    
+                    <span class="indicator-group impact-group">
+                        <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
+                                            'influence_class' => $item->inf_class,
+                                            'impulse_class' => $item->imp_class,
+                                            'cc_class' => $item->cc_class,
+                                            'popularity_score' => $item->pop_score,
+                                            'influence_score' => $item->inf_score,
+                                            'impulse_score' => $item->imp_score,
+                                            'cc_score' => $item->cc_score,
+                                            'impact_indicators' => $item->impact_indicators,
+                                            ]);?>
+                    </span>
                 </div>
             </div>
         </div>
@@ -94,7 +109,11 @@ $item = $this->context;
                     if ($concept_count >= 3) {
                         break;
                     } // Show only first 3 concepts
-                    echo '<span class="concept-tag">' . $concept['display_name'] . '</span>';
+                    $reportedClass = ! empty($concept['reported_irrelevant']) ? ' topic-reported' : '';
+                    $reportedStyle = ! empty($concept['reported_irrelevant']) ? 'text-decoration: line-through; opacity: 0.6;' : '';
+                    echo '<span class="concept-tag' . $reportedClass . '"'
+                        . (! empty($reportedStyle) ? ' style="' . $reportedStyle . '"' : '')
+                        . '>' . Html::encode($concept['display_name']) . '</span>';
                     $concept_count++;
                 }
 
@@ -109,14 +128,14 @@ $item = $this->context;
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
             <?php if ($item->edit_perm): ?>
                 <div class="compact-involvement grey-text small">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <span id="res_<?= $item->internal_id ?>_involvement_tags" class="tags-wrapper">
                         <?php if (! empty($item->involved)) {
                     foreach ($item->involved as $inv) {
                         echo '<span class="concept-tag" data-roleid="' . Html::encode($inv) . '">' . Html::encode($item->involvements[$inv]) . '</span>';
                     }
                 } ?>
-                        <span class="involvement-region">
+                        <span class="involvement-region"<?= isset($item->contribution_list_id) ? ' data-contribution-list-id="' . (int) $item->contribution_list_id . '"' : '' ?>>
                             <?php
                                 $options_inv = [];
 
@@ -165,7 +184,7 @@ $item = $this->context;
                 </script>
             <?php else: ?>
                 <div class="compact-involvement grey-text small">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php if (empty($item->involved)) : ?>
                         <span style="margin-left:5px;">-</span>
                     <?php else : ?>

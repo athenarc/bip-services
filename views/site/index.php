@@ -1,11 +1,15 @@
 <?php
 
+use app\assets\TinyColorAsset;
 use app\components\CustomBootstrapModal;
 use app\components\CustomFiltersCheckboxList;
 use app\components\CustomFiltersRadioList;
 use app\components\MagicSearchBox;
 use app\components\PubmedTypesModal;
 use app\components\ResultItem;
+use app\components\SummaryPanel;
+use app\components\Synonyms;
+use app\components\TopAnnotationsItem;
 use app\components\TopTopicsItem;
 use app\models\SummaryUsage;
 use Yii;
@@ -16,17 +20,32 @@ use yii\web\View;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'BIP! Services - Finder';
+// Check if we're in a space and set title accordingly
+$in_space = isset($space_model) && ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
+$this->title = $in_space ? $space_model->display_name . ' - BIP! Space' : 'BIP! Services - Finder';
 
 /* @var $this yii\web\View */
 $this->registerJsFile('@web/js/resultsFunctions.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/toggleFiltersSidebar.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/toggleFiltersSidebar.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/remove_filters.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/beforeSearchFormSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/filtersFocusOutSubmit.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
+
+// Register space colors early if in space (right after tinycolor.js)
+if ($in_space) {
+    $spaceColor = $space_model->theme_color;
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
+}
+
 $this->registerJsFile('@web/js/topicsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/annotationsInResults.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/likeDislikeRecords.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
@@ -50,11 +69,17 @@ $end_year = $model->end_year;
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
+// Determine evaluation mode flag using model logic
+$this->params['evaluationModeActive'] = $space_model->isEvaluationModeActive();
+
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
+    // Pass theme color of current space to layout for the evaluation overlay
+    $this->params['evaluationModeColor'] = $spaceColor;
     $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
     $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 }
+
 ?>
 
 <div class="site-index">
@@ -63,7 +88,9 @@ if ($in_space) {
             <?php if (isset($space_model->logo)): ?>
                 <?= Html::img($space_model->uploadLogoPath() . $space_model->logo, ['class' => '', 'style' => 'max-height: 150px;max-width: 80%;']) ?>
             <?php else: ?>
-                <?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block', 'width' => 200]) ?>
+                <a href="<?= Url::to(['blog/default/view', 'id' => 1]) ?>">
+                    <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'Celebrating 10 Years of BIP! Services']) ?>
+                </a>
             <?php endif; ?>
 
         </h1>
@@ -83,7 +110,7 @@ if ($in_space) {
         <?php endif; ?>
 
         <?php
-            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Enter keywords to retrieve articles...', 'class' => 'search-box form-control'];
+            $keywords_params = ['autofocus' => true, 'aria-label' => 'Search', 'placeholder' => 'Search publications, software, datasets, and more...', 'class' => 'search-box form-control', 'autocomplete' => 'off'];
             $fieldOptions = ['template' => "{input}<span class='glyphicon glyphicon-search form-control-feedback'></span>"];
 
             if ($keywords != '') {
@@ -91,7 +118,7 @@ if ($in_space) {
             }
 
                 // loading and some filter validation on form submit happens in beforeSearchFormSubmit.js file
-                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => []]);
+                $form = ActiveForm::begin(['id' => 'search-form', 'method' => 'POST', 'action' => Url::to(['site/index']), 'options' => ['autocomplete' => 'off']]);
             ?>
             <?= Html::hiddenInput('space_url_suffix', $space_model->url_suffix, ['id' => 'space_url_suffix']) ?>
 
@@ -166,9 +193,20 @@ if ($in_space) {
                         <?php endif; ?>
 
                         <?php if ($space_model->has_annotations_flag): ?>
+                            <?php
+                            // Get facet-enabled annotations for "Show results with" (only those with enable_facet)
+                            $facet_annotations = $space_model->facetAnnotations;
+                            $annotation_options = [];
 
-                            <?= CustomFiltersCheckboxList::widget(['id' => 'enable_annotations_flag_filter', 'name' => 'enable_annotations_flag', 'model' => $model, 'form' => $form, 'items' => ['1' => 'Show only research products with annotations'], 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
-
+                            if (! empty($facet_annotations)) {
+                                foreach ($facet_annotations as $annotation) {
+                                    $annotation_options[$annotation->id] = $annotation->display_name_plural ?? $annotation->name;
+                                }
+                            }
+                            ?>
+                            <?php if (! empty($annotation_options)): ?>
+                                <?= CustomFiltersCheckboxList::widget(['id' => 'annotations_filter', 'name' => 'annotations', 'model' => $model, 'form' => $form, 'items' => $annotation_options, 'item_class' => 'checkbox checkbox-custom filters-margin']); ?>
+                            <?php endif; ?>
                         <?php endif; ?>
 
                         <div id="years_form_group" class="form-group">
@@ -242,10 +280,23 @@ if ($in_space) {
                 </div>
             </div>
 
+            <?php if (! empty($synonyms_expansions)): ?>
+                <div class='container-fluid'>
+                    <?= Synonyms::widget([
+                        'synonyms_expansions' => $synonyms_expansions ?? [],
+                        'space_url_suffix' => $space_model->url_suffix ?? null,
+                        'current_keywords' => $model->keywords ?? null,
+                        'current_params' => Yii::$app->request->get(),
+                    ]) ?>
+                </div>
+            <?php endif; ?>
+
             <?php if (! empty($results['rows'])) { ?>
                 <div class='container-fluid'>
-                    
                     <?= TopTopicsItem::widget([]) ?>
+                    <?php if ($in_space): ?>
+                        <?= TopAnnotationsItem::widget(['space_url_suffix' => $space_model->url_suffix ?? null]) ?>
+                    <?php endif; ?>
 
                     <div id="results_hdr" class='row'>
                         <div class='col-sm-12 col-md-3 text-center results-header' style="margin-bottom: 15px;">
@@ -263,8 +314,8 @@ if ($in_space) {
                             $threshold = \app\models\AdminOptions::getValue('summarize_button_threshold') ?? 20;
                         ?>
 
-                        <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
-                            <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                        <div class='col-sm-12 col-md-3 text-center' style="margin-bottom: 15px;">
+                            <?php if (SummaryUsage::isAiAssistantEnabledForCurrentUser()): ?>
                                 <button id="summarizeBtn" class="btn btn-default btn-sm" 
                                         data-paper-ids='<?= json_encode(array_map(function ($result) {
                             return $result['internal_id'];
@@ -274,57 +325,27 @@ if ($in_space) {
                                     >
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
                                 </button>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <div id="summary_panel" class="collapse row">
-                        <div class="col-md-12">
-                            <div class="panel panel-default">
-                                <div class="panel-body">
-                                    <div id="summaryContent" class="grey-text">
-                                        <div class="summary-controls">
-                                            <div id="regenerate-summary-box" class="regenerate-summary-box" style="display: none;">
-                                                <label for="summary-count" class="regenerate-label">Use top</label>
-                                                <input type="number" id="summary-count" class="regenerate-input" />
-                                                <label for="summary-count" class="regenerate-label">results.</label>
-                                                <span 
-                                                    role="button" 
-                                                    data-toggle="popover" 
-                                                    data-placement="auto" 
-                                                    title="AI Summary" 
-                                                    data-content="<p>The summary format will change based on the selected number of papers:</p>
-                                                    <ul>
-                                                        <li>1-5 papers: Produces a concise overview.</li>
-                                                        <li>6-20 papers: Creates a more detailed, literature review-style summary.</li>
-                                                    </ul>
-                                                    "
-                                                    style="cursor: pointer;"
-                                                > 
-                                                    <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small>
-                                                </span>
-
-                                                <button id="regenerate-summary-btn" class="btn btn-sm btn-custom-color regenerate-button">Summarize</button>
-                                            </div>
-                                            <div class="text-right" id="copy-summary-wrapper" style="display: none;">
-                                                <a id="copy-summary-btn" class="btn btn-default btn-xs fs-inherit grey-link" role="button" data-toggle="tooltip">
-                                                    <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <div id="summaryLoading" class="text-center summary-loading-centered">
-                                            <i class="fa fa-spinner fa-spin"></i> Generating summary...
-                                        </div>
-
-                                        <div id="summaryText" style="text-align: justify; display: none;"></div>
-                                        <div id="summary-usage-info" class="summary-usage-info"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
+                    <?= SummaryPanel::widget() ?>
+
+                    <?php if ($in_space && ! empty($results['rows'])): ?>
+                        <?php
+                            // Get enabled annotation map (id => description)
+                            $annotation_ids = array_keys($space_model->getEnabledAnnotationMap());
+                        ?>
+                        <?php if (! empty($annotation_ids)): ?>
+                            <div id="annotation-expand-controls" class='row grey-text text-center' style="margin-bottom: 10px;">
+                                <div class='col-xs-12' style="display: flex; align-items: center; justify-content: center;">
+                                    <button type="button" class="btn btn-default btn-xs grey-link" id="expand-collapse-all-annotations" onclick="toggleAllAnnotations(); return false;">
+                                        <i class="fa fa-chevron-down" aria-hidden="true" id="expand-collapse-all-icon"></i> <span id="expand-collapse-all-text">Expand all annotations</span>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     <div id='results_tbl' class='row'>
                         <div class='col-md-12'>
                             <?php
@@ -348,6 +369,8 @@ if ($in_space) {
                                     'concepts' => $result['concepts'],
                                     'annotations' => $result['annotations'] ?? null,
                                     'relations' => $result['relations'],
+                                    'has_dataset' => $result['has_dataset'] ?? false,
+                                    'has_software' => $result['has_software'] ?? false,
                                     'user_id' => $result['user_id'],
                                     'pop_score' => $result['attrank'],
                                     'inf_score' => $result['pagerank'],
@@ -361,7 +384,7 @@ if ($in_space) {
                                     'type' => $result['type'],
                                     'pubmed_types' => $result['pubmed_types'],
                                     'search_context' => $result['search_context'],
-                                    'repo_url' => $result['zenodo_repo_url'] ?? null,
+                                    'software_metadata' => $result['software_metadata'] ?? null,
                                     'show' => [
                                         'concepts' => true,
                                         'pubmed_types' => ! $in_space || $space_model->has_pubmed_types,

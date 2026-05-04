@@ -3,6 +3,7 @@
 use app\components\CustomBootstrapCheckboxList;
 use app\components\CustomBootstrapRadioList;
 use app\components\PubmedTypesModal;
+use app\models\SpacesAnnotations;
 use wbraganca\dynamicform\DynamicFormWidget;
 use Yii;
 use yii\helpers\Html;
@@ -258,7 +259,7 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
 
     <h3>Annotations</h3>
 
-        <div><label class="control-label">Annotations Flag</label></div>
+        <div><label class="control-label">Anotations Filter</label></div>
 
         <?= $form->field($model, 'has_annotations_flag', [
             'enableClientValidation' => false,
@@ -310,9 +311,15 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
             'formId' => 'space-form',
             'formFields' => [
                 'name',
+                'display_name_plural',
                 'description',
                 'color',
                 'query',
+                'graph_entity',
+                'graph_entity_identifier',
+                'graph_entity_label',
+                'metadata_fields',
+                'enable_facet',
             ],
         ]);
     ?>
@@ -357,27 +364,168 @@ $this->registerCssFile('@web/css/on-off-my-switch.css');
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]description")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]display_name_plural")->textInput(['maxlength' => true, 'class' => 'search-box form-control']) ?>
                     </div>
                 </div><!-- .row -->
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]description")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <p class="help-block" style="margin-bottom: 10px; color: #666;">
+                            <i class="fa fa-info-circle"></i> <strong>Graph Entity Fields (Optional):</strong> The fields <strong>Graph entity</strong>, <strong>Graph entity identifier</strong>, and <strong>Graph entity label</strong> are optional. These fields are used for the annotation details page. If any of these fields is not provided, the "Show all relevant works" link will not appear in annotation popovers, and the annotation details page will show a warning message instead of metadata.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Entity type in graph DB (e.g., "Disease", "Product")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_identifier")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field used to identify the entity (e.g., "id")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field used as the display label (e.g., "name", "title")') ?>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_count")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]metadata_fields")->textInput(['maxlength' => 500, 'class' => 'search-box form-control'])->hint('Comma-separated list of fields to display (e.g., description, type, status); if empty, all fields are displayed') ?>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $form->field($modelSpacesAnnotations, "[{$i}]reverse_query_info")->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']) ?>
+                        <?php
+                            $modelSpacesAnnotations->clearErrors('query');
+
+                            $query = $modelSpacesAnnotations->query;
+                            $fieldOptions = [];
+
+                            if (! empty($query)) {
+                                $validation = SpacesAnnotations::validateQuerySyntax($query);
+
+                                if (! $validation['valid']) {
+                                    $fieldOptions['options'] = ['class' => 'form-group has-error'];
+                                    $errorListItems = '';
+
+                                    foreach ($validation['errors'] as $error) {
+                                        $errorListItems .= '<li>' . Html::encode($error) . '</li>';
+                                    }
+                                    $errorText = '<span class="label label-danger">The query is not valid</span><ul class="text-danger">' . $errorListItems . '</ul>';
+                                }
+                            }
+
+                            $field = $form->field($modelSpacesAnnotations, "[{$i}]query", $fieldOptions);
+
+                            if (! empty($query) && isset($validation)) {
+                                if ($validation['valid']) {
+                                    $field = $field->hint('<span class="label label-success">The query is valid</span>');
+                                } else {
+                                    $field = $field->hint($errorText);
+                                }
+                            }
+
+                            echo $field->textArea(['maxlength' => true, 'class' => 'search-box form-control', 'style' => 'resize: vertical;']);
+                        ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" style="display: flex; justify-content: space-between; align-items: center;">
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
+                        <?= $form->field($modelSpacesAnnotations, "[{$i}]enable_facet", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    </div>
+    <?php DynamicFormWidget::end(); ?>
+
+    <?php
+        // Use synonyms expansion models passed from controller
+        // Ensure we have at least one model for the dynamic form widget
+        if (empty($modelsSpacesSynonymsExpansion)) {
+            $modelsSpacesSynonymsExpansion = [new \app\models\SpacesSynonymsExpansion()];
+        }
+
+        DynamicFormWidget::begin([
+            'widgetContainer' => 'dynamicform_wrapper_synonyms',
+            'widgetBody' => '.container-items-synonyms',
+            'widgetItem' => '.item-synonyms',
+            'limit' => 10,
+            'min' => 0,
+            'insertButton' => '.add-item-synonyms',
+            'deleteButton' => '.remove-item-synonyms',
+            'model' => $modelsSpacesSynonymsExpansion[0],
+            'formId' => 'space-form',
+            'formFields' => [
+                'display_name',
+                'graph_entity',
+                'graph_entity_label',
+                'expansion_field',
+                'enabled',
+            ],
+        ]);
+    ?>
+    <div style="margin-bottom:10px; margin-top: 30px;">
+        <label class="pull-left" style="font-size: inherit;">Synonyms Expansion</label>
+        <div class="pull-right">
+            <button type="button" class="add-item-synonyms btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="container-items-synonyms"><!-- widgetContainer -->
+    <?php foreach ($modelsSpacesSynonymsExpansion as $i => $modelSpacesSynonymsExpansion): ?>
+        <div class="item-synonyms panel panel-default"><!-- widgetBody -->
+            <div class="panel-heading panel-heading-unset">
+                <div class="pull-right">
+                    <button type="button" class="remove-item-synonyms btn btn-danger btn-xs"><i class="glyphicon glyphicon-minus"></i></button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <?php
+                    // necessary for update action.
+                    if (! $modelSpacesSynonymsExpansion->isNewRecord) {
+                        echo Html::activeHiddenInput($modelSpacesSynonymsExpansion, "[{$i}]id");
+                    }
+                ?>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]display_name")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Display name (e.g., "Disease")') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]graph_entity")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Entity type in graph DB (e.g., "Disease")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]graph_entity_label")->textInput(['maxlength' => true, 'class' => 'search-box form-control'])->hint('Field to match against (e.g., "name")') ?>
+                    </div>
+                    <div class="col-xs-4">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]expansion_field")->textInput(['maxlength' => 255, 'class' => 'search-box form-control'])->hint('Field to return (e.g., "synonyms")') ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $form->field($modelSpacesSynonymsExpansion, "[{$i}]enabled", [
+                            'enableClientValidation' => false,
+                            'options' => ['tag' => false],
+                            'errorOptions' => ['tag' => 'span', 'class' => 'help-inline-block'],
+                            'template' => "<div class=\"checkbox checkbox-custom checkbox-inline\">{input}\n{label}{error}</div>"
+                        ])->checkbox([], false) ?>
                     </div>
                 </div>
             </div>

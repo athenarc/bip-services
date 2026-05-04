@@ -5,6 +5,12 @@
     width: 100%;
 }
 
+.well.profile {
+    background-color: #fafbfc; /* Very light blue tint */
+    border-radius: 8px;
+    border: 1px solid #f0f5f9; /* Very light blue border */
+}
+
 figcaption.ratings
 {
     margin-top:20px;
@@ -170,6 +176,27 @@ button.btn-success.facet-item {
     background-color: #777;
 }
 
+.facet-item-hidden {
+    display: none !important;
+}
+
+.facet-see-more-btn {
+    padding: 0;
+    margin-top: 6px;
+    margin-left: 2px;
+    border: 0;
+    background: transparent;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.facet-see-more-btn:hover,
+.facet-see-more-btn:focus {
+    color: var(--main-color);
+    text-decoration: none;
+    outline: none;
+}
+
 /* profile indicators */
 .inner-well {
     min-height: 90px;
@@ -213,9 +240,10 @@ button.btn-success.facet-item {
     position: absolute;
     top: -10px;
     left: 30px;
-    background-color: #f5f5f5;
+    background-color: #ffffff; /* Match the panel background */
     padding-left: 5px;
     padding-right: 5px;
+    font-weight: bold; /* Make legend text bold */
 }
 
 .well.indicators-panel {
@@ -224,6 +252,10 @@ button.btn-success.facet-item {
     padding-left: 16px;
     padding-right: 16px;
     padding-bottom: 5px;
+    background-color: #ffffff; /* White for contrast inside the main panel */
+    border-radius: 6px;
+    border: 1px solid #f5f8fa; /* Extremely light blue border */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 

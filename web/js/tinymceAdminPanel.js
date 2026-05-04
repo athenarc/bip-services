@@ -1,4 +1,5 @@
 $(document).ready(() => {
+    const tinyMce = /** @type {any} */ (window).tinymce;
     const adminTextAreaTinyConfig = {
         selector: '.rich_text_area_admin',
         branding: false,
@@ -13,13 +14,12 @@ $(document).ready(() => {
             'advlist lists autolink link ',
             'code paste hr',
         ],
-
         toolbar: [
             'undo redo | bold italic underline |' +
-      ' strikethrough subscript superscript | link |' +
-      ' numlist bullist outdent indent |',
+            ' strikethrough subscript superscript | link |' +
+            ' numlist bullist outdent indent |',
         ],
     };
 
-    tinymce.init(adminTextAreaTinyConfig);
+    tinyMce.init(adminTextAreaTinyConfig);
 });

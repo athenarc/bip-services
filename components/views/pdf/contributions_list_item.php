@@ -1,6 +1,8 @@
 <?php
 
 use app\components\ResultItem;
+use app\models\Involvement;
+
 
 ?>
 
@@ -27,8 +29,10 @@ use app\components\ResultItem;
                     'year' => $paper['year'],
                     'concepts' => $paper['concepts'],
                     'relations' => $paper['relations'],
+                    'has_dataset' => $paper['has_dataset'] ?? false,
+                    'has_software' => $paper['has_software'] ?? false,
                     'tags' => $paper['tags'],
-                    'involvements' => Yii::$app->params['involvement_fields'],
+                    'involvements' => Involvement::getInvolvementFieldsByWorkType($paper['type']),
                     'involved' => $paper['involvement'],
                     'pop_score' => $paper['attrank'],
                     'inf_score' => $paper['pagerank'],

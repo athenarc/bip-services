@@ -15,10 +15,12 @@ $this->title = 'BIP! Scholar - Search profiles';
 <div class="site-index">
     <div class="jumbotron">
         <h1>
-            <?= Html::img('@web/img/bip-minimal.png', ['class' => 'img-responsive center-block'/*'width' => 100, 'height' => 89*/]) ?>
+            <a href="<?= Url::to(['blog/default/view', 'id' => 1]) ?>">
+                <?= Html::img('@web/img/bip-minimal-10-years.png', ['class' => 'img-responsive center-block', 'width' => 200, 'title' => 'Celebrating 10 Years of BIP! Services']) ?>
+            </a>
         </h1>
         <p style = "margin-top:-10px;">
-            Explore public scholar profiles
+            Explore existing open profiles
         </p>
         
 

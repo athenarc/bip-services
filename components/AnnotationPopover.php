@@ -25,11 +25,9 @@ class AnnotationPopover extends Widget {
 
     public $space_annotation_db;
 
-    public $space_annotation_id;
+    public $annotation_type_id;
 
     public $space_url_suffix;
-
-    public $has_reverse_annotation_query;
 
     public $paper_id;
 
@@ -40,6 +38,8 @@ class AnnotationPopover extends Widget {
     public $enable_like_dislike_annotations;
 
     public $user_vote_annotation; // 'like', 'dislike', or null
+
+    public $has_graph_entity_fields = false; // Whether graph entity fields are configured
 
     /*
      * Widget initialisation a.k.a. setting widget properties

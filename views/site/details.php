@@ -1,9 +1,12 @@
 <?php
+use app\assets\TinyColorAsset;
 use app\components\AnnotationPopover;
 use app\components\BookmarkIcon;
 use app\components\ConceptPopover;
 use app\components\CustomBootstrapModal;
 use app\components\ImpactIcons;
+use app\components\ReproducibilityBadges;
+use app\components\ArticleHelper;
 use bigpaulie\social\share\Share;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -15,13 +18,15 @@ $this->title = 'BIP! Finder - ' . $article->title;
 $this->registerJsFile('@web/js/third-party/chartjs/chart_v4.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/chartjs/chart_labels_v2.2.0.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/chartjs_polar_area.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerJsFile('@web/js/third-party/tinycolor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerJsFile('@web/js/getPDFLink.js', ['position' => View::POS_HEAD, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerCssFile('@web/css/details.css');
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+
+// Register tinycolor.js as an asset bundle
+TinyColorAsset::register($this);
 
 $show_overall_chart = (count($article->chart_data) > 0);
 
@@ -30,10 +35,13 @@ $show_topic_charts = (count($topic_chart_data) > 0);
 
 $in_space = ($space_model->url_suffix !== null && $space_model->url_suffix !== '');
 
+// Register space colors early if in space (right after tinycolor.js)
 if ($in_space) {
     $spaceColor = $space_model->theme_color;
-    $this->registerJs("var spaceColor = '{$spaceColor}';", View::POS_HEAD);
-    $this->registerJsFile('@web/js/set_space_colors.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+    // set_space_colors.js depends on TinyColorAsset, ensuring it loads after tinycolor.js
+    $this->registerJsFile('@web/js/set_space_colors.js', ['position' => View::POS_HEAD, 'depends' => [TinyColorAsset::className()]]);
+    // Call setSpaceColors function after both scripts are loaded
+    $this->registerJs("if (typeof setSpaceColors !== 'undefined') { setSpaceColors('{$spaceColor}'); }", View::POS_HEAD);
 }
 
 // Register annotation like/dislike JS if enabled for this space
@@ -174,12 +182,12 @@ if ($space_model->enable_like_dislike_annotations) {
                                 'data' => $annotation['data'],
                                 'space_annotation_db' => $space_model->annotation_db,
                                 'space_url_suffix' => $space_model->url_suffix,
-                                'space_annotation_id' => $annotation['annotation_id'],
-                                'has_reverse_annotation_query' => $annotation['has_reverse_query'],
+                                'annotation_type_id' => $annotation['annotation_id'],
                                 'paper_id' => $article->internal_id,
                                 'annotation_name' => $annotation['label'],
                                 'annotation_id' => $annotation['id'] ?? null,
-                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false
+                                'enable_like_dislike_annotations' => $space_model->enable_like_dislike_annotations ?? false,
+                                'has_graph_entity_fields' => $annotation['has_graph_entity_fields'] ?? false
                             ]); ?>
                             <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $annotation['label'] ?> <i class='fa fa-info-circle' aria-hidden='true' title='<?=Html::encode($annotation['annotation_description'])?>'></i></b>" data-content="<?= $annotation_content ?>"><?= $annotation['label'] ?></span>
                             <?php if (! empty($annotation['annotation_color'])):?>
@@ -192,25 +200,49 @@ if ($space_model->enable_like_dislike_annotations) {
             </div>
         <?php endif; ?>
 
-        <div class='article-info'>
-            <b><?= $article->getPidName() ?>:</b>
-            <?php if (empty($article->doi)) {
-                                echo 'N/A';
-                            } elseif (! empty($article->doi)) { ?>
-                    <?php if ($article->getPidName() === 'DOI') :?>
-                        <a href="https://doi.org/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                    <?php elseif ($article->getPidName() === 'PubMed Id') :?>
-                        <a href="https://www.ncbi.nlm.nih.gov/pubmed/<?= $article->doi?>" target='_blank' class="main-green"><?= $article->doi ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                    <?php endif; ?>
-            <?php } ?>
-        </div>
+        <?php if ($article->has_dataset || $article->has_software): ?>
+            <div class='article-info'>
+                <b>Reproducibility readiness:</b>
+                <?= ReproducibilityBadges::widget([
+                    'has_dataset' => $article->has_dataset ?? false,
+                    'has_software' => $article->has_software ?? false,
+                ]); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php $article_pid_info = ArticleHelper::resolvePid($article->doi); ?>
+        <?php if ($article_pid_info !== null): ?>
+            <div class='article-info'>
+                <b><?= $article_pid_info['label'] ?>:</b>
+                <a href="<?= $article_pid_info['url'] ?>" target="_blank" class="main-green"><?= $article_pid_info['value'] ?> <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+            </div>
+        <?php endif; ?>
+
+        <?php if (! empty($article->software_metadata['code_repo'])): ?>
+            <div class='article-info'>
+                <b>Code Repository:</b>
+                <a href="<?= Html::encode($article->software_metadata['code_repo']) ?>" target='_blank' class="main-green">
+                    <?= Html::encode($article->software_metadata['code_repo']) ?> <i class="fa fa-external-link-square" aria-hidden="true"></i>
+                </a>
+            </div>
+        <?php endif; ?>
+        <?php if (! empty($article->software_metadata['version'])): ?>
+            <div class='article-info'>
+                <b>Version:</b> <?= Html::encode($article->software_metadata['version']) ?>
+            </div>
+        <?php endif; ?>
+        <?php if (! empty($article->software_metadata['license'])): ?>
+            <div class='article-info'>
+                <b>License:</b> <?= Html::encode($article->software_metadata['license']) ?>
+            </div>
+        <?php endif; ?>
         <div class='row'>
             <div class='col-xs-12'>
                 <div class='article-info'>
                     
                     <!-- <b><?= $article->getAttributeLabel('abstract_score') ?> <i class="fa fa-question-circle" aria-hidden="true" title="Based on the Flesch Reading Ease metric calculated on abstracts"></i>:</b> <?= (empty($article->abstract_score)) ? 'N/A' : $article->abstract_score ?><br/> -->
                     <b>External links:</b>
-                    <?php if (! empty($article->doi) && $article->getPidName() === 'DOI') { ?>
+                    <?php if (! empty($article->doi) && $article_pid_info['label'] === 'DOI') { ?>
                         <a href="https://search.crossref.org/search/works?q=<?= $article->doi ?>&from_ui=yes" target='_blank' class="main-green">Crossref <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                     <?php } ?>
 
@@ -262,18 +294,12 @@ if ($space_model->enable_like_dislike_annotations) {
                     <a href="<?= Url::to(['site/get-citations', 'paper_id' => $article->internal_id]) ?>" modal-title="<i class=&quot;fa-solid fa-down-left-and-up-right-to-center&quot; aria-hidden=&quot;true&quot;></i> Citations (<?= $article->citation_count ?>)" data-remote="false" data-toggle="modal" data-target="#citations-modal" class="btn btn-sm btn-custom-color  <?= ($article->citation_count == 0) ? 'disabled' : '' ?>">
                                 <i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i> Citations (<?= $article->citation_count ?>)
                     </a> -->
-                    <a href="<?= Url::to(['site/download-bibtex', 'doi' => $article->doi]) ?>" modal-title="<i class=&quot;fas fa-quote-right&quot; aria-hidden=&quot;true&quot;></i> BibTex" data-remote="false" data-toggle="modal" data-target="#bibtex-modal" class="btn btn-sm btn-custom-color <?= $article->getPidName() === 'DOI' ? '' : 'disabled' ?>">
+                    <a href="<?= Url::to(['site/download-bibtex', 'doi' => $article->doi]) ?>" modal-title="<i class=&quot;fas fa-quote-right&quot; aria-hidden=&quot;true&quot;></i> BibTex" data-remote="false" data-toggle="modal" data-target="#bibtex-modal" class="btn btn-sm btn-custom-color <?= $article_pid_info['label'] === 'DOI' ? '' : 'disabled' ?>">
                             <i class="fas fa-quote-right" aria-hidden="true"></i> BibTex
                     </a>
                     <a id="pdf_button" href="#" class="btn btn-sm btn-custom-color disabled" target='_blank' onclick="getPDFLink('<?= Url::to(['site/get-pdf-link']) ?>', '<?= $article->doi ?>');">
                         <i class="fa fa-download" aria-hidden="true"></i> PDF
                     </a>
-                    
-                    <?php if (! empty($article->repo_url)): ?>
-                        <a href="<?= Html::encode($article->repo_url) ?>" class="btn btn-sm btn-custom-color "target="_blank">
-                            <i class="fa fa-code-fork fa-fw" aria-hidden="true" title="Code Repository"></i> Code
-                        </a>
-                    <?php endif; ?>
                 </div>
             </div>
             <div class='col-xs-12'>

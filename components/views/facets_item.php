@@ -24,6 +24,14 @@ use yii\helpers\Url;
                 $selected_roles = $selected_per_list[$linked_id]['roles'] ?? [];
                 $selected_accesses = $selected_per_list[$linked_id]['accesses'] ?? [];
                 $selected_types = $selected_per_list[$linked_id]['types'] ?? [];
+                $facetPreviewLimit = 10;
+                $renderFacetToggle = static function (int $itemsCount): string {
+                    if ($itemsCount <= 10) {
+                        return '';
+                    }
+
+                    return '<button type="button" class="btn btn-xs js-facet-see-more facet-see-more-btn grey-link fs-inherit" aria-expanded="false">Show more</button>';
+                };
 
             ?>
             
@@ -98,16 +106,17 @@ use yii\helpers\Url;
                                     [
                                         'id' => "topic-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $facetPreviewLimit) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
+                                            $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
                                             $badge_number = ($element_config['Topics']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
 
                                             return "<button id='topic-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            class='btn btn-xs ${btn_class} facet-item${hidden_class}'
                                                             data-list-id='${linked_id}'
                                                             data-facet='topics'>
                                                         <input id='topic-${value}-list${linked_id}-i' 
@@ -121,6 +130,7 @@ use yii\helpers\Url;
                                         }
                                     ]
                                 );
+                                echo $renderFacetToggle(count($result['facets']['topics']['options']));
                             endif; ?>
                         </div>
                     <?php endif; ?>
@@ -131,14 +141,14 @@ use yii\helpers\Url;
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
                                 <strong>
                                     <span role="button" data-toggle="popover" data-placement="auto" 
-                                        title="<b>CRediT roles</b>" 
-                                        data-content="<div><span class='green-bip'></span> Contribution Roles based on the CRediT taxonomy. These roles describe each contributor's specific contribution to the scholarly work. <a target='_blank' class='green-bip' href='https://credit.niso.org'><br/> see more <i class='fa fa-external-link-square' aria-hidden='true'></i></a></div>">
-                                        CRediT roles <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                                        title="<b>Contribution roles</b>" 
+                                        data-content="<div><span class='green-bip'></span> Describes the specific nature of the researcher's contribution to the research work.</div>">
+                                        Contribution roles <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                                     </span>
                                     <?php if ($element_config['Roles']['visualize_opt'] === 1): ?>
                                         <i id="viz-roles" 
                                         class="fa-solid fa-chart-pie main-green" 
-                                        title="Show CRediT roles chart" 
+                                        title="Show contribution roles chart" 
                                         data-toggle="modal" 
                                         data-target="#credit-stats-modal"></i>
                                     <?php endif; ?>
@@ -149,40 +159,51 @@ use yii\helpers\Url;
                                 <br/>
                             </div>
 
+                            <?php
+                                $role_facet_container_id = 'role-facet-items-' . ($facet_element_id ?? $linked_id);
+                                $software_role_icon = "<i class='fa fa-code' aria-hidden='true' title='" . Html::encode('Software contribution role') . "'></i>&#160;";
+                            ?>
                             <?php if (empty($result['facets']['roles']['counts'])): ?>
-                                <span id="role-facet-items-<?= $linked_id ?>">-</span>
+                                <span id="<?= $role_facet_container_id ?>" class="js-role-facet-items" data-linked-list-id="<?= (int) $linked_id ?>">-</span>
                             <?php else:
                                 $counts = $result['facets']['roles']['counts'];
+                                $software_role_ids = array_keys(Yii::$app->params['involvement_fields']['software'] ?? []);
+                                $facet_suffix = ! empty($facet_element_id) ? $facet_element_id : $linked_id;
                                 echo Html::checkboxList(
                                     "lists[${linked_id}][roles]",
                                     $selected_roles,
                                     $result['facets']['roles']['options'],
                                     [
-                                        'id' => "role-facet-items-${linked_id}",
+                                        'id' => $role_facet_container_id,
+                                        'class' => 'js-role-facet-items',
+                                        'data-linked-list-id' => $linked_id,
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
-                                            $btn_class = ($checked) ? 'btn-success' : 'btn-default';
-                                            $disabled = ($checked) ? '' : 'disabled=disabled';
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $software_role_ids, $software_role_icon, $facet_suffix, $facetPreviewLimit) {
+                                            $btn_class = $checked ? 'btn-success' : 'btn-default';
+                                            $disabled = $checked ? '' : 'disabled=disabled';
+                                            $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
                                             $badge_number = ($element_config['Roles']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
+                                            $role_icon = in_array((string) $value, $software_role_ids, true) ? $software_role_icon : '';
 
-                                            return "<button id='role-${value}-list${linked_id}' 
+                                            return "<button id='role-${value}-facet${facet_suffix}' 
                                                             type='button' 
-                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            class='btn btn-xs ${btn_class} facet-item${hidden_class}'
                                                             data-list-id='${linked_id}'
                                                             data-facet='roles'>
-                                                        <input id='role-${value}-list${linked_id}-i' 
+                                                        <input id='role-${value}-facet${facet_suffix}-i' 
                                                             name='lists[${linked_id}][roles][]' 
                                                             value='${value}' 
                                                             form='${formId}' 
                                                             type='hidden' 
                                                             ${disabled}/>
-                                                        ${label} ${badge_number}
+                                                        {$role_icon}{$label} {$badge_number}
                                                     </button>";
                                         }
                                     ]
                                 );
+                                echo $renderFacetToggle(count($result['facets']['roles']['options']));
                             endif; ?>
                         </div>
                     <?php endif; ?>
@@ -209,17 +230,18 @@ use yii\helpers\Url;
                                     [
                                         'id' => "access-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $facetPreviewLimit) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $label = $label['name'];
+                                            $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
                                             $badge_number = ($element_config['Availability']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
 
                                             return "<button id='access-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            class='btn btn-xs ${btn_class} facet-item${hidden_class}'
                                                             data-list-id='${linked_id}'
                                                             data-facet='accesses'>
                                                         <input id='access-${value}-list${linked_id}-i' 
@@ -233,6 +255,7 @@ use yii\helpers\Url;
                                         }
                                     ]
                                 );
+                                echo $renderFacetToggle(count($result['facets']['accesses']['options']));
                             endif; ?>
                         </div>
                     <?php endif; ?>
@@ -259,17 +282,18 @@ use yii\helpers\Url;
                                     [
                                         'id' => "type-facet-items-${linked_id}",
                                         'style' => ['display' => 'inline'],
-                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id) {
+                                        'item' => function ($index, $label, $name, $checked, $value) use ($counts, $formId, $element_config, $linked_id, $facetPreviewLimit) {
                                             $btn_class = ($checked) ? 'btn-success' : 'btn-default';
                                             $disabled = ($checked) ? '' : 'disabled=disabled';
                                             $label = $label['name'];
+                                            $hidden_class = ($index >= $facetPreviewLimit && ! $checked) ? ' facet-item-hidden' : '';
                                             $badge_number = ($element_config['Work type']['numbers_opt'] === 1 && isset($counts[$value]))
                                                 ? "<span class='badge badge-primary'>{$counts[$value]}</span>"
                                                 : '';
 
                                             return "<button id='type-${value}-list${linked_id}' 
                                                             type='button' 
-                                                            class='btn btn-xs ${btn_class} facet-item'
+                                                            class='btn btn-xs ${btn_class} facet-item${hidden_class}'
                                                             data-list-id='${linked_id}'
                                                             data-facet='types'>
                                                         <input id='type-${value}-list${linked_id}-i' 
@@ -283,6 +307,7 @@ use yii\helpers\Url;
                                         }
                                     ]
                                 );
+                                echo $renderFacetToggle(count($result['facets']['types']['options']));
                             endif; ?>
                         </div>
                     <?php endif; ?>
@@ -325,7 +350,7 @@ use yii\helpers\Url;
 
         <?php
             Modal::begin(['options' => ['class' => 'modal fade', 'id' => 'credit-stats-modal'],
-                        'header' => '<h4>CRediT Roles Radar Chart</h4>',
+                        'header' => '<h4>Contribution Roles Radar Chart</h4>',
                         'size' => 'modal-md',
                     ]);
         ?>

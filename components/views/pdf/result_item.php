@@ -2,6 +2,7 @@
 
 use app\components\ConceptPopover;
 use app\components\ImpactIcons;
+use app\models\Involvement;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -37,7 +38,7 @@ $item = $this->context;
         <div>
             <?php if (! empty($item->dois_num) && $item->dois_num > 1): ?>
                     <a href="<?= Url::to(['site/get-versions', 'openaire_id' => $item->openaire_id]) ?>" modal-title="<i class=&quot;fas fa-clone&quot; aria-hidden=&quot;true&quot;></i> Other versions" data-remote="false" data-toggle="modal" data-target="#versions-modal" class="grey-link" style="font-size:75%">
-                        Found <?= $item->dois_num ?> versions</a>
+                        <i class="fas fa-clone" aria-hidden="true"></i> <?= $item->dois_num ?></a>
             <?php endif; ?>
 
             <?= ImpactIcons::widget(['popularity_class' => $item->pop_class,
@@ -72,16 +73,18 @@ $item = $this->context;
                 <?= empty($item->year) ? 'N/A' : $item->year ?>
             </span>
         </div>
-        <?php if (isset($item->show['concepts']) && $item->show['concepts']): ?>
+        <?php
+            $pdfVisibleConcepts = array_values(array_filter($item->concepts ?? [], static function ($concept) {
+                return empty($concept['reported_irrelevant']);
+            }));
+        ?>
+        <?php if (isset($item->show['concepts']) && $item->show['concepts'] && ! empty($pdfVisibleConcepts)): ?>
         <!-- concepts -->
             <div id="res_<?= $item->internal_id ?>_conc" class="tag-region grey-text">
                 <div class="bootstrap-tagsinput">
                     <i class="fa-solid fa-atom fa-fw" aria-hidden="true" title="Topics"></i>
                     <?php
-                    if (empty($item->concepts)) {
-                        echo '&nbspN/A';
-                    } else {
-                        foreach ($item->concepts as $concept) { ?>
+                    foreach ($pdfVisibleConcepts as $concept) { ?>
                             <span class="tag label">
                                 <?php $data_content = ConceptPopover::widget(['concept' => $concept]);?>
                                 <span role="button" data-toggle="popover" data-placement="auto" title="<b><?= $concept['display_name'] ?> </b>" data-content="<?= $data_content ?>"><?= $concept['display_name'] ?></span>
@@ -104,8 +107,7 @@ $item = $this->context;
                                     'impact_indicators' => $item->impact_indicators,
                                 ]);?>
                             </span>
-                        <?php }
-                    } ?>
+                        <?php } ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -128,7 +130,7 @@ $item = $this->context;
         <!-- annotations -->
             <?php if (! empty($item->annotations)): ?>
                 <div id="res_<?= $item->internal_id ?>_annot" class="tag-region grey-text">
-                    <i class="fa-solid fa-tag fa-fw" aria-hidden="true" title="Annotations"></i>
+                    <i class="fa-solid fa-circle-nodes fa-fw" aria-hidden="true" title="Annotations"></i>
 
                     <?php foreach ($item->annotations as $annotation) { ?>
                         <span class="tag label">
@@ -162,7 +164,7 @@ $item = $this->context;
 
         <?php if (isset($item->show['involvement']) && $item->show['involvement']): ?>
                 <div class="tag-region grey-text">
-                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="Contribution Roles based on the CRediT taxonomy"></i>
+                    <i class="fa fa-briefcase fa-fw" aria-hidden="true" title="<?= Involvement::getContributionHoverText($item->type) ?>"></i>
                     <?php if (empty($item->involved)) : ?>
                         <span style= "margin-left:5px;">-</span>
                     <?php else : ?>

@@ -100,3 +100,9 @@
   background-color: #ddd;
   border: 1px solid var(--main-color);
 }
+
+#top_annotations_in_results .annotation-item {
+  cursor:pointer;
+  background-color: #ddd;
+  border: 1px solid var(--main-color);
+}

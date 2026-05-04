@@ -80,13 +80,17 @@ class ResultItem extends Widget {
 
     public $search_context;
 
-    public $repo_url;
+    public $software_metadata;
 
     public $concepts;
 
     public $annotations;
 
     public $relations;
+
+    public $has_dataset;
+
+    public $has_software;
 
     public $space_url_suffix;
 
@@ -96,6 +100,9 @@ class ResultItem extends Widget {
 
     public $view_mode = 'full'; // 'full', 'compact', 'minimal'
 
+    /** When shown inside a scholar contributions list: the linked list element_id (for facet updates). */
+    public $contribution_list_id;
+
     public $paper_rank;
 
     public $enable_like_dislike_records;
@@ -103,6 +110,8 @@ class ResultItem extends Widget {
     public $enable_like_dislike_annotations;
 
     public $user_vote_record; // 'like', 'dislike', or null
+
+    public $profile_owner_user_id;
 
     /*
      * Widget initialisation a.k.a. setting widget properties

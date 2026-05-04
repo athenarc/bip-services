@@ -5,6 +5,7 @@
 
 use app\assets\AppAsset;
 use app\components\CookieBox;
+use app\components\EvaluationModeOverlay;
 use app\components\GoogleAnalytics;
 use app\components\Matomo;
 use Yii;
@@ -50,12 +51,18 @@ AppAsset::register($this);
 <body>
 <?php $this->beginBody() ?>
 
+<?= EvaluationModeOverlay::widget([
+    'active' => $this->params['evaluationModeActive'] ?? false,
+    'label' => 'Evaluation Mode',
+    'color' => $this->params['evaluationModeColor'] ?? null,
+]) ?>
+
 <div id="overwrap">
     <div class="wrap">
         <?php
         NavBar::begin([
-            'brandLabel' => 'BiP!',
-            'brandUrl' => ['site/home'],
+            'brandImage' => '@web/img/bip_white.png',
+            'brandUrl' => ['/site/home'],
             'options' => [
                 'class' => 'navbar-inverse navbar-fixed-top',
             ],
@@ -75,8 +82,13 @@ AppAsset::register($this);
 
         $items = [
             ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Data & code', 'url' => ['site/data']],
-            ['label' => 'Indicators', 'url' => ['site/indicators']],
+            [
+                'label' => 'Blog',
+                'url' => ['/site/blog'],
+                'active' => Yii::$app->controller->module && Yii::$app->controller->module->id === 'blog',
+            ],
+            ['label' => 'Data & code', 'url' => ['/site/data']],
+            ['label' => 'Indicators', 'url' => ['/site/indicators']],
             ['label' => 'Help', 'url' => ['/site/help']],
             [
                 'label' => 'Admin', 'url' => ['/site/admin-overview'],
@@ -88,15 +100,15 @@ AppAsset::register($this);
         if (Yii::$app->user->isGuest) {
             array_push(
                 $items,
-                ['label' => 'Log In', 'url' => ['site/login']]
+                ['label' => 'Log In', 'url' => ['/site/login']]
             );
         } else {
             $item = [
                 'label' => '<i class="fa-solid fa-user"></i> ' . Yii::$app->user->identity->username,
                 'items' => [
-                    ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => ['site/settings']],
+                    ['label' => '<i class="fa-solid fa-gears"></i> ' . 'Settings', 'url' => ['/site/settings']],
                     ['label' => '<i class="fa-solid fa-paper-plane"></i> ' . 'Contact & Feedback', 'url' => ['/site/feedback']],
-                    ['label' => '<i class="fa-solid fa-right-from-bracket"></i> ' . 'Logout', 'url' => ['site/logout'], 'linkOptions' => ['data-method' => 'post']]
+                    ['label' => '<i class="fa-solid fa-right-from-bracket"></i> ' . 'Logout', 'url' => ['/site/logout'], 'linkOptions' => ['data-method' => 'post']]
                 ]
             ];
             array_push($items, $item);
@@ -157,7 +169,7 @@ require_once(Yii::$app->basePath . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEP
                 Copyright © <?= date('Y') ?>
                 <?= Html::a('bip@athenarc', 'mailto: bip@athenarc.gr', ['class' => 'main-green']) ?>
                 |
-                <?= Html::a('Privacy Settings', Url::toRoute('site/privacy-settings'), ['class' => 'main-green']) ?>
+                <?= Html::a('Privacy Settings', Url::toRoute('/site/privacy-settings'), ['class' => 'main-green']) ?>
             </div>
         </div>
     </div>

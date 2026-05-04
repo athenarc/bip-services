@@ -22,6 +22,8 @@ use app\models\Involvement;
 use app\models\Orcid;
 use app\models\ProfileReportForm;
 use app\models\ProfileTemplateCategories;
+use app\models\ProfileTemplateFeedbackForm;
+use app\models\ReportedScholarTopic;
 use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
 use app\models\Scholar;
@@ -88,7 +90,7 @@ class ScholarController extends BaseController {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         return [
-            'involvement_name' => Yii::$app->params['involvement_fields'][$involvement_id],
+            'involvement_name' => Involvement::getAllInvolvementFields()[$involvement_id],
         ];
     }
 
@@ -682,7 +684,7 @@ class ScholarController extends BaseController {
                             }
 
                             if ($active === 'topics' && ctype_digit($id)) {
-                                $id = 'C' . $id;
+                                $id = 'T' . $id;
                             }
 
                             return $id;
@@ -776,6 +778,7 @@ class ScholarController extends BaseController {
                             'current_cv_narrative' => null,
                             'selected_accesses' => $list_result['selected_accesses'] ?? [],
                             'selected_types' => $list_result['selected_types'] ?? [],
+                            'profile_owner_user_id' => $researcher->user_id ?? null,
                         ]);
                     }
                 }
@@ -882,16 +885,8 @@ class ScholarController extends BaseController {
             }
             // Otherwise, $indicators keeps the default empty array initialized earlier
 
-            $internal_ids = array_filter(array_column($result['papers'], 'internal_id'));
-            $repoUrls = Article::getCodeRepoUrls($internal_ids);
-
-            foreach ($result['papers'] as &$paper) {
-                $internal_id = $paper['internal_id'] ?? null;
-
-                if ($internal_id && isset($repoUrls[$internal_id])) {
-                    $paper['zenodo_repo_url'] = $repoUrls[$internal_id];
-                }
-            } // break reference
+            // attach code repository URLs
+            $result['papers'] = Article::getCodeRepoUrls($result['papers']);
 
             // find all cv narratives of the user
             // $cv_narratives = CvNarrative::find()->where([ 'user_id' => $researcher->user_id ])->all();
@@ -1107,6 +1102,87 @@ class ScholarController extends BaseController {
                 'status' => 'error',
                 'message' => ! empty($model->errors) ? implode(' ', array_map(function ($errors) { return implode(' ', $errors); }, $model->errors)) : 'An error occurred while submitting your report.'
             ];
+    }
+
+    public function actionSubmitTemplateFeedback() {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $user_id = Yii::$app->user->id;
+
+        if (! $user_id) {
+            return [
+                'status' => 'error',
+                'message' => 'You must be logged in to submit feedback.'
+            ];
+        }
+
+        $model = new ProfileTemplateFeedbackForm();
+        $model->template_id = Yii::$app->request->post('template_id');
+        $model->profile_orcid = Yii::$app->request->post('profile_orcid');
+        $model->message = Yii::$app->request->post('message');
+
+        if ($model->save()) {
+            return [
+                'status' => 'success',
+                'message' => 'Feedback submitted to template creator.'
+            ];
+        }
+
+        return [
+            'status' => 'error',
+            'message' => ! empty($model->errors)
+                ? implode(' ', array_map(function ($errors) { return implode(' ', $errors); }, $model->errors))
+                : 'An error occurred while submitting feedback.'
+        ];
+    }
+
+    public function actionReportScholarTopic() {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $user_id = Yii::$app->user->id;
+
+        if (! $user_id) {
+            return ['success' => false, 'message' => 'You must be logged in to report a topic.'];
+        }
+        $owner_user_id = (int) Yii::$app->request->post('owner_user_id', 0);
+        if (! $owner_user_id || $owner_user_id !== (int) $user_id) {
+            return ['success' => false, 'message' => 'Only the profile owner can report topics.'];
+        }
+
+        $paper_id = (int) Yii::$app->request->post('paper_id');
+        $topic_id = (string) Yii::$app->request->post('topic_id');
+
+        if (! $paper_id || $topic_id === '') {
+            return ['success' => false, 'message' => 'Invalid report data.'];
+        }
+
+        $table = ReportedScholarTopic::tableName();
+        Yii::$app->db->schema->getTableSchema($table, true);
+
+        $existing_report = ReportedScholarTopic::findOne([
+            'user_id' => (int) $user_id,
+            'paper_id' => $paper_id,
+            'topic_id' => $topic_id,
+        ]);
+
+        if ($existing_report) {
+            if (! $existing_report->delete()) {
+                return ['success' => false, 'message' => 'Unable to undo topic report.'];
+            }
+
+            return ['success' => true, 'action' => 'undone'];
+        }
+
+        $report = new ReportedScholarTopic();
+        $report->user_id = (int) $user_id;
+        $report->paper_id = $paper_id;
+        $report->topic_id = $topic_id;
+
+        if (! $report->save()) {
+            return ['success' => false, 'message' => 'Unable to report topic.'];
+        }
+
+        return ['success' => true, 'action' => 'reported'];
     }
 
     public function actionSaveCvNarrative() {
@@ -1484,6 +1560,9 @@ class ScholarController extends BaseController {
             // Topics from concepts
             if (! empty($paper['concepts'])) {
                 foreach ($paper['concepts'] as $concept) {
+                    if (! empty($concept['reported_irrelevant'])) {
+                        continue;
+                    }
                     // Accept several possible shapes
                     $raw = $concept['id']
                         ?? $concept['concept_id']
@@ -1501,7 +1580,7 @@ class ScholarController extends BaseController {
                     }
 
                     if (ctype_digit($raw)) {
-                        $raw = 'C' . $raw;
+                        $raw = 'T' . $raw;
                     }
 
                     if (! isset($newCounts['topics'][$raw])) {
@@ -1644,7 +1723,7 @@ class ScholarController extends BaseController {
                 }
 
                 if ($g === 'topics' && ctype_digit($id)) {
-                    $id = 'C' . $id;
+                    $id = 'T' . $id;
                 }
 
                 return $id;

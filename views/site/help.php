@@ -4,17 +4,56 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->registerJsFile('@web/js/scrollToAnchor.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/fixed-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerCssFile('@web/css/fixed-sidebar.css');
 
 $this->registerCss('
 	.site-about h4 {
 		color: #000000;
+	}
+
+	#help .toc-heading a,
+	#help .toc-heading a:visited,
+	#help .toc-heading a:hover,
+	#help .toc-heading a:focus,
+	#help .toc-heading a:active {
+		color: var(--main-color);
+		text-decoration: none;
 	}
 ');
 
 $this->title = 'BIP! Services - Help';
 ?>
 
-<div class="container site-about">
+<div id="help" class="container site-about">
+	<div class="row">
+		<div class="col-md-3 sidebar">
+			<div id="toc-panel">
+				<div class="sidebar-body">
+					<h5 class="toc-heading"><a href="#create-bip-services-account" class="green-bip">Create a BIP! Services account</a></h5>
+					<h5 class="toc-heading"><a href="#bip-scholar" class="green-bip">BIP! Scholar</a></h5>
+					<ul>
+						<li class="toc-item"><a href="#create-bip-scholar-academic-profile" class="toc-link">Create an academic profile</a></li>
+					</ul>
+					<h5 class="toc-heading"><a href="#bip-finder" class="green-bip">BIP! Finder</a></h5>
+					<ul>
+						<li class="toc-item"><a href="#bip-finder-in-a-nutshell" class="toc-link">In a nutshell</a></li>
+						<li class="toc-item"><a href="#bip-finder-search" class="toc-link">Search</a></li>
+						<li class="toc-item"><a href="#bip-finder-ai-summaries" class="toc-link">AI-generated summaries</a></li>
+					</ul>
+					<h5 class="toc-heading"><a href="#bip-spaces" class="green-bip">BIP! Spaces</a></h5>
+					<ul>
+						<li class="toc-item"><a href="#bip-spaces-in-a-nutshell" class="toc-link">In a nutshell</a></li>
+						<li class="toc-item"><a href="#bip-spaces-search" class="toc-link">Search</a></li>
+						<li class="toc-item"><a href="#bip-spaces-ai-summaries" class="toc-link">AI-generated summaries</a></li>
+						<li class="toc-item"><a href="#bip-spaces-feedback" class="toc-link">Service feedback</a></li>
+						<li class="toc-item"><a href="#bip-spaces-config" class="toc-link">Service configuration</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-9 main-content">
 
 	<a href="#create-bip-services-account" class="no-underline"><h3 id="create-bip-services-account">Create a BIP! Services account</h3></a>
 	
@@ -42,7 +81,7 @@ $this->title = 'BIP! Services - Help';
 
 	<?= Html::img('@web/img/help/help-4.png', ['alt' => 'Sign up form', 'class' => 'img-responsive screenshot center-block', 'width' => 630, 'height' => 345]) ?>
 
-	<a href="#bip-scholar" class="no-underline"><h3 id="bip-scholar">BIP! Scholar</h4></a>
+	<a href="#bip-scholar" class="no-underline"><h3 id="bip-scholar">BIP! Scholar</h3></a>
 
 	<a href="#create-bip-scholar-academic-profile" class="no-underline"><h4 id="create-bip-scholar-academic-profile">Create a BIP! Scholar academic profile</h4></a>
 
@@ -170,4 +209,6 @@ $this->title = 'BIP! Services - Help';
 	<p class='help-text'>
 		Apart from that, the space owner can determine the knowledge base to be used for the annotations, as well as the set of annotations to be displayed in the results. Currently, all these configurations are made by the BIP! Services support team after consultation with the space owner. 
 	</p>
+		</div>
+	</div>
 </div>

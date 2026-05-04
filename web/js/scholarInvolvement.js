@@ -8,7 +8,10 @@ $(window).on('load', () => {
     $('select.involvement-dropdown').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
         // clickedIndex : numeric ascending index of selected item
         // isSelected : states if current item gets selected/unselected (true/false)
-        const paperId = $(this).attr('name').split('_')[1];
+        const $dropdown = $(this);
+        const paperId = $dropdown.attr('name').split('_')[1];
+
+        const involvementId = $dropdown.find('option').eq(clickedIndex).val();
 
         // Required for post requests in yii
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -19,13 +22,16 @@ $(window).on('load', () => {
             type: 'POST',
             data:
             {
-                'involvement_id': clickedIndex,
+                'involvement_id': involvementId,
                 'is_selected': isSelected,
                 'paper_id': paperId,
                 _csrf: csrfToken,
             },
             success: function ({ involvement_name }) {
-                updateFacet('role', clickedIndex, involvement_name, isSelected);
+                const listId = $dropdown.closest('.involvement-region').attr('data-contribution-list-id');
+                if (listId && typeof updateProfileRoleFacet === 'function') {
+                    updateProfileRoleFacet(listId, involvementId, involvement_name, isSelected);
+                }
             },
             error: function (e) {
                 alert('There was an error processing your request!');

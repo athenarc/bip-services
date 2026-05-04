@@ -27,11 +27,13 @@ $this->registerJsFile('@web/js/animateIndicators.js', ['position' => View::POS_E
 $this->registerJsFile('@web/js/third-party/bootstrap-tagsinput/bootstrap-tagsinput.min.js', ['position' => View::POS_END]);
 $this->registerJsFile('@web/js/comparison.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/reading-status.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJs('window.bipScholarFacetConfig = ' . json_encode(['softwareRoleIds' => array_map('strval', array_keys(\Yii::$app->params['involvement_fields']['software'] ?? []))]) . ';', View::POS_END);
 $this->registerJsFile('@web/js/scholar-readings.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarInvolvement.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/responsibleAcadAge.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/cvNarrative.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/profile_visibility.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerJsFile('@web/js/scholar-topic-report.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/third-party/tinymce_5.10.0/tinymce.min.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/scholarPdfExport.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 $this->registerJsFile('@web/js/papersSelection.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
@@ -305,6 +307,7 @@ use yii\widgets\Pjax;
                                 'element_config' => $element['config'],
                                 'selected_per_list' => $selected_per_list,
                                 'facets_linked_to_lists' => $facets_linked_to_lists,
+                                'facet_element_id' => $element['element_id'],
                             ]);
                             ?>
                             </div>
@@ -659,6 +662,7 @@ use yii\widgets\Pjax;
                                         'preHeaderHtml' => $canUserSelect ? $selectWorksBtnHtml : '',
                                         'show_pagination' => ! empty($element['config']['show_pagination']),
                                         'noWorksMessage' => $noWorksMessage,
+                                        'profile_owner_user_id' => $researcher->user_id ?? null,
                                     ]);
                                 ?>
                             </div>
@@ -982,6 +986,35 @@ use yii\widgets\Pjax;
         <?php endif; ?>
 
     */ ?>
+
+    <!-- Template Feedback Modal -->
+    <?php if (! Yii::$app->user->isGuest && $template->isHidden()): ?>
+        <?php
+        $footer = '
+            <button class="btn btn-custom-color" type="button" id="submit-template-feedback-btn">Submit Feedback</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        ';
+        Modal::begin([
+            'header' => '<h4>Send Feedback to Template Creator</h4>',
+            'id' => 'templateFeedbackModal',
+            'size' => 'modal-md',
+            'footer' => $footer
+        ]);
+        ?>
+            <form id="template-feedback-form" autocomplete="off">
+                <?= Html::hiddenInput('template_id', $template->id, ['id' => 'template-feedback-template-id']) ?>
+                <?= Html::hiddenInput('profile_orcid', $researcher->orcid, ['id' => 'template-feedback-profile-orcid']) ?>
+
+                <div class="form-group">
+                    <label for="template-feedback-message">Feedback <span class="text-danger">*</span></label>
+                    <textarea id="template-feedback-message" name="message" class="form-control" rows="4" maxlength="2000" required placeholder="Describe your feedback about this template..."></textarea>
+                    <small class="form-text text-muted"><span id="template-feedback-description-count">0</span>/2000 characters</small>
+                </div>
+
+                <div id="template-feedback-message-box" class="alert" style="display: none;"></div>
+            </form>
+        <?php Modal::end(); ?>
+    <?php endif; ?>
 
     <!-- Report Profile Modal -->
     <?php if (! $edit_perm && ! Yii::$app->user->isGuest): ?>

@@ -81,6 +81,11 @@ class Relations extends \yii\db\ActiveRecord {
             $relations = (array_key_exists($id, $final_array)) ? $final_array[$id] : [];
             // Create relations key to input array
             $papers[$paper]['relations'] = $relations;
+            
+            // Compute reproducibility readiness badges (datasets and software)
+            $relation_types = !empty($relations) ? array_column($relations, 'type') : [];
+            $papers[$paper]['has_dataset'] = in_array('Dataset', $relation_types);
+            $papers[$paper]['has_software'] = in_array('Software', $relation_types);
         }
 
         return $papers;

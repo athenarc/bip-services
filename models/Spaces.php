@@ -13,6 +13,11 @@ class Spaces extends \yii\db\ActiveRecord {
     // space name as indexed in solr
     public $solr_name;
 
+    // selected annotation IDs for search filtering
+    public $selected_annotations = [];
+
+    public $provided_by;
+
     public static function tableName() {
         return 'spaces';
     }
@@ -79,8 +84,8 @@ class Spaces extends \yii\db\ActiveRecord {
             'type' => 'Type',
             'has_pubmed_types' => 'Enable NLM Types',
             'pubmed_types' => 'Pubmed Types',
-            'has_annotations_flag' => 'Show annotations flag',
-            'enable_annotations_flag' => 'Enable annotations flag',
+            'has_annotations_flag' => 'Show annotations filter',
+            'enable_annotations_flag' => 'Enable annotations filter',
             'is_oa' => 'Availability',
             'logo_upload' => 'Logo',
             'logo_default' => '',
@@ -116,6 +121,31 @@ class Spaces extends \yii\db\ActiveRecord {
     public function getPubmedTypesAsArray() {
         // Convert pubmed_types to an array
         $this->convertToArray('pubmed_types');
+    }
+
+    /**
+     * Whether evaluation mode should be considered active for the given (or current) user.
+     *
+     * Evaluation mode is active only when:
+     * - we are inside a concrete space instance (has an id)
+     * - the user is logged in
+     * - at least one of the evaluation features is enabled for this space
+     */
+    public function isEvaluationModeActive(?int $userId = null): bool {
+        if (! isset($this->id)) {
+            return false;
+        }
+
+        if ($userId === null) {
+            $userId = \Yii::$app->user->id;
+        }
+
+        if (! isset($userId)) {
+            return false;
+        }
+
+        return (bool) (($this->enable_like_dislike_records ?? false) ||
+            ($this->enable_like_dislike_annotations ?? false));
     }
 
     public function beforeValidate() {
@@ -231,9 +261,14 @@ class Spaces extends \yii\db\ActiveRecord {
 
         // only the values that are different between the POST request and the current space model,
         // will appear in the GET request
+        // Skip annotations here - it's handled separately below
         foreach ($space_model->toArray() as $key => $value) {
+            if ($key === 'annotations') {
+                continue; // Skip annotations, handled separately
+            }
+
             if (array_key_exists($key, $post_request_array)) {
-                // special handling for topics
+                // special handling for topics, type, is_oa, pubmed_types
                 if ($key === 'topics' or $key === 'type' or $key === 'is_oa' or $key == 'pubmed_types') {
                     // sort arrays before comparison
                     $post_array = $post_request_array[$key];
@@ -252,6 +287,29 @@ class Spaces extends \yii\db\ActiveRecord {
                 } elseif ($post_request_array[$key] !== $value) {
                     $get_request_array[$key] = $post_request_array[$key];
                 }
+            }
+        }
+
+        // Handle annotations separately (not a Spaces model field)
+        // Always include annotations in GET params if present in POST
+        if (array_key_exists('annotations', $post_request_array)) {
+            $post_annotations = $post_request_array['annotations'];
+
+            if (empty($post_annotations)) {
+                // Empty array - user deselected all
+                $get_request_array['annotations'] = [''];
+            } else {
+                $get_request_array['annotations'] = $post_annotations;
+            }
+
+            // If enable_annotations_flag is set and true, set to all annotation IDs
+        // filtering with annotations is done from the admin panel
+        } elseif (array_key_exists('enable_annotations_flag', $post_request_array) &&
+                  $post_request_array['enable_annotations_flag']) {
+            $enabled_annotations = $space_model->annotations;
+
+            if (! empty($enabled_annotations)) {
+                $get_request_array['annotations'] = array_column($enabled_annotations, 'id');
             }
         }
 
@@ -376,6 +434,81 @@ class Spaces extends \yii\db\ActiveRecord {
         return $papers;
     }
 
+    /**
+     * Fetches synonyms based on search keywords using spaces_synonyms_expansion table.
+     *
+     * @param string $keywords Search keywords entered by the user
+     * @param Spaces $space_model The space model
+     * @return array Array of synonym values
+     */
+    public static function fetchSynonyms($keywords, $space_model) {
+        $synonyms_expansions = SpacesSynonymsExpansion::find()
+            ->where(['spaces_id' => $space_model->id, 'enabled' => 1])
+            ->all();
+
+        $synonyms_expansions_data = [];
+
+        if (empty($synonyms_expansions) || empty($keywords)) {
+            return ['synonyms_expansions' => []];
+        }
+
+        // Create database connection once (shared by all expansions)
+        $annotation_db = Yii::$app->params['annotation_dbs'][$space_model->annotation_db];
+        $conn = GraphConnectionFactory::createConnection($space_model->graph_db_system, $annotation_db);
+
+        // Process each synonyms expansion configuration
+        foreach ($synonyms_expansions as $synonyms_expansion) {
+            $expansion_synonyms = [];
+
+            $synonym_query = $synonyms_expansion->buildSynonymQuery($keywords);
+
+            if (! empty($synonym_query)) {
+                try {
+                    [$stats, $rows] = $conn->run($synonym_query, []);
+
+                    // Extract synonyms from results
+                    foreach ($rows as $row) {
+                        if (empty($row[0])) {
+                            continue;
+                        }
+
+                        $synonyms_data = $row[0];
+                        $synonym_list = [];
+
+                        // Handle array or comma-separated string
+                        if (is_array($synonyms_data)) {
+                            $synonym_list = $synonyms_data;
+                        } elseif (is_string($synonyms_data)) {
+                            $synonym_list = array_map('trim', explode(',', $synonyms_data));
+                        }
+
+                        // Add non-empty synonyms
+                        foreach ($synonym_list as $synonym) {
+                            if (! empty($synonym)) {
+                                $expansion_synonyms[] = $synonym;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue
+                    Yii::error('Error fetching synonyms: ' . $e->getMessage());
+                }
+            }
+
+            // Only add expansion if it has synonyms
+            if (! empty($expansion_synonyms)) {
+                $synonyms_expansions_data[] = [
+                    'display_name' => $synonyms_expansion->display_name ?? 'entity',
+                    'synonyms' => array_unique($expansion_synonyms)
+                ];
+            }
+        }
+
+        return [
+            'synonyms_expansions' => $synonyms_expansions_data
+        ];
+    }
+
     public static function getSearchParams($space_url_suffix) {
         $space_model = self::fetchSpacesBySuffix($space_url_suffix);
         $space_model->prepareForRequest();
@@ -386,6 +519,14 @@ class Spaces extends \yii\db\ActiveRecord {
 
         // merge the GET params into the space_model, to create the final SearchForm parameters
         $space_model->setAttributes($get_data_all, false);
+
+        // Parse request parameters that are not database fields
+        $space_model->parseAnnotations(
+            $get_data_all['annotations'] ?? null,
+            $get_data_all['enable_annotations_flag'] ?? null
+        );
+        $space_model->parseProvidedBy($get_data_all['provided_by'] ?? null);
+
         $search_params = $space_model->toArray();
 
         // revert topics, type, is_oa, pubmed_types set in fetchGetRequestArray ([""] -> [])
@@ -406,12 +547,9 @@ class Spaces extends \yii\db\ActiveRecord {
         // not used
         $search_params['location'] = (Yii::$app->request->get('location') == null || Yii::$app->request->get('location') == '') ? 'title-abstract' : Yii::$app->request->get('location');
 
-        // add provided_by
-        if (array_key_exists('provided_by', $get_data_all)) {
-            $search_params['provided_by'] = $get_data_all['provided_by'];
-        } else {
-            $search_params['provided_by'] = [];
-        }
+        // Get annotations and provided_by from prepareForRequest() (already parsed)
+        $search_params['annotations'] = $space_model->selected_annotations;
+        $search_params['provided_by'] = $space_model->provided_by;
 
         return [
             $search_params,
@@ -420,7 +558,133 @@ class Spaces extends \yii\db\ActiveRecord {
     }
 
     public function getAnnotations() {
+        return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->where(['enabled' => 1]);
+    }
+
+    /**
+     * Annotations that are enabled and have "enable facet" checked (for sidebar "Show results with" and Key annotations).
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFacetAnnotations() {
+        return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])
+            ->where(['enabled' => 1, 'enable_facet' => 1]);
+    }
+
+    /**
+     * Gets query for [[SpacesSynonymsExpansion]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSynonymsExpansions() {
+        return $this->hasMany(SpacesSynonymsExpansion::class, ['spaces_id' => 'id']);
+    }
+
+    public function getAllSynonymsExpansion() {
+        return $this->hasMany(SpacesSynonymsExpansion::class, ['spaces_id' => 'id']);
+    }
+
+    public function getAllAnnotations() {
         return $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id']);
+    }
+
+    /**
+     * Get annotation display names (plural) as an array.
+     * @return array Array of annotation display names (plural)
+     */
+    public function getEnabledAnnotationNames() {
+        $all_annotations = $this->hasMany(SpacesAnnotations::class, ['spaces_id' => 'id'])->all();
+        $annotation_descriptions = [];
+
+        if (! empty($all_annotations)) {
+            foreach ($all_annotations as $annotation) {
+                if (! empty($annotation->display_name_plural)) {
+                    $annotation_descriptions[] = $annotation->display_name_plural;
+                }
+            }
+        }
+
+        return $annotation_descriptions;
+    }
+
+    /**
+     * Get annotation IDs and display names as an associative array.
+     * Uses the same logic as the sidebar filter: display_name_plural ?? name
+     * @return array Array with annotation_id as key and display name as value
+     */
+    public function getEnabledAnnotationMap() {
+        $enabled_annotations = $this->annotations;
+        $annotation_map = [];
+
+        if (! empty($enabled_annotations)) {
+            foreach ($enabled_annotations as $annotation) {
+                // Display_name_plural ?? name
+                $display_name = $annotation->display_name_plural ?? $annotation->name;
+                if (! empty($display_name)) {
+                    $annotation_map[$annotation->id] = $display_name;
+                }
+            }
+        }
+
+        return $annotation_map;
+    }
+
+    /**
+     * Get annotation IDs and colors as an associative array.
+     * Uses the annotation color defined in admin-spaces (color picker) for each type.
+     * @return array Array with annotation_id as key and hex color (e.g. #ffaa00) as value
+     */
+    public function getEnabledAnnotationColorMap() {
+        $enabled_annotations = $this->annotations;
+        $color_map = [];
+
+        if (! empty($enabled_annotations)) {
+            foreach ($enabled_annotations as $annotation) {
+                if (! empty($annotation->color)) {
+                    $color_map[$annotation->id] = $annotation->color;
+                }
+            }
+        }
+
+        return $color_map;
+    }
+
+    /**
+     * Get facet-enabled annotation IDs and display names (for sidebar "Show results with" and Key annotations dropdown).
+     * @return array Array with annotation_id as key and display name as value
+     */
+    public function getFacetAnnotationMap() {
+        $facet_annotations = $this->facetAnnotations;
+        $annotation_map = [];
+
+        if (! empty($facet_annotations)) {
+            foreach ($facet_annotations as $annotation) {
+                $display_name = $annotation->display_name_plural ?? $annotation->name;
+                if (! empty($display_name)) {
+                    $annotation_map[$annotation->id] = $display_name;
+                }
+            }
+        }
+
+        return $annotation_map;
+    }
+
+    /**
+     * Get facet-enabled annotation IDs and colors (for Key annotations pills).
+     * @return array Array with annotation_id as key and hex color as value
+     */
+    public function getFacetAnnotationColorMap() {
+        $facet_annotations = $this->facetAnnotations;
+        $color_map = [];
+
+        if (! empty($facet_annotations)) {
+            foreach ($facet_annotations as $annotation) {
+                if (! empty($annotation->color)) {
+                    $color_map[$annotation->id] = $annotation->color;
+                }
+            }
+        }
+
+        return $color_map;
     }
 
     /**
@@ -432,8 +696,76 @@ class Spaces extends \yii\db\ActiveRecord {
         }
     }
 
+    /**
+     * Parse annotations parameter from GET request
+     * Handles special cases like -1 (select all), empty arrays, and enable_annotations_flag.
+     * @param array|null $annotations Annotations array from GET params
+     * @param bool|null $enable_annotations_flag Enable annotations flag from GET params
+     */
+    protected function parseAnnotations($annotations = null, $enable_annotations_flag = null) {
+        $annotations_was_provided = $annotations !== null;
+        $annotations_explicitly_empty = false;
+
+        if ($annotations_was_provided) {
+            $annotations_raw = is_array($annotations) ? $annotations : [];
+
+            // Check if annotations was explicitly set to empty (user deselected all)
+            // It could be [] or [''] (the latter is used to ensure empty arrays appear in GET)
+            if (empty($annotations_raw) || (count($annotations_raw) === 1 && $annotations_raw[0] === '')) {
+                $annotations_explicitly_empty = true;
+                $this->selected_annotations = [];
+            } else {
+                $this->selected_annotations = array_values(array_filter($annotations_raw));
+            }
+        } else {
+            $this->selected_annotations = [];
+        }
+
+        // Convert enable_annotations_flag to all annotation IDs (only for initialization)
+        // This happens when enable_annotations_flag is set but annotations array is empty
+        if ($enable_annotations_flag !== null &&
+            $enable_annotations_flag &&
+            empty($this->selected_annotations) &&
+            ! $annotations_explicitly_empty) {
+            // Get all enabled annotation IDs
+            $enabled_annotations = $this->getAnnotations()->all();
+
+            if (! empty($enabled_annotations)) {
+                $this->selected_annotations = array_column($enabled_annotations, 'id');
+            }
+        }
+
+        // If space has enable_annotations_flag set and annotations were not provided in GET params,
+        // select all annotation IDs (only on initial page load, not when user explicitly deselected)
+        if ($this->enable_annotations_flag &&
+            empty($this->selected_annotations) &&
+            ! $annotations_was_provided &&
+            ! $annotations_explicitly_empty) {
+            // Get all enabled annotation IDs
+            $enabled_annotations = $this->getAnnotations()->all();
+
+            if (! empty($enabled_annotations)) {
+                $this->selected_annotations = array_column($enabled_annotations, 'id');
+            }
+        }
+    }
+
+    /**
+     * Parse provided_by parameter from GET request.
+     * @param array|null $provided_by Provided by array from GET params
+     */
+    protected function parseProvidedBy($provided_by = null) {
+        if ($provided_by !== null) {
+            $this->provided_by = is_array($provided_by) ? $provided_by : [];
+        } else {
+            $this->provided_by = [];
+        }
+    }
+
     private static function enrichAnnotations($rows, $space_annotation) {
-        // add annotation color, description
+        // add annotation color, display_name_plural, and has_graph_entity_fields flag
+        $has_graph_entity_fields = $space_annotation->hasGraphEntityFields();
+
         foreach ($rows as $row => $row_data) {
             $doi = $row_data[0];
             $annotations = $row_data[1];
@@ -441,8 +773,8 @@ class Spaces extends \yii\db\ActiveRecord {
             foreach ($annotations as $annotation_row => $annotation_data) {
                 $rows[$row][1][$annotation_row]['annotation_id'] = $space_annotation['id'];
                 $rows[$row][1][$annotation_row]['annotation_color'] = $space_annotation['color'];
-                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['description'];
-                $rows[$row][1][$annotation_row]['has_reverse_query'] = ! empty($space_annotation['reverse_query']);
+                $rows[$row][1][$annotation_row]['annotation_description'] = $space_annotation['display_name_plural'];
+                $rows[$row][1][$annotation_row]['has_graph_entity_fields'] = $has_graph_entity_fields;
             }
         }
 

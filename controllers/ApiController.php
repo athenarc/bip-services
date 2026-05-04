@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use app\models\OpenaireArticle;
-use app\models\ProteinDataBank;
 use app\models\Researcher;
 use app\models\ResponsibleAcadAge;
 use app\models\Scholar;
@@ -92,8 +91,7 @@ class ApiController extends Controller {
         $cc = 'all',
         $page = 1,
         $page_size = 20,
-        $auth_token = null,
-        $rcsb_id = null
+        $auth_token = null
     ) {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
@@ -111,19 +109,66 @@ class ApiController extends Controller {
 
         $location = 'title-abstract';
         $relevance = 'low';
-        $journals = [];
+        $topics = [];
 
-        $model = new SearchForm($ordering, $keywords, $location, $relevance, $journals, $start_year, $end_year, $influence, $popularity, $impulse, $cc);
+        // Use the same SearchForm logic as the main SiteController search
+        $model = new SearchForm(
+            $ordering,
+            $keywords,
+            $location,
+            $relevance,
+            $topics,
+            $start_year,
+            $end_year,
+            $influence,
+            $popularity,
+            $impulse,
+            $cc
+        );
 
-        $protein_primary_citation = null;
+        // Run the full search pipeline (Solr + DB) used on the index page
+        $results = $model->search();
 
-        if ($rcsb_id) {
-            $protein_primary_citation = ProteinDataBank::findPrimaryCitation($rcsb_id);
+        $pagination = $results['pagination'];
+        $rows = $results['rows'];
+
+        // Keep only the required fields per row
+        $filteredRows = [];
+
+        foreach ($rows as $row) {
+            // Parse numeric metrics as numbers (DB returns them as strings)
+            $attrank = isset($row['attrank']) ? (float) $row['attrank'] : null;
+            $pagerank = isset($row['pagerank']) ? (float) $row['pagerank'] : null;
+            $threeYcc = isset($row['3y_cc']) ? (int) $row['3y_cc'] : null;
+            $citationCount = isset($row['citation_count']) ? (int) $row['citation_count'] : null;
+
+            $filteredRows[] = [
+                'id' => $row['internal_id'] ?? null,
+                'doi' => $row['doi'] ?? null,
+                'title' => $row['title'] ?? null,
+                'abstract' => $row['abstract'] ?? null,
+                'authors' => $row['authors'] ?? null,
+                'journal' => $row['journal'] ?? null,
+                'year' => $row['year'] ?? null,
+                'attrank' => $attrank,
+                'pagerank' => $pagerank,
+                '3y_cc' => $threeYcc,
+                'citation_count' => $citationCount,
+                'pop_class' => $row['pop_class'] ?? null,
+                'inf_class' => $row['inf_class'] ?? null,
+                'imp_class' => $row['imp_class'] ?? null,
+                'cc_class' => $row['cc_class'] ?? null,
+            ];
         }
 
-        $results = $model->searchLanguageForApi($protein_primary_citation, $page, $page_size);
-
-        return $results;
+        return [
+            'rows' => $filteredRows,
+            'meta' => [
+                'total_count' => (int) $pagination->totalCount,
+                'page' => (int) $pagination->getPage() + 1,
+                'page_size' => (int) $pagination->pageSize,
+            ],
+        ];
     }
 
     public function actionImpactChart($id = null, $src = null) {

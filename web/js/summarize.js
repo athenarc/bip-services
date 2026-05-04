@@ -5,6 +5,9 @@ $(document).ready(function () {
      */
     function initSummaryInstance($button, listId) {
         const isPerList = !!listId;
+        const summaryMode = String($button.data('summaryMode') || 'collapse');
+        const isModalMode = summaryMode === 'modal';
+        const $summaryModal = isPerList ? $(`#summary-modal-${listId}`) : $();
 
         // Resolve selectors depending on context (legacy single vs multi-list)
         const $summaryPanel = isPerList
@@ -35,7 +38,6 @@ $(document).ready(function () {
         if (!$button.length || !$summaryPanel.length) {
             return;
         }
-
         $copyBtn.tooltip();
 
         const allPaperIds = JSON.parse($button.attr('data-paper-ids') || '[]');
@@ -108,11 +110,11 @@ $(document).ready(function () {
                     }
 
                     // Store per-instance summary so copy uses the correct text
-                    if (!window.originalSummaries) {
-                        window.originalSummaries = {};
+                    if (!window['originalSummaries']) {
+                        window['originalSummaries'] = {};
                     }
                     const key = listId || 'global';
-                    window.originalSummaries[key] = response.plain;
+                    window['originalSummaries'][key] = response.plain;
 
                     $summaryText.html(response.html).show();
                     $regenerateBox.show();
@@ -134,12 +136,17 @@ $(document).ready(function () {
         $button.on('click', function () {
             if (quotaReached) return;
 
-            const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
             const hasSummary = !!$summaryText.html().trim();
-
-            $summaryPanel.collapse('toggle');
-
-            if (isCollapsed && !hasSummary) {
+            if (isModalMode && $summaryModal.length) {
+                $summaryModal.modal('show');
+            } else {
+                const isCollapsed = !$summaryPanel.hasClass('in') && !$summaryPanel.is(':visible');
+                $summaryPanel.collapse('toggle');
+                if (!isCollapsed) {
+                    return;
+                }
+            }
+            if (!hasSummary) {
                 generateSummary(defaultLimit || 5);
             }
         });
@@ -152,7 +159,7 @@ $(document).ready(function () {
         $(document).on('click', regenerateSelector, function () {
             if (quotaReached) return;
 
-            const topN = parseInt($summaryCount.val(), 10);
+            const topN = parseInt(String($summaryCount.val()), 10);
             if (isNaN(topN) || topN < 1 || topN > 20) return;
 
             generateSummary(topN);
@@ -177,9 +184,9 @@ $(document).ready(function () {
         // Copy summary handler
         $copyBtn.on('click', function () {
             const key = listId || 'global';
-            if (!window.originalSummaries || !window.originalSummaries[key]) return;
+            if (!window['originalSummaries'] || !window['originalSummaries'][key]) return;
 
-            navigator.clipboard.writeText(window.originalSummaries[key]).then(() => {
+            navigator.clipboard.writeText(window['originalSummaries'][key]).then(() => {
                 $copyBtn.attr('data-original-title', 'Summary copied!').tooltip('show').off('mouseenter focus');
 
                 setTimeout(() => {
