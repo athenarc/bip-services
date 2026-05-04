@@ -13,17 +13,45 @@ use yii\widgets\LinkPager;
 $this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
 
 $headingType = ! empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
+$canShowSummaryButton = ! empty($element_config['enable_summary']) &&
+    (int) $element_config['enable_summary'] === 1 &&
+    ($works_num ?? 0) > 0 &&
+    ! empty($papers) &&
+    SummaryUsage::isAiAssistantEnabledForCurrentUser();
+
+if ($canShowSummaryButton) {
+    $threshold = AdminOptions::getValue('summarize_button_threshold') ?? 20;
+    // Use all_papers if available (for pagination support), otherwise fall back to current page papers
+    $papersForSummary = ! empty($result['all_papers']) ? $result['all_papers'] : $papers;
+    $paperIdsForSummary = json_encode(array_map(function ($paper) {
+        return $paper['internal_id'];
+    }, $papersForSummary));
+}
 
 ?>
 
-<div class="row">
-    <div class="col-md-12">
+<div class="row" style="display: flex; align-items: center;">
+    <div class="<?= $canShowSummaryButton ? 'col-md-8 col-xs-12' : 'col-md-12 col-xs-12' ?>">
         <?php if (! empty($element_config['show_header'])): ?>
         <<?= $headingType ?> style="display: inline-block;">
             List of works
         </<?= $headingType ?>>
         <?php endif;?>
     </div>
+    <?php if (! empty($canShowSummaryButton)): ?>
+        <div class="col-md-4 col-xs-12 text-right" style="margin-top: 5px;">
+            <button
+                class="btn btn-default btn-sm summarizeBtn"
+                data-list-id="<?= $list_id ?>"
+                data-paper-ids='<?= $paperIdsForSummary ?>'
+                data-keywords=""
+                data-threshold="<?= $threshold ?>"
+                data-summary-mode="modal"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
+            </button>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class='row'>
@@ -45,20 +73,6 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
 
     $rightShown = ! $hideMeta && empty($element_config['top_k']) && ($works_num ?? 0) > 0;
 
-    $canShowSummaryButton = ! empty($element_config['enable_summary']) &&
-        (int) $element_config['enable_summary'] === 1 &&
-        ($works_num ?? 0) > 0 &&
-        ! empty($papers) &&
-        SummaryUsage::isAiAssistantEnabledForCurrentUser();
-
-    if ($canShowSummaryButton) {
-        $threshold = AdminOptions::getValue('summarize_button_threshold') ?? 20;
-        // Use all_papers if available (for pagination support), otherwise fall back to current page papers
-        $papersForSummary = ! empty($result['all_papers']) ? $result['all_papers'] : $papers;
-        $paperIdsForSummary = json_encode(array_map(function ($paper) {
-            return $paper['internal_id'];
-        }, $papersForSummary));
-    }
     ?>
     <div class='row' style="align-items:center;">
         <?php if ($showPager): ?>
@@ -157,21 +171,6 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
     </div>
 
     <?php if (! empty($canShowSummaryButton)): ?>
-        <div class="row" style="margin-bottom: 15px;">
-            <div class="col-xs-12 text-right">
-                <button
-                    class="btn btn-default btn-sm summarizeBtn"
-                    data-list-id="<?= $list_id ?>"
-                    data-paper-ids='<?= $paperIdsForSummary ?>'
-                    data-keywords=""
-                    data-threshold="<?= $threshold ?>"
-                    data-summary-mode="modal"
-                >
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
-                </button>
-            </div>
-        </div>
-
         <?php Modal::begin([
             'id' => 'summary-modal-' . $list_id,
             'header' => '<h4 class="modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Summary of top results</h4>',
