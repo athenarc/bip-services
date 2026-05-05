@@ -49,7 +49,7 @@ if ($canShowSummaryButton) {
                 data-summary-mode="modal"
                 data-profile-user-id="<?= (int) ($profile_owner_user_id ?? 0) ?>"
             >
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top contributions
             </button>
         </div>
     <?php endif; ?>
@@ -174,7 +174,7 @@ if ($canShowSummaryButton) {
     <?php if (! empty($canShowSummaryButton)): ?>
         <?php Modal::begin([
             'id' => 'summary-modal-' . $list_id,
-            'header' => '<h4 class="modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Summary of top results</h4>',
+            'header' => '<h4 class="modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Summary of top contributions</h4>',
             'size' => 'modal-lg',
         ]); ?>
             <div
