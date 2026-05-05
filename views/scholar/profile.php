@@ -43,6 +43,8 @@ $this->registerJsFile('@web/js/scrollToAnchor.js', ['position' => View::POS_END,
 $this->registerJsFile('@web/js/profile-toc.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 // Report profile functionality
 $this->registerJsFile('@web/js/profile-report.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
+// AI summaries for Contributions Lists
+$this->registerJsFile('@web/js/summarize.js', ['position' => View::POS_END, 'depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->registerCssFile('@web/css/tags.css');
 $this->registerCssFile('@web/css/reading-status.css');

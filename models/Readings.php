@@ -76,7 +76,7 @@ class Readings extends Model {
 
         // paginated query to retrieve all paper details
         $pagination = new Pagination([
-            'pageSize' => 30,
+            'pageSize' => 20,
             'totalCount' => $papers_num,
         ]);
 
