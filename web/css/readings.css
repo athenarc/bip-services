@@ -13,6 +13,7 @@
 .reading-lists-nav-compact {
     display: none;
     margin-top: 6px;
+    margin-bottom: 16px;
 }
 
 /* Same breakpoint as profile-toc.css when readings fixed TOC is hidden */
@@ -170,4 +171,9 @@
 
 .reading-list-summarize-btn:hover {
     color: #000;
+}
+
+#readings #results_tbl {
+    margin-left: 0;
+    margin-right: 0;
 }
