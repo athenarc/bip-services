@@ -326,6 +326,57 @@ class Scholar extends Model {
         return $topics_query->groupBy('concepts.id')->orderBy('count DESC')->all();
     }
 
+    /**
+     * Remove concepts the profile owner reported as irrelevant (same as non-owner path in markReportedTopicsForUser).
+     * Use when building payloads that should match what public visitors see.
+     *
+     * @param array $papers list of paper rows with `internal_id` and `concepts`
+     */
+    public static function excludeReportedScholarTopicsFromConcepts(array $papers, int $profileOwnerUserId): array {
+        if ($profileOwnerUserId <= 0 || empty($papers)) {
+            return $papers;
+        }
+        $paperIds = array_column($papers, 'internal_id');
+        if (empty($paperIds)) {
+            return $papers;
+        }
+        $reportedRows = (new \yii\db\Query())
+            ->select(['paper_id', 'topic_id'])
+            ->from('reported_scholar_topics')
+            ->where(['user_id' => $profileOwnerUserId, 'paper_id' => $paperIds])
+            ->all();
+        if (empty($reportedRows)) {
+            return $papers;
+        }
+        $reportedMap = [];
+        foreach ($reportedRows as $row) {
+            $reportedMap[(int) $row['paper_id']][(string) $row['topic_id']] = true;
+        }
+
+        return self::stripReportedConceptsFromPapersByMap($papers, $reportedMap);
+    }
+
+    /**
+     * @param array $reportedMap paper_id => [ topic_id string => true, ... ]
+     */
+    private static function stripReportedConceptsFromPapersByMap(array $papers, array $reportedMap): array {
+        foreach ($papers as &$paper) {
+            if (empty($paper['concepts']) || empty($reportedMap[(int) $paper['internal_id']])) {
+                continue;
+            }
+            $paperReported = $reportedMap[(int) $paper['internal_id']];
+            $paper['concepts'] = array_values(array_filter(
+                $paper['concepts'],
+                static function ($concept) use ($paperReported) {
+                    return ! isset($paperReported[(string) ($concept['id'] ?? '')]);
+                }
+            ));
+        }
+        unset($paper);
+
+        return $papers;
+    }
+
     private function markReportedTopicsForUser(array $papers) {
         $viewer_user_id = (int) (Yii::$app->user->id ?? 0);
         $reported_topics_user_id = (int) ($this->researcher->user_id ?? 0);
@@ -357,21 +408,19 @@ class Scholar extends Model {
             $reported_map[(int) $row['paper_id']][(string) $row['topic_id']] = true;
         }
 
+        if (! $is_owner_view) {
+            return self::stripReportedConceptsFromPapersByMap($papers, $reported_map);
+        }
+
         foreach ($papers as &$paper) {
             if (empty($paper['concepts']) || empty($reported_map[(int) $paper['internal_id']])) {
                 continue;
             }
             $paper_reported_topics = $reported_map[(int) $paper['internal_id']];
-            if ($is_owner_view) {
-                foreach ($paper['concepts'] as &$concept) {
-                    $concept['reported_irrelevant'] = isset($paper_reported_topics[(string) ($concept['id'] ?? '')]);
-                }
-                unset($concept);
-            } else {
-                $paper['concepts'] = array_values(array_filter($paper['concepts'], static function ($concept) use ($paper_reported_topics) {
-                    return ! isset($paper_reported_topics[(string) ($concept['id'] ?? '')]);
-                }));
+            foreach ($paper['concepts'] as &$concept) {
+                $concept['reported_irrelevant'] = isset($paper_reported_topics[(string) ($concept['id'] ?? '')]);
             }
+            unset($concept);
         }
         unset($paper);
 

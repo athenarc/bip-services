@@ -47,6 +47,7 @@ if ($canShowSummaryButton) {
                 data-keywords=""
                 data-threshold="<?= $threshold ?>"
                 data-summary-mode="modal"
+                data-profile-user-id="<?= (int) ($profile_owner_user_id ?? 0) ?>"
             >
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top results
             </button>

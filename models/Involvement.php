@@ -74,6 +74,18 @@ class Involvement extends \yii\db\ActiveRecord {
     }
 
     /**
+     * @param int|string|null $roleId from `involvement_to_papers.involvement` (DB may return int or string)
+     */
+    public static function labelForInvolvementId($roleId): string {
+        if ($roleId === null || $roleId === '') {
+            return '';
+        }
+        $fields = self::getAllInvolvementFields();
+
+        return isset($fields[$roleId]) ? (string) $fields[$roleId] : (string) $roleId;
+    }
+
+    /**
      * Returns the hover text for contribution roles based on work type.
      * @param string|int $work_type The work type identifier
      * @return string The hover text to display

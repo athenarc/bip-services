@@ -42,6 +42,7 @@ $(document).ready(function () {
 
         const allPaperIds = JSON.parse($button.attr('data-paper-ids') || '[]');
         const keywords = $button.attr('data-keywords') || '';
+        const profileUserId = parseInt($button.attr('data-profile-user-id') || '0', 10) || 0;
         const maxAvailable = allPaperIds.length;
         const defaultLimit = Math.min(5, maxAvailable || 0);
         const summarizeThreshold = $button.data('threshold') || 20;
@@ -96,7 +97,19 @@ $(document).ready(function () {
             $summaryUsageInfo.hide();
             $summaryLoading.show();
 
-            $.post(`${appBaseUrl}/site/summarize`, { paperIds, keywords, limit })
+            const requestPayload = {
+                paperIds,
+                keywords,
+                limit
+            };
+            if (isPerList) {
+                requestPayload.source = 'scholar';
+                if (profileUserId > 0) {
+                    requestPayload.profileUserId = profileUserId;
+                }
+            }
+
+            $.post(`${appBaseUrl}/site/summarize`, requestPayload)
                 .done(response => {
                     $summaryLoading.hide();
 

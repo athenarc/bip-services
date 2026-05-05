@@ -31,6 +31,7 @@ use app\models\FeedbackForm;
 use app\models\GraphConnectionFactory;
 use app\models\Indicators;
 use app\models\IndicatorsSearch;
+use app\models\Involvement;
 use app\models\Journal;
 use app\models\LikeDislikeAnnotations;
 use app\models\LikeDislikeRecords;
@@ -45,6 +46,7 @@ use app\models\ProfileTemplateFeedback;
 use app\models\Relations;
 use app\models\RequestresetForm;
 use app\models\Researcher;
+use app\models\Scholar;
 use app\models\SearchForm;
 use app\models\SignupForm;
 use app\models\Spaces;
@@ -3274,23 +3276,86 @@ class SiteController extends BaseController {
             $paperIds = Yii::$app->request->post('paperIds');
             $limit = Yii::$app->request->post('limit');
             $keywords = Yii::$app->request->post('keywords');
+            $source = Yii::$app->request->post('source', '');
+            $profileUserId = (int) Yii::$app->request->post('profileUserId', 0);
 
             if (empty($paperIds)) {
                 throw new \Exception('No papers provided');
             }
 
+            $paperIds = array_values(array_filter(array_map('intval', (array) $paperIds)));
+            $limit = (int) $limit;
+            $limitedPaperIds = array_slice($paperIds, 0, max(1, $limit));
+
+            $isScholarSummary = ($source === 'scholar');
+            $paperSelect = ['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'];
+            if ($isScholarSummary) {
+                $paperSelect['authors'] = 'authors';
+            }
+
             $papers = (new \yii\db\Query())
-                ->select(['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'])
+                ->select($paperSelect)
                 ->from('pmc_paper')
                 ->innerJoin('pmc_paper_pids', 'pmc_paper.internal_id = pmc_paper_pids.paper_id')
-                ->where(['in', 'internal_id', $paperIds])
+                ->where(['in', 'internal_id', $limitedPaperIds])
                 ->groupBy('internal_id')
-                ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $paperIds) . ')'))
-                ->limit($limit)
+                ->orderBy(new \yii\db\Expression('FIELD(internal_id, ' . implode(',', $limitedPaperIds) . ')'))
+                ->limit(max(1, $limit))
                 ->all();
 
             if (empty($papers)) {
                 throw new \Exception('No papers found');
+            }
+
+            $profileName = '';
+            if ($isScholarSummary) {
+                if ($profileUserId <= 0) {
+                    throw new \Exception('Missing profile owner for scholar summary.');
+                }
+
+                // Build the same paper shapes as the public scholar profile: concepts (topics) + involvement (roles).
+                $papersForConcepts = [];
+                foreach ($papers as $paper) {
+                    $papersForConcepts[] = ['internal_id' => (int) ($paper['id'] ?? 0)];
+                }
+                $papersForConcepts = Concepts::getConcepts($papersForConcepts, 'internal_id');
+                $papersForConcepts = SearchForm::get_concepts_impact_class($papersForConcepts);
+                $papersForConcepts = Involvement::getInvolvement(['papers' => $papersForConcepts], $profileUserId)['papers'];
+                // Raw concepts omit reported_scholar_topics; strip topics the owner marked irrelevant (matches visitor-facing profile).
+                $papersForConcepts = Scholar::excludeReportedScholarTopicsFromConcepts($papersForConcepts, $profileUserId);
+
+                $papersForConceptsById = \yii\helpers\ArrayHelper::index($papersForConcepts, 'internal_id');
+
+                foreach ($papers as $idx => $paper) {
+                    $paperId = (int) $paper['id'];
+
+                    $enriched = $papersForConceptsById[$paperId] ?? [];
+
+                    // Summarize service: topic strings + human-readable CRediT-style role labels per paper.
+                    $papers[$idx]['topics'] = array_column($enriched['concepts'] ?? [], 'display_name');
+                    $papers[$idx]['contribution_roles'] = array_map(
+                        [Involvement::class, 'labelForInvolvementId'],
+                        (array) ($enriched['involvement'] ?? [])
+                    );
+                }
+
+                $profile = Researcher::find()
+                    ->select(['name'])
+                    ->where(['user_id' => $profileUserId])
+                    ->one();
+
+                if ($profile && ! empty($profile->name)) {
+                    $profileName = trim((string) $profile->name);
+                }
+
+            }
+
+            $summarizePayload = [
+                'papers' => $papers,
+                'topic_name' => $keywords,
+            ];
+            if ($isScholarSummary) {
+                $summarizePayload['profile_name'] = $profileName;
             }
 
             $client = Yii::$app->httpClient;
@@ -3298,10 +3363,7 @@ class SiteController extends BaseController {
                 ->setMethod('POST')
                 ->setUrl(Yii::$app->params['summarizeService'] . '/summarize/')
                 ->addHeaders(['Content-Type' => 'application/json'])
-                ->setContent(Json::encode([
-                    'papers' => $papers,
-                    'topic_name' => $keywords,
-                ]))
+                ->setContent(Json::encode($summarizePayload))
                 ->send();
 
             if ($response->isOk) {
