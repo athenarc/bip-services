@@ -72,6 +72,8 @@ class ContributionsListItem extends Widget {
     public $noWorksMessage;
 
     public $profile_owner_user_id;
+    
+    public $profile_owner_name;
 
     /*
      * Widget initialisation a.k.a. setting widget properties
@@ -111,6 +113,7 @@ class ContributionsListItem extends Widget {
             'show_missing_works' => $this->show_missing_works,
             'noWorksMessage' => $this->noWorksMessage,
             'profile_owner_user_id' => $this->profile_owner_user_id,
+            'profile_owner_name' => $this->profile_owner_name,
         ];
 
         if ($this->for_print) {

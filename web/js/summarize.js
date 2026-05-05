@@ -43,6 +43,7 @@ $(document).ready(function () {
         const allPaperIds = JSON.parse($button.attr('data-paper-ids') || '[]');
         const keywords = $button.attr('data-keywords') || '';
         const profileUserId = parseInt($button.attr('data-profile-user-id') || '0', 10) || 0;
+        const profileName = String($button.attr('data-profile-name') || '').trim();
         const maxAvailable = allPaperIds.length;
         const defaultLimit = Math.min(5, maxAvailable || 0);
         const summarizeThreshold = $button.data('threshold') || 20;
@@ -106,6 +107,9 @@ $(document).ready(function () {
                 requestPayload.source = 'scholar';
                 if (profileUserId > 0) {
                     requestPayload.profileUserId = profileUserId;
+                }
+                if (profileName) {
+                    requestPayload.profileName = profileName;
                 }
             }
 

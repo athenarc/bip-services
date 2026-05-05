@@ -48,6 +48,7 @@ if ($canShowSummaryButton) {
                 data-threshold="<?= $threshold ?>"
                 data-summary-mode="modal"
                 data-profile-user-id="<?= (int) ($profile_owner_user_id ?? 0) ?>"
+                data-profile-name="<?= Html::encode((string) ($profile_owner_name ?? '')) ?>"
             >
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top contributions
             </button>

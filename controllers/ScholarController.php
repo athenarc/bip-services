@@ -779,6 +779,7 @@ class ScholarController extends BaseController {
                             'selected_accesses' => $list_result['selected_accesses'] ?? [],
                             'selected_types' => $list_result['selected_types'] ?? [],
                             'profile_owner_user_id' => $researcher->user_id ?? null,
+                            'profile_owner_name' => $researcher->name ?? '',
                         ]);
                     }
                 }

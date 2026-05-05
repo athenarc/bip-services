@@ -663,6 +663,7 @@ use yii\widgets\Pjax;
                                         'show_pagination' => ! empty($element['config']['show_pagination']),
                                         'noWorksMessage' => $noWorksMessage,
                                         'profile_owner_user_id' => $researcher->user_id ?? null,
+                                        'profile_owner_name' => $researcher->name ?? '',
                                     ]);
                                 ?>
                             </div>

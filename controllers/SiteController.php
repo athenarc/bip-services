@@ -3285,6 +3285,7 @@ class SiteController extends BaseController {
             $keywords = Yii::$app->request->post('keywords');
             $source = Yii::$app->request->post('source', '');
             $profileUserId = (int) Yii::$app->request->post('profileUserId', 0);
+            $profileName = trim((string) Yii::$app->request->post('profileName', ''));
 
             if (empty($paperIds)) {
                 throw new \Exception('No papers provided');
@@ -3314,8 +3315,6 @@ class SiteController extends BaseController {
             if (empty($papers)) {
                 throw new \Exception('No papers found');
             }
-
-            $profileName = '';
 
             if ($isScholarSummary) {
                 if ($profileUserId <= 0) {
@@ -3348,22 +3347,13 @@ class SiteController extends BaseController {
                         (array) ($enriched['involvement'] ?? [])
                     );
                 }
-
-                $profile = Researcher::find()
-                    ->select(['name'])
-                    ->where(['user_id' => $profileUserId])
-                    ->one();
-
-                if ($profile && ! empty($profile->name)) {
-                    $profileName = trim((string) $profile->name);
-                }
             }
 
             $summarizePayload = [
                 'papers' => $papers,
                 'topic_name' => $isScholarSummary ? $profileName : $keywords,
             ];
-
+           
             $client = Yii::$app->httpClient;
             $response = $client->createRequest()
                 ->setMethod('POST')
