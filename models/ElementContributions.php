@@ -25,6 +25,7 @@ use Yii;
  * @property string|null $margin_bottom
  * @property string|null $margin_left
  * @property string|null $compact_view Display mode: 'full', 'compact', 'minimal'
+ * @property int|null $enable_summary Whether AI summary is enabled for this list
  *
  * @property Elements $element
  */
@@ -55,7 +56,7 @@ class ElementContributions extends \yii\db\ActiveRecord {
             [['top_k', 'page_size'], 'integer', 'min' => 1, 'message' => 'Please enter a positive integer.'],
             [['top_k', 'page_size'], 'default', 'value' => null],
 
-            [['user_defined'], 'boolean'],
+            [['user_defined', 'enable_summary'], 'boolean'],
 
             // validate only if user_defined is checked
             [
@@ -92,6 +93,7 @@ class ElementContributions extends \yii\db\ActiveRecord {
             'page_size' => 'Page size',
             'heading_type' => 'Header size',
             'compact_view' => 'Display Mode',
+            'enable_summary' => 'Enable results summarization',
             'user_defined' => 'Researcher selection',
             'user_defined_max' => 'Max user-selected works',
             'filters_accesses' => 'Availability (default filters)',
@@ -177,7 +179,8 @@ class ElementContributions extends \yii\db\ActiveRecord {
      * @param int $element_id
      * @return ElementContributions|null
      */
-    public static function getConfigContributions($element_id) {
+    public static function getConfigContributions($element_id)
+    {
         $model = self::find()->where(['element_id' => $element_id])->one();
 
         if (! $model) {
@@ -199,6 +202,7 @@ class ElementContributions extends \yii\db\ActiveRecord {
             'margin_bottom' => $model->margin_bottom,
             'margin_left' => $model->margin_left,
             'compact_view' => $model->compact_view ?: 'full',
+            'enable_summary' => (int)$model->enable_summary,
             'filters' => [
                 'accesses' => $model->prefilter_accesses ? (json_decode($model->prefilter_accesses, true) ?: []) : [],
                 'types' => $model->prefilter_types ? (json_decode($model->prefilter_types, true) ?: []) : [],

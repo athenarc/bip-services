@@ -2,25 +2,57 @@
 
 use app\components\CustomBootstrapModal;
 use app\components\ResultItem;
+use app\models\AdminOptions;
+use app\models\Involvement;
+use app\models\SummaryUsage;
+use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
-use app\models\Involvement;
 
 // Register compact views CSS
 $this->registerCssFile('@web/css/compact-views.css', ['depends' => [\yii\bootstrap\BootstrapAsset::className()]]);
 
 $headingType = ! empty($element_config['heading_type']) ? $element_config['heading_type'] : Yii::$app->params['defaultElementHeadingType'];
+$canShowSummaryButton = ! empty($element_config['enable_summary']) &&
+    (int) $element_config['enable_summary'] === 1 &&
+    ($works_num ?? 0) > 0 &&
+    ! empty($papers) &&
+    SummaryUsage::isAiAssistantEnabledForCurrentUser();
+
+if ($canShowSummaryButton) {
+    $threshold = AdminOptions::getValue('summarize_button_threshold') ?? 20;
+    // Use all_papers if available (for pagination support), otherwise fall back to current page papers
+    $papersForSummary = ! empty($result['all_papers']) ? $result['all_papers'] : $papers;
+    $paperIdsForSummary = json_encode(array_map(function ($paper) {
+        return $paper['internal_id'];
+    }, $papersForSummary));
+}
 
 ?>
 
-<div class="row">
-    <div class="col-md-12">
+<div class="row" style="display: flex; align-items: center;">
+    <div class="<?= $canShowSummaryButton ? 'col-md-8 col-xs-12' : 'col-md-12 col-xs-12' ?>">
         <?php if (! empty($element_config['show_header'])): ?>
         <<?= $headingType ?> style="display: inline-block;">
             List of works
         </<?= $headingType ?>>
         <?php endif;?>
     </div>
+    <?php if (! empty($canShowSummaryButton)): ?>
+        <div class="col-md-4 col-xs-12 text-right" style="margin-top: 5px;">
+            <button
+                class="btn btn-default btn-sm summarizeBtn"
+                data-list-id="<?= $list_id ?>"
+                data-paper-ids='<?= $paperIdsForSummary ?>'
+                data-keywords=""
+                data-threshold="<?= $threshold ?>"
+                data-summary-mode="modal"
+                data-profile-user-id="<?= (int) ($profile_owner_user_id ?? 0) ?>"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize top contributions
+            </button>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class='row'>
@@ -41,6 +73,7 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
         (int) ($result['selected_papers_num'] ?? 0) === 0;
 
     $rightShown = ! $hideMeta && empty($element_config['top_k']) && ($works_num ?? 0) > 0;
+
     ?>
     <div class='row' style="align-items:center;">
         <?php if ($showPager): ?>
@@ -137,6 +170,96 @@ $headingType = ! empty($element_config['heading_type']) ? $element_config['headi
             <?php endif; ?>
             <?php endif; ?> 
     </div>
+
+    <?php if (! empty($canShowSummaryButton)): ?>
+        <?php Modal::begin([
+            'id' => 'summary-modal-' . $list_id,
+            'header' => '<h4 class="modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Summary of top contributions</h4>',
+            'size' => 'modal-lg',
+        ]); ?>
+            <div
+                id="summary_panel_<?= $list_id ?>"
+                class="summary_panel"
+                data-list-id="<?= $list_id ?>"
+            >
+                <div class="grey-text">
+                    <div class="summary-controls">
+                        <div
+                            class="regenerate-summary-box"
+                            id="regenerate-summary-box-<?= $list_id ?>"
+                            style="display: none;"
+                            data-list-id="<?= $list_id ?>"
+                        >
+                            <label for="summary-count-<?= $list_id ?>" class="regenerate-label">Use top</label>
+                            <input
+                                type="number"
+                                id="summary-count-<?= $list_id ?>"
+                                class="regenerate-input summary-count-input"
+                                data-list-id="<?= $list_id ?>"
+                            />
+                            <label for="summary-count-<?= $list_id ?>" class="regenerate-label">results.</label>
+                            <span
+                                role="button"
+                                data-toggle="popover"
+                                data-placement="auto"
+                                title="AI Summary"
+                                data-content="<p>The summary format will change based on the selected number of papers:</p>
+                                <ul>
+                                    <li>1-5 papers: Produces a concise overview.</li>
+                                    <li>6-20 papers: Creates a more detailed, literature review-style summary.</li>
+                                </ul>"
+                                style="cursor: pointer;"
+                            >
+                                <small><i class="fa fa-info-circle light-grey-link" aria-hidden="true"></i></small>
+                            </span>
+
+                            <button
+                                class="btn btn-sm btn-custom-color regenerate-button regenerate-summary-btn"
+                                data-list-id="<?= $list_id ?>"
+                            >
+                                Summarize
+                            </button>
+                        </div>
+                        <div
+                            class="text-right copy-summary-wrapper"
+                            id="copy-summary-wrapper-<?= $list_id ?>"
+                            style="display: none;"
+                            data-list-id="<?= $list_id ?>"
+                        >
+                            <a
+                                class="btn btn-default btn-xs fs-inherit grey-link copy-summary-btn"
+                                role="button"
+                                data-toggle="tooltip"
+                                data-list-id="<?= $list_id ?>"
+                            >
+                                <i class="fa fa-copy" aria-hidden="true"></i> Copy to clipboard
+                            </a>
+                        </div>
+                    </div>
+
+                    <div
+                        class="text-center summary-loading-centered summaryLoading"
+                        id="summaryLoading-<?= $list_id ?>"
+                        data-list-id="<?= $list_id ?>"
+                    >
+                        <i class="fa fa-spinner fa-spin"></i> Generating summary...
+                    </div>
+
+                    <div
+                        class="summaryText"
+                        id="summaryText-<?= $list_id ?>"
+                        style="text-align: justify; display: none;"
+                        data-list-id="<?= $list_id ?>"
+                    ></div>
+                    <div
+                        class="summary-usage-info summaryUsageInfo"
+                        id="summary-usage-info-<?= $list_id ?>"
+                        data-list-id="<?= $list_id ?>"
+                    ></div>
+                </div>
+            </div>
+        <?php Modal::end(); ?>
+    <?php endif; ?>
 
         <?php if ($works_num > 0): ?>
             <div id='results_tbl' class='row'>

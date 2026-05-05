@@ -39,24 +39,6 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                             </div>
                         </div>
                     </div>
-                    <div class="list-group-item">
-                        <div class="flex-wrap items-center justify-between">
-                            <div>
-                                <span class="grey-text"><b>AI assistant</b></span>
-                                <div class="text-muted-settings">Enable AI assistance to explore smarter and more adaptive features.</div>
-                            </div>
-                            <div class="my-switch">
-                                <input 
-                                    id="ai-features-toggle"
-                                    type="checkbox" 
-                                    class="my-switch-input" 
-                                    <?= ($user->ai_features) ? 'checked' : '' ?> 
-                                    onchange="confirmAiAssistantToggle(this, '<?= Url::to(['/user/update-setting']) ?>')"
-                                >
-                                <label for="ai-features-toggle" class="my-switch-slider"></label>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <h3>Scholar</h3>
                     <div class="list-group list-group-shadow">
@@ -114,6 +96,24 @@ $this->registerJsFile('@web/js/settings.js', ['depends' => [\yii\web\JqueryAsset
                 </div>
                 <h3>Account</h3>
                 <div class="list-group list-group-shadow">
+                    <div class="list-group-item">
+                        <div class="flex-wrap items-center justify-between">
+                            <div>
+                                <span class="grey-text"><b>AI assistant</b></span>
+                                <div class="text-muted-settings">Enable AI assistance to explore smarter and more adaptive features.</div>
+                            </div>
+                            <div class="my-switch">
+                                <input
+                                    id="ai-features-toggle"
+                                    type="checkbox"
+                                    class="my-switch-input"
+                                    <?= ($user->ai_features) ? 'checked' : '' ?>
+                                    onchange="confirmAiAssistantToggle(this, '<?= Url::to(['/user/update-setting']) ?>')"
+                                >
+                                <label for="ai-features-toggle" class="my-switch-slider"></label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="list-group-item">
                         <div class="flex-wrap items-center justify-between">
                             <div>

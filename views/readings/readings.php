@@ -445,19 +445,6 @@ $renderFacetToggle = static function (int $itemsCount): string {
     </div>
 
     <div class="<?= $edit_perm ? 'main-content' : '' ?>">
-    <div class="row" >
-        <?php if ($papers_num > 0): ?>
-        <div class="col-md-8">
-            <h4 style="display: inline-block;">
-                <b>My readings</b>
-            </h4>
-        </div>
-        <div class="col-md-4 text-right">
-            <i class="fa-solid fa-arrow-down-wide-short"></i>
-            <?= Html::dropDownList('sort', $sort_field, $orderings, ['id' => 'sort-dropdown']) ?>
-        </div>
-        <?php endif; ?>
-    </div>
     <?php ActiveForm::end(); ?>
 
     <div class='row'>
@@ -468,18 +455,22 @@ $renderFacetToggle = static function (int $itemsCount): string {
     </div>
     <?php if ($papers_num > 0): ?>
         <div id="publications">
-            <div class='row'>
-                <div class='col-md-4 text-left results-header'>
+            <div class='row' style="display: flex; align-items: center; flex-wrap: wrap;">
+                <div class='col-md-4 col-sm-12 text-left results-header' style="display: flex; align-items: center; padding-left: 0;">
                     <?= Yii::$app->formatter->asDecimal($result['pagination']->totalCount, 0) ?> results
                     <?php if ($result['pagination']->pageCount > 1): ?>
                         (<?=  Yii::$app->formatter->asDecimal($result['pagination']->pageCount, 0) ?> pages)
                     <?php endif; ?>
                 </div>
-                <div class='col-md-4 text-center'><?= LinkPager::widget([
+                <div class='col-md-4 col-sm-12 text-center' style="display: flex; align-items: center; justify-content: center;"><?= LinkPager::widget([
                     'pagination' => $result['pagination'],
                     'maxButtonCount' => 5,
                     'options' => ['class' => 'pagination bip-link-pager']
                 ]); ?></div>
+                <div class='col-md-4 col-sm-12 text-right' style="display: flex; align-items: center; justify-content: flex-end; padding-right: 0;">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                    <?= Html::dropDownList('sort', $sort_field, $orderings, ['id' => 'sort-dropdown']) ?>
+                </div>
             </div>
             <div id='results_tbl' class='row'>
                 <?php foreach ($papers as $paper) {
