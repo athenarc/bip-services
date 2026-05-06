@@ -3353,7 +3353,13 @@ class SiteController extends BaseController {
                 'papers' => $papers,
                 'topic_name' => $isScholarSummary ? $profileName : $keywords,
             ];
-           
+
+            if ($isScholarSummary) {
+                $summarizePayload['prompt_key'] = 'scholar-narrative';
+            } elseif ($source === 'readings') {
+                $summarizePayload['prompt_key'] = 'readings';
+            }
+
             $client = Yii::$app->httpClient;
             $response = $client->createRequest()
                 ->setMethod('POST')
