@@ -74,6 +74,12 @@
     line-height: 1.2;
 }
 
+.readings-title-toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
 @media (max-width: 767px) {
     .readings-title-row {
         display: block;
@@ -83,6 +89,11 @@
         display: block;
         margin-top: 6px;
     }
+
+    .readings-title-toggle {
+        display: block;
+        margin-top: 8px;
+    }
 }
 
 .reading-list-public-btn-adjusted {
@@ -90,18 +101,14 @@
     margin-top: 0;
 }
 
-/* Keep private/public switch fixed high-right on desktop */
-@media (min-width: 768px) {
-    .readings-page-heading {
-        position: relative;
-    }
+.reading-inline-form {
+    display: inline;
+}
 
-    .readings-page-heading .reading-list-public-wrap {
-        position: absolute;
-        right: 15px;
-        top: -14px;
-        width: auto;
-    }
+.reading-inline-action-btn {
+    padding: 0;
+    border: 0;
+    background: none;
 }
 
 #readings .toc-item.empty-reading-lists {
@@ -139,7 +146,7 @@
 .reading-list-item-inline {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 6px;
     width: 100%;
     white-space: nowrap;
@@ -153,6 +160,44 @@
 
 .reading-list-item-inline .light-grey-link {
     flex-shrink: 0;
+}
+
+.reading-list-item-inline .light-grey-link:last-child {
+    margin-left: auto;
+}
+
+.reading-list-drag-handle {
+    margin-right: 10px;
+    cursor: grab;
+}
+
+.reading-list-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.reading-list-item-row .reading-list-item-inline {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.reading-list-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.reading-list-item-row.is-active {
+    background-color: #f4faf6;
+    border-radius: 4px;
+}
+
+.reading-list-item-row.is-active .reading-list-item-title {
+    color: var(--main-color);
+    font-weight: 600;
 }
 
 .reading-list-item-inline.toc-link {
@@ -176,4 +221,32 @@
 #readings #results_tbl {
     margin-left: 0;
     margin-right: 0;
+}
+
+.readings-results-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.readings-results-left,
+.readings-results-center,
+.readings-results-right {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+}
+
+.readings-results-left {
+    padding-left: 0;
+}
+
+.readings-results-center {
+    justify-content: center;
+}
+
+.readings-results-right {
+    justify-content: flex-end;
+    padding-right: 0;
+    gap: 6px;
 }

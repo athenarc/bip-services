@@ -133,3 +133,96 @@ $(function () {
         }
     });
 });
+
+$(function () {
+    const sortableLists = $('.js-reading-lists-sortable');
+    if (!sortableLists.length) {
+        return;
+    }
+    const isSmallScreen = window.matchMedia('(max-width: 1640px)').matches;
+
+    function initSortable($list) {
+        if (!$list.length || $list.data('sortable-initialized')) {
+            return;
+        }
+
+        if (isSmallScreen && typeof Sortable !== 'undefined') {
+            Sortable.create($list.get(0), {
+                handle: '.reading-list-drag-handle',
+                animation: 150,
+                onStart: function () {
+                    $list.data('is-dragging', true);
+                },
+                onEnd: function () {
+                    const orderedIds = Array.from($list.get(0).querySelectorAll(':scope > li[data-list-id]'))
+                        .map(item => item.getAttribute('data-list-id'));
+
+                    $.post(appBaseUrl + '/readings/ajax-update-reading-lists-order', {
+                        ordered_ids: orderedIds
+                    });
+                    setTimeout(function () {
+                        $list.data('is-dragging', false);
+                    }, 0);
+                }
+            });
+        } else if ($.fn.sortable) {
+            $list.sortable({
+                items: '> li[data-list-id]',
+                handle: '.reading-list-drag-handle',
+                cancel: '.reading-list-item-title, .fa-info-circle',
+                axis: 'y',
+                tolerance: 'pointer',
+                distance: 5,
+                helper: 'clone',
+                start: function () {
+                    $list.data('is-dragging', true);
+                },
+                stop: function () {
+                    setTimeout(function () {
+                        $list.data('is-dragging', false);
+                    }, 0);
+                },
+                update: function () {
+                    const orderedIds = $(this)
+                        .find('> li[data-list-id]')
+                        .map(function () { return $(this).data('list-id'); })
+                        .get();
+
+                    $.post(appBaseUrl + '/readings/ajax-update-reading-lists-order', {
+                        ordered_ids: orderedIds
+                    });
+                }
+            });
+        }
+
+        $list.data('sortable-initialized', true);
+    }
+
+    // Initialize any currently visible sortable lists (desktop).
+    sortableLists.each(function () {
+        const $list = $(this);
+        if ($list.is(':visible')) {
+            initSortable($list);
+        }
+    });
+
+    // Initialize compact/mobile list when collapse is opened.
+    $('#reading-lists-nav-collapse').on('shown.bs.collapse', function () {
+        $(this).find('.js-reading-lists-sortable').each(function () {
+            const $list = $(this);
+            initSortable($list);
+            if (!isSmallScreen && $list.data('sortable-initialized') && $.fn.sortable) {
+                $list.sortable('refresh');
+            }
+        });
+    });
+
+    // On touch, prevent accidental navigation when the gesture was a drag.
+    $(document).on('click', '.js-reading-lists-sortable .toc-link', function (e) {
+        const $parentList = $(this).closest('.js-reading-lists-sortable');
+        if ($parentList.data('is-dragging')) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+});
