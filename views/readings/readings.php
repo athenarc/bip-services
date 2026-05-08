@@ -133,7 +133,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                             </span>
                         <?php endif; ?>
                     </small>
-                <?php elseif (!empty($can_save_current_list)): ?>
+                <?php elseif (! empty($can_save_current_list)): ?>
                     <small class="readings-title-action">
                         <form method="POST" action="<?= Url::to(['readings/save-shared-reading-list']) ?>" class="reading-inline-form">
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
@@ -143,7 +143,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                             </button>
                         </form>
                     </small>
-                <?php elseif (!empty($is_current_list_saved)): ?>
+                <?php elseif (! empty($is_current_list_saved)): ?>
                     <small class="readings-title-action">
                         <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
@@ -256,20 +256,22 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                             <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
                                         </a>
                                         <span class="reading-list-item-actions">
-                                            <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                            </span>
                                             <?php if (! $is_own_list && $is_saved_list): ?>
                                                 <span class="light-grey-link" title="Saved reading list">
                                                     <i class="fa-solid fa-user-group" aria-hidden="true"></i>
                                                 </span>
+                                            <?php endif; ?>
+                                            <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            </span>
+                                            <?php if (! $is_own_list && $is_saved_list): ?>
                                                 <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
                                                     <input type="hidden" name="reading_list_id" value="<?= (int) $list_id ?>">
                                                     <button type="submit"
                                                             class="light-grey-link reading-inline-action-btn"
-                                                            title="Remove from reading lists"
-                                                            onclick="return confirm('Remove this list from your saved reading lists?');">
-                                                        <i class="fa-solid fa-trash fa-xs" aria-hidden="true"></i>
+                                                            title="Unlink reading list"
+                                                            onclick="return confirm('Unlink this reading list from your saved lists?');">
+                                                        <i class="fa-solid fa-link-slash fa-xs" aria-hidden="true"></i>
                                                     </button>
                                                 </form>
                                             <?php endif; ?>
@@ -338,20 +340,22 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                 <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
                             </a>
                             <span class="reading-list-item-actions">
-                                <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </span>
                                 <?php if (! $is_own_list && $is_saved_list): ?>
                                     <span class="light-grey-link" title="Saved reading list">
                                         <i class="fa-solid fa-user-group" aria-hidden="true"></i>
                                     </span>
+                                <?php endif; ?>
+                                <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </span>
+                                <?php if (! $is_own_list && $is_saved_list): ?>
                                     <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
                                         <input type="hidden" name="reading_list_id" value="<?= (int) $list_id ?>">
                                         <button type="submit"
                                                 class="light-grey-link reading-inline-action-btn"
-                                                title="Remove from reading lists"
-                                                onclick="return confirm('Remove this list from your saved reading lists?');">
-                                            <i class="fa-solid fa-trash fa-xs" aria-hidden="true"></i>
+                                                title="Unlink reading list"
+                                                onclick="return confirm('Unlink this reading list from your saved lists?');">
+                                            <i class="fa-solid fa-link-slash fa-xs" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
