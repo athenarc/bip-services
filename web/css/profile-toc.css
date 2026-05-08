@@ -1,5 +1,5 @@
-/* Mini TOC for scholar profile only */
-#profile-toc-wrap .sidebar {
+/* Mini TOC for scholar profile + readings reading-lists nav */
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .sidebar {
     position: fixed;
     top: 140px;
     left: 24px; /* moved slightly inward from the edge */
@@ -10,21 +10,32 @@
     z-index: 1;
 }
 
-#profile-toc-wrap .sidebar-body {
+/*
+ * Readings: single top navbar (no ScholarNavbar). Title row sits above #reading-lists-toc-wrap
+ * like profile — offset fixed TOC slightly less than 140px so it lines up with facet block top.
+ */
+/* Wider than profile TOC — room for “Reading lists” + Save as new on one line */
+#reading-lists-toc-wrap .sidebar {
+    width: 232px;
+    top: 118px;
+    max-height: calc(100vh - 128px);
+}
+
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .sidebar-body {
     border-right: 1px solid #e6e6e6;
     padding-right: 12px;
 }
 
-#profile-toc-wrap .sidebar-body ul {
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .sidebar-body ul {
     list-style: none;
     padding-left: 0;
 }
 
-#profile-toc-wrap .sidebar-body ul li {
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .sidebar-body ul li {
     padding-left: 20px;
 }
 
-#profile-toc-wrap .toc-link {
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-link {
     color: #666;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -36,18 +47,27 @@
     line-height: 1.4;
 }
 
-#profile-toc-wrap .toc-item:hover,
-#profile-toc-wrap .toc-link:hover {
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-item:hover,
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-link:hover {
     color: var(--main-color);
 }
 
-/* Indentation by heading level */
-#profile-toc-wrap .toc-item.level-1 { padding-left: 0; }
-#profile-toc-wrap .toc-item.level-2 { padding-left: 10px; }
-#profile-toc-wrap .toc-item.level-3 { padding-left: 20px; }
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-heading {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-heading:first-child {
+    margin-top: 0;
+}
+
+/* Indentation by heading level (profile TOC JS) */
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-item.level-1 { padding-left: 0; }
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-item.level-2 { padding-left: 10px; }
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .toc-item.level-3 { padding-left: 20px; }
 
 /* Main content stays in place - no margin adjustment */
-#profile-toc-wrap .main-content {
+:is(#profile-toc-wrap, #reading-lists-toc-wrap) .main-content {
     margin-left: 0;
 }
 
@@ -59,11 +79,10 @@
     scroll-margin-top: 140px; /* Match OFFSET_PROFILE in scrollToAnchor.js - adjust together */
 }
 
-/* Hide TOC sidebar when viewport is narrow to prevent overlap with profile content */
-@media (max-width: 1600px) {
-    #profile-toc-wrap .sidebar {
+/* Hide mini TOC when viewport is narrow (profile + readings lists nav) */
+@media (max-width: 1640px) {
+    #profile-toc-wrap .sidebar,
+    #reading-lists-toc-wrap .sidebar {
         display: none;
     }
 }
-
-

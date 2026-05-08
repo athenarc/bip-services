@@ -1,3 +1,116 @@
+/* Reading lists TOC heading: floats + clearfix; sidebar width set in profile-toc.css */
+#reading-lists-toc-wrap .reading-lists-toc-heading-row,
+.reading-lists-nav-compact-panel .reading-lists-toc-heading-row {
+    line-height: 1.35;
+}
+
+#reading-lists-toc-wrap .reading-lists-toc-heading-row .pull-right,
+.reading-lists-nav-compact-panel .reading-lists-toc-heading-row .pull-right {
+    white-space: nowrap;
+}
+
+/* Narrow viewports: same breakpoint as hidden fixed TOC — toggle + collapse under title */
+.reading-lists-nav-compact {
+    display: none;
+    margin-top: 6px;
+    margin-bottom: 16px;
+}
+
+/* Same breakpoint as profile-toc.css when readings fixed TOC is hidden */
+@media (max-width: 1640px) {
+    .reading-lists-nav-compact {
+        display: block;
+    }
+}
+
+.reading-lists-nav-compact-toggle {
+    margin-bottom: 0;
+}
+
+.reading-lists-nav-compact-panel {
+    margin-top: 10px;
+}
+
+.reading-lists-nav-compact-well {
+    margin-bottom: 0;
+    background-color: #fafbfc;
+}
+
+.reading-lists-nav-compact-panel .reading-lists-nav-ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.reading-lists-nav-compact-panel .reading-lists-nav-ul .toc-item {
+    padding-left: 0;
+}
+
+.reading-lists-nav-compact-panel .toc-link {
+    color: #555;
+    font-size: 13px;
+}
+
+.reading-lists-main-heading {
+    margin-bottom: 8px;
+}
+
+.readings-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.readings-title-main {
+    min-width: 0;
+}
+
+.readings-title-action {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.readings-title-toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .readings-title-row {
+        display: block;
+    }
+
+    .readings-title-action {
+        display: block;
+        margin-top: 6px;
+    }
+
+    .readings-title-toggle {
+        display: block;
+        margin-top: 8px;
+    }
+}
+
+.reading-list-public-btn-adjusted {
+    display: inline-block;
+    margin-top: 0;
+}
+
+.reading-inline-form {
+    display: inline;
+}
+
+.reading-inline-action-btn {
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
 #readings .toc-item.empty-reading-lists {
     cursor: default;
 }
@@ -33,7 +146,7 @@
 .reading-list-item-inline {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 6px;
     width: 100%;
     white-space: nowrap;
@@ -47,6 +160,44 @@
 
 .reading-list-item-inline .light-grey-link {
     flex-shrink: 0;
+}
+
+.reading-list-item-inline .light-grey-link:last-child {
+    margin-left: auto;
+}
+
+.reading-list-drag-handle {
+    margin-right: 10px;
+    cursor: grab;
+}
+
+.reading-list-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.reading-list-item-row .reading-list-item-inline {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.reading-list-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.reading-list-item-row.is-active {
+    background-color: #f4faf6;
+    border-radius: 4px;
+}
+
+.reading-list-item-row.is-active .reading-list-item-title {
+    color: var(--main-color);
+    font-weight: 600;
 }
 
 .reading-list-item-inline.toc-link {
@@ -65,4 +216,37 @@
 
 .reading-list-summarize-btn:hover {
     color: #000;
+}
+
+#readings #results_tbl {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.readings-results-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.readings-results-left,
+.readings-results-center,
+.readings-results-right {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+}
+
+.readings-results-left {
+    padding-left: 0;
+}
+
+.readings-results-center {
+    justify-content: center;
+}
+
+.readings-results-right {
+    justify-content: flex-end;
+    padding-right: 0;
+    gap: 6px;
 }

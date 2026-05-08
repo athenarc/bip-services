@@ -8,6 +8,7 @@ use app\models\Involvement;
 use app\models\Notes;
 use app\models\ReadingList;
 use app\models\Readings;
+use app\models\SavedReadingList;
 use app\models\SearchForm;
 use app\models\User;
 use app\models\UsersFolders;
@@ -66,7 +67,8 @@ class ReadingsController extends BaseController {
     }
 
     public function actionList($reading_list_id = null) {
-        $user_id = null;
+        $owner_user_id = null;
+        $viewer_user_id = Yii::$app->user->id;
 
         $current_reading_list = null;
 
@@ -78,7 +80,7 @@ class ReadingsController extends BaseController {
                 throw new \yii\web\NotFoundHttpException('Reading List was Not Found');
             }
 
-            $user_id = $current_reading_list->user_id;
+            $owner_user_id = $current_reading_list->user_id;
 
             // load reading list's stored facet values
             $facets = json_decode($current_reading_list->facets);
@@ -92,10 +94,10 @@ class ReadingsController extends BaseController {
             $accesses = Yii::$app->request->get('accesses', $facets->accesses ?? null);
             $types = Yii::$app->request->get('types', $facets->types ?? null);
         } else {
-            $user_id = Yii::$app->user->id;
+            $owner_user_id = $viewer_user_id;
 
             // redirect to login page, if not already logged in
-            if (! isset($user_id)) {
+            if (! isset($viewer_user_id)) {
                 Url::remember();
 
                 return $this->redirect(['site/login']);
@@ -111,7 +113,7 @@ class ReadingsController extends BaseController {
         }
 
         // redirect to login page, if not already logged in
-        if (! isset($user_id)) {
+        if (! isset($viewer_user_id)) {
             Url::remember();
 
             return $this->redirect(['site/login']);
@@ -122,7 +124,7 @@ class ReadingsController extends BaseController {
             $accesses = array_map(function ($r) { return ($r === '') ? null : $r; }, $accesses);
         }
 
-        $user = User::findIdentity($user_id);
+        $user = User::findIdentity($owner_user_id);
 
         $readings = new Readings($user);
 
@@ -143,16 +145,48 @@ class ReadingsController extends BaseController {
         $result['facets'] = $readings->getFacets($topics, $tags, $rd_status, $accesses, $types, $facet_field);
 
         // fetch involvement
-        $result = Involvement::getInvolvement($result, $user_id);
+        $result = Involvement::getInvolvement($result, $owner_user_id);
 
         // attach code repository URLs
         $result['papers'] = Article::getCodeRepoUrls($result['papers']);
 
-        // find all reading lists of the user
-        $reading_lists = ReadingList::find()->where(['user_id' => $user_id])->all();
+        // find all own reading lists of the currently logged-in user
+        $own_reading_lists = ReadingList::find()
+            ->where(['user_id' => $viewer_user_id])
+            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])
+            ->all();
+
+        $saved_links = SavedReadingList::find()->where(['user_id' => $viewer_user_id])->all();
+        $saved_reading_list_ids = array_map(function ($link) {
+            return (int) $link->reading_list_id;
+        }, $saved_links);
+
+        $saved_reading_lists = [];
+        if (! empty($saved_reading_list_ids)) {
+            $saved_reading_lists = ReadingList::find()
+                ->where(['id' => $saved_reading_list_ids, 'is_public' => 1])
+                ->orderBy(['title' => SORT_ASC])
+                ->all();
+        }
+
+        $own_reading_list_ids = array_map(function ($list) {
+            return (int) $list->id;
+        }, $own_reading_lists);
+
+        $reading_lists = $own_reading_lists;
+        foreach ($saved_reading_lists as $saved_list) {
+            if (! in_array((int) $saved_list->id, $own_reading_list_ids, true)) {
+                $reading_lists[] = $saved_list;
+            }
+        }
 
         // edit permissions are granted if no reading list is provided OR the user is the owner of the reading list
-        $edit_perm = (isset($current_reading_list) && ($current_reading_list->user_id === Yii::$app->user->id)) || ! isset($current_reading_list);
+        $edit_perm = (isset($current_reading_list) && ($current_reading_list->user_id === $viewer_user_id)) || ! isset($current_reading_list);
+        $is_current_list_saved = isset($current_reading_list) && in_array((int) $current_reading_list->id, $saved_reading_list_ids, true);
+        $can_save_current_list = isset($current_reading_list) &&
+            ! $edit_perm &&
+            (int) $current_reading_list->is_public === 1 &&
+            ! $is_current_list_saved;
 
         $impact_indicators = Indicators::getImpactIndicatorsAsArray('Work');
 
@@ -177,7 +211,10 @@ class ReadingsController extends BaseController {
             'sort_field' => $sort_field,
 
             'reading_lists' => $reading_lists,
+            'saved_reading_list_ids' => $saved_reading_list_ids,
             'current_reading_list' => $current_reading_list,
+            'can_save_current_list' => $can_save_current_list,
+            'is_current_list_saved' => $is_current_list_saved,
         ]);
     }
 
@@ -195,6 +232,8 @@ class ReadingsController extends BaseController {
             $reading_list = new ReadingList();
             $reading_list->user_id = $user_id;
             $reading_list->is_public = 0;
+            $maxSortOrder = (int) ReadingList::find()->where(['user_id' => $user_id])->max('sort_order');
+            $reading_list->sort_order = $maxSortOrder + 1;
         }
 
         $reading_list->title = Yii::$app->request->post('new_reading_list_title');
@@ -203,6 +242,60 @@ class ReadingsController extends BaseController {
         $reading_list->save();
 
         return $this->redirect(['readings/list/' . $reading_list->id]);
+    }
+
+    public function actionSaveSharedReadingList() {
+        $user_id = Yii::$app->user->id;
+        if (! isset($user_id)) {
+            Url::remember();
+
+            return $this->redirect(['site/login']);
+        }
+
+        $reading_list_id = (int) Yii::$app->request->post('reading_list_id');
+        $reading_list = ReadingList::findOne(['id' => $reading_list_id]);
+
+        if (! $reading_list || (int) $reading_list->is_public !== 1) {
+            throw new \yii\web\NotFoundHttpException('Reading list not found.');
+        }
+
+        if ((int) $reading_list->user_id === (int) $user_id) {
+            return $this->redirect(['readings/list/' . $reading_list_id]);
+        }
+
+        $already_saved = SavedReadingList::find()
+            ->where(['reading_list_id' => $reading_list_id, 'user_id' => $user_id])
+            ->exists();
+
+        if (! $already_saved) {
+            $saved_reading_list = new SavedReadingList();
+            $saved_reading_list->reading_list_id = $reading_list_id;
+            $saved_reading_list->user_id = $user_id;
+            $saved_reading_list->save();
+        }
+
+        return $this->redirect(['readings/list/' . $reading_list_id]);
+    }
+
+    public function actionRemoveSavedReadingList() {
+        $user_id = Yii::$app->user->id;
+        if (! isset($user_id)) {
+            Url::remember();
+
+            return $this->redirect(['site/login']);
+        }
+
+        $reading_list_id = (int) Yii::$app->request->post('reading_list_id');
+        $saved_reading_list = SavedReadingList::findOne([
+            'reading_list_id' => $reading_list_id,
+            'user_id' => $user_id,
+        ]);
+
+        if ($saved_reading_list) {
+            $saved_reading_list->delete();
+        }
+
+        return $this->redirect(['readings/list/' . $reading_list_id]);
     }
 
     public function actionDeleteReadingList() {
@@ -238,6 +331,35 @@ class ReadingsController extends BaseController {
 
         $reading_list->is_public = $is_public;
         $reading_list->save();
+    }
+
+    public function actionAjaxUpdateReadingListsOrder() {
+        $user_id = Yii::$app->user->id;
+        if (! isset($user_id)) {
+            throw new \yii\web\UnauthorizedHttpException('Unauthorized');
+        }
+
+        $ordered_ids = Yii::$app->request->post('ordered_ids', []);
+        if (! is_array($ordered_ids)) {
+            throw new \yii\web\BadRequestHttpException('Invalid payload.');
+        }
+
+        $position = 1;
+        foreach ($ordered_ids as $list_id) {
+            $list_id = (int) $list_id;
+            if ($list_id <= 0) {
+                continue;
+            }
+
+            ReadingList::updateAll(
+                ['sort_order' => $position],
+                ['id' => $list_id, 'user_id' => $user_id]
+            );
+            $position++;
+        }
+
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return ['success' => true];
     }
 
     /*

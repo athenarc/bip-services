@@ -10,7 +10,7 @@ class ReadingList extends \yii\db\ActiveRecord {
     public function rules() {
         return [
             [['title', 'user_id', 'facets', 'is_public'], 'required'],
-            [['user_id', 'is_public'], 'integer'],
+            [['user_id', 'is_public', 'sort_order'], 'integer'],
             [['title', 'description', 'facets'], 'string'],
         ];
     }
@@ -22,7 +22,8 @@ class ReadingList extends \yii\db\ActiveRecord {
             'description' => 'Description',
             'user_id' => 'Owner',
             'facets' => 'Facets',
-            'is_public' => 'Public'
+            'is_public' => 'Public',
+            'sort_order' => 'Sort Order'
         ];
     }
 }
