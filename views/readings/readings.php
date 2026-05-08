@@ -216,14 +216,14 @@ $renderFacetToggle = static function (int $itemsCount): string {
                     <div class="well well-sm reading-lists-nav-compact-well">
                         <h5 class="toc-heading reading-lists-main-heading">
                             <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
-                            <span role="button" data-toggle="popover" data-placement="auto" title="<b>My readings</b>" data-content="<div><span class='green-bip'></span> Your default readings view with all your saved works and active filters.</div>">
+                            <span role="button" data-toggle="popover" data-placement="auto" title="<b>My readings</b>" data-content="<div><span class='green-bip'></span> All your saved works.</div>">
                                 <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                             </span>
                         </h5>
                         <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
                             <span class="green-bip pull-left">
                                 Reading lists
-                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> Create lists from the current filters and access them here.</div>">
+                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> All your saved lists.</div>">
                                     <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                                 </span>
                             </span>
@@ -261,7 +261,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                                     <i class="fa-solid fa-user-group" aria-hidden="true"></i>
                                                 </span>
                                             <?php endif; ?>
-                                            <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                            <span role="button" class="light-grey-link" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($list_title) ?></b>" data-content="<div><span class='green-bip'></span> <?= Html::encode($list_description_title) ?></div>">
                                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                                             </span>
                                             <?php if (! $is_own_list && $is_saved_list): ?>
@@ -300,14 +300,14 @@ $renderFacetToggle = static function (int $itemsCount): string {
         <div id="toc-panel" class="sidebar-body">
             <h5 class="toc-heading reading-lists-main-heading">
                 <a class="green-bip" href="<?= Url::to(['readings/list']) ?>"><strong>My readings</strong></a>
-                <span role="button" data-toggle="popover" data-placement="auto" title="<b>My readings</b>" data-content="<div><span class='green-bip'></span> Your default readings view with all your saved works and active filters.</div>">
+                <span role="button" data-toggle="popover" data-placement="auto" title="<b>My readings</b>" data-content="<div><span class='green-bip'></span> All your saved works.</div>">
                     <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                 </span>
             </h5>
             <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
                 <span class="green-bip pull-left">
                     Reading lists
-                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> Create lists from the current filters and access them here.</div>">
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> All your saved lists.</div>">
                         <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                     </span>
                 </span>
@@ -345,7 +345,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                                         <i class="fa-solid fa-user-group" aria-hidden="true"></i>
                                     </span>
                                 <?php endif; ?>
-                                <span class="light-grey-link" title="<?= Html::encode($list_description_title) ?>">
+                                <span role="button" class="light-grey-link" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($list_title) ?></b>" data-content="<div><span class='green-bip'></span> <?= Html::encode($list_description_title) ?></div>">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </span>
                                 <?php if (! $is_own_list && $is_saved_list): ?>
