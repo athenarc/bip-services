@@ -2231,13 +2231,16 @@ class SiteController extends BaseController {
         }
 
         $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+
         if (! $feedback) {
             throw new \yii\web\NotFoundHttpException('Feedback item not found');
         }
 
         $status = Yii::$app->request->post('status');
+
         if (! in_array($status, [ProfileTemplateFeedback::STATUS_RESOLVED, ProfileTemplateFeedback::STATUS_DENIED], true)) {
             Yii::$app->session->setFlash('danger', 'Invalid feedback status.');
+
             return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
         }
 
@@ -2248,6 +2251,7 @@ class SiteController extends BaseController {
         $feedback->save(false);
 
         Yii::$app->session->setFlash('success', 'Feedback status updated.');
+
         return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
     }
 
@@ -2257,16 +2261,19 @@ class SiteController extends BaseController {
         }
 
         $feedback = ProfileTemplateFeedback::findOne(['id' => $id, 'template_id' => $template_id]);
+
         if (! $feedback) {
             throw new \yii\web\NotFoundHttpException('Feedback item not found');
         }
 
         if ($feedback->status === ProfileTemplateFeedback::STATUS_PENDING) {
             Yii::$app->session->setFlash('danger', 'Only answered feedback can be removed.');
+
             return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
         }
 
         $feedback->delete();
+
         return $this->redirect(['view-template', 'id' => $template_id, 'profile_template_category_id' => $profile_template_category_id]);
     }
 
@@ -3278,6 +3285,7 @@ class SiteController extends BaseController {
             $keywords = Yii::$app->request->post('keywords');
             $source = Yii::$app->request->post('source', '');
             $profileUserId = (int) Yii::$app->request->post('profileUserId', 0);
+            $profileName = trim((string) Yii::$app->request->post('profileName', ''));
 
             if (empty($paperIds)) {
                 throw new \Exception('No papers provided');
@@ -3289,6 +3297,7 @@ class SiteController extends BaseController {
 
             $isScholarSummary = ($source === 'scholar');
             $paperSelect = ['id' => 'internal_id', 'doi', 'title', 'abstract', 'journal', 'year'];
+
             if ($isScholarSummary) {
                 $paperSelect['authors'] = 'authors';
             }
@@ -3307,7 +3316,6 @@ class SiteController extends BaseController {
                 throw new \Exception('No papers found');
             }
 
-            $profileName = '';
             if ($isScholarSummary) {
                 if ($profileUserId <= 0) {
                     throw new \Exception('Missing profile owner for scholar summary.');
@@ -3315,6 +3323,7 @@ class SiteController extends BaseController {
 
                 // Build the same paper shapes as the public scholar profile: concepts (topics) + involvement (roles).
                 $papersForConcepts = [];
+
                 foreach ($papers as $paper) {
                     $papersForConcepts[] = ['internal_id' => (int) ($paper['id'] ?? 0)];
                 }
@@ -3338,24 +3347,17 @@ class SiteController extends BaseController {
                         (array) ($enriched['involvement'] ?? [])
                     );
                 }
-
-                $profile = Researcher::find()
-                    ->select(['name'])
-                    ->where(['user_id' => $profileUserId])
-                    ->one();
-
-                if ($profile && ! empty($profile->name)) {
-                    $profileName = trim((string) $profile->name);
-                }
-
             }
 
             $summarizePayload = [
                 'papers' => $papers,
-                'topic_name' => $keywords,
+                'topic_name' => $isScholarSummary ? $profileName : $keywords,
             ];
+
             if ($isScholarSummary) {
-                $summarizePayload['profile_name'] = $profileName;
+                $summarizePayload['prompt_key'] = 'scholar-narrative';
+            } elseif ($source === 'readings') {
+                $summarizePayload['prompt_key'] = 'readings';
             }
 
             $client = Yii::$app->httpClient;
