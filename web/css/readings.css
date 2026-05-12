@@ -1,7 +1,9 @@
 /* Reading lists TOC heading: floats + clearfix; sidebar width set in profile-toc.css */
-#reading-lists-toc-wrap .reading-lists-toc-heading-row,
-.reading-lists-nav-compact-panel .reading-lists-toc-heading-row {
+#reading-lists-toc-wrap .toc-heading.reading-lists-toc-heading-row,
+.reading-lists-nav-compact-panel .toc-heading.reading-lists-toc-heading-row {
     line-height: 1.35;
+    /* Same gap under “My lists” / “Public lists” before the list below */
+    margin-bottom: 6px;
 }
 
 #reading-lists-toc-wrap .reading-lists-toc-heading-row .pull-right,
@@ -51,6 +53,32 @@
     font-size: 13px;
 }
 
+/* Second block: extra space above “Public lists” only; gap under title matches “My lists” via .reading-lists-toc-heading-row */
+#reading-lists-toc-wrap .toc-heading.reading-lists-public-section-heading,
+.reading-lists-nav-compact-panel .toc-heading.reading-lists-public-section-heading {
+    margin-top: 14px;
+}
+
+.reading-lists-nav-compact-panel .toc-heading.reading-lists-public-section-heading {
+    margin-top: 12px;
+}
+
+/* Shared list not yet added: divider + row at end of nav */
+.reading-lists-nav-pending-divider {
+    margin: 14px 0 10px;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+.reading-lists-nav-compact-panel .reading-lists-nav-pending-divider {
+    margin-top: 12px;
+}
+
+#reading-lists-toc-wrap .reading-lists-nav-pending-divider {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .reading-lists-main-heading {
     margin-bottom: 8px;
 }
@@ -64,6 +92,11 @@
 
 .readings-title-main {
     min-width: 0;
+}
+
+.readings-title-owner-icon {
+    margin-left: 6px;
+    vertical-align: baseline;
 }
 
 .readings-title-action {
@@ -203,6 +236,23 @@
 .reading-list-item-inline.toc-link {
     overflow: hidden;
     text-decoration: none;
+}
+
+.reading-list-nav-orphan-title {
+    cursor: default;
+    color: #666;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.reading-lists-nav-compact-panel .reading-list-nav-orphan-title {
+    color: #555;
+}
+
+.reading-list-nav-orphan-title .reading-list-item-title {
+    color: inherit;
+    font-style: normal;
+    font-weight: inherit;
 }
 
 #reading-list-summarize-btn.disabled {

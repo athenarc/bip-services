@@ -141,6 +141,18 @@ $(function () {
     }
     const isSmallScreen = window.matchMedia('(max-width: 1640px)').matches;
 
+    function getOrderScope($list) {
+        const scope = $list.data('orderScope');
+        return scope === 'linked' ? 'linked' : 'own';
+    }
+
+    function postReadingListsOrder($list, orderedIds) {
+        $.post(appBaseUrl + '/readings/ajax-update-reading-lists-order', {
+            ordered_ids: orderedIds,
+            order_scope: getOrderScope($list)
+        });
+    }
+
     function initSortable($list) {
         if (!$list.length || $list.data('sortable-initialized')) {
             return;
@@ -157,9 +169,7 @@ $(function () {
                     const orderedIds = Array.from($list.get(0).querySelectorAll(':scope > li[data-list-id]'))
                         .map(item => item.getAttribute('data-list-id'));
 
-                    $.post(appBaseUrl + '/readings/ajax-update-reading-lists-order', {
-                        ordered_ids: orderedIds
-                    });
+                    postReadingListsOrder($list, orderedIds);
                     setTimeout(function () {
                         $list.data('is-dragging', false);
                     }, 0);
@@ -188,9 +198,7 @@ $(function () {
                         .map(function () { return $(this).data('list-id'); })
                         .get();
 
-                    $.post(appBaseUrl + '/readings/ajax-update-reading-lists-order', {
-                        ordered_ids: orderedIds
-                    });
+                    postReadingListsOrder($list, orderedIds);
                 }
             });
         }

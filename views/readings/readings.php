@@ -40,6 +40,13 @@ $paperIdsForSummary = json_encode(array_map(function ($p) { return $p['internal_
 $facetPreviewLimit = 10;
 $readingListSaveDisabledTitle = 'Reading lists are created using user-defined tags only. Please clear any selected Topics, Availability, Reading status, or Work type filters.';
 $canShowReadingListsSidebar = ! Yii::$app->user->isGuest;
+$own_reading_lists = $own_reading_lists ?? [];
+$saved_reading_lists_others = $saved_reading_lists_others ?? [];
+$reading_list_owner_labels = $reading_list_owner_labels ?? [];
+$current_reading_list_owner_label = $current_reading_list_owner_label ?? null;
+$hasOwnReadingLists = ! empty($own_reading_lists);
+$hasSavedOthersReadingLists = ! empty($saved_reading_lists_others);
+$can_save_current_list = ! empty($can_save_current_list);
 $showCreateReadingListAction = $edit_perm && ! isset($current_reading_list);
 $renderFacetToggle = static function (int $itemsCount): string {
     if ($itemsCount <= 10) {
@@ -77,6 +84,16 @@ $renderFacetToggle = static function (int $itemsCount): string {
                 <span class="readings-title-main">
                 <?php if (isset($current_reading_list)): ?>
                     <?= Html::encode($current_reading_list->title) ?>
+                    <?php if (! $edit_perm && $current_reading_list_owner_label !== null): ?>
+                        <?php
+                            $readings_title_owner_hover = 'List owner: ' . $current_reading_list_owner_label;
+                        ?>
+                        <span class="grey-link small readings-title-owner-icon"
+                              title="<?= Html::encode($readings_title_owner_hover) ?>"
+                              aria-label="<?= Html::encode($readings_title_owner_hover) ?>">
+                            <i class="fa-solid fa-user fa-2xs" aria-hidden="true"></i>
+                        </span>
+                    <?php endif; ?>
                     <?php if ($edit_perm) : ?>
                         <span role="button"
                               data-toggle="modal"
@@ -138,8 +155,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <form method="POST" action="<?= Url::to(['readings/save-shared-reading-list']) ?>" class="reading-inline-form">
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
                             <button type="submit" class="grey-link reading-inline-action-btn">
-                                <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
-                                Save this reading list
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                Add to saved
                             </button>
                         </form>
                     </small>
@@ -148,8 +165,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
                             <button type="submit" class="grey-link reading-inline-action-btn">
-                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                                Remove from saved reading lists
+                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                Remove from saved
                             </button>
                         </form>
                     </small>
@@ -210,7 +227,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         aria-expanded="false"
                         aria-controls="reading-lists-nav-collapse">
                     <i class="fa fa-list-ul" aria-hidden="true"></i>
-                    Reading lists
+                    Readings Menu
                 </button>
                 <div id="reading-lists-nav-collapse" class="collapse reading-lists-nav-compact-panel">
                     <div class="well well-sm reading-lists-nav-compact-well">
@@ -222,71 +239,60 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         </h5>
                         <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
                             <span class="green-bip pull-left">
-                                Reading lists
-                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> All your saved lists.</div>">
+                                My lists
+                                <span role="button" data-toggle="popover" data-placement="auto" title="<b>My lists</b>" data-content="<div><span class='green-bip'></span> Your personal reading lists.</div>">
                                     <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                                 </span>
                             </span>
                         </h5>
 
-                        <?php if (empty($reading_lists)): ?>
-                            <ul class="reading-lists-nav-ul">
-                                <li class="toc-item empty-reading-lists">
-                                    <em>No reading lists yet.</em>
-                                </li>
-                            </ul>
+                        <?php if ($hasOwnReadingLists): ?>
+                                <ul class="reading-lists-nav-ul js-reading-lists-sortable" data-order-scope="own">
+                                    <?= $this->render('_reading_list_nav_items', [
+                                        'reading_lists' => $own_reading_lists,
+                                        'saved_reading_list_ids' => $saved_reading_list_ids,
+                                        'reading_list_owner_labels' => $reading_list_owner_labels ?? [],
+                                        'current_reading_list' => $current_reading_list ?? null,
+                                        'show_drag_handle' => true,
+                                    ]) ?>
+                                </ul>
                         <?php else: ?>
-                            <ul class="reading-lists-nav-ul js-reading-lists-sortable">
-                                <?php foreach ($reading_lists as $reading_list): ?>
-                                    <?php
-                                        $list_id = $reading_list->id;
-                                        $list_title = $reading_list->title;
-                                        $is_own_list = (int) $reading_list->user_id === (int) Yii::$app->user->id;
-                                        $is_saved_list = in_array((int) $list_id, $saved_reading_list_ids ?? [], true);
-                                        $list_description = trim((string) $reading_list->description);
-                                        $list_description_title = $list_description !== ''
-                                            ? $list_description
-                                            : 'No description is provided for this reading list.';
-                                    ?>
-                                    <li class="toc-item reading-list-item-row <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'is-active' : '' ?>" data-list-id="<?= (int) $list_id ?>">
-                                        <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
-                                            <span class="light-grey-link reading-list-drag-handle" title="Drag to reorder">
-                                                <i class="fa fa-bars" aria-hidden="true"></i>
-                                            </span>
-                                            <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
-                                        </a>
-                                        <span class="reading-list-item-actions">
-                                            <?php if (! $is_own_list && $is_saved_list): ?>
-                                                <span class="light-grey-link" title="Saved reading list">
-                                                    <i class="fa-solid fa-user-group" aria-hidden="true"></i>
-                                                </span>
-                                            <?php endif; ?>
-                                            <span role="button" class="light-grey-link" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($list_title) ?></b>" data-content="<div><span class='green-bip'></span> <?= Html::encode($list_description_title) ?></div>">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                            </span>
-                                            <?php if (! $is_own_list && $is_saved_list): ?>
-                                                <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
-                                                    <input type="hidden" name="reading_list_id" value="<?= (int) $list_id ?>">
-                                                    <button type="submit"
-                                                            class="light-grey-link reading-inline-action-btn"
-                                                            title="Unlink reading list"
-                                                            onclick="return confirm('Unlink this reading list from your saved lists?');">
-                                                        <i class="fa-solid fa-link-slash fa-xs" aria-hidden="true"></i>
-                                                    </button>
-                                                </form>
-                                            <?php endif; ?>
-                                            <?php if ($is_own_list): ?>
-                                                <a href="<?= Url::to(['readings/delete-reading-list/', 'selected_list_id' => $list_id]) ?>"
-                                                   class="light-grey-link"
-                                                   title="Delete reading list"
-                                                   onclick="return confirm('Are you sure you want to delete this reading list?');">
-                                                    <i class="fa-solid fa-trash fa-xs" aria-hidden="true"></i>
-                                                </a>
-                                            <?php endif; ?>
-                                        </span>
+                                <ul class="reading-lists-nav-ul">
+                                    <li class="toc-item empty-reading-lists">
+                                        <em>No lists yet.</em>
                                     </li>
-                                <?php endforeach; ?>
-                            </ul>
+                                </ul>
+                        <?php endif; ?>
+                            <h5 class="toc-heading reading-lists-toc-heading-row reading-lists-public-section-heading clearfix">
+                                <span class="green-bip pull-left">
+                                    Saved lists
+                                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Saved lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you've saved.</div>">
+                                        <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </h5>
+                        <?php if ($hasSavedOthersReadingLists): ?>
+                                <ul class="reading-lists-nav-ul js-reading-lists-sortable" data-order-scope="linked">
+                                    <?= $this->render('_reading_list_nav_items', [
+                                        'reading_lists' => $saved_reading_lists_others,
+                                        'saved_reading_list_ids' => $saved_reading_list_ids,
+                                        'reading_list_owner_labels' => $reading_list_owner_labels ?? [],
+                                        'current_reading_list' => $current_reading_list ?? null,
+                                        'show_drag_handle' => true,
+                                    ]) ?>
+                                </ul>
+                        <?php else: ?>
+                                <ul class="reading-lists-nav-ul">
+                                    <li class="toc-item empty-reading-lists">
+                                        <em>No saved lists yet.</em>
+                                    </li>
+                                </ul>
+                        <?php endif; ?>
+                        <?php if ($can_save_current_list && isset($current_reading_list)): ?>
+                            <?= $this->render('_reading_list_nav_pending_add', [
+                                'current_reading_list' => $current_reading_list,
+                                'current_reading_list_owner_label' => $current_reading_list_owner_label,
+                            ]) ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -306,71 +312,60 @@ $renderFacetToggle = static function (int $itemsCount): string {
             </h5>
             <h5 class="toc-heading reading-lists-toc-heading-row clearfix">
                 <span class="green-bip pull-left">
-                    Reading lists
-                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Reading lists</b>" data-content="<div><span class='green-bip'></span> All your saved lists.</div>">
+                    My lists
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>My lists</b>" data-content="<div><span class='green-bip'></span> Your personal reading lists.</div>">
                         <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                     </span>
                 </span>
             </h5>
 
-            <?php if (empty($reading_lists)): ?>
-                <ul class="reading-lists-nav-ul">
-                    <li class="toc-item empty-reading-lists">
-                        <em>No reading lists yet.</em>
-                    </li>
-                </ul>
+            <?php if ($hasOwnReadingLists): ?>
+                    <ul class="reading-lists-nav-ul js-reading-lists-sortable" data-order-scope="own">
+                        <?= $this->render('_reading_list_nav_items', [
+                            'reading_lists' => $own_reading_lists,
+                            'saved_reading_list_ids' => $saved_reading_list_ids,
+                            'reading_list_owner_labels' => $reading_list_owner_labels ?? [],
+                            'current_reading_list' => $current_reading_list ?? null,
+                            'show_drag_handle' => true,
+                        ]) ?>
+                    </ul>
             <?php else: ?>
-                <ul class="reading-lists-nav-ul js-reading-lists-sortable">
-                    <?php foreach ($reading_lists as $reading_list): ?>
-                        <?php
-                            $list_id = $reading_list->id;
-                            $list_title = $reading_list->title;
-                            $is_own_list = (int) $reading_list->user_id === (int) Yii::$app->user->id;
-                            $is_saved_list = in_array((int) $list_id, $saved_reading_list_ids ?? [], true);
-                            $list_description = trim((string) $reading_list->description);
-                            $list_description_title = $list_description !== ''
-                                ? $list_description
-                                : 'No description is provided for this reading list.';
-                        ?>
-                        <li class="toc-item reading-list-item-row <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'is-active' : '' ?>" data-list-id="<?= (int) $list_id ?>">
-                            <a class="toc-link reading-list-item-inline <?= (isset($current_reading_list) && $list_id == $current_reading_list->id) ? 'green-bip' : '' ?>" href="<?= Url::to(['readings/list/' . $list_id]) ?>">
-                                <span class="light-grey-link reading-list-drag-handle" title="Drag to reorder">
-                                    <i class="fa fa-bars" aria-hidden="true"></i>
-                                </span>
-                                <span class="reading-list-item-title"><?= Html::encode($list_title) ?></span>
-                            </a>
-                            <span class="reading-list-item-actions">
-                                <?php if (! $is_own_list && $is_saved_list): ?>
-                                    <span class="light-grey-link" title="Saved reading list">
-                                        <i class="fa-solid fa-user-group" aria-hidden="true"></i>
-                                    </span>
-                                <?php endif; ?>
-                                <span role="button" class="light-grey-link" data-toggle="popover" data-placement="auto" title="<b><?= Html::encode($list_title) ?></b>" data-content="<div><span class='green-bip'></span> <?= Html::encode($list_description_title) ?></div>">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </span>
-                                <?php if (! $is_own_list && $is_saved_list): ?>
-                                    <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
-                                        <input type="hidden" name="reading_list_id" value="<?= (int) $list_id ?>">
-                                        <button type="submit"
-                                                class="light-grey-link reading-inline-action-btn"
-                                                title="Unlink reading list"
-                                                onclick="return confirm('Unlink this reading list from your saved lists?');">
-                                            <i class="fa-solid fa-link-slash fa-xs" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
-                                <?php if ($is_own_list): ?>
-                                    <a href="<?= Url::to(['readings/delete-reading-list/', 'selected_list_id' => $list_id]) ?>"
-                                       class="light-grey-link"
-                                       title="Delete reading list"
-                                       onclick="return confirm('Are you sure you want to delete this reading list?');">
-                                        <i class="fa-solid fa-trash fa-xs" aria-hidden="true"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </span>
+                    <ul class="reading-lists-nav-ul">
+                        <li class="toc-item empty-reading-lists">
+                            <em>No lists yet.</em>
                         </li>
-                    <?php endforeach; ?>
-                </ul>
+                    </ul>
+            <?php endif; ?>
+            <h5 class="toc-heading reading-lists-toc-heading-row reading-lists-public-section-heading clearfix">
+                <span class="green-bip pull-left">
+                    Saved lists
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Saved lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you've saved.</div>">
+                        <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
+                    </span>
+                </span>
+            </h5>
+            <?php if ($hasSavedOthersReadingLists): ?>
+                    <ul class="reading-lists-nav-ul js-reading-lists-sortable" data-order-scope="linked">
+                        <?= $this->render('_reading_list_nav_items', [
+                            'reading_lists' => $saved_reading_lists_others,
+                            'saved_reading_list_ids' => $saved_reading_list_ids,
+                            'reading_list_owner_labels' => $reading_list_owner_labels ?? [],
+                            'current_reading_list' => $current_reading_list ?? null,
+                            'show_drag_handle' => true,
+                        ]) ?>
+                    </ul>
+            <?php else: ?>
+                    <ul class="reading-lists-nav-ul">
+                        <li class="toc-item empty-reading-lists">
+                            <em>No saved lists yet.</em>
+                        </li>
+                    </ul>
+            <?php endif; ?>
+            <?php if ($can_save_current_list && isset($current_reading_list)): ?>
+                <?= $this->render('_reading_list_nav_pending_add', [
+                    'current_reading_list' => $current_reading_list,
+                    'current_reading_list_owner_label' => $current_reading_list_owner_label,
+                ]) ?>
             <?php endif; ?>
         </div>
     </div>
