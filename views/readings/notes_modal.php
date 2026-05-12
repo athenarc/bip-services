@@ -40,7 +40,7 @@
 
         <div class="text-right">
             <span id="insights-loading" style="display:none; margin-left:10px;">
-                <i class="fa fa-spinner fa-pulse"></i> Processing... this may take a few minutes
+                <i class="fa fa-spinner fa-pulse"></i> Generating insights... this may take a few minutes
             </span>
             <button 
             type="button" 
@@ -50,7 +50,7 @@
             title=""
             disabled
             >
-            <i class="fa fa-magic"></i> Generate Insights
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Insights
             </button>
 
         </div>

@@ -96,14 +96,14 @@ $(document).ready(() => {
                         } else {
 
                             // No PDF available
-                            $('#generate-insights').attr('title', 'Cannot generate insights')
+                            $('#generate-insights').attr('title', 'Full text not available for this work')
                         }
                     },
                     error: function (xhr, status, error) {
 
 
                         //Error loading PDF
-                        $('#generate-insights').attr('title', 'Cannot generate insights')
+                        $('#generate-insights').attr('title', 'Full text not available for this work')
 
                     }
                 });
@@ -140,11 +140,14 @@ $(document).ready(() => {
                 _csrf: csrfToken,
             },
             success: function (data) {
-                // update notes icon if user saves empty/non-empty note
-                const new_icon = (ed_content === '') ? '<i class="fa-regular fa-pen-to-square"></i>' : '<i class="fa-solid fa-pen-to-square"></i>';
-                const new_msg = (ed_content === '') ? 'Add notes' : 'Edit notes'
-                $(`#notes-${paperId} > i`).replaceWith(new_icon);
-                $(`#notes-${paperId}`).text(new_msg);
+                // update notes icon + label after save (set as a single HTML
+                // string so the icon isn't wiped by a subsequent .text() call)
+                const isEmpty = (ed_content === '');
+                const new_icon = isEmpty
+                    ? '<i class="fa-regular fa-pen-to-square"></i>'
+                    : '<i class="fa-solid fa-pen-to-square"></i>';
+                const new_msg = isEmpty ? 'Add notes' : 'Edit notes';
+                $(`#notes-${paperId}`).html(`${new_icon} ${new_msg}`);
             },
             error: function (e) {
                 alert('There was an error processing your request!');
@@ -192,7 +195,7 @@ $(document).ready(() => {
             success: function (response) {
 
                 if (response.error) {
-                    alert('Cannot generate insights');
+                    alert('Full text not available for this work');
                     return;
                 }
 
@@ -218,7 +221,7 @@ $(document).ready(() => {
             },
 
             error: function () {
-                alert('Failed to generate insights. Please retry later');
+                alert("Couldn't generate insights right now. Please try again later.");
                 $('#generate-insights').prop('disabled', false);
 
             },
