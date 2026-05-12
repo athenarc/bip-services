@@ -346,7 +346,7 @@ $item = $this->context;
                 <!-- notes -->
                 <div class="flex-b-18 no-white-space text-center">
                     <?php
-                        echo Html::a((! empty($item->notes)) ? '<i class="fa-solid fa-pen-to-square"></i> Add notes' : '<i class="fa-regular fa-pen-to-square"></i> Add notes', Url::to(['readings/load-notes', 'paper_id' => $item->internal_id]), ['class' => 'show-notes btn btn-default btn-xs fs-inherit grey-link', 'id' => 'notes-' . $item->internal_id, 'title' => 'Notes on the article', 'data-toggle' => 'modal',  'data-target' => '#text-editor-modal']);
+                        echo Html::a((! empty($item->notes)) ? '<i class="fa-solid fa-pen-to-square"></i> Edit notes' : '<i class="fa-regular fa-pen-to-square"></i> Add notes', Url::to(['readings/load-notes', 'paper_id' => $item->internal_id]), ['class' => 'show-notes btn btn-default btn-xs fs-inherit grey-link', 'id' => 'notes-' . $item->internal_id, 'title' => 'Notes on the article', 'data-toggle' => 'modal',  'data-target' => '#text-editor-modal']);
                     ?>
                 </div>
             <?php endif; ?>

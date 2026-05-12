@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\AdminOptions;
 use app\models\AdminStats;
 use app\models\Article;
+use app\models\PmcPaperPids;
 use app\models\AuthorPaperFetcher;
 use app\models\ChangePasswordForm;
 use app\models\Concepts;
@@ -1352,6 +1353,57 @@ class SiteController extends BaseController {
         $doi = Yii::$app->request->get('doi');
 
         return Article::getPDFLink($doi);
+    }
+
+    public function actionGetPaperPdf()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $internal_id = Yii::$app->request->get('internal_id');
+
+        if (!$internal_id) {
+            return [
+                'success' => false,
+                'message' => 'Missing internal_id'
+            ];
+        }
+
+        // get all DOI entries for this paper
+        $doi_entries = PmcPaperPids::find()
+            ->where([
+                'paper_id' => $internal_id,
+                'pid_type' => 'doi'
+            ])
+            ->all();
+
+        if (empty($doi_entries)) {
+            return [
+                'success' => false,
+                'message' => 'No DOI found'
+            ];
+        }
+
+        // try each DOI until a working PDF is found
+        foreach ($doi_entries as $entry) {
+
+            $doi = $entry->doi;
+
+            $pdf_link = Article::getPDFLink($doi);
+
+            if (!empty($pdf_link) && Article::validatePDFLink($pdf_link)) {
+
+                return [
+                    'success' => true,
+                    'pdf_url' => $pdf_link,
+                    'doi' => $doi
+                ];
+            }
+        }
+
+        return [
+            'success' => false,
+            'message' => 'No PDF found'
+        ];
     }
 
     public function actionPaperRankings() {

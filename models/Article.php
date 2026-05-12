@@ -658,6 +658,39 @@ namespace app\models;
             return $pdf_link;
         }
 
+        public static function validatePDFLink($pdfUrl)
+        {
+            $ch = curl_init($pdfUrl);
+
+            curl_setopt($ch, CURLOPT_NOBODY, true); // HEAD request only
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+            // recommended
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+
+            curl_exec($ch);
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+            curl_close($ch);
+
+            if (
+                $httpCode === 200 &&
+                $contentType &&
+                (
+                    stripos($contentType, 'application/pdf') !== false ||
+                    stripos($contentType, 'application/octet-stream') !== false
+                )
+            ) {
+                return true;
+            }
+
+            return false;
+        }
+
         // DEPRECATED
         // public static function getMendeleyAccessToken() {
 
