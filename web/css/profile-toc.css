@@ -14,7 +14,7 @@
  * Readings: single top navbar (no ScholarNavbar). Title row sits above #reading-lists-toc-wrap
  * like profile — offset fixed TOC slightly less than 140px so it lines up with facet block top.
  */
-/* Wider than profile TOC — room for “Reading lists” + Save as new on one line */
+/* Wider than profile TOC — room for list headings + actions on one line */
 #reading-lists-toc-wrap .sidebar {
     width: 232px;
     top: 118px;
