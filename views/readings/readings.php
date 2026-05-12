@@ -156,7 +156,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
                             <button type="submit" class="grey-link reading-inline-action-btn">
                                 <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                Add to saved public lists
+                                Add to saved
                             </button>
                         </form>
                     </small>
@@ -165,7 +165,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <form method="POST" action="<?= Url::to(['readings/remove-saved-reading-list']) ?>" class="reading-inline-form">
                             <input type="hidden" name="reading_list_id" value="<?= (int) $current_reading_list->id ?>">
                             <button type="submit" class="grey-link reading-inline-action-btn">
-                                Remove from saved public lists
+                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                Remove from saved
                             </button>
                         </form>
                     </small>
@@ -226,7 +227,7 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         aria-expanded="false"
                         aria-controls="reading-lists-nav-collapse">
                     <i class="fa fa-list-ul" aria-hidden="true"></i>
-                    Readings &amp; Lists Menu
+                    Readings Menu
                 </button>
                 <div id="reading-lists-nav-collapse" class="collapse reading-lists-nav-compact-panel">
                     <div class="well well-sm reading-lists-nav-compact-well">
@@ -264,8 +265,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
                         <?php endif; ?>
                             <h5 class="toc-heading reading-lists-toc-heading-row reading-lists-public-section-heading clearfix">
                                 <span class="green-bip pull-left">
-                                    Public lists
-                                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Public lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you saved.</div>">
+                                    Saved lists
+                                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Saved lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you've saved.</div>">
                                         <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                                     </span>
                                 </span>
@@ -337,8 +338,8 @@ $renderFacetToggle = static function (int $itemsCount): string {
             <?php endif; ?>
             <h5 class="toc-heading reading-lists-toc-heading-row reading-lists-public-section-heading clearfix">
                 <span class="green-bip pull-left">
-                    Public lists
-                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Public lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you saved.</div>">
+                    Saved lists
+                    <span role="button" data-toggle="popover" data-placement="auto" title="<b>Saved lists</b>" data-content="<div><span class='green-bip'></span> Public lists from other researchers that you've saved.</div>">
                         <i class="fa fa-question-circle light-grey-link" aria-hidden="true"></i>
                     </span>
                 </span>

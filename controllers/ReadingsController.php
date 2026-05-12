@@ -165,20 +165,23 @@ class ReadingsController extends BaseController {
         }, $saved_links);
 
         $saved_reading_lists_ordered = [];
+
         if (! empty($saved_reading_list_ids)) {
             $lists_by_id = ReadingList::find()
                 ->where(['id' => $saved_reading_list_ids])
                 ->indexBy('id')
                 ->all();
+
             foreach ($saved_links as $link) {
                 $rid = (int) $link->reading_list_id;
                 $list = $lists_by_id[$rid] ?? null;
+
                 if ($list !== null && (int) $list->is_public === 1) {
                     $saved_reading_lists_ordered[] = $list;
                 } else {
                     $orphan = new \stdClass();
                     $orphan->id = $rid;
-                    $orphan->title = 'Deleted by the owner';
+                    $orphan->title = 'List deleted by owner';
                     $orphan->user_id = 0;
                     $orphan->description = '';
                     $orphan->is_orphan_saved = true;
@@ -192,6 +195,7 @@ class ReadingsController extends BaseController {
         }, $own_reading_lists);
 
         $saved_reading_lists_others = [];
+
         foreach ($saved_reading_lists_ordered as $saved_list) {
             if (! in_array((int) $saved_list->id, $own_reading_list_ids, true)) {
                 $saved_reading_lists_others[] = $saved_list;
@@ -199,8 +203,10 @@ class ReadingsController extends BaseController {
         }
 
         $reading_list_owner_labels = [];
+
         if (! empty($saved_reading_lists_others)) {
             $ownerUserIds = [];
+
             foreach ($saved_reading_lists_others as $list) {
                 if (! empty($list->is_orphan_saved)) {
                     continue;
@@ -214,6 +220,7 @@ class ReadingsController extends BaseController {
                     ->indexBy('id')
                     ->all()
                 : [];
+
             foreach ($ownerUserIds as $uid) {
                 $ownerUser = $usersById[$uid] ?? null;
                 $reading_list_owner_labels[$uid] = ($ownerUser && ! empty($ownerUser->username))
@@ -231,8 +238,10 @@ class ReadingsController extends BaseController {
             ! $is_current_list_saved;
 
         $current_reading_list_owner_label = null;
+
         if (isset($current_reading_list) && (int) $current_reading_list->user_id !== (int) $viewer_user_id) {
             $ownerListUserId = (int) $current_reading_list->user_id;
+
             if (isset($reading_list_owner_labels[$ownerListUserId])) {
                 $current_reading_list_owner_label = $reading_list_owner_labels[$ownerListUserId];
             } else {
@@ -304,6 +313,7 @@ class ReadingsController extends BaseController {
 
     public function actionSaveSharedReadingList() {
         $user_id = Yii::$app->user->id;
+
         if (! isset($user_id)) {
             Url::remember();
 
@@ -339,6 +349,7 @@ class ReadingsController extends BaseController {
 
     public function actionRemoveSavedReadingList() {
         $user_id = Yii::$app->user->id;
+
         if (! isset($user_id)) {
             Url::remember();
 
@@ -355,7 +366,18 @@ class ReadingsController extends BaseController {
             $saved_reading_list->delete();
         }
 
-        return $this->redirect(['readings/list/' . $reading_list_id]);
+        // if the list is no longer accessible to the viewer (privated or
+        // deleted by the owner), redirect back to the default readings view
+        // instead of triggering a 404 on the now-removed/private page
+        $reading_list = ReadingList::findOne(['id' => $reading_list_id]);
+        $can_view_list = $reading_list && (
+            (int) $reading_list->user_id === (int) $user_id ||
+            (int) $reading_list->is_public === 1
+        );
+
+        return $can_view_list
+            ? $this->redirect(['readings/list/' . $reading_list_id])
+            : $this->redirect(['readings/list']);
     }
 
     public function actionDeleteReadingList() {
@@ -395,25 +417,31 @@ class ReadingsController extends BaseController {
 
     public function actionAjaxUpdateReadingListsOrder() {
         $user_id = Yii::$app->user->id;
+
         if (! isset($user_id)) {
             throw new \yii\web\UnauthorizedHttpException('Unauthorized');
         }
 
         $ordered_ids = Yii::$app->request->post('ordered_ids', []);
+
         if (! is_array($ordered_ids)) {
             throw new \yii\web\BadRequestHttpException('Invalid payload.');
         }
 
         $scope = Yii::$app->request->post('order_scope', 'own');
+
         if ($scope === 'linked') {
             $position = 1;
+
             foreach ($ordered_ids as $list_id) {
                 $list_id = (int) $list_id;
+
                 if ($list_id <= 0) {
                     continue;
                 }
 
                 $reading_list = ReadingList::findOne(['id' => $list_id, 'is_public' => 1]);
+
                 if (! $reading_list || (int) $reading_list->user_id === (int) $user_id) {
                     continue;
                 }
@@ -422,14 +450,17 @@ class ReadingsController extends BaseController {
                     ['sort_order' => $position],
                     ['user_id' => $user_id, 'reading_list_id' => $list_id]
                 );
+
                 if ($updated > 0) {
                     $position++;
                 }
             }
         } else {
             $position = 1;
+
             foreach ($ordered_ids as $list_id) {
                 $list_id = (int) $list_id;
+
                 if ($list_id <= 0) {
                     continue;
                 }
@@ -443,6 +474,7 @@ class ReadingsController extends BaseController {
         }
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
         return ['success' => true];
     }
 

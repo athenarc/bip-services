@@ -5,7 +5,6 @@ use yii\helpers\Url;
 
 /** @var \app\models\ReadingList $current_reading_list */
 /** @var string|null $current_reading_list_owner_label */
-
 $list_id = (int) $current_reading_list->id;
 $list_title = $current_reading_list->title;
 $list_description = trim((string) $current_reading_list->description);
@@ -37,7 +36,7 @@ $owner_hover = $owner_label !== ''
                 <input type="hidden" name="reading_list_id" value="<?= $list_id ?>">
                 <button type="submit"
                         class="light-grey-link reading-inline-action-btn"
-                        title="Add to saved public lists">
+                        title="Add to saved">
                     <i class="fa-solid fa-plus fa-xs" aria-hidden="true"></i>
                 </button>
             </form>
