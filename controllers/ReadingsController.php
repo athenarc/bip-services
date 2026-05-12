@@ -112,13 +112,6 @@ class ReadingsController extends BaseController {
             $types = Yii::$app->request->get('types');
         }
 
-        // redirect to login page, if not already logged in
-        if (! isset($viewer_user_id)) {
-            Url::remember();
-
-            return $this->redirect(['site/login']);
-        }
-
         // replace empty access with null, indicating unknown
         if (! empty($accesses)) {
             $accesses = array_map(function ($r) { return ($r === '') ? null : $r; }, $accesses);
@@ -150,16 +143,21 @@ class ReadingsController extends BaseController {
         // attach code repository URLs
         $result['papers'] = Article::getCodeRepoUrls($result['papers']);
 
-        // find all own reading lists of the currently logged-in user
-        $own_reading_lists = ReadingList::find()
-            ->where(['user_id' => $viewer_user_id])
-            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])
-            ->all();
+        // for guest viewers (public list page), there are no own or saved lists
+        // and the sidebar is hidden in the view, so skip the user-scoped queries
+        $own_reading_lists = isset($viewer_user_id)
+            ? ReadingList::find()
+                ->where(['user_id' => $viewer_user_id])
+                ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])
+                ->all()
+            : [];
 
-        $saved_links = SavedReadingList::find()
-            ->where(['user_id' => $viewer_user_id])
-            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
-            ->all();
+        $saved_links = isset($viewer_user_id)
+            ? SavedReadingList::find()
+                ->where(['user_id' => $viewer_user_id])
+                ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
+                ->all()
+            : [];
         $saved_reading_list_ids = array_map(function ($link) {
             return (int) $link->reading_list_id;
         }, $saved_links);
@@ -232,7 +230,8 @@ class ReadingsController extends BaseController {
         // edit permissions are granted if no reading list is provided OR the user is the owner of the reading list
         $edit_perm = (isset($current_reading_list) && ($current_reading_list->user_id === $viewer_user_id)) || ! isset($current_reading_list);
         $is_current_list_saved = isset($current_reading_list) && in_array((int) $current_reading_list->id, $saved_reading_list_ids, true);
-        $can_save_current_list = isset($current_reading_list) &&
+        $can_save_current_list = isset($viewer_user_id) &&
+            isset($current_reading_list) &&
             ! $edit_perm &&
             (int) $current_reading_list->is_public === 1 &&
             ! $is_current_list_saved;
@@ -440,20 +439,25 @@ class ReadingsController extends BaseController {
                     continue;
                 }
 
-                $reading_list = ReadingList::findOne(['id' => $list_id, 'is_public' => 1]);
+                // skip lists owned by this user; they cannot legitimately
+                // appear in the "saved (linked)" scope. Privated and orphan
+                // entries (owner deleted the underlying list) are intentionally
+                // persisted here so the user's drag order survives.
+                $reading_list = ReadingList::findOne(['id' => $list_id]);
 
-                if (! $reading_list || (int) $reading_list->user_id === (int) $user_id) {
+                if ($reading_list && (int) $reading_list->user_id === (int) $user_id) {
                     continue;
                 }
 
-                $updated = SavedReadingList::updateAll(
+                // always advance position so values stay distinct even when
+                // the saved row already had the target sort_order (MariaDB's
+                // UPDATE returns 0 changed rows in that case, so we can't rely
+                // on updateAll's return value to gate the increment).
+                SavedReadingList::updateAll(
                     ['sort_order' => $position],
                     ['user_id' => $user_id, 'reading_list_id' => $list_id]
                 );
-
-                if ($updated > 0) {
-                    $position++;
-                }
+                $position++;
             }
         } else {
             $position = 1;
