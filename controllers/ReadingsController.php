@@ -536,6 +536,37 @@ class ReadingsController extends BaseController {
         Notes::updateNotes($user_id, $paper_id, $notes_value);
     }
 
+    public function actionGenerateInsights() {
+        set_time_limit(300);
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $pdf_url = Yii::$app->request->post('pdf_url');
+
+
+        $client = new \yii\httpclient\Client();
+
+        $response = $client->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://insightguide-api.imsi.athenarc.gr/api/process-pdf-url/')
+            ->setHeaders(['Content-Type' => 'application/json'])
+            ->setOptions([
+                CURLOPT_TIMEOUT => 300,
+                CURLOPT_CONNECTTIMEOUT => 30,
+            ])
+            ->setContent(json_encode([
+                'pdf_url' =>  $pdf_url
+            ]))
+            ->send();
+
+        if ($response->isOk) {
+            return $response->data;
+        }
+
+        return [
+        'error' => true,
+        ];
+    }
+
     //####################################################################################################################
     //#                                           OLD (DEPRECATED) FAVORITES ACTIONS                                    ##
     //####################################################################################################################
