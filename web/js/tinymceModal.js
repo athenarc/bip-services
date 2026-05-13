@@ -199,21 +199,15 @@ $(document).ready(() => {
                     return;
                 }
 
-                const insightsText = response.insights || '';
 
-                if (insightsText !== '') {
+                if (String(response.insights).trim()) {
 
-                    const currentContent = ed.getContent();
-
-                    const formatted = `
+                    ed.insertContent(`
                         <hr>
                         <h3>Generated Insights</h3>
-                        <div class="ai-insights">
-                            ${insightsText.replace(/\n/g, '<br>')}
-                        </div>
-                    `;
+                        ${response.insights_html}
+                    `);
 
-                    ed.setContent(currentContent + formatted);
                 }
 
                 $('#generate-insights').prop('disabled', false);

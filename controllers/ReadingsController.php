@@ -18,6 +18,7 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
+use yii\helpers\Markdown;
 
 class ReadingsController extends BaseController {
     public $enableCsrfValidation = false;
@@ -559,7 +560,15 @@ class ReadingsController extends BaseController {
             ->send();
 
         if ($response->isOk) {
-            return $response->data;
+
+            $data = $response->data;
+
+            if (isset($data['insights'])) {
+
+                $data['insights_html'] = Markdown::process(trim(str_replace('\n', "\n", $data['insights'])));
+            }
+
+            return $data;
         }
 
         return [
